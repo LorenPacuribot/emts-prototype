@@ -1,0 +1,91 @@
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Roboto:wght@400;500;700;900&display=swap");
+@import "tailwindcss";
+
+/*
+  Design tokens copied from the live app.
+  "primary" is the blue used for buttons, active nav items and links.
+  The brand palette (purple, green, etc.) comes from packages/ui/src/color-palette.ts.
+*/
+@theme {
+  --font-sans: "Roboto", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "Manrope", "Roboto", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Manrope", "Roboto", ui-sans-serif, system-ui, sans-serif;
+
+  --color-primary-50: #eff6ff;
+  --color-primary-100: #dbeafe;
+  --color-primary-200: #bfdbfe;
+  --color-primary-300: #93c5fd;
+  --color-primary-400: #60a5fa;
+  --color-primary-500: #3b82f6;
+  --color-primary-600: #2563eb;
+  --color-primary-700: #1d4ed8;
+  --color-primary-800: #1e40af;
+  --color-primary-900: #1e3a8a;
+
+  --color-brand-purple: #7a5fff;
+  --color-brand-green: #5ed4b2;
+  --color-brand-yellow: #ead94c;
+  --color-brand-red: #d62839;
+  --color-brand-orange: #ff9f1c;
+
+  --text-xxs: 0.625rem;
+  --text-xxs--line-height: 0.875rem;
+
+  /* Tokens used by the feature screens in features/ (same live palette). */
+  --color-brand: #2563eb;
+  --color-brand-dark: #1d4ed8;
+  --color-brand-soft: #eff6ff;
+  --color-ink: #111827;
+  --color-line: #e5e7eb;
+  --color-canvas: #f9fafb;
+
+  --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.05);
+
+  --animate-in-fade: in-fade 150ms ease-out;
+  --animate-in-pop: in-pop 160ms ease-out;
+  --animate-in-slide: in-slide 200ms ease-out;
+}
+
+@keyframes in-fade { from { opacity: 0 } to { opacity: 1 } }
+@keyframes in-pop { from { opacity: 0; transform: translate(-50%, -48%) scale(0.98) } to { opacity: 1; transform: translate(-50%, -50%) scale(1) } }
+@keyframes in-slide { from { transform: translateX(24px); opacity: 0 } to { transform: translateX(0); opacity: 1 } }
+
+/* Feature toasts use the pop animation without the modal centering transform. */
+[aria-live] .animate-in-pop { animation: in-fade 160ms ease-out; }
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  html,
+  body {
+    @apply bg-gray-50 text-gray-900 font-sans antialiased;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-heading;
+  }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@utility custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #d1d5db transparent;
+}
+
+@media print {
+  .print\:hidden {
+    display: none !important;
+  }
+}

@@ -1,0 +1,428 @@
+'use client';
+
+/*
+  Settings > Surface Rates.
+  Labor production rates (units painted per hour) for each surface,
+  grouped by category ("Interior Walls", "Trim & Molding"...). Each group
+  is a card with a table: Item Name, Unit, Base Rate (1st coat), Actions.
+
+  Groups live in the `rateGroups` collection so empty groups persist.
+  A surface rate links to its group by name (SurfaceRate.rateGroup), so
+  renaming a group also renames it on every rate in that group.
+
+  NEW (feature 30): below the groups, the rate versions that Estimating
+  Feedback maintains (features/components/features/settings/rate-versions-section.tsx).
+*/
+import { useEffect, useMemo, useState } from 'react';
+import { Edit2, Plus, Trash2, Wand2 } from 'lucide-react';
+import { SettingsPage } from '@/components/settings/SettingsSidebar';
+import { Button } from '@/components/ui/button';
+import { Field, Input, Label, Select, Switch } from '@/components/ui/form';
+import { RowMenu } from '@/components/ui/menu';
+import { useToast } from '@/components/ui/toast';
+import { ConfirmDialog, Modal } from '@/components/Modals/Modal';
+import { useCollection } from '@/lib/store';
+import type { RateGroup, SurfaceRate } from '@/lib/types';
+import { cn } from '@/lib/utils';
+import { RateVersionsSection } from '@/features/components/features/settings/rate-versions-section';
+import { CardKebab, FieldError, LibraryToolbar, NoMatches, UNIT_LABELS, nextSort, num } from './ui';
+
+const SORTS = [
+  { label: 'Sort by Name (A-Z)', value: 'name' },
+  { label: 'Sort by Unit Type', value: 'unitType' },
+  { label: 'Sort by Category', value: 'category' },
+];
+
+const UNIT_OPTIONS = [
+  { label: 'SqFt', value: 'sqft' },
+  { label: 'LnFt', value: 'lnft' },
+  { label: 'Item', value: 'each' },
+];
+
+export const FORMULA_OPTIONS = [
+  { label: 'L × H — single wall', value: 'LENGTH_X_HEIGHT' },
+  { label: 'L × W — ceiling, floor', value: 'LENGTH_X_WIDTH' },
+  { label: '2(L+W) × H — all walls in a room', value: 'PERIMETER_X_HEIGHT' },
+  { label: '2(L+W) — baseboard, crown molding', value: 'PERIMETER' },
+  { label: 'L — single linear element (trim)', value: 'LENGTH' },
+  { label: 'No auto-calculation (manual entry)', value: 'NONE' },
+];
+
+export function SurfaceRatesView() {
+  const rates = useCollection('surfaceRates');
+  const groups = useCollection('rateGroups');
+  const { toast } = useToast();
+  const [search, setSearch] = useState('');
+  const [sort, setSort] = useState('name');
+
+  // Rate modal state
+  const [rateOpen, setRateOpen] = useState(false);
+  const [editingRate, setEditingRate] = useState<SurfaceRate | null>(null);
+  const [defaultGroup, setDefaultGroup] = useState<string | undefined>();
+  const [deletingRate, setDeletingRate] = useState<SurfaceRate | null>(null);
+  // Group modal state
+  const [groupOpen, setGroupOpen] = useState(false);
+  const [editingGroup, setEditingGroup] = useState<RateGroup | null>(null);
+  const [deletingGroup, setDeletingGroup] = useState<RateGroup | null>(null);
+
+  // Any rate whose group name has no matching group record shows under that name too.
+  const allGroups = useMemo(() => {
+    const list = [...groups.items].sort((a, b) => a.sortOrder - b.sortOrder);
+    const names = new Set(list.map((g) => g.name));
+    rates.items.forEach((r) => {
+      const name = r.rateGroup || 'Ungrouped';
+      if (!names.has(name)) {
+        names.add(name);
+        list.push({ id: `orphan_${name}`, name, sortOrder: 999 });
+      }
+    });
+    return list;
+  }, [groups.items, rates.items]);
+
+  const itemsFor = (group: RateGroup) => {
+    const q = search.trim().toLowerCase();
+    const list = rates.items.filter((r) => (r.rateGroup || 'Ungrouped') === group.name && r.name.toLowerCase().includes(q));
+    return [...list].sort((a, b) => (sort === 'unitType' ? a.unit.localeCompare(b.unit) || a.name.localeCompare(b.name) : a.name.localeCompare(b.name)));
+  };
+
+  const orderedGroups = sort === 'category' ? [...allGroups].sort((a, b) => a.name.localeCompare(b.name)) : allGroups;
+  const hasResults = orderedGroups.some((g) => itemsFor(g).length > 0);
+
+  const openAddRate = (groupName?: string) => {
+    setEditingRate(null);
+    setDefaultGroup(groupName);
+    setRateOpen(true);
+  };
+
+  const saveGroup = (name: string) => {
+    const clash = allGroups.find((g) => g.name.toLowerCase() === name.toLowerCase() && g.id !== editingGroup?.id);
+    if (clash) return 'A group with this name already exists';
+    if (editingGroup) {
+      const old = editingGroup.name;
+      if (editingGroup.id.startsWith('orphan_')) groups.add({ name, sortOrder: nextSort(groups.items) });
+      else groups.update(editingGroup.id, { name });
+      rates.items.filter((r) => r.rateGroup === old).forEach((r) => rates.update(r.id, { rateGroup: name }));
+      toast('Group updated successfully');
+    } else {
+      groups.add({ name, sortOrder: nextSort(groups.items) });
+      toast('Group created successfully');
+    }
+    setGroupOpen(false);
+    return undefined;
+  };
+
+  return (
+    <SettingsPage
+      title="Surface Rates"
+      subtitle="Define your labor efficiency organized by category."
+      actions={
+        <>
+          <Button variant="secondary" icon={<Plus className="h-4 w-4" />} onClick={() => { setEditingGroup(null); setGroupOpen(true); }}>Add Group</Button>
+          <Button icon={<Plus className="h-4 w-4" />} onClick={() => openAddRate()}>Add Surface Rate</Button>
+        </>
+      }
+    >
+      <LibraryToolbar search={search} onSearch={setSearch} placeholder="Search surface rates..." sort={sort} onSort={setSort} sortOptions={SORTS} />
+
+      {allGroups.length === 0 ? (
+        <div className="rounded-2xl border border-gray-100 bg-white py-16 text-center">
+          <Plus className="mx-auto mb-4 h-12 w-12 text-gray-300" />
+          <h3 className="mb-2 text-lg font-semibold text-gray-900">No Surface Rates Yet</h3>
+          <p className="mb-6 text-gray-500">Start by adding a group to organize your surface rates.</p>
+          <div className="flex justify-center gap-3">
+            <Button variant="secondary" icon={<Plus className="h-4 w-4" />} onClick={() => { setEditingGroup(null); setGroupOpen(true); }}>Add Group</Button>
+            <Button icon={<Plus className="h-4 w-4" />} onClick={() => openAddRate()}>Add Surface Rate</Button>
+          </div>
+        </div>
+      ) : search && !hasResults ? (
+        <NoMatches>No surface rates found matching &quot;{search}&quot;.</NoMatches>
+      ) : (
+        <div className="space-y-7">
+          {orderedGroups.map((group) => {
+            const list = itemsFor(group);
+            if (search && list.length === 0) return null;
+            return (
+              <section key={group.id} className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-lg shadow-gray-200/70">
+                <div className="flex items-center justify-between gap-4 border-b border-gray-100 bg-gray-50/50 px-6 py-4">
+                  <h3 className="font-heading text-base font-bold text-gray-900">{group.name}</h3>
+                  <div className="flex items-center gap-2">
+                    <Button size="xs" variant="secondary" icon={<Plus className="h-3 w-3" />} className="text-[10px]" onClick={() => openAddRate(group.name)}>Add Item</Button>
+                    <RowMenu
+                      items={[
+                        { label: 'Edit Group', icon: <Edit2 />, onClick: () => { setEditingGroup(group); setGroupOpen(true); } },
+                        { label: 'Delete Group', icon: <Trash2 />, danger: true, onClick: () => setDeletingGroup(group) },
+                      ]}
+                    />
+                  </div>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full min-w-[600px]">
+                    <thead>
+                      <tr className="border-b border-gray-100 text-left text-[9px] font-bold uppercase tracking-wider text-gray-500">
+                        <th className="w-1/3 px-6 py-3">Item Name</th>
+                        <th className="px-6 py-3">Unit</th>
+                        <th className="px-6 py-3">Base Rate (1st Coat)</th>
+                        <th className="px-6 py-3 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {list.map((r) => (
+                        <tr key={r.id} className="transition-colors hover:bg-primary-50/20">
+                          <td className="px-6 py-4 text-sm font-bold text-gray-900">{r.name}</td>
+                          <td className="px-6 py-4">
+                            <span className="rounded-md border border-gray-200 bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-gray-600">{UNIT_LABELS[r.unit] ?? r.unit}</span>
+                          </td>
+                          <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                            {r.rateCoat1 || 0} <span className="text-xs text-gray-400">/hr</span>
+                          </td>
+                          <td className="px-6 py-4 text-right">
+                            <CardKebab onEdit={() => { setEditingRate(r); setRateOpen(true); }} onDelete={() => setDeletingRate(r)} />
+                          </td>
+                        </tr>
+                      ))}
+                      {list.length === 0 && (
+                        <tr>
+                          <td colSpan={4} className="px-6 py-8 text-center text-sm italic text-gray-400">No surface rates found in this group.</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+            );
+          })}
+        </div>
+      )}
+
+      <RateVersionsSection />
+
+      <SurfaceRateModal
+        open={rateOpen}
+        onOpenChange={setRateOpen}
+        rate={editingRate}
+        groupNames={allGroups.map((g) => g.name)}
+        defaultGroup={defaultGroup}
+        onSave={(data) => {
+          if (editingRate) {
+            rates.update(editingRate.id, data);
+            toast('Surface rate updated successfully');
+          } else {
+            rates.add({ ...data, sortOrder: nextSort(rates.items) });
+            toast('Surface rate created successfully');
+          }
+          setRateOpen(false);
+        }}
+        onDelete={editingRate ? () => { setRateOpen(false); setDeletingRate(editingRate); } : undefined}
+      />
+      <GroupModal open={groupOpen} onOpenChange={setGroupOpen} group={editingGroup} onSave={saveGroup} />
+
+      <ConfirmDialog
+        open={!!deletingRate}
+        onOpenChange={(o) => !o && setDeletingRate(null)}
+        title="Delete Surface Rate"
+        message={`Are you sure you want to delete "${deletingRate?.name}"? This action cannot be undone.`}
+        onConfirm={() => {
+          if (deletingRate) rates.remove(deletingRate.id);
+          toast('Surface rate deleted successfully');
+        }}
+      />
+      <ConfirmDialog
+        open={!!deletingGroup}
+        onOpenChange={(o) => !o && setDeletingGroup(null)}
+        title="Delete Group"
+        message={`Are you sure you want to delete "${deletingGroup?.name}"? All surface rates in this group will also be deleted. This action cannot be undone.`}
+        onConfirm={() => {
+          if (!deletingGroup) return;
+          rates.items.filter((r) => (r.rateGroup || 'Ungrouped') === deletingGroup.name).forEach((r) => rates.remove(r.id));
+          if (!deletingGroup.id.startsWith('orphan_')) groups.remove(deletingGroup.id);
+          toast('Group deleted successfully');
+        }}
+      />
+    </SettingsPage>
+  );
+}
+
+/* ---------- Group modal ---------- */
+
+function GroupModal({ open, onOpenChange, group, onSave }: { open: boolean; onOpenChange: (o: boolean) => void; group: RateGroup | null; onSave: (name: string) => string | undefined }) {
+  const [name, setName] = useState('');
+  const [error, setError] = useState('');
+  useEffect(() => {
+    if (open) { setName(group?.name ?? ''); setError(''); }
+  }, [open, group]);
+  const submit = () => {
+    if (!name.trim()) return setError('Category name is required');
+    const err = onSave(name.trim());
+    if (err) setError(err);
+  };
+  return (
+    <Modal open={open} onOpenChange={onOpenChange} title={group ? 'Edit Group' : 'Add Group'} size="md">
+      <div className="space-y-5">
+        <Field label="Category Name" required error={error}>
+          <Input value={name} invalid={!!error} onChange={(e) => { setName(e.target.value); setError(''); }} placeholder="e.g. Metal Surfaces" onKeyDown={(e) => e.key === 'Enter' && submit()} />
+        </Field>
+        <Button className="w-full justify-center" onClick={submit}>{group ? 'Update Group' : 'Create Group'}</Button>
+      </div>
+    </Modal>
+  );
+}
+
+/* ---------- Surface rate modal ---------- */
+
+type RateForm = Omit<SurfaceRate, 'id' | 'sortOrder'>;
+
+function SurfaceRateModal({
+  open, onOpenChange, rate, groupNames, defaultGroup, onSave, onDelete,
+}: {
+  open: boolean;
+  onOpenChange: (o: boolean) => void;
+  rate: SurfaceRate | null;
+  groupNames: string[];
+  defaultGroup?: string;
+  onSave: (d: RateForm) => void;
+  onDelete?: () => void;
+}) {
+  // Coats 2-4 are optional in the form; empty means "same as the previous coat".
+  const [form, setForm] = useState<RateForm>(blankRate(''));
+  const [coats, setCoats] = useState<(string)[]>(['', '', '']);
+  const [multOn, setMultOn] = useState(false);
+  const [mult, setMult] = useState({ coat2: 1.25, coat3: 1.35, coat4: 1.5 });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    if (!open) return;
+    if (rate) {
+      setForm({ ...rate, amountFormula: rate.amountFormula ?? 'LENGTH_X_HEIGHT' });
+      setCoats([rate.rateCoat2, rate.rateCoat3, rate.rateCoat4].map((n) => (n ? String(n) : '')));
+    } else {
+      setForm(blankRate(defaultGroup ?? groupNames[0] ?? ''));
+      setCoats(['', '', '']);
+    }
+    setMultOn(false);
+    setErrors({});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, rate]);
+
+  const unit = UNIT_LABELS[form.unit] ?? 'SqFt';
+
+  const applyMult = (base: number, m = mult) => {
+    setForm((f) => ({ ...f, rateCoat1: base }));
+    setCoats([m.coat2, m.coat3, m.coat4].map((x) => String(Math.round(base * x))));
+  };
+
+  const submit = () => {
+    const e: Record<string, string> = {};
+    if (!form.name.trim()) e.name = 'Name is required';
+    if (!form.rateGroup) e.rateGroup = 'Rate group is required';
+    if (!(form.defaultCoats >= 1 && form.defaultCoats <= 4)) e.defaultCoats = 'Default coats must be between 1 and 4';
+    if (!(form.rateCoat1 > 0)) e.rateCoat1 = 'Rate must be greater than 0';
+    setErrors(e);
+    if (Object.keys(e).length) return;
+    const c2 = num(coats[0]!, form.rateCoat1);
+    const c3 = num(coats[1]!, c2);
+    const c4 = num(coats[2]!, c3);
+    onSave({ ...form, name: form.name.trim(), rateCoat2: c2, rateCoat3: c3, rateCoat4: c4, useMultipliers: form.useMultipliers });
+  };
+
+  return (
+    <Modal open={open} onOpenChange={onOpenChange} title={rate ? 'Edit Surface Rate' : 'Add Surface Rate'} size="lg">
+      <div className="space-y-5">
+        <Field label="Surface Rate Name" required error={errors.name}>
+          <Input value={form.name} invalid={!!errors.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Enter name..." />
+        </Field>
+        <div>
+          <Field label="Category" required>
+            <Select value={form.rateGroup} onChange={(v) => setForm({ ...form, rateGroup: v })} options={groupNames.map((g) => ({ label: g, value: g }))} placeholder="Select a category..." invalid={!!errors.rateGroup} />
+          </Field>
+          <FieldError>{errors.rateGroup}</FieldError>
+        </div>
+        <Field label="Formula" required>
+          <Select value={form.amountFormula} onChange={(v) => setForm({ ...form, amountFormula: v })} options={FORMULA_OPTIONS} placeholder="Select a formula..." />
+        </Field>
+        <div className="grid grid-cols-2 gap-5">
+          <Field label="Unit Type" required>
+            <Select value={form.unit} onChange={(v) => setForm({ ...form, unit: v as SurfaceRate['unit'] })} options={UNIT_OPTIONS} />
+          </Field>
+          <Field label="Default Coats" required error={errors.defaultCoats}>
+            <Input type="number" min={1} max={4} value={form.defaultCoats} onChange={(e) => setForm({ ...form, defaultCoats: parseInt(e.target.value) || 2 })} />
+          </Field>
+        </div>
+
+        <div className="space-y-3 rounded-xl border border-gray-100 bg-gray-50 p-4">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Efficiency Rates ({unit}/hr)</span>
+            <div className="flex items-center gap-2">
+              <Wand2 className={cn('h-3 w-3', multOn ? 'text-indigo-600' : 'text-gray-400')} />
+              <span className={cn('text-[10px] font-bold uppercase tracking-wider', multOn ? 'text-indigo-600' : 'text-gray-400')}>Multiplier</span>
+              <Switch
+                checked={multOn}
+                label="Use multipliers"
+                onChange={(v) => {
+                  setMultOn(v);
+                  setForm((f) => ({ ...f, useMultipliers: v }));
+                  if (v) applyMult(form.rateCoat1);
+                }}
+              />
+            </div>
+          </div>
+
+          {multOn ? (
+            <div className="space-y-4 rounded-xl border border-indigo-100 bg-indigo-50 p-3">
+              <Field label="Coat 1 (Base Rate)">
+                <Input type="number" min={0} value={form.rateCoat1} onChange={(e) => applyMult(num(e.target.value))} />
+              </Field>
+              <div className="grid grid-cols-3 gap-3">
+                {(['coat2', 'coat3', 'coat4'] as const).map((k, i) => (
+                  <div key={k}>
+                    <Label>{`Coat ${i + 2}${i === 2 ? '+' : ''} Mult.`}</Label>
+                    <Input
+                      type="number"
+                      step={0.05}
+                      value={mult[k]}
+                      onChange={(e) => {
+                        const next = { ...mult, [k]: num(e.target.value, 1) };
+                        setMult(next);
+                        applyMult(form.rateCoat1, next);
+                      }}
+                    />
+                    <div className="mt-1 text-[10px] font-bold text-indigo-700">= {Math.round(form.rateCoat1 * mult[k])}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+              <div>
+                <Label required>1st Coat</Label>
+                <Input type="number" min={0} value={form.rateCoat1 || ''} invalid={!!errors.rateCoat1} onChange={(e) => setForm({ ...form, rateCoat1: num(e.target.value) })} onClear={() => setForm({ ...form, rateCoat1: 0 })} placeholder="Required" />
+              </div>
+              {['2nd Coat', '3rd Coat', '4th Coat'].map((label, i) => (
+                <div key={label}>
+                  <Label>{label}</Label>
+                  <Input type="number" min={0} value={coats[i]} onChange={(e) => setCoats((c) => c.map((x, j) => (j === i ? e.target.value : x)))} placeholder="Optional" />
+                </div>
+              ))}
+            </div>
+          )}
+          <FieldError>{errors.rateCoat1}</FieldError>
+        </div>
+
+        <div className="flex gap-3 pt-1">
+          {onDelete && (
+            <Button variant="danger" className="px-4" onClick={onDelete} aria-label="Delete rate">
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          )}
+          <Button className="flex-1 justify-center" onClick={submit}>Save Surface Rate</Button>
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
+function blankRate(group: string): RateForm {
+  return {
+    name: '', rateGroup: group, unit: 'sqft', defaultCoats: 2,
+    rateCoat1: 150, rateCoat2: 0, rateCoat3: 0, rateCoat4: 0, useMultipliers: false, amountFormula: 'LENGTH_X_HEIGHT',
+  };
+}
