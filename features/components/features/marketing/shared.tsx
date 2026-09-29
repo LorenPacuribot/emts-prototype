@@ -19,7 +19,7 @@ export const POST_STATE: Record<PostState, { label: string; tone: Tone; dot: str
   published: { label: "Published", tone: "green", dot: "bg-green-500" },
   missed: { label: "Missed", tone: "amber", dot: "bg-amber-500" },
   partially_failed: { label: "Partially failed", tone: "red", dot: "bg-red-500" },
-  cancelled: { label: "Cancelled", tone: "gray", dot: "bg-gray-300" },
+  cancelled: { label: "Canceled", tone: "gray", dot: "bg-gray-300" },
 };
 
 export function PostStateBadge({ state }: { state: PostState }) {

@@ -186,7 +186,7 @@ function OrderBody({ po }: { po: PurchaseOrder }) {
                     <div className="mt-1.5 grid grid-cols-2 gap-x-4 gap-y-1 text-xs sm:grid-cols-4">
                       <span>Received <strong className="text-ink">{l.receivedGal}</strong></span>
                       <span>Unfilled <strong className={open > 0 && po.ackAt ? "text-amber-700" : "text-ink"}>{Math.max(0, open).toFixed(2)}</strong></span>
-                      <span>Cancelled <strong className="text-ink">{l.cancelledGal}</strong></span>
+                      <span>Canceled <strong className="text-ink">{l.cancelledGal}</strong></span>
                       <span>Returned <strong className="text-ink">{l.returnedGal}</strong></span>
                       {perms.seePrices && <span className="col-span-2">Amount <strong className="text-ink">{money(lineValue(l))}</strong> ({money(l.unitCostPerGal)}/gal)</span>}
                     </div>
@@ -415,7 +415,7 @@ function AckPanel({ po, onCall, onUncertain }: { po: PurchaseOrder; onCall: () =
   const nowIso = now();
   const ex = ackException(po, [], nowIso);
   const submit = () => {
-    if (run(act(acknowledgeOrder, po.id, { method, reference, employee, time: time ? new Date(time).toISOString() : undefined }))) toast.success("Acknowledged", "Quantities now count as purchased (Rule 2).");
+    if (run(act(acknowledgeOrder, po.id, { method, reference, employee, time: time ? new Date(time).toISOString() : undefined }))) toast.success("Acknowledged", "Quantities now count as purchased.");
   };
   return (
     <div className="rounded-xl border border-line p-4">

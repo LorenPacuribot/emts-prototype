@@ -1,6 +1,6 @@
 "use client";
 /**
- * Component 18.4 — Quantity State And Balance Panel. Implements Cross-Feature
+ * Component 18.4 — Quantity State and Balance Panel. Implements Cross-Feature
  * Rule 2 exactly and uses the same words:
  *   Outstanding demand = calculated demand − reserved shelf stock − net acknowledged
  *   Net acknowledged   = acknowledged − confirmed cancellations − confirmed returns
@@ -26,13 +26,13 @@ export function QuantityPanel({ lines }: { lines: DemandLine[] }) {
             <THead>
               <tr>
                 <TH className="w-[200px]">Line</TH>
-                <TH className="text-right"><span className="ml-auto block max-w-[90px] whitespace-normal">Calculated demand</span></TH>
-                <TH className="text-right"><span className="ml-auto block max-w-[90px] whitespace-normal">Reserved shelf stock</span></TH>
-                <TH className="text-right"><span className="ml-auto block max-w-[90px] whitespace-normal">Sent, unacknowledged</span></TH>
-                <TH className="text-right"><span className="ml-auto block max-w-[110px] whitespace-normal">Acknowledged (net)</span></TH>
+                <TH className="text-right"><span className="ml-auto block max-w-[90px] whitespace-normal">Paint needed</span></TH>
+                <TH className="text-right"><span className="ml-auto block max-w-[90px] whitespace-normal">From shelf stock</span></TH>
+                <TH className="text-right"><span className="ml-auto block max-w-[90px] whitespace-normal">Ordered, not confirmed</span></TH>
+                <TH className="text-right"><span className="ml-auto block max-w-[110px] whitespace-normal">Confirmed by supplier</span></TH>
                 <TH className="text-right"><span className="ml-auto block max-w-[90px] whitespace-normal">Received</span></TH>
-                <TH className="text-right"><span className="ml-auto block max-w-[90px] whitespace-normal">Outstanding demand</span></TH>
-                <TH className="text-right"><span className="ml-auto block max-w-[90px] whitespace-normal">Orderable now</span></TH>
+                <TH className="text-right"><span className="ml-auto block max-w-[90px] whitespace-normal">Still needed</span></TH>
+                <TH className="text-right"><span className="ml-auto block max-w-[90px] whitespace-normal">Can order now</span></TH>
               </tr>
             </THead>
             <tbody>
@@ -51,7 +51,7 @@ export function QuantityPanel({ lines }: { lines: DemandLine[] }) {
                     <TD className="text-right tabular-nums">{f(s.calculated)}</TD>
                     <TD className="text-right tabular-nums">{f(s.reservedShelf)}</TD>
                     <TD className="text-right tabular-nums">{f(s.sentUnacknowledged)}</TD>
-                    <TD className="text-right tabular-nums">{f(s.acknowledged)}<div className="text-xs text-gray-400">−{f(s.confirmedCancellations)} cancel · −{f(s.confirmedReturns)} return = {f(s.netAcknowledged)}</div></TD>
+                    <TD className="text-right tabular-nums">{f(s.acknowledged)}{(s.confirmedCancellations > 0 || s.confirmedReturns > 0) && <div className="text-xs text-gray-500">{f(s.netAcknowledged)} after {f(s.confirmedCancellations)} canceled and {f(s.confirmedReturns)} returned</div>}</TD>
                     <TD className="text-right tabular-nums">{f(s.received)}</TD>
                     <TD className="text-right font-semibold tabular-nums text-ink">{f(s.outstanding)}</TD>
                     <TD className={`text-right font-bold tabular-nums ${s.orderableNow > 0 ? "text-brand" : "text-gray-400"}`}>{f(s.orderableNow)}</TD>
@@ -62,7 +62,10 @@ export function QuantityPanel({ lines }: { lines: DemandLine[] }) {
           </Table>
         )}
       </div>
-      <p className="mt-2 text-xs text-gray-400">Outstanding = calculated − reserved shelf − (acknowledged − confirmed cancellations − confirmed returns). Orderable now = outstanding − sent-but-unacknowledged (includes generated orders not yet sent).</p>
+      <details className="mt-2 text-xs text-gray-500">
+        <summary className="cursor-pointer font-semibold text-primary-700 hover:underline">How is this calculated?</summary>
+        <p className="mt-1">Still needed = paint needed − shelf stock − (confirmed by supplier − confirmed cancellations − confirmed returns). Can order now = still needed − ordered but not confirmed yet (including generated orders not sent yet).</p>
+      </details>
     </Card>
   );
 }

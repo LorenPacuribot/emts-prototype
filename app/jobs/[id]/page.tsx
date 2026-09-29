@@ -207,7 +207,7 @@ export default function JobDetailPage() {
         title="Cancel Schedule"
         confirmLabel="Cancel schedule"
         message={<>This clears the dates for <b>{job.title}</b> and moves it back to the Unscheduled backlog.</>}
-        onConfirm={() => { actions.cancelSchedule(job.id); toast('Schedule cancelled'); }}
+        onConfirm={() => { actions.cancelSchedule(job.id); toast('Schedule canceled'); }}
       />
       <ConfirmDialog
         open={confirmDelete}

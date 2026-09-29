@@ -72,10 +72,10 @@ export function PaintCatalogSection() {
       <div className="flex flex-col gap-3 border-b border-gray-100 bg-green-50/40 px-6 py-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <h3 className="flex flex-wrap items-center gap-2 font-heading text-base font-bold text-gray-900">
-            Colour card &amp; paint order catalogue <NewBadge feature={[3, 18]} />
+            Color card &amp; paint order catalogue <NewBadge feature={[3, 18]} />
           </h3>
           <p className="mt-1 text-xs text-gray-500">
-            Products the colour card and paint orders use. Material demand uses the proven field rate when recorded; containers are packed only from the sizes marked available.
+            Products the color card and paint orders use. Material demand uses the proven field rate when recorded; containers are packed only from the sizes marked available.
             {!editable && " Only the Business Owner and Office Manager edit the shared catalogue."}
           </p>
         </div>
@@ -168,7 +168,7 @@ export function PaintCatalogSection() {
           ))}
         </div>
       </Modal>
-      <ConfirmDialog open={!!del} onOpenChange={(v) => !v && setDel(undefined)} title={`Delete ${del?.product}?`} body="Products used on a colour card can't be deleted." confirmLabel="Delete" onConfirm={() => del && act(deleteProduct, del.id).ok && toast.success("Product deleted")} />
+      <ConfirmDialog open={!!del} onOpenChange={(v) => !v && setDel(undefined)} title={`Delete ${del?.product}?`} body="Products used on a color card can't be deleted." confirmLabel="Delete" onConfirm={() => del && act(deleteProduct, del.id).ok && toast.success("Product deleted")} />
     </section>
   );
 }

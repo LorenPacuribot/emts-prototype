@@ -56,8 +56,8 @@ function Labour() {
   return (
     <>
       <PageHeader
-        title="Labour Cost"
-        subtitle="Rule 3: one approved total per employee per pay period from the Gusto run, allocated across jobs by approved hours. Estimate Master holds no pay rates."
+        title="Labor Cost"
+        subtitle="One approved total per employee per pay period from the Gusto run, split across jobs by approved hours. Estimate Master holds no pay rates."
         actions={<WeekSelect value={week} onChange={setWeek} />}
       />
       {!seeEmployees && <Banner tone="info" className="mb-4" title="Allocated job cost only">Per-employee totals are visible only to the bookkeeper and the business owner.</Banner>}
@@ -100,7 +100,7 @@ function Labour() {
               </Table>
             )}
           </div>
-          <p className="mt-2 text-xs text-gray-500">Subcontractor hours are not listed: their invoice supplies the cost. The rounding residual goes to the largest allocation, then the lowest job number (Rule 5).</p>
+          <p className="mt-2 text-xs text-gray-500">Subcontractor hours are not listed: their invoice supplies the cost. A leftover cent from rounding goes to the largest share, then to the lowest job number.</p>
         </Card>
       ) : null}
 
@@ -110,7 +110,7 @@ function Labour() {
           <div className="mt-3">
             {jobRows.size === 0 ? <p className="text-xs italic text-gray-400">No totals entered for this week yet.</p> : (
               <Table>
-                <THead><tr><TH>Job</TH><TH className="text-right">Approved hours</TH><TH className="text-right">Labour cost</TH></tr></THead>
+                <THead><tr><TH>Job</TH><TH className="text-right">Approved hours</TH><TH className="text-right">Labor cost</TH></tr></THead>
                 <tbody>
                   {[...jobRows.values()].map((r) => (
                     <TR key={r.jobId ?? "oh"}><TD className="font-semibold">{r.jobId ? `${r.jobId} · ${byId(db.jobs, r.jobId)?.name ?? ""}` : "Overhead"}</TD><TD className="text-right tabular-nums">{hm(r.minutes)}</TD><TD className="text-right tabular-nums">{money(r.amount)}</TD></TR>
@@ -190,7 +190,7 @@ function EnterModal({ employeeId, week, onClose }: { employeeId?: string; week: 
       open={!!employeeId}
       onOpenChange={(v) => !v && onClose()}
       size="sm"
-      title={`Labour cost — ${emp?.name ?? ""}`}
+      title={`Labor cost — ${emp?.name ?? ""}`}
       description={`Week of ${dayLabel(week, false)}. Enter the approved total from the Gusto run.${existing ? ` Last entered ${dateTime(existing.enteredAt)}.` : ""}`}
       footer={
         <>

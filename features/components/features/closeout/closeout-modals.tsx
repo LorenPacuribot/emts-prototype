@@ -88,8 +88,8 @@ export function CloseoutRowModal({ job, row, onClose }: { job: Job; row?: Closeo
             <div className="text-xs font-bold uppercase tracking-[0.12em] text-gray-500">Required</div>
             <div className="grid gap-3 sm:grid-cols-4">
               <Field label="Manufacturer" required error={errors.colour} className="sm:col-span-1"><Input value={f.manufacturer} invalid={!!errors.colour} onChange={(e) => setF({ ...f, manufacturer: e.target.value })} /></Field>
-              <Field label="Colour name" required className="sm:col-span-1"><Input value={f.colourName} onChange={(e) => setF({ ...f, colourName: e.target.value })} /></Field>
-              <Field label="Colour number" required><Input value={f.colourNumber} onChange={(e) => setF({ ...f, colourNumber: e.target.value })} /></Field>
+              <Field label="Color name" required className="sm:col-span-1"><Input value={f.colourName} onChange={(e) => setF({ ...f, colourName: e.target.value })} /></Field>
+              <Field label="Color number" required><Input value={f.colourNumber} onChange={(e) => setF({ ...f, colourNumber: e.target.value })} /></Field>
               <Field label="Product"><Input value={f.product} onChange={(e) => setF({ ...f, product: e.target.value })} /></Field>
               <Field label="Sheen" required error={errors.sheen}>
                 <Select value={f.sheen} invalid={!!errors.sheen} onChange={(e) => setF({ ...f, sheen: e.target.value })}>
@@ -141,7 +141,7 @@ export function UnknownModal({ job, row, onClose }: { job: Job; row?: CloseoutRo
       <div className="space-y-3">
         <Field label="Field">
           <Select value={field} onChange={(e) => setField(e.target.value as UnknownException["field"])}>
-            <option value="colour">Colour</option>
+            <option value="colour">Color</option>
             <option value="sheen">Sheen</option>
             <option value="completedAt">Completion date</option>
           </Select>

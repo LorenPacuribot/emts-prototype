@@ -227,7 +227,7 @@ function MaterialsSummary({ estimate, job }: { estimate: Estimate; job: Job }) {
       />
       <div className="text-xs font-bold uppercase tracking-widest text-gray-400">Paint Products (Calculated)</div>
       {lines.length === 0 ? (
-        <p className="mt-3 text-sm italic text-gray-400">Add a colour with a product, then assign surfaces.</p>
+        <p className="mt-3 text-sm italic text-gray-400">Add a color with a product, then assign surfaces.</p>
       ) : (
         <div className="mt-3 overflow-x-auto rounded-xl border border-gray-200">
           <table className="w-full min-w-[600px] text-left text-sm">

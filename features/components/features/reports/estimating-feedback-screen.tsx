@@ -80,7 +80,7 @@ export function Feedback() {
   if (!can(user, "feedback.view")) {
     return (
       <>
-        <PageHeader title="Estimating Feedback" subtitle="Labour production and coating coverage suggestions from completed work." />
+        <PageHeader title="Estimating Feedback" subtitle="Labor production and coating coverage suggestions from completed work." />
         <EmptyState icon={<Gauge />} title="Estimating feedback is for the owner, the office manager and estimators." body="Switch role in the demo bar to see it." />
       </>
     );
@@ -146,7 +146,7 @@ export function Feedback() {
         <Stat label="Reviews due" value={due.length} tone={due.some((r) => r.state === "escalated") ? "danger" : due.length ? "warn" : "good"} hint="day 90; escalates at day 120" />
       </StatStrip>
 
-      <Banner tone="info" className="mb-4">Suggestions cover labour production and coating coverage only. A previewed financial effect is information for the owner, not a change to commercial policy. Every rate change needs the owner to approve that one rate record.</Banner>
+      <Banner tone="info" className="mb-4">Suggestions cover labor production and coating coverage only. A previewed financial effect is information for the owner, not a change to commercial policy. Every rate change needs the owner to approve that one rate record.</Banner>
 
       <Card className="mb-4 p-4" data-tour="feedback-list">
         <CardLabel icon={<Gauge />}>Suggestions</CardLabel>
@@ -334,9 +334,9 @@ function Preview({ s }: { s: Suggestion }) {
       <p className="mt-1 text-xs text-gray-500">What this rate would have meant on real jobs. Scope, measurements, historical selling price, markup and material unit prices are held fixed. Nothing stored changes.</p>
       {open && (
         <div className="mt-3 space-y-2">
-          <div className="flex flex-wrap gap-2 text-xs"><Badge tone="blue">Preview based on {p.count} eligible jobs.</Badge><Badge tone="purple">Variable moved: {p.variable === "Labour" ? "Labour" : "Material quantity and its cost"}</Badge></div>
+          <div className="flex flex-wrap gap-2 text-xs"><Badge tone="blue">Preview based on {p.count} eligible jobs.</Badge><Badge tone="purple">Variable moved: {p.variable === "Labour" ? "Labor" : "Material quantity and its cost"}</Badge></div>
           <Table>
-            <THead><tr><TH>Job</TH><TH className="text-right">Selling price (fixed)</TH><TH className="text-right">Labour before → after</TH><TH className="text-right">Material before → after</TH><TH className="text-right">Cost change</TH></tr></THead>
+            <THead><tr><TH>Job</TH><TH className="text-right">Selling price (fixed)</TH><TH className="text-right">Labor before → after</TH><TH className="text-right">Material before → after</TH><TH className="text-right">Cost change</TH></tr></THead>
             <tbody>
               {p.rows.map((r) => (
                 <TR key={r.jobId}>
@@ -350,7 +350,7 @@ function Preview({ s }: { s: Suggestion }) {
               <TR className="bg-gray-50 font-semibold"><TD>Total</TD><TD /><TD /><TD /><TD className="text-right tabular-nums">{total("after") - total("before") > 0 ? "+" : ""}{money(total("after") - total("before"))}</TD></TR>
             </tbody>
           </Table>
-          <p className="text-xs text-gray-400">Prototype constants: blended labour {money(PREVIEW_WAGE_PER_HOUR)}/h, material {money(PREVIEW_PRICE_PER_GAL)}/gal, historical markup {Math.round(PREVIEW_MARKUP * 100)}%.</p>
+          <p className="text-xs text-gray-400">Prototype constants: blended labor {money(PREVIEW_WAGE_PER_HOUR)}/h, material {money(PREVIEW_PRICE_PER_GAL)}/gal, historical markup {Math.round(PREVIEW_MARKUP * 100)}%.</p>
         </div>
       )}
     </Card>

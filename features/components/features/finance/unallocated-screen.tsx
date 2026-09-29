@@ -112,7 +112,7 @@ function AllocationModal({ record, onClose }: { record?: FinanceRecord; onClose:
           <Button onClick={close}>Cancel</Button>
           {splitJobs.length > 1 && <Button onClick={() => {
             const r = act(saveSplit, record!.id, costCode, splitJobs.map((j) => ({ jobId: j, weight: 1 })));
-            if (r.ok) { toast.success("Split evenly and saved", "Residual cent assigned by Rule 5."); close(); } else setErr(r.error);
+            if (r.ok) { toast.success("Split evenly and saved", "Any leftover cent went to the largest share."); close(); } else setErr(r.error);
           }}><Split className="h-4 w-4" /> Save even split</Button>}
           <Button variant="primary" disabled={diff !== 0} onClick={() => {
             const r = act(saveAllocation, record!.id, costCode, rows.map(({ key: _k, ...x }) => x));
@@ -150,7 +150,7 @@ function AllocationModal({ record, onClose }: { record?: FinanceRecord; onClose:
           Running total {money(amount - diff)} of {money(amount)} {diff === 0 ? "— balanced" : `— out of balance by ${money(diff)}. Save is disabled.`}
         </div>
         {err && <p className="text-xs font-medium text-red-600">{err}</p>}
-        <p className="text-xs text-gray-500">Accounting source references are kept on every row. No allocation creates a second expense. <Badge tone="gray">Rule 5</Badge> residual to the largest allocation, then the lowest job number.</p>
+        <p className="text-xs text-gray-500">Accounting source references are kept on every row. No allocation creates a second expense. A leftover cent goes to the largest share, then to the lowest job number.</p>
       </div>
     </Modal>
   );

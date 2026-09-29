@@ -271,7 +271,7 @@ export function PaintHistoryPanel({ property }: { property: Property }) {
               <CardLabel icon={<MessageSquareWarning />}>Gaps</CardLabel>
               <p className="mt-1 text-xs text-gray-500">Values recorded as Unknown or Not recorded. Nothing here is estimated.</p>
               <div className="mt-3 space-y-2">
-                {gaps.length === 0 && <EmptyState title="No gaps" body="Every application has colour, sheen, product and a completion date." />}
+                {gaps.length === 0 && <EmptyState title="No gaps" body="Every application has color, sheen, product and a completion date." />}
                 {gaps.map((g, i) => (
                   <button key={i} onClick={() => setSelected(g.app.surfaceId)} className="flex w-full items-start gap-3 rounded-lg border border-line px-3 py-2 text-left text-xs hover:bg-gray-50">
                     <Badge tone={g.state === "Unknown" ? "amber" : "gray"}>{g.state}</Badge>

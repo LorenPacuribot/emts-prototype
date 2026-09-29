@@ -41,14 +41,14 @@ export function LineGrid({ rep, readOnly, onPropose, onAddSurfaces }: { rep: Rep
     <>
       <p className="mb-3 flex items-start gap-1.5 text-xs text-gray-500">
         <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-        Copied lines carry surfaces, measurements, colours, products, sheen and coats only. No approval or completion state comes across from the source job.
+        Copied lines carry surfaces, measurements, colors, products, sheen and coats only. No approval or completion state comes across from the source job.
       </p>
       <Table>
         <THead>
           <tr>
             <TH>Surface</TH>
             <TH className="text-right">Measure</TH>
-            <TH>Colour</TH>
+            <TH>Color</TH>
             <TH>Product · Sheen · Coats</TH>
             <TH>Source</TH>
             <TH className="text-right">Prior actual (ref)</TH>
@@ -99,7 +99,7 @@ export function LineGrid({ rep, readOnly, onPropose, onAddSurfaces }: { rep: Rep
                       <Badge tone={rp.status === "approved" ? "green" : rp.status === "rejected" ? "red" : "amber"}>
                         {rp.status === "approved" ? `Replaced (was ${rp.oldProduct})` : rp.status === "rejected" ? "Replacement rejected" : `→ ${rp.newProduct} · ${rp.approver === "office" ? "office" : "owner"} approval`}
                       </Badge>
-                      {rp.document === "ChangeOrder" && <div className="max-w-56 text-xs font-medium text-red-700">Rule 1: priced change order with customer signature required before ordering.</div>}
+                      {rp.document === "ChangeOrder" && <div className="max-w-56 text-xs font-medium text-red-700">Needs a priced change order signed by the customer before ordering.</div>}
                       {canDecide && !readOnly && (
                         <div className="flex gap-1">
                           <Button size="sm" variant="success" className="h-6 px-2 text-xs" onClick={() => act(decideReplacement, rep.id, line.id, true).ok && toast.success("Replacement approved", "Reconfirm the line at the new product.")}>Approve</Button>
@@ -115,7 +115,7 @@ export function LineGrid({ rep, readOnly, onPropose, onAddSurfaces }: { rep: Rep
                     <Tooltip content="Reference only. It never fills the new quantity or hours.">
                       <span className="inline-flex cursor-help flex-col items-end gap-0.5">
                         <span className="rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-500">{line.priorActualGal !== undefined ? `${line.priorActualGal} gal used` : "Gallons not recorded"}</span>
-                        <span className="rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-500">{line.priorActualHours !== undefined ? `${line.priorActualHours} h labour` : "Hours not recorded"}</span>
+                        <span className="rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-500">{line.priorActualHours !== undefined ? `${line.priorActualHours} h labor` : "Hours not recorded"}</span>
                       </span>
                     </Tooltip>
                   ) : (

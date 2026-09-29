@@ -243,7 +243,7 @@ export function ProposalScope({ e, d, onSettings, bare }: { e: Estimate; d: Data
 export function ProposalSpecs({ e, d, bare }: { e: Estimate; d: Data; bare?: boolean }) {
   // The colour card when there is one, else the products on the included lines.
   const products = Array.from(new Set(customerLines(e).map((l) => [d.paintLabel(l.paintProductId), l.sheen ?? ''].join('|')).filter((x) => x !== '|')));
-  if (!d.card.length && !products.length) return bare ? <p className="text-sm text-gray-500">Paint specifications will be listed once colours are chosen.</p> : null;
+  if (!d.card.length && !products.length) return bare ? <p className="text-sm text-gray-500">Paint specifications will be listed once colors are chosen.</p> : null;
   return (
     <div className="break-inside-avoid">
       {!bare && <SectionTitle icon={Palette}>Paint Specifications</SectionTitle>}

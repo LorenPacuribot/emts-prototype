@@ -142,10 +142,10 @@ export function SpecEditor({ open, onOpenChange, jobId, colourId, spec }: {
             tone={decision.kind === "change_order" ? "warn" : "info"}
             title={
               {
-                change_order: "Rule 1: priced change order with customer signature required",
-                office_approval: "Rule 1: Office Manager approves alone",
-                colour_reapproval: "Rule 1: Colour Re-approval record",
-                draft_edit: "Rule 1: amend the estimate",
+                change_order: "Needs a priced change order signed by the customer",
+                office_approval: "The office manager can approve this alone",
+                colour_reapproval: "Needs a color re-approval from the customer",
+                draft_edit: "Change it by amending the estimate",
                 no_change: "",
               }[decision.kind]
             }
@@ -334,7 +334,7 @@ export function SpecEditor({ open, onOpenChange, jobId, colourId, spec }: {
         </div>
         {!spec && (
           <p className="flex items-center gap-1 text-xs text-gray-400">
-            <Plus className="h-3 w-3" /> Each specification is a separate line. Adding one never overwrites another under the same colour.
+            <Plus className="h-3 w-3" /> Each specification is a separate line. Adding one never overwrites another under the same color.
           </p>
         )}
       </div>

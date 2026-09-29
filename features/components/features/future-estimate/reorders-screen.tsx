@@ -79,7 +79,7 @@ export function ReordersPanel({ property }: { property: Property }) {
               <div key={t.id} className="flex flex-wrap items-center gap-3 rounded-lg border border-line p-3">
                 <IdChip>{t.id}</IdChip>
                 <div className="min-w-0 flex-1 text-xs">
-                  <div className="font-semibold text-ink">{t.colourLabel ?? "Colour not given"} · {t.requesterName}</div>
+                  <div className="font-semibold text-ink">{t.colourLabel ?? "Color not given"} · {t.requesterName}</div>
                   <div className="text-gray-500">“{t.note}” · {dateLong(t.createdAt)}</div>
                 </div>
                 <Badge tone={t.status === "new" ? "blue" : "gray"}>{t.status === "new" ? "New" : "Acknowledged"}</Badge>
@@ -91,16 +91,16 @@ export function ReordersPanel({ property }: { property: Property }) {
       )}
 
       <Card className="p-5" data-tour="reorders-list">
-        <CardLabel icon={<PaintBucket />} right={<PillTabs value={filter} onChange={setFilter} options={[{ value: "all", label: "All", count: all.length }, { value: "open", label: "Open" }, { value: "fulfilled", label: "Fulfilled" }, { value: "cancelled", label: "Cancelled" }]} />}>
+        <CardLabel icon={<PaintBucket />} right={<PillTabs value={filter} onChange={setFilter} options={[{ value: "all", label: "All", count: all.length }, { value: "open", label: "Open" }, { value: "fulfilled", label: "Fulfilled" }, { value: "cancelled", label: "Canceled" }]} />}>
           Reorders
         </CardLabel>
         <div className="mt-4">
           {list.length === 0 ? (
-            <EmptyState icon={<PaintBucket />} title={all.length ? "No reorders match this filter." : "No touch-up reorders at this property yet."} body="Start one from a colour on the property record, or convert a customer's touch-up request." />
+            <EmptyState icon={<PaintBucket />} title={all.length ? "No reorders match this filter." : "No touch-up reorders at this property yet."} body="Start one from a color on the property record, or convert a customer's touch-up request." />
           ) : (
             <Table>
               <THead>
-                <tr><TH>Reorder</TH><TH>Colour</TH><TH>Quantity</TH><TH>Payment</TH><TH>Supply</TH><TH>Status</TH><TH>Started</TH></tr>
+                <tr><TH>Reorder</TH><TH>Color</TH><TH>Quantity</TH><TH>Payment</TH><TH>Supply</TH><TH>Status</TH><TH>Started</TH></tr>
               </THead>
               <tbody>
                 {list.map((r) => {

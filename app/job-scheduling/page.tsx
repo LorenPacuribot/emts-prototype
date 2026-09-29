@@ -154,7 +154,7 @@ export default function JobSchedulingPage() {
         title="Cancel Schedule"
         confirmLabel="Cancel schedule"
         message={<>This clears the dates for <b>{cancelJob?.title}</b> and moves it back to the Unscheduled backlog. Crew assignments are kept.</>}
-        onConfirm={() => { if (cancelJob) { actions.cancelSchedule(cancelJob.id); toast('Schedule cancelled'); } }}
+        onConfirm={() => { if (cancelJob) { actions.cancelSchedule(cancelJob.id); toast('Schedule canceled'); } }}
       />
       <BulkRescheduleModal open={bulkOpen} onOpenChange={setBulkOpen} />
     </PageShell>

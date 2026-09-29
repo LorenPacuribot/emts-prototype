@@ -123,7 +123,7 @@ export function OrderBuilder({ open, job, lines, onClose, onViewOrder }: { open:
           </div>
 
           <div>
-            <div className="mb-2 text-xs font-semibold text-gray-700">Lines <span className="font-normal text-gray-400">— quantities default to orderable now (Rule 2)</span></div>
+            <div className="mb-2 text-xs font-semibold text-gray-700">Lines <span className="font-normal text-gray-400">— quantities start at what can be ordered now</span></div>
             {e("lines") && <p className="mb-2 text-xs font-medium text-red-600">{e("lines")}</p>}
             <div className="space-y-2">
               {orderable.length === 0 && <p className="text-xs italic text-gray-400">No orderable lines.</p>}

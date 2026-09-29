@@ -17,7 +17,7 @@ export const PROPOSAL_SECTIONS: { key: ProposalSectionKey; label: string; hint?:
   { key: 'scope', label: 'Surface-by-surface scope' },
   { key: 'linePrices', label: 'Line prices', hint: 'Price of each surface' },
   { key: 'areaTotals', label: 'Area totals' },
-  { key: 'specs', label: 'Paint specifications', hint: 'The colour card' },
+  { key: 'specs', label: 'Paint specifications', hint: 'The color card' },
   { key: 'optional', label: 'Optional items' },
   { key: 'pricing', label: 'Pricing & totals' },
   { key: 'notes', label: 'Notes & payment terms' },
@@ -28,7 +28,7 @@ export const PROPOSAL_SECTIONS: { key: ProposalSectionKey; label: string; hint?:
 export const LINE_PARTS: { key: ProposalLinePart; label: string }[] = [
   { key: 'location', label: 'Location' },
   { key: 'quantity', label: 'Quantity' },
-  { key: 'colour', label: 'Colour' },
+  { key: 'colour', label: 'Color' },
   { key: 'product', label: 'Product' },
   { key: 'sheen', label: 'Sheen' },
   { key: 'coats', label: 'Coats' },

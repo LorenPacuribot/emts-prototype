@@ -3,7 +3,7 @@
  * NEW (feature 19). Hosts the supplier screens in the live app:
  * - Supplier Orders board and Returns: the standalone /supplier-orders page
  *   (no live host). Receipts and the Exception List are views on the board.
- * - Suppliers And Branches, Product Mapping: the NEW Settings › Suppliers
+ * - Suppliers and Branches, Product Mapping: the NEW Settings › Suppliers
  *   page, registered like every live settings page (settings-config.ts).
  */
 import type { ReactNode } from "react";
@@ -18,9 +18,9 @@ import { SettingsShell } from "@/features/components/features/settings/settings-
 
 export const PROCUREMENT_TABS = [
   { key: "orders", label: "Supplier Orders", path: "/supplier-orders", icon: Boxes },
-  { key: "suppliers", label: "Suppliers And Branches", path: "/settings/suppliers", icon: Building2 },
+  { key: "suppliers", label: "Suppliers and Branches", path: "/settings/suppliers", icon: Building2 },
   { key: "mapping", label: "Product Mapping", path: "/settings/suppliers/product-mapping", icon: Tags },
-  { key: "returns", label: "Returns And Credits", path: "/supplier-orders/returns", icon: Undo2 },
+  { key: "returns", label: "Returns and Credits", path: "/supplier-orders/returns", icon: Undo2 },
 ] as const;
 
 export type ProcurementTabKey = (typeof PROCUREMENT_TABS)[number]["key"];

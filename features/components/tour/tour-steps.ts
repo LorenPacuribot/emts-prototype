@@ -72,14 +72,14 @@ export const TOUR: TourStop[] = [
   {
     id: "color-card",
     feature: "3",
-    title: "Colour card",
+    title: "Color card",
     href: "/estimates/EST-2026-1",
     role: "office_manager",
     steps: [
       {
         target: "stat-strip",
         title: "Approval is tracked per specification",
-        body: "This contract is signed, but not every colour is settled. Approval progress counts specifications, not colours. 'Blocked from ordering' counts lines that can't be bought yet.",
+        body: "This contract is signed, but not every color is settled. Approval progress counts specifications, not colors. 'Blocked from ordering' counts lines that can't be bought yet.",
       },
       {
         target: "spec-SPEC-2",
@@ -91,11 +91,11 @@ export const TOUR: TourStop[] = [
         target: "spec-SPEC-3",
         title: "A blank primer blocks approval",
         body: "Primer and coat sequence need a deliberate value. 'No primer, existing coating sound' is valid. A blank is not.",
-        tryIt: "Open this row's menu › Edit, set Primer to 'No primer, existing coating sound', save, then Send For Approval.",
+        tryIt: "Open this row's menu › Edit, set Primer to 'No primer, existing coating sound', save, then Send for approval.",
       },
       {
         target: "sample-panel",
-        title: "Custom colour match",
+        title: "Custom color match",
         body: "The door red is a custom match, so it stays in Pending sample until a round is accepted. Round 1 was rejected ('too orange next to the brick') and is kept permanently.",
         tryIt: "Record the outcome of round 2.",
       },
@@ -142,7 +142,7 @@ export const TOUR: TourStop[] = [
       {
         target: "shelf-panel",
         title: "Leftover shelf stock",
-        body: "Stock is proposed only when product, colour and sheen match, and it's sealed and under two years old. An unconfirmed proposal doesn't reduce the purchase need. The 5-gallon Repose Gray is reserved to another job, so it shows as unavailable here.",
+        body: "Stock is proposed only when product, color and sheen match, and it's sealed and under two years old. An unconfirmed proposal doesn't reduce the purchase need. The 5-gallon Repose Gray is reserved to another job, so it shows as unavailable here.",
       },
       {
         target: "demand-table",
@@ -183,7 +183,7 @@ export const TOUR: TourStop[] = [
       {
         target: "subnav",
         title: "Branch setup and product mapping",
-        body: "Under Suppliers And Branches, the Benjamin Moore Richardson branch has no store number, so it can't receive orders. Product Mapping links products and pack sizes to store item codes.",
+        body: "Under Suppliers and Branches, the Benjamin Moore Richardson branch has no store number, so it can't receive orders. Product Mapping links products and pack sizes to store item codes.",
       },
       {
         target: "page-actions",
@@ -240,7 +240,7 @@ export const TOUR: TourStop[] = [
       {
         target: "closeout-status",
         title: "Why this job can't close yet",
-        body: "Colour, sheen and completion date are required for every painted surface. The ceiling isn't confirmed and the baseboard has no sheen. Missing hours or gallons never block closeout; they show as Not recorded.",
+        body: "Color, sheen and completion date are required for every painted surface. The ceiling isn't confirmed and the baseboard has no sheen. Missing hours or gallons never block closeout; they show as Not recorded.",
       },
       {
         target: "closeout-checklist",
@@ -501,7 +501,7 @@ export const TOUR: TourStop[] = [
       {
         target: "subnav",
         title: "The rest of Workforce",
-        body: "Mobile Clock is the crew's phone screen. Export Batches builds the Gusto CSV from approved hours only. Labour Cost is where the bookkeeper enters each pay period's cost for Rule 3 allocation. Mileage and Employees complete the set.",
+        body: "Mobile Clock is the crew's phone screen. Export Batches builds the Gusto CSV from approved hours only. Labor Cost is where the bookkeeper enters each pay period's cost for Rule 3 allocation. Mileage and Employees complete the set.",
       },
     ],
   },
@@ -673,7 +673,7 @@ export const TOUR: TourStop[] = [
       {
         target: "feedback-preview",
         title: "One variable at a time",
-        body: "The impact preview replays the last ten eligible jobs. A productivity change moves labour only; a coverage change moves material only. Nothing stored changes.",
+        body: "The impact preview replays the last ten eligible jobs. A productivity change moves labor only; a coverage change moves material only. Nothing stored changes.",
         tryIt: "Run the preview.",
       },
       {

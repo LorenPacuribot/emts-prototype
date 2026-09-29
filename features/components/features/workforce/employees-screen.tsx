@@ -18,7 +18,7 @@ import { PageHeader } from "@/features/components/layout/screen";
 import { Badge, Card, CardLabel, Table, TD, TH, THead, TR } from "@/features/components/ui";
 import { WorkforceFrame } from "./workforce-frame";
 
-const TYPE = { hourly: { label: "Hourly — exported", tone: "blue" }, salaried: { label: "Salaried — job cost only", tone: "purple" }, subcontractor: { label: "Subcontractor — zero labour cost", tone: "gray" } } as const;
+const TYPE = { hourly: { label: "Hourly — exported", tone: "blue" }, salaried: { label: "Salaried — job cost only", tone: "purple" }, subcontractor: { label: "Subcontractor — zero labor cost", tone: "gray" } } as const;
 
 const ACTIVITY_NOTE: Record<ActivityCode, string> = {
   application: "Paid, job-coded",

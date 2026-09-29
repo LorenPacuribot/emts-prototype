@@ -57,11 +57,11 @@ export function PaintCardSection({ estimateId, paintColourId, onPaint, onSave, r
         <SectionHeader icon={<Palette />} title="Paint Color Card" right={<NewBadge feature={3} />} />
         <EmptyState
           icon={<Palette />}
-          title="No colours on this estimate yet"
-          body={readOnly ? undefined : 'Adding your first colour saves the draft, then the colour card opens here.'}
+          title="No colors on this estimate yet"
+          body={readOnly ? undefined : 'Adding your first color saves the draft, then the color card opens here.'}
           action={!readOnly && onSave && (
             <FButton variant="primary" disabled={starting} onClick={() => { setStarting(true); if (onSave() === false) setStarting(false); }}>
-              {starting ? 'Opening colour card…' : 'Add your first colour'}
+              {starting ? 'Opening color card…' : 'Add your first color'}
             </FButton>
           )}
         />
@@ -121,7 +121,7 @@ export function LineColourCell({ colour, painting, saved, editable, card, onAssi
 }) {
   const [text, setText] = useState('');
   const [error, setError] = useState('');
-  if (painting && !saved) return <span className="text-xs italic text-amber-600" title="Save the estimate; a line needs an amount to reach the colour card">Save first</span>;
+  if (painting && !saved) return <span className="text-xs italic text-amber-600" title="Save the estimate; a line needs an amount to reach the color card">Save first</span>;
   const commit = () => {
     const n = Number(text.replace('#', '').trim());
     if (!text.trim()) return;
@@ -153,8 +153,8 @@ export function LineColourCell({ colour, painting, saved, editable, card, onAssi
           onKeyDown={(e) => e.key === 'Enter' && (e.currentTarget as HTMLInputElement).blur()}
           placeholder={colour ? 'Change #' : 'Color #'}
           inputMode="numeric"
-          aria-label="Colour number from the colour card"
-          title={card?.length ? card.map((c) => `#${c.number} ${c.name}`).join('\n') : 'Add colours to the Paint Color Card first'}
+          aria-label="Color number from the color card"
+          title={card?.length ? card.map((c) => `#${c.number} ${c.name}`).join('\n') : 'Add colors to the Paint Color Card first'}
           className="h-7 w-20 rounded-md border border-gray-200 bg-white px-1.5 text-center text-xs focus:border-primary-400 focus:outline-none"
         />
       )}
@@ -167,7 +167,7 @@ export function LineColourCell({ colour, painting, saved, editable, card, onAssi
 /** Paint mode: clicking a line assigns the selected colour to that surface. */
 export function assignLineColour(estimateId: string, lineId: string, colourId: string, saved: boolean) {
   if (!saved) {
-    toast.info('Save the estimate first', 'Line items reach the colour card once the estimate is saved with an amount on the line.');
+    toast.info('Save the estimate first', 'Line items reach the color card once the estimate is saved with an amount on the line.');
     return;
   }
   if (act(assignSurfaceColour, estimateId, lineId, colourId).ok) toast.success('Color assigned');
@@ -283,7 +283,7 @@ function MaterialsSummary({ estimate, job }: { estimate: PEstimate; job: PJob })
       />
       <div className="text-xs font-bold uppercase tracking-widest text-gray-400">Paint Products (Calculated)</div>
       {lines.length === 0 ? (
-        <p className="mt-3 text-sm italic text-gray-400">Add a colour with a product, then assign surfaces.</p>
+        <p className="mt-3 text-sm italic text-gray-400">Add a color with a product, then assign surfaces.</p>
       ) : (
         <div className="mt-3 overflow-x-auto rounded-xl border border-gray-200">
           <table className="w-full min-w-[600px] text-left text-sm">

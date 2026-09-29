@@ -82,7 +82,7 @@ function Accounts() {
         <CardLabel>Launch gates</CardLabel>
         <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-gray-600">
           <li>The business owner supplies the Facebook and Instagram business account IDs and administrator access before setup; Meta permissions are verified early.</li>
-          <li>The office supplies the image templates in 1080 × 1080 and 1080 × 1350, with the logo and brand colours.</li>
+          <li>The office supplies the image templates in 1080 × 1080 and 1080 × 1350, with the logo and brand colors.</li>
           <li>The business owner and the bookkeeper review the photo-release wording before launch.</li>
           <li>The office manager confirms the website form platform before build.</li>
           <li>Publishing is tested on a test Facebook page and Instagram account. No advertising-spend test is needed.</li>

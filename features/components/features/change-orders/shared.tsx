@@ -15,7 +15,7 @@ export const TYPE_HELP: Record<string, string> = {
   credit: "Money back to the customer for scope removed.",
   quantity_reduction: "Less of something already in scope (fewer coats, smaller area).",
   product_substitution: "A different brand, product line or sheen. Priced even at zero.",
-  no_cost_colour_change: "A colour change on a signed job. Rule 1 decides if a Colour Re-approval is enough.",
+  no_cost_colour_change: "A color change on a signed job. The app checks whether a color re-approval is enough.",
 };
 
 export function StatusBadge({ co, stack }: { co: ChangeOrder; stack?: boolean }) {

@@ -90,7 +90,7 @@ function Mapping() {
           <div className="mt-3">
             {mappings.length === 0 ? <EmptyState icon={<Tags />} title="No mappings yet." body="Manual orders still work with the readable specification." /> : (
               <Table>
-                <THead><tr><TH>Product</TH><TH>Pack</TH><TH>Branch</TH><TH>Item code</TH><TH>Colour # / tint formula</TH><TH>Updated</TH><TH /></tr></THead>
+                <THead><tr><TH>Product</TH><TH>Pack</TH><TH>Branch</TH><TH>Item code</TH><TH>Color # / tint formula</TH><TH>Updated</TH><TH /></tr></THead>
                 <tbody>
                   {mappings.map((m) => {
                     const cat = byId(db.catalog, m.catalogId);
@@ -199,7 +199,7 @@ function MappingModal({ open, mapping, preset, onClose }: { open: boolean; mappi
         <Field label="Store item code" required error={e("itemCode")}>
           <Input value={d.itemCode} onChange={(ev) => setD({ ...d, itemCode: ev.target.value })} placeholder="e.g. K33W00151" invalid={!!e("itemCode")} />
         </Field>
-        <Field label="Colour number">
+        <Field label="Color number">
           <Input value={d.colourNumber} onChange={(ev) => setD({ ...d, colourNumber: ev.target.value })} placeholder="e.g. SW 7015" />
         </Field>
         <Field label="Tint formula (free text)" className="sm:col-span-2">

@@ -246,7 +246,7 @@ export function WoPaintColorCard({ job }: { job: Job }) {
   const total = lines.reduce((a, l) => a + l.needGal, 0);
   return (
     <LiveCard id="section-paint-card">
-      <CardTitle icon={<Paintbrush />} right={<div className="text-right"><LiveLabel>Total Paint To Buy</LiveLabel><div className="flex items-center justify-end gap-1 text-lg font-black text-blue-600"><Droplet className="h-4 w-4" /> {total.toFixed(1)} gal</div></div>}>Paint Color Card</CardTitle>
+      <CardTitle icon={<Paintbrush />} right={<div className="text-right"><LiveLabel>Total Paint to Buy</LiveLabel><div className="flex items-center justify-end gap-1 text-lg font-black text-blue-600"><Droplet className="h-4 w-4" /> {total.toFixed(1)} gal</div></div>}>Paint Color Card</CardTitle>
       {colours.length === 0 ? <p className="text-sm text-gray-400">No paint assigned.</p> : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {colours.map((c, i) => {
@@ -270,19 +270,23 @@ export function WoPaintColorCard({ job }: { job: Job }) {
                   </div>
                   <div className="text-right"><LiveLabel>Gallons</LiveLabel><div className="text-lg font-black text-gray-900">{gallons.toFixed(1)}</div></div>
                 </div>
-                <div className="mt-3"><LiveLabel className="mb-1">Containers To Buy</LiveLabel>
+                <div className="mt-3"><LiveLabel className="mb-1">Containers to Buy</LiveLabel>
                   <div className="flex flex-wrap gap-1">{cl.map((l) => formatPacks(l.packs.packs)).filter(Boolean).join(" + ").split(" + ").filter(Boolean).map((p, k) => <span key={k} className="rounded-md border border-gray-200 bg-white px-1.5 py-0.5 text-xs font-semibold text-gray-700">{p}</span>)}</div>
                 </div>
                 <div className="mt-3 space-y-1.5 border-t border-dashed border-gray-200 pt-3 text-xs">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="inline-flex items-center gap-1 text-gray-500">Approval <NewBadge feature={3} /></span>
+                    <span className="text-gray-500">Approval</span>
                     <span className="flex flex-wrap justify-end gap-1">{states.map((s) => <Badge key={s} tone={SPEC_STATE[s].tone}>{SPEC_STATE[s].label}</Badge>)}</span>
                   </div>
                   <div className="flex items-center justify-between gap-2">
-                    <span className="inline-flex items-center gap-1 text-gray-500">Outstanding · orderable <NewBadge feature={18} /></span>
-                    <span className="font-bold text-gray-800">{outstanding.toFixed(2)} · {orderable.toFixed(2)} gal</span>
+                    <span className="text-gray-500">Still needed</span>
+                    <span className="font-bold text-gray-800">{outstanding.toFixed(2)} gal</span>
                   </div>
-                  {!approved && <p className="font-semibold text-amber-700">Not orderable until the customer approves this colour.</p>}
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-gray-500">Can order now</span>
+                    <span className="font-bold text-gray-800">{orderable.toFixed(2)} gal</span>
+                  </div>
+                  {!approved && <p className="font-semibold text-amber-700">Not orderable until the customer approves this color.</p>}
                 </div>
               </div>
             );

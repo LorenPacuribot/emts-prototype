@@ -115,7 +115,7 @@ function Body({ r, onClose }: { r: TouchUpReorder; onClose: () => void }) {
         title={cancelOpen === "unfillable" ? `Mark ${r.id} unfillable?` : `Cancel ${r.id}?`}
         body={r.payment === "prepaid_cleared" ? "This order was prepaid. A refund to the original payment method becomes due within five working days. The payment itself is handled outside Estimate Master." : "No cleared prepayment is recorded, so no refund is due."}
         confirmLabel={cancelOpen === "unfillable" ? "Mark unfillable" : "Cancel order"}
-        onConfirm={() => cancelOpen && act(cancelReorder, r.id, cancelOpen).ok && toast.success(`${r.id} cancelled`, r.payment === "prepaid_cleared" ? "Refund due within five working days." : undefined)}
+        onConfirm={() => cancelOpen && act(cancelReorder, r.id, cancelOpen).ok && toast.success(`${r.id} canceled`, r.payment === "prepaid_cleared" ? "Refund due within five working days." : undefined)}
       />
       <ConfirmDialog
         open={deleteOpen}
@@ -267,7 +267,7 @@ function StockPanel({ r, editable }: { r: TouchUpReorder; editable: boolean }) {
                 <option value="">Choose…</option>
                 {matching.map((s) => <option key={s.id} value={s.id}>{s.id} · {s.product} {s.colourName} {s.sheen} · {s.containerSize} · tinted {dateLong(s.tintDate)}</option>)}
               </Select>
-              {matching.length === 0 && <p className="text-xs italic text-gray-400">No unreserved shelf stock in this colour.</p>}
+              {matching.length === 0 && <p className="text-xs italic text-gray-400">No unreserved shelf stock in this color.</p>}
             </Field>
           )}
           {supply === "customer_cans" && (
@@ -280,7 +280,7 @@ function StockPanel({ r, editable }: { r: TouchUpReorder; editable: boolean }) {
               <p className="text-xs text-gray-500">Read these off the can itself. Physical check required before issuing existing paint.</p>
               <div className="grid gap-3 sm:grid-cols-2">
                 <Field label="Brand" required htmlFor="sb" error={err?.field === "brand" ? err.msg : undefined}><Input id="sb" value={brand} onChange={(e) => setBrand(e.target.value)} /></Field>
-                <Field label="Colour code" required htmlFor="sc" error={err?.field === "code" ? err.msg : undefined}><Input id="sc" value={code} onChange={(e) => setCode(e.target.value)} /></Field>
+                <Field label="Color code" required htmlFor="sc" error={err?.field === "code" ? err.msg : undefined}><Input id="sc" value={code} onChange={(e) => setCode(e.target.value)} /></Field>
                 <Field label="Sheen" required htmlFor="ss" error={err?.field === "sheen" ? err.msg : undefined}>
                   <Select id="ss" value={sheen} onChange={(e) => setSheen(e.target.value)}>
                     {["Flat", "Matte", "Eggshell", "Satin", "Semi-Gloss", "Gloss"].map((s) => <option key={s}>{s}</option>)}
@@ -312,8 +312,8 @@ function RefundPanel({ r, canAct }: { r: TouchUpReorder; canAct: boolean }) {
   if (!r.refundDueAt) {
     return (
       <section className="space-y-2">
-        <CardLabel icon={<Receipt />}>Cancelled</CardLabel>
-        <p className="text-xs text-gray-600">{r.cancelReason === "unfillable" ? "Unfillable" : "Cancelled"} {dateLong(r.cancelledAt)}. No cleared prepayment was recorded, so no refund is due.</p>
+        <CardLabel icon={<Receipt />}>Canceled</CardLabel>
+        <p className="text-xs text-gray-600">{r.cancelReason === "unfillable" ? "Unfillable" : "Canceled"} {dateLong(r.cancelledAt)}. No cleared prepayment was recorded, so no refund is due.</p>
       </section>
     );
   }
@@ -331,7 +331,7 @@ function RefundPanel({ r, canAct }: { r: TouchUpReorder; canAct: boolean }) {
           title={<span className="inline-flex items-center gap-1.5"><Clock className="h-3.5 w-3.5" /> Refund due {dateLong(r.refundDueAt)} · {left < 0 ? `${-left} working day${left === -1 ? "" : "s"} overdue` : `${left} working day${left === 1 ? "" : "s"} left`}</span>}
           action={canAct && <Button size="sm" variant="primary" onClick={() => act(recordRefund, r.id).ok && toast.success("Refund recorded", r.id)}>Refund recorded</Button>}
         >
-          {r.cancelReason === "unfillable" ? "Order unfillable." : "Order cancelled."} Refund {r.gallons} gal order to the original method ({r.paymentMethod}) within five working days of {dateLong(r.cancelledAt)}.
+          {r.cancelReason === "unfillable" ? "Order unfillable." : "Order canceled."} Refund {r.gallons} gal order to the original method ({r.paymentMethod}) within five working days of {dateLong(r.cancelledAt)}.
           <span className="mt-1 flex items-center gap-1 text-xs"><Info className="h-3 w-3" /> The payment itself is made outside Estimate Master; record it here once done.</span>
         </Banner>
       )}

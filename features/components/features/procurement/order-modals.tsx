@@ -181,12 +181,12 @@ export function ReplaceModal({ po, line, onClose }: { po?: PurchaseOrder; line?:
   };
   const ok = preview && !("error" in preview);
   return (
-    <Modal open={!!line} onOpenChange={(v) => !v && onClose()} size="lg" title={`Replace ${line?.id ?? ""} on ${po?.id ?? ""}`} description="Rule 1 decides who approves. No customer document is created for an office-only change."
+    <Modal open={!!line} onOpenChange={(v) => !v && onClose()} size="lg" title={`Replace ${line?.id ?? ""} on ${po?.id ?? ""}`} description="The app decides who approves it. An office-only change creates no customer document."
       footer={<><Button onClick={onClose}>Cancel</Button><Button variant="primary" disabled={!ok || (ok && preview.decision === "change_order")} onClick={submit}>{ok && preview.decision === "owner" && user.role !== "owner" ? "Send to owner" : "Approve replacement"}</Button></>}>
       <div className="space-y-4">
         {offer && (
           <Banner tone="warn" title={`Supplier offers a substitute: ${offer.product}`}>
-            {offer.catalogId ? "It's preselected below. Rule 1 decides who approves it." : "It isn't in the product library — choose the closest product, or decline and call the branch."}
+            {offer.catalogId ? "It's preselected below. The app decides who approves it." : "It isn't in the product library — choose the closest product, or decline and call the branch."}
           </Banner>
         )}
         <div className="rounded-lg bg-gray-50 p-3 text-xs">

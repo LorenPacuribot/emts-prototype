@@ -121,12 +121,12 @@ export function PaintColors({ job, editable, paintColourId, onPaint }: {
             {canCard && (
               <>
                 <Button size="sm" variant="primary" onClick={() => setSendFor({ open: true })} data-tour="send-approval">
-                  <Send className="h-3.5 w-3.5" /> Send For Approval
+                  <Send className="h-3.5 w-3.5" /> Send for approval
                 </Button>
                 <RowMenu
                   label="More card actions"
                   items={[
-                    { label: "Add specification", icon: <Layers />, onSelect: () => (colours.length ? setSpecEditor({ open: true, colourId: colours[0].id }) : toast.info("Add a colour first")) },
+                    { label: "Add specification", icon: <Layers />, onSelect: () => (colours.length ? setSpecEditor({ open: true, colourId: colours[0].id }) : toast.info("Add a color first")) },
                     { label: "Create new card version", icon: <GitBranch />, onSelect: () => setConfirmVersion(true) },
                     { label: "Simulate another user's save (demo)", icon: <Users2 />, onSelect: () => { act(simulateConcurrentSave, job.id); toast.info("Another user saved this card", "Open an editor that was already open and save to see the version check."); } },
                   ]}
@@ -144,7 +144,7 @@ export function PaintColors({ job, editable, paintColourId, onPaint }: {
       )}
       {job.contractSigned && !snapshot && (
         <Banner tone="info" className="mb-4" title={<span className="inline-flex items-center gap-2">Signed scope <NewBadge feature={[3, 24]} /></span>}>
-          The customer signed this card. An office-only change (same brand, line and colour, no price change) is saved by the Office Manager. Anything else needs a change order (Cross-Feature Rule 1).
+          The customer signed this card. An office-only change (same brand, line and color, no price change) is saved by the Office Manager. Anything else needs a change order.
         </Banner>
       )}
       {flags.map((f) => (
@@ -318,7 +318,7 @@ export function PaintColors({ job, editable, paintColourId, onPaint }: {
 
       <div className="mt-6" data-tour="approval-panel">
         <div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-gray-400">
-          Colour approval <NewBadge feature={3} />
+          Color approval <NewBadge feature={3} />
         </div>
         <ApprovalPanel jobId={job.id} />
       </div>
@@ -337,7 +337,7 @@ export function PaintColors({ job, editable, paintColourId, onPaint }: {
         open={!!removingColour}
         onOpenChange={(v) => !v && setRemovingColour(undefined)}
         title={`Delete ${removingColour?.name}?`}
-        body={specs.some((s) => s.colourId === removingColour?.id) ? "Remove this colour's specification lines first (open the colour row)." : "The colour has no specifications. Removing it is logged."}
+        body={specs.some((s) => s.colourId === removingColour?.id) ? "Remove this color's specification lines first (open the color row)." : "The color has no specifications. Removing it is logged."}
         confirmLabel="Delete color"
         onConfirm={() => removingColour && act(removeColour, removingColour.id).ok && toast.success("Color deleted")}
       />
@@ -401,7 +401,7 @@ function SpecList({ colour, specs, readOnly, canLock, showSample, onAdd, onEdit,
           </Button>
         )}
       </div>
-      {specs.length === 0 && <p className="text-xs italic text-gray-400">No specifications yet. A colour with no specification can&apos;t be approved.</p>}
+      {specs.length === 0 && <p className="text-xs italic text-gray-400">No specifications yet. A color with no specification can&apos;t be approved.</p>}
       {specs.map((spec) => (
         <SpecRow key={spec.id} spec={spec} readOnly={readOnly} canLock={canLock} onEdit={() => onEdit(spec)} onSend={() => onSend(spec)} onRemove={() => onRemove(spec)} onHistory={() => onHistory(spec)} />
       ))}

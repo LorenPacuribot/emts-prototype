@@ -72,7 +72,7 @@ export function NewEstimateFromHistoryModal({ open, onOpenChange, property, foll
       ...(leadId === "new" ? { newLead: { scheduledAt: when ? new Date(when).toISOString() : "", estimatorId } } : { leadId }),
     });
     if (!r.ok) return setError({ field: r.field, message: r.error });
-    toast.success("Estimate started from history", "Scope, colours and specifications copied. Reconfirm, record the inspection, then Send.");
+    toast.success("Estimate started from history", "Scope, colors and specifications copied. Reconfirm, record the inspection, then Send.");
     onOpenChange(false);
     nav.push(estimateHref(r.value as string, "section-from-history"));
   }
@@ -114,7 +114,7 @@ export function NewEstimateFromHistoryModal({ open, onOpenChange, property, foll
             </label>
           </div>
           <fieldset className="space-y-2">
-            <legend className="mb-1 text-sm font-semibold text-gray-900">Labour, material and paint pricing</legend>
+            <legend className="mb-1 text-sm font-semibold text-gray-900">Labor, material and paint pricing</legend>
             <div className="grid gap-2 sm:grid-cols-2">
               {([
                 ["current", "Update to current pricing", "Today's labour rate, material prices and markup."],

@@ -81,9 +81,9 @@ export function ReorderForm({ property, open, onOpenChange, initialApp, requestI
             “{request.note}” — {request.requesterName}, {request.contact}, {dateLong(request.createdAt)}
           </Banner>
         )}
-        <Field label="Colour record from property history" required htmlFor="tur-app" error={err?.field === "applicationId" ? err.msg : undefined}>
+        <Field label="Color record from property history" required htmlFor="tur-app" error={err?.field === "applicationId" ? err.msg : undefined}>
           <Select id="tur-app" value={appId} onChange={(e) => { setAppId(e.target.value); setErr(undefined); }} invalid={err?.field === "applicationId"}>
-            <option value="">Choose a surface and colour…</option>
+            <option value="">Choose a surface and color…</option>
             {apps.map(({ app, surface, area, group }) => (
               <option key={app.id} value={app.id}>
                 {area?.name} · {surface?.name} — {app.colourName} {app.colourNumber}, {app.sheen} ({group.jobId ?? "customer-reported"})
@@ -107,7 +107,7 @@ export function ReorderForm({ property, open, onOpenChange, initialApp, requestI
           </div>
         )}
         {dup && (
-          <Banner tone="warn" title={`Reorder ${dup.id} is already pending for this colour`} action={<AppLink href={reorderHref(property.id, dup.id)} onClick={() => onOpenChange(false)} className="inline-flex items-center gap-1 whitespace-nowrap text-xs font-semibold underline">Open {dup.id} <ExternalLink className="h-3 w-3" /></AppLink>}>
+          <Banner tone="warn" title={`Reorder ${dup.id} is already pending for this color`} action={<AppLink href={reorderHref(property.id, dup.id)} onClick={() => onOpenChange(false)} className="inline-flex items-center gap-1 whitespace-nowrap text-xs font-semibold underline">Open {dup.id} <ExternalLink className="h-3 w-3" /></AppLink>}>
             Open it instead of creating a duplicate purchase.
           </Banner>
         )}

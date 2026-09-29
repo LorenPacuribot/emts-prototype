@@ -65,7 +65,7 @@ export function MaterialsSections({ job }: { job: Job }) {
 
   function exportCsv() {
     downloadCsv(`${job.id}-materials.csv`, [
-      ["Spec", "Product", "Colour", "Sheen", "Surfaces", "Measured sq ft", "Coat-adjusted sq ft", "Coverage rate", "Coverage source", "Base need gal", "Waste %", "Adjusted need gal", "Packs", "Excess gal", "Outstanding gal", "Orderable now gal", "Status", ...(perms.seePrices ? ["Current cost"] : [])],
+      ["Spec", "Product", "Color", "Sheen", "Surfaces", "Measured sq ft", "Coat-adjusted sq ft", "Coverage rate", "Coverage source", "Base need gal", "Waste %", "Adjusted need gal", "Packs", "Excess gal", "Outstanding gal", "Orderable now gal", "Status", ...(perms.seePrices ? ["Current cost"] : [])],
       ...lines.map((l) => {
         const s = lineState(db, job.id, l.specId, l.needGal);
         return [l.specId, l.spec.product, `${l.colourName} ${l.colourNumber}`, l.spec.sheen, l.parts.length, l.measuredSqft, l.coatSqft, l.rate, COVERAGE_LABEL[l.source], l.baseNeedGal.toFixed(3), Math.round(l.waste * 100), l.needGal.toFixed(3),
@@ -164,7 +164,7 @@ export function MaterialsSections({ job }: { job: Job }) {
           <p className="mt-1 text-xs text-gray-500">Coverage rate, then waste, then container packing — in that order. Full precision is kept; only the adjusted need is rounded, once, to three decimals.</p>
           <div className="mt-3">
             {lines.length === 0 ? (
-              <EmptyState icon={<Calculator />} title="No colour specifications yet." body="Add specifications on the Color Card. Demand is calculated from approved specifications and their surfaces." />
+              <EmptyState icon={<Calculator />} title="No color specifications yet." body="Add specifications on the Color Card. Demand is calculated from approved specifications and their surfaces." />
             ) : (
               <DemandTable lines={lines} snapshot={snapshot} stale={stale} readOnly={readOnly} />
             )}

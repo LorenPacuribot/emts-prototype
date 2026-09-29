@@ -67,7 +67,7 @@ export function QuotePrintModal({ rep, open, onOpenChange }: { rep: RepeatEstima
           <thead>
             <tr className="border-b border-line text-xxs uppercase tracking-wider text-gray-400">
               <th className="py-2">Area · Surface</th>
-              <th className="py-2">Colour</th>
+              <th className="py-2">Color</th>
               <th className="py-2">Product · Sheen</th>
               <th className="py-2 text-right">Coats</th>
               <th className="py-2 text-right">Price</th>

@@ -1,7 +1,7 @@
 "use client";
 /**
- * Feature 22 — Time And Payroll (office review, component 22.2).
- * Menu: Workforce > Time And Payroll
+ * Feature 22 — Time and Payroll (office review, component 22.2).
+ * Menu: Workforce > Time and Payroll
  *
  * Everything that must be settled before time can be exported is visible
  * here: flags grouped by type, disputes with their route, and the time that
@@ -83,7 +83,7 @@ function Review() {
   return (
     <>
       <PageHeader
-        title="Time And Payroll"
+        title="Time and Payroll"
         subtitle="Clocked time, classified and approved before it goes to Gusto. Only approved hours reach job costing and the payroll export."
         actions={
           <>

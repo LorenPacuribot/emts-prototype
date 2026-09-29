@@ -80,7 +80,7 @@ export function CloseoutPanel({ job }: { job: Job }) {
             <ul className="mt-1 list-disc space-y-0.5 pl-5">
               {blockers.map((b) => <li key={b.surfaceId}><strong>{surfaceLabel(db, b.surfaceId)}</strong> — missing {b.missing.join(", ")}</li>)}
             </ul>
-            <p className="mt-1">Colour, sheen and completion date are required for every painted surface. Missing hours or gallons never block closeout.</p>
+            <p className="mt-1">Color, sheen and completion date are required for every painted surface. Missing hours or gallons never block closeout.</p>
           </Banner>
         ) : (
           <Banner tone="success" className="mb-4" title="Ready to close">Every surface in the approved scope is confirmed by the crew lead. The Office Manager can close the job.</Banner>
@@ -121,7 +121,7 @@ export function CloseoutPanel({ job }: { job: Job }) {
         onOpenChange={setMatching}
         size="sm"
         title="Confirm all matching"
-        description="Confirms every unconfirmed surface whose colour, product, sheen and coats still match the approved specification."
+        description="Confirms every unconfirmed surface whose color, product, sheen and coats still match the approved specification."
         footer={<><Button onClick={() => setMatching(false)}>Cancel</Button><Button variant="primary" onClick={() => {
           const res = act(confirmAllMatching, job.id, fromDateInput(matchDate) ?? "");
           if (res.ok) {
@@ -130,7 +130,7 @@ export function CloseoutPanel({ job }: { job: Job }) {
           }
         }}>Confirm</Button></>}
       >
-        <Field label="Surface completion date" required hint="Used for rows without a date. Feature 27 uses it as the repaint clock's origin.">
+        <Field label="Surface completion date" required hint="Used for rows without a date. Repaint reminders count from this date.">
           <Input type="date" value={matchDate} max={todayInput()} onChange={(e) => setMatchDate(e.target.value)} />
         </Field>
       </Modal>
@@ -194,7 +194,7 @@ function RowCard({ row, closed, canConfirm, canUnknown, onEdit, onUnknown }: { r
           </div>
           {row.painted ? (
             <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-2 text-xs sm:grid-cols-4 lg:grid-cols-8">
-              <Cell label="Colour" className="col-span-2"><Val field="colour">{row.manufacturer} {row.colourName} {row.colourNumber}</Val></Cell>
+              <Cell label="Color" className="col-span-2"><Val field="colour">{row.manufacturer} {row.colourName} {row.colourNumber}</Val></Cell>
               <Cell label="Product" className="col-span-2">{row.product || <span className="italic text-gray-400">—</span>}</Cell>
               <Cell label="Sheen"><Val field="sheen">{row.sheen}</Val></Cell>
               <Cell label="Coats"><Val field="coats">{row.coats}</Val></Cell>

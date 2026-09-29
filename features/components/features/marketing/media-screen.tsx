@@ -71,7 +71,7 @@ function Media() {
           {office && <UploadCard />}
           <Card className="p-4">
             <CardLabel>Templates</CardLabel>
-            <p className="mt-1 text-xs text-gray-500">Supplied by the office in both sizes, with the logo and brand colours. Overlay only — no image or video generation.</p>
+            <p className="mt-1 text-xs text-gray-500">Supplied by the office in both sizes, with the logo and brand colors. Overlay only — no image or video generation.</p>
             <ul className="mt-2 space-y-1 text-xs">
               {(Object.keys(TEMPLATE_LABEL) as PostTemplate[]).map((t) => <li key={t} className="flex justify-between gap-2"><span>{TEMPLATE_LABEL[t]}</span><span className="text-gray-500">{TEMPLATE_SIZES.square} · {TEMPLATE_SIZES.vertical}</span></li>)}
             </ul>

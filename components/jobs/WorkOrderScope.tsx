@@ -139,7 +139,7 @@ export function WorkOrderScope({ job, estimate, lead, workOrder, onSchedule }: {
                       <td className="px-4 py-2.5 text-gray-600">{l.sqft ? `${l.kind === 'remove' ? '−' : ''}${l.sqft} sq ft` : '—'}</td>
                       <td className="px-4 py-2.5 text-gray-600">{l.colour || '—'}</td>
                       <td className="px-4 py-2.5 text-gray-600">{l.product || '—'}</td>
-                      <td className="px-4 py-2.5 text-right font-bold text-gray-900">{h ? h.toFixed(2) : <span className="font-normal text-gray-400" title="Add labour hours to this change-order line to include it in the required hours">Not given</span>}</td>
+                      <td className="px-4 py-2.5 text-right font-bold text-gray-900">{h ? h.toFixed(2) : <span className="font-normal text-gray-400" title="Add labor hours to this change-order line to include it in the required hours">Not given</span>}</td>
                     </tr>
                   );
                 })}

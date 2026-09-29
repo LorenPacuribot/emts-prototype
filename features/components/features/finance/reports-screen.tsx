@@ -70,7 +70,7 @@ function Margin({ cutoff }: { cutoff?: string }) {
         <Button size="sm" onClick={csv}><Download className="h-3.5 w-3.5" /> CSV</Button>
       </div>
       <Table>
-        <THead><tr><TH>Job</TH><TH className="text-right">Contract (ex tax)</TH><TH className="text-right">Invoiced (ex tax)</TH><TH className="text-right">Labour</TH><TH className="text-right">Material</TH><TH className="text-right">Subs / other</TH><TH className="text-right">Cost to date</TH><TH className="text-right">Actual margin</TH><TH className="text-right">Projected margin</TH></tr></THead>
+        <THead><tr><TH>Job</TH><TH className="text-right">Contract (ex tax)</TH><TH className="text-right">Invoiced (ex tax)</TH><TH className="text-right">Labor</TH><TH className="text-right">Material</TH><TH className="text-right">Subs / other</TH><TH className="text-right">Cost to date</TH><TH className="text-right">Actual margin</TH><TH className="text-right">Projected margin</TH></tr></THead>
         <tbody>
           {rows.map(({ job, f }) => (
             <TR key={job.id}>
@@ -87,7 +87,7 @@ function Margin({ cutoff }: { cutoff?: string }) {
           ))}
         </tbody>
       </Table>
-      <p className="mt-2 text-xs text-gray-500">Customer sales tax is excluded from revenue; purchase tax is included in cost. Labour is the Rule 3 allocation of the bookkeeper's approved totals. Deposits are liabilities, not revenue.</p>
+      <p className="mt-2 text-xs text-gray-500">Customer sales tax is excluded from revenue; purchase tax is included in cost. Labor is the bookkeeper's approved payroll totals, split across jobs by approved hours. Deposits are liabilities, not revenue.</p>
     </Card>
   );
 }
@@ -122,7 +122,7 @@ function Income({ cutoff }: { cutoff?: string }) {
       <Card className="p-4">
         <div className="mb-3 flex items-center justify-between"><p className="text-xs text-gray-500">Monthly, by accounting period. Revenue excludes customer sales tax; costs include purchase tax.</p><Button size="sm" onClick={csv}><Download className="h-3.5 w-3.5" /> CSV</Button></div>
         <Table>
-          <THead><tr><TH>Month</TH><TH className="text-right">Revenue</TH><TH className="text-right">Materials</TH><TH className="text-right">Labour</TH><TH className="text-right">Subcontractors</TH><TH className="text-right">Overhead</TH><TH className="text-right">Net</TH></tr></THead>
+          <THead><tr><TH>Month</TH><TH className="text-right">Revenue</TH><TH className="text-right">Materials</TH><TH className="text-right">Labor</TH><TH className="text-right">Subcontractors</TH><TH className="text-right">Overhead</TH><TH className="text-right">Net</TH></tr></THead>
           <tbody>{rows.map((r) => (
             <TR key={r.m}><TD className="font-semibold">{r.m}{db.financeSettings.closedPeriods.includes(r.m) && <Badge tone="gray" className="ml-1.5">Closed</Badge>}</TD>
               {[r.revenue, r.materials, r.labour, r.subs, r.overhead].map((v, i) => <TD key={i} className="text-right tabular-nums">{money(v)}</TD>)}

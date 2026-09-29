@@ -1,6 +1,6 @@
 "use client";
 /**
- * Component 3.5 — Print And Export.
+ * Component 3.5 — Print and Export.
  * Crew card: by room/elevation with surface, colour, sheen, coats, primer, sequence.
  * Customer card: swatch, colour name and number, sheen and location only.
  */
@@ -33,7 +33,7 @@ export function PrintCardModal({ open, onOpenChange, jobId, initial = "crew" }: 
       open={open}
       onOpenChange={onOpenChange}
       size="lg"
-      title="Print colour card"
+      title="Print color card"
       description="Print, or choose “Save as PDF” in the print dialog to export."
       footer={
         <>
@@ -56,7 +56,7 @@ export function PrintCardModal({ open, onOpenChange, jobId, initial = "crew" }: 
       <div ref={ref} className="rounded-xl border border-line p-6 font-sans">
         <div className="mb-4 flex items-start justify-between border-b border-line pb-3">
           <div>
-            <div className="font-display text-lg font-bold">{layout === "crew" ? "Crew colour card" : "Your colour selections"}</div>
+            <div className="font-display text-lg font-bold">{layout === "crew" ? "Crew color card" : "Your color selections"}</div>
             <div className="text-xs text-gray-500">
               {job.name} · {propertyAddress(property, true)}
             </div>
@@ -76,7 +76,7 @@ export function PrintCardModal({ open, onOpenChange, jobId, initial = "crew" }: 
                   <thead>
                     <tr className="text-left text-xxs uppercase tracking-wider text-gray-400">
                       <th className="border-b py-1">Surface</th>
-                      <th className="border-b py-1">Colour</th>
+                      <th className="border-b py-1">Color</th>
                       <th className="border-b py-1">Sheen</th>
                       <th className="border-b py-1">Coats</th>
                       <th className="border-b py-1">Primer</th>
@@ -120,7 +120,7 @@ export function PrintCardModal({ open, onOpenChange, jobId, initial = "crew" }: 
               ))}
             </div>
           )}
-        {layout === "customer" && <p className="mt-4 text-xs text-gray-400">On-screen swatches are a guide only and are not a guarantee of physical colour match.</p>}
+        {layout === "customer" && <p className="mt-4 text-xs text-gray-400">On-screen swatches are a guide only and are not a guarantee of physical color match.</p>}
       </div>
     </Modal>
   );

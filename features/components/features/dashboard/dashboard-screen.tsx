@@ -54,8 +54,8 @@ function toggleTask(db: Database, _actor: User, id: string) {
 export const JOURNEY: { title: string; body: string; href: string; features?: string }[] = [
   { title: "Lead", body: "Lead Pipeline › Olivia Bennett, estimate appointment booked", href: leadHref("LEAD-2026-10") },
   { title: "Estimate", body: "Create New Estimate on her lead (or Estimates › Create New Estimate)", href: leadHref("LEAD-2026-10") },
-  { title: "Colour card", body: "Add New Color with coats, primer and tint base", href: "/estimates", features: "3" },
-  { title: "Scope", body: "Add an area and line items, paint them with the colour", href: "/estimates" },
+  { title: "Color card", body: "Add New Color with coats, primer and tint base", href: "/estimates", features: "3" },
+  { title: "Scope", body: "Add an area and line items, paint them with the color", href: "/estimates" },
   { title: "Accept", body: "Send, then Client Preview › Accept Estimate with a signature", href: "/estimates", features: "3" },
   { title: "Job, work order, draft invoice", body: "Created on acceptance: Pending Deposit", href: "/work-orders" },
   { title: "Schedule", body: "Confirm Deposit, then Schedule", href: "/work-orders" },
@@ -152,7 +152,7 @@ export function DashboardScreen() {
             </DropdownMenu.Root>
           </div>
         </div>
-        {customize && <p className="mb-4 rounded-xl bg-white px-4 py-2 text-sm text-gray-500">Drag widgets anywhere to reorder. Use the Wide/Small button to resize. Click &quot;Done&quot; when finished. (Layout editing is live-app behaviour, not rebuilt in the prototype.)</p>}
+        {customize && <p className="mb-4 rounded-xl bg-white px-4 py-2 text-sm text-gray-500">Drag widgets anywhere to reorder. Use the Wide/Small button to resize. Click &quot;Done&quot; when finished. (Layout editing is live-app behavior, not rebuilt in the prototype.)</p>}
 
         {/* Prototype-only demo journey */}
         <div className="mb-6 rounded-2xl border border-dashed border-green-300 bg-gradient-to-r from-green-50/80 to-white p-5" data-tour="walkthrough">

@@ -150,7 +150,7 @@ function PublicEstimate() {
           )}
           <div className="mt-8 border-t border-gray-200 pt-4 text-xs text-gray-500">
             <div className="font-bold uppercase tracking-widest text-gray-400">Terms &amp; Conditions</div>
-            <p className="mt-1">Work is guaranteed for two years against peeling and flaking. Colour changes after signing may need a change order.</p>
+            <p className="mt-1">Work is guaranteed for two years against peeling and flaking. Color changes after signing may need a change order.</p>
           </div>
         </div>
       </main>
@@ -211,7 +211,7 @@ function Scope({ jobId }: { jobId: string }) {
                   <tr key={s.id} className="border-b border-gray-100">
                     <td className="py-1.5 text-gray-700">{s.name}</td>
                     <td className="py-1.5 text-right text-gray-500">{spec?.coats ?? 2} coats</td>
-                    <td className="py-1.5 pl-4 text-right text-gray-500">{colour ? `${colour.name} ${colour.number}` : "Colour to be confirmed"}</td>
+                    <td className="py-1.5 pl-4 text-right text-gray-500">{colour ? `${colour.name} ${colour.number}` : "Color to be confirmed"}</td>
                   </tr>
                 );
               })}
@@ -251,7 +251,7 @@ function PaintColorsSection({ jobId }: { jobId: string }) {
           );
         })}
       </div>
-      <p className="mt-2 text-xs text-gray-500">Accepting this estimate approves the colours and finishes listed, unless a colour still needs a sample.</p>
+      <p className="mt-2 text-xs text-gray-500">Accepting this estimate approves the colors and finishes listed, unless a color still needs a sample.</p>
     </div>
   );
 }

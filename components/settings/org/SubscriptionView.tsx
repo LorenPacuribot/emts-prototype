@@ -136,7 +136,7 @@ export function SubscriptionView() {
           <div>
             <div className="text-xxs font-bold uppercase tracking-widest text-gray-400">Current Plan</div>
             <div className="mt-1 font-heading text-base font-bold text-gray-900">
-              {sub.planName} — ${sub.price}/mo {cancelled && <Badge className="ml-2 border-red-200 bg-red-50 text-red-700">Cancelled</Badge>}
+              {sub.planName} — ${sub.price}/mo {cancelled && <Badge className="ml-2 border-red-200 bg-red-50 text-red-700">Canceled</Badge>}
             </div>
             <div className="mt-1 text-xs text-gray-500">Card: {pm.brand} ending in {pm.last4}</div>
             <div className="mt-0.5 text-xs text-gray-500">{cancelled ? 'Access ends' : 'Renews'}: {longDate(sub.renewsAt)}</div>
@@ -328,7 +328,7 @@ export function SubscriptionView() {
         title="Cancel Subscription"
         confirmLabel="Cancel Subscription"
         message={`Your ${sub.planName} plan stays active until ${longDate(sub.renewsAt)}. After that you will lose access to your account data.`}
-        onConfirm={() => { setSub({ status: 'Cancelled' }); toast('Subscription cancelled'); }}
+        onConfirm={() => { setSub({ status: 'Cancelled' }); toast('Subscription canceled'); }}
       />
 
       <UpdatePaymentModal open={payOpen} onOpenChange={setPayOpen} onSave={(paymentMethod) => { setSub({ paymentMethod }); toast('Payment method updated successfully'); }} />

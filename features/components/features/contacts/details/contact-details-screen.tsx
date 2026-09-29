@@ -234,7 +234,7 @@ function InvoicesTab({ customerId }: { customerId: string }) {
         {list.map((i) => (
           <AppLink key={i.id} href={invoiceHref(i.id)} className="flex items-center justify-between gap-3 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm hover:shadow-md">
             <div>
-              <div className="flex items-center gap-2"><span className="font-bold text-gray-900">{i.id}</span><StatusPill tone={i.status === "paid" ? "green" : i.status === "draft" ? "gray" : "amber"}>{i.status === "paid" ? "Paid" : i.status === "draft" ? "Draft" : i.status === "void" ? "Cancelled" : "Sent"}</StatusPill></div>
+              <div className="flex items-center gap-2"><span className="font-bold text-gray-900">{i.id}</span><StatusPill tone={i.status === "paid" ? "green" : i.status === "draft" ? "gray" : "amber"}>{i.status === "paid" ? "Paid" : i.status === "draft" ? "Draft" : i.status === "void" ? "Canceled" : "Sent"}</StatusPill></div>
               <div className="text-xs text-gray-500">{i.jobId}</div>
               <div className="text-xs text-gray-400">{date(i.createdAt)} • Total: {money(i.amount, { cents: true })}</div>
             </div>

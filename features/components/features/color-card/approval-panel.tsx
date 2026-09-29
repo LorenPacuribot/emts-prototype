@@ -1,5 +1,5 @@
 "use client";
-/** Component 3.4 — Approval And Evidence Panel. */
+/** Component 3.4 — Approval and Evidence Panel. */
 import { useEffect, useState } from "react";
 import { FileCheck2, Mail, Send } from "lucide-react";
 import type { ApprovalChannel, ColourApproval } from "@/features/types";
@@ -22,7 +22,7 @@ export function ApprovalPanel({ jobId }: { jobId: string }) {
     <Card className="p-5">
       <CardLabel icon={<FileCheck2 />}>Approval & evidence</CardLabel>
       <div className="mt-4 space-y-3">
-        {approvals.length === 0 && <EmptyState title="Nothing sent for approval yet." body="Use Send For Approval to send one or more specifications." />}
+        {approvals.length === 0 && <EmptyState title="Nothing sent for approval yet." body="Use Send for approval to send one or more specifications." />}
         {approvals.map((a) => (
           <div key={a.id} className="rounded-xl border border-line p-3 text-xs">
             <div className="flex flex-wrap items-center gap-2">
@@ -166,7 +166,7 @@ export function SendApprovalModal({ open, onOpenChange, jobId, preselect }: { op
       open={open}
       onOpenChange={onOpenChange}
       title="Send for approval"
-      description="Choose the specifications and the channel. A person presses send (Rule 4)."
+      description="Choose the specifications and how to send them. Nothing goes out until you press send."
       footer={
         <>
           <Button onClick={() => onOpenChange(false)}>Cancel</Button>

@@ -264,7 +264,7 @@ function Publishing({ post }: { post: MarketingPost }) {
         {office && post.state === "scheduled" && late?.state === "waiting" && <Button variant="primary" onClick={() => { const r = act(publishPost, post.id, "manual"); if (r.ok) toast.success("Published by the office manager"); }}>Publish now</Button>}
         {office && post.state === "partially_failed" && <Button variant="primary" onClick={() => { const r = act(retryFailed, post.id); if (r.ok) toast.success("Retried the failed platform only"); }}>Retry failed platform</Button>}
         {office && other && <Button onClick={() => { const r = act(copyToPlatform, post.id, other); if (r.ok) toast.success(`Copied to ${PLATFORM_LABEL[other]} as ${r.value}`, "The approval requirement was re-evaluated for the copy."); }}><Copy className="h-4 w-4" /> Copy to {PLATFORM_LABEL[other]}</Button>}
-        {office && !["published", "partially_failed", "cancelled"].includes(post.state) && <Button variant="ghost" onClick={() => act(cancelPost, post.id).ok && toast.success("Cancelled")}>Cancel post</Button>}
+        {office && !["published", "partially_failed", "cancelled"].includes(post.state) && <Button variant="ghost" onClick={() => act(cancelPost, post.id).ok && toast.success("Canceled")}>Cancel post</Button>}
       </div>
       {post.takedown && (
         <div className="mt-3 rounded-lg border border-red-200 bg-red-50/60 px-3 py-2 text-xs">

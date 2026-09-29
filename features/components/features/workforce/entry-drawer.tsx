@@ -45,7 +45,7 @@ export function EntryDrawer({ entryId, onClose }: { entryId?: string; onClose: (
       open={!!entry}
       onOpenChange={(v) => !v && onClose()}
       title={<span className="flex flex-wrap items-center gap-2">{emp.name} · {dayLabel(entry.workDate)} <EntryStateBadge state={entry.state} /></span>}
-      subtitle={`${entry.id} · approved by ${approver.label}${emp.type !== "hourly" ? ` · ${emp.type === "salaried" ? "Salaried — job-cost time only, not exported" : "Subcontractor — hours flagged, zero labour cost"}` : ""}`}
+      subtitle={`${entry.id} · approved by ${approver.label}${emp.type !== "hourly" ? ` · ${emp.type === "salaried" ? "Salaried — job-cost time only, not exported" : "Subcontractor — hours flagged, zero labor cost"}` : ""}`}
       footer={
         <>
           {entry.state === "approved" && can(user, "time.override") && (

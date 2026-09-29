@@ -1,7 +1,7 @@
 "use client";
 /**
- * Returns And Credits (19 System Validations).
- * Menu: Procurement > Returns And Credits
+ * Returns and Credits (19 System Validations).
+ * Menu: Procurement > Returns and Credits
  *
  * Every return links to the original order and job. Tinted paint is
  * non-returnable; it stays job cost and may move to the leftover shelf.
@@ -57,7 +57,7 @@ function Returns() {
   return (
     <>
       <PageHeader
-        title="Returns And Credits"
+        title="Returns and Credits"
         subtitle="Untinted, unopened product returned to the branch, with the credit linked to the original order and job."
         actions={
           <>

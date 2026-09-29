@@ -337,7 +337,7 @@ function DrillDown({ job, range, measure, onClose }: { job?: JobPerf; range: { f
       )}
       {empCost.length > 0 && (
         <Card className="p-4">
-          <CardLabel>Labour cost by employee (bookkeeper and owner only)</CardLabel>
+          <CardLabel>Labor cost by employee (bookkeeper and owner only)</CardLabel>
           <ul className="mt-2 space-y-1 text-xs">{empCost.map((e, i) => <li key={i}>{e.name}: {money(e.amount)}</li>)}</ul>
         </Card>
       )}
@@ -360,7 +360,7 @@ function CorrectionModal({ open, jobId, onClose }: { open: boolean; jobId: strin
         if (r.ok) { toast.success("Correction requested", "Applied once both approvers have approved."); onClose(); } else setErr(r.error);
       }}>Request</Button></>}>
       <div className="space-y-3">
-        <Field label="Field"><Select value={field} onChange={(e) => setField(e.target.value as typeof field)}><option value="labourHours">Labour hours</option><option value="labourCost">Labour cost</option><option value="material">Material</option><option value="subcontractor">Subcontractors</option></Select></Field>
+        <Field label="Field"><Select value={field} onChange={(e) => setField(e.target.value as typeof field)}><option value="labourHours">Labor hours</option><option value="labourCost">Labor cost</option><option value="material">Material</option><option value="subcontractor">Subcontractors</option></Select></Field>
         <Field label="Corrected value" required><Input type="number" value={value} onChange={(e) => setValue(e.target.value)} /></Field>
         <Field label="Reason code"><Select value={code} onChange={(e) => setCode(e.target.value as ReasonCode)}>{REASON_CODES.map((c) => <option key={c}>{c}</option>)}</Select></Field>
         <Field label="Note" required error={err}><Textarea value={note} onChange={(e) => setNote(e.target.value)} /></Field>

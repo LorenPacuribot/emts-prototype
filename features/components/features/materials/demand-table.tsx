@@ -34,12 +34,12 @@ export function DemandTable({ lines, snapshot, stale, readOnly }: { lines: Deman
           <tr>
             <TH className="w-8" />
             <TH>Product</TH>
-            <TH>Colour · sheen</TH>
-            <TH className="text-right"><span className="ml-auto block max-w-[70px] whitespace-normal">Coat-adj. area</span></TH>
+            <TH>Color · sheen</TH>
+            <TH className="text-right"><span className="ml-auto block max-w-[70px] whitespace-normal">Area with coats</span></TH>
             <TH>Coverage</TH>
-            <TH className="text-right"><span className="ml-auto block max-w-[70px] whitespace-normal">Base need</span></TH>
+            <TH className="text-right"><span className="ml-auto block max-w-[70px] whitespace-normal">Paint needed</span></TH>
             <TH>Waste</TH>
-            <TH className="text-right"><span className="ml-auto block max-w-[70px] whitespace-normal">Adjusted need</span></TH>
+            <TH className="text-right"><span className="ml-auto block max-w-[70px] whitespace-normal">With waste</span></TH>
             <TH><span className="block max-w-[70px] whitespace-normal">Selected packs</span></TH>
             <TH className="text-right">Excess</TH>
             {perms.seePrices && <TH className="text-right"><span className="ml-auto block max-w-[70px] whitespace-normal">Current cost</span></TH>}
@@ -111,7 +111,7 @@ export function DemandTable({ lines, snapshot, stale, readOnly }: { lines: Deman
                       <table className="mt-2 w-full text-xs">
                         <thead>
                           <tr className="text-left text-xxs uppercase tracking-wider text-gray-400">
-                            <th className="py-1 pr-3">Surface</th><th className="py-1 pr-3">Condition</th><th className="py-1 pr-3 text-right">Measured</th><th className="py-1 pr-3 text-right">Coats</th><th className="py-1 pr-3 text-right">Coat-adj.</th><th className="py-1 pr-3 text-right">Rate</th><th className="py-1 pr-3">Source</th><th className="py-1 text-right">Base need (full precision)</th>
+                            <th className="py-1 pr-3">Surface</th><th className="py-1 pr-3">Condition</th><th className="py-1 pr-3 text-right">Measured</th><th className="py-1 pr-3 text-right">Coats</th><th className="py-1 pr-3 text-right">Area with coats</th><th className="py-1 pr-3 text-right">Rate</th><th className="py-1 pr-3">Source</th><th className="py-1 text-right">Paint needed (exact)</th>
                           </tr>
                         </thead>
                         <tbody>

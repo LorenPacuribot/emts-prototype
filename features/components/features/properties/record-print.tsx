@@ -64,7 +64,7 @@ export function PropertyRecordModal({ open, onClose, property, initial = "staff"
       />
       {variant === "customer" && (
         <Banner tone="info" className="mb-4" title="Customer variant">
-          Colours, products, sheen, locations, dates and approved photographs only. No hours, costs, margin, internal notes or data sheet links. Scoped to {byId(db.customers, period.customerId)?.name}&apos;s ownership period.
+          Colors, products, sheen, locations, dates and approved photographs only. No hours, costs, margin, internal notes or data sheet links. Scoped to {byId(db.customers, period.customerId)?.name}&apos;s ownership period.
         </Banner>
       )}
       <div ref={ref} className="rounded-xl border border-line bg-white p-6">
@@ -96,7 +96,7 @@ export function PropertyRecordModal({ open, onClose, property, initial = "staff"
                     <thead>
                       <tr className="text-left text-xxs uppercase tracking-wider text-gray-400">
                         <th className="border-b py-1 pr-2">Surface</th>
-                        <th className="border-b py-1 pr-2">Colour</th>
+                        <th className="border-b py-1 pr-2">Color</th>
                         <th className="border-b py-1 pr-2">Product · sheen · coats</th>
                         <th className="border-b py-1 pr-2">Completed</th>
                         <th className="border-b py-1 pr-2">Status</th>

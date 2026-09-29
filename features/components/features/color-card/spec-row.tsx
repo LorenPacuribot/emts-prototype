@@ -80,7 +80,7 @@ export function SpecRow({ spec, readOnly, canLock, onEdit, onSend, onRemove, onH
               { label: "Edit", icon: <Pencil />, onSelect: onEdit },
               { label: "Duplicate", icon: <Copy />, onSelect: () => act(duplicateSpec, spec.id).ok && toast.success("Specification duplicated", "Assign surfaces to the copy.") },
               { label: "Assign Surfaces", icon: <Layers />, onSelect: onEdit },
-              { label: "Send For Approval", icon: <Send />, onSelect: onSend, disabled: spec.state !== "draft", reason: spec.state === "pending_sample" ? "Waiting on custom sample" : `Already ${state.label.toLowerCase()}` },
+              { label: "Send for approval", icon: <Send />, onSelect: onSend, disabled: spec.state !== "draft", reason: spec.state === "pending_sample" ? "Waiting on custom sample" : `Already ${state.label.toLowerCase()}` },
               { label: "View History", icon: <History />, onSelect: onHistory },
               ...(canLock ? [{ label: spec.lifespanLocked ? "Unlock lifespan" : "Lock lifespan (owner)", icon: <Lock />, onSelect: () => act(toggleLifespanLock, spec.id) }] : []),
               { label: "Remove", icon: <Trash2 />, danger: true, onSelect: onRemove },

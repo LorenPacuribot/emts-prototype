@@ -90,12 +90,12 @@ function Library() {
         <Card className="p-4">
           <CardLabel icon={<Calculator />}>Adjustment rules (applied in this order, each once)</CardLabel>
           <ol className="mt-3 space-y-2 text-xs">
-            <Rule n={1} text="Start with the colour card lifespan; else product, product line, surface type, then room" value="—" />
+            <Rule n={1} text="Start with the color card lifespan; else product, product line, surface type, then room" value="—" />
             <Rule n={2} text="South or west exterior exposure (counts once, even if both)" value={`−${lib.southWestDeduction} yr`} />
             <Rule n={3} text="Premium product tier" value={`+${lib.premiumBonus} yr`} />
             <Rule n={4} text="Poor preparation or failing coating (counts once)" value={`−${lib.poorPrepDeduction} yrs`} />
           </ol>
-          <p className="mt-3 text-xs text-gray-500">Coats and colour are never factors. Day of month is kept where possible, else the last day of the month. Advance notice: 9 months commercial (wins), 6 exterior, 3 interior.</p>
+          <p className="mt-3 text-xs text-gray-500">Coats and color are never factors. Day of month is kept where possible, else the last day of the month. Advance notice: 9 months commercial (wins), 6 exterior, 3 interior.</p>
         </Card>
       </div>
 

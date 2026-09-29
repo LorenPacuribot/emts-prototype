@@ -31,7 +31,7 @@ const STATUS: Record<Invoice["status"], { label: string; tone: "gray" | "amber" 
   sent: { label: "Sent", tone: "amber" },
   partial: { label: "Partially Paid", tone: "blue" },
   paid: { label: "Paid", tone: "green" },
-  void: { label: "Cancelled", tone: "gray" },
+  void: { label: "Canceled", tone: "gray" },
 };
 
 /** NEW (33): the invoice's latest QuickBooks exchange state. */

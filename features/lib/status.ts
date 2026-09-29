@@ -36,7 +36,7 @@ export const PO_STATUS: Record<string, Meta> = {
   picked_up: { label: "Fulfilled (picked up / delivered)", tone: "green" },
   partially_filled: { label: "Partially filled", tone: "amber" },
   problem: { label: "Problem", tone: "red" },
-  cancelled: { label: "Cancelled", tone: "gray" },
+  cancelled: { label: "Canceled", tone: "gray" },
   open: { label: "Open", tone: "gray" },
 };
 
@@ -115,7 +115,7 @@ export const CO_TYPE: Record<string, Meta> = {
   credit: { label: "Credit", tone: "pink" },
   quantity_reduction: { label: "Quantity reduction", tone: "pink" },
   product_substitution: { label: "Product substitution", tone: "purple" },
-  no_cost_colour_change: { label: "No-cost colour change", tone: "indigo" },
+  no_cost_colour_change: { label: "No-cost color change", tone: "indigo" },
 };
 
 export const CO_DOWNSTREAM: Record<string, Meta> = {
@@ -165,5 +165,5 @@ export const REORDER_STATUS: Record<string, Meta> = {
   draft: { label: "Draft", tone: "gray" },
   approved: { label: "Approved — to fill", tone: "indigo" },
   fulfilled: { label: "Fulfilled", tone: "green" },
-  cancelled: { label: "Cancelled", tone: "red" },
+  cancelled: { label: "Canceled", tone: "red" },
 };

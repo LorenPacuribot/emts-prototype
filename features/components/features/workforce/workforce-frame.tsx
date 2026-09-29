@@ -18,11 +18,11 @@ import { entryConflicts, weekEntries } from "@/features/lib/store/actions/workfo
 import { addDaysToDay, localDay, weekStartOf } from "@/features/lib/rules/payroll";
 
 export const WORKFORCE_TABS = [
-  { key: "review", label: "Time And Payroll", path: "/time", icon: ClipboardList },
+  { key: "review", label: "Time and Payroll", path: "/time", icon: ClipboardList },
   { key: "clock", label: "Mobile Clock", path: "/time/clock", icon: Smartphone },
   { key: "my-time", label: "My Time", path: "/time/my-time", icon: UserRound },
   { key: "batches", label: "Export Batches", path: "/time/batches", icon: FileSpreadsheet },
-  { key: "labour", label: "Labour Cost", path: "/time/labour-cost", icon: Wallet },
+  { key: "labour", label: "Labor Cost", path: "/time/labour-cost", icon: Wallet },
   { key: "mileage", label: "Mileage", path: "/time/mileage", icon: Car },
   { key: "employees", label: "Employees & Crews", path: "/time/employees", icon: Users },
 ] as const;

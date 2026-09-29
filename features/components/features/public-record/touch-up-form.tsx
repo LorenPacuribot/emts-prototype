@@ -77,7 +77,7 @@ export function TouchUpModal({ prefill, onClose, linkRef, record }: { prefill?: 
               {options.map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}
             </Select>
           </Field>
-          <Field label="Colour" htmlFor="tu-colour" hint="From your record. We can't promise an exact match to aged paint.">
+          <Field label="Color" htmlFor="tu-colour" hint="From your record. We can't promise an exact match to aged paint.">
             <Input id="tu-colour" value={colourLabel || "—"} readOnly className="bg-gray-50" />
           </Field>
           <div className="grid gap-3 sm:grid-cols-2">

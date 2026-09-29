@@ -74,7 +74,7 @@ function PassportModal({ customerId, onClose }: { customerId: string; onClose: (
       onOpenChange={(v) => !v && onClose()}
       size="lg"
       title="Customer Paint Passport"
-      description="One link to the paint used on the jobs you choose. The customer can look up colours, products and surfaces without calling you."
+      description="One link to the paint used on the jobs you choose. The customer can look up colors, products and surfaces without calling you."
       footer={adding
         ? <><Button onClick={() => (passports.length ? setAdding(false) : onClose())}>Cancel</Button><Button variant="primary" disabled={!selected.length} onClick={generate}>Generate Passport Link</Button></>
         : <><Button onClick={onClose}>Close</Button><Button variant="primary" onClick={() => setAdding(true)} disabled={!jobs.length}><Plus className="h-4 w-4" /> New passport</Button></>}

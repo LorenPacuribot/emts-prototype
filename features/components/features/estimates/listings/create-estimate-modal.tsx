@@ -95,7 +95,7 @@ export function CreateEstimateModal({ open, onOpenChange, leadId: boundLeadId, c
     if (!leadId) return setError({ message: "Pick the lead this estimate is for." });
     const r = act(createEstimateFromLead, { leadId, title: name, estimatorId, jobType });
     if (!r.ok) return setError({ field: r.field, message: r.error });
-    toast.success("Estimate created", "Add areas, line items and colours, then send it.");
+    toast.success("Estimate created", "Add areas, line items and colors, then send it.");
     onOpenChange(false);
     if (onCreated) onCreated(r.value as string);
     else nav.push(estimateHref(r.value as string));

@@ -228,7 +228,7 @@ function SendModal({ open, onClose, link }: { open: boolean; onClose: () => void
     }
   };
   return (
-    <Modal open={open} onOpenChange={(v) => !v && onClose()} size="sm" title="Send QR record link" description="QR record delivery is on the closed list of customer messages (Rule 4). You are the person pressing send." footer={<><Button onClick={onClose}>Cancel</Button><Button variant="primary" onClick={doSend} disabled={!owner?.contactVerified || !recipient}><Send className="h-4 w-4" /> Send now</Button></>}>
+    <Modal open={open} onOpenChange={(v) => !v && onClose()} size="sm" title="Send QR record link" description="Sending a QR record is one of the customer messages staff send by hand. It goes out when you press send." footer={<><Button onClick={onClose}>Cancel</Button><Button variant="primary" onClick={doSend} disabled={!owner?.contactVerified || !recipient}><Send className="h-4 w-4" /> Send now</Button></>}>
       <div className="space-y-3">
         {!owner?.contactVerified && <Banner tone="warn" title="Contact not verified">The office must verify {owner?.name}&apos;s email or phone first. Once verified, an estimator can send without re-verifying.</Banner>}
         <Field label="Send by">
@@ -344,7 +344,7 @@ function ReplaceModal({ open, onClose, property }: { open: boolean; onClose: () 
       open={open}
       onOpenChange={(v) => !v && close()}
       title="Replacement link for a caller"
-      description="26.Q01: the caller gives the property address plus two of — the name on the original contract, the approximate job year, a colour or room from the record. You record what they said; the system checks it."
+      description="26.Q01: the caller gives the property address plus two of — the name on the original contract, the approximate job year, a color or room from the record. You record what they said; the system checks it."
       footer={result ? <Button variant="primary" onClick={close}>Done</Button> : <><Button onClick={close}>Cancel</Button><Button variant="primary" onClick={run}><ShieldAlert className="h-4 w-4" /> Verify and issue</Button></>}
     >
       {result ? (
@@ -359,7 +359,7 @@ function ReplaceModal({ open, onClose, property }: { open: boolean; onClose: () 
           <Checkbox checked={f.address} onCheckedChange={(v) => setF({ ...f, address: v })} label={<span>Caller gave the address: <strong>{propertyAddress(property, true)}</strong></span>} />
           <Field label="Name on the original contract"><Input value={f.contractName} onChange={(e) => setF({ ...f, contractName: e.target.value })} /></Field>
           <Field label="Approximate job date or year"><Input value={f.jobYear} onChange={(e) => setF({ ...f, jobYear: e.target.value })} placeholder="e.g. summer 2023" /></Field>
-          <Field label="A colour or room from the record"><Input value={f.colourOrRoom} onChange={(e) => setF({ ...f, colourOrRoom: e.target.value })} placeholder="e.g. Repose Gray, or the living room" /></Field>
+          <Field label="A color or room from the record"><Input value={f.colourOrRoom} onChange={(e) => setF({ ...f, colourOrRoom: e.target.value })} placeholder="e.g. Repose Gray, or the living room" /></Field>
           <p className="text-xs text-gray-500">{provided} of 3 further details entered. Two must match.</p>
         </div>
       )}

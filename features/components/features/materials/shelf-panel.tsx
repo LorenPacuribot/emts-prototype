@@ -29,9 +29,9 @@ export function ShelfPanel({ lines, readOnly }: { lines: DemandLine[]; readOnly:
   return (
     <Card className="p-4">
       <CardLabel icon={<PackageOpen />}>Leftover shelf</CardLabel>
-      <p className="mt-1 text-xs text-gray-500">Proposed only when product, colour and sheen match, the container is sealed and under two years old. A proposal changes nothing until a person checks it.</p>
+      <p className="mt-1 text-xs text-gray-500">Proposed only when product, color and sheen match, the container is sealed and under two years old. A proposal changes nothing until a person checks it.</p>
       <div className="mt-3 space-y-3">
-        {groups.length === 0 && <EmptyState icon={<PackageOpen />} title="No matching shelf stock." body="Nothing on the shelf matches this job's product, colour and sheen." />}
+        {groups.length === 0 && <EmptyState icon={<PackageOpen />} title="No matching shelf stock." body="Nothing on the shelf matches this job's product, color and sheen." />}
         {groups.map(({ line, candidates }) => (
           <div key={line.specId}>
             <div className="mb-1.5 text-xs font-bold uppercase tracking-[0.12em] text-gray-500">{line.colourName} · {line.spec.product} · {line.spec.sheen}</div>

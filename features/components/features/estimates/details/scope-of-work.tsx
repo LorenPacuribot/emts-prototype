@@ -78,7 +78,7 @@ export function ScopeOfWork({ estimateId, job, editable, paintColourId, onPainte
     <EstimateSection id="section-scope">
       <SectionHeader icon={<Grid3x3 />} title="Area & Line Items" />
       {paintColourId && editable && (
-        <Banner tone="success" className="mb-4">Paint mode: click a line item to assign the selected colour.</Banner>
+        <Banner tone="success" className="mb-4">Paint mode: click a line item to assign the selected color.</Banner>
       )}
       <div className="space-y-6">
         {areas.length === 0 && (

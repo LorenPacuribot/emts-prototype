@@ -130,7 +130,7 @@ export function AreaBlock(p: AreaBlockProps) {
         );
       case 'tcol_psurface':
         return (
-          <select disabled={readOnly} value={l.condition ?? 'smooth'} onChange={(e) => up({ condition: e.target.value as EstimateLineItem['condition'] })} className={cn(cellSelect, 'min-w-[88px]')} aria-label="Paint surface" title="Surface characteristic: changes labour and coverage">
+          <select disabled={readOnly} value={l.condition ?? 'smooth'} onChange={(e) => up({ condition: e.target.value as EstimateLineItem['condition'] })} className={cn(cellSelect, 'min-w-[88px]')} aria-label="Paint surface" title="Surface characteristic: changes labor and coverage">
             {CONDITIONS.map((c) => <option key={c} value={c}>{SURFACE_CONDITIONS[c].label}</option>)}
           </select>
         );
@@ -201,7 +201,7 @@ export function AreaBlock(p: AreaBlockProps) {
       case 'tcol_matunit':
         return <input type="number" min={0} step="0.01" disabled={readOnly} value={l.unitPrice} onChange={(e) => up({ unitPrice: num(e.target.value) })} className={cn(cellInput, 'w-20 text-center')} aria-label="Material price per unit" />;
       case 'tcol_laborcost':
-        return <span title="Labour cost">{money(cost.labor)}</span>;
+        return <span title="Labor cost">{money(cost.labor)}</span>;
       case 'tcol_matcost':
         return <span title="Material cost">{money(cost.material)}</span>;
       case 'tcol_total':

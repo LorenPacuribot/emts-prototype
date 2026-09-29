@@ -123,16 +123,16 @@ export function CorrectionModal({ app, onClose }: { app?: Application; onClose: 
             <Field label="Manufacturer" required error={e.errors.colour}>
               <Input value={colour.manufacturer} invalid={!!e.errors.colour} onChange={(ev) => setColour({ ...colour, manufacturer: ev.target.value })} />
             </Field>
-            <Field label="Colour name" required>
+            <Field label="Color name" required>
               <Input value={colour.name} onChange={(ev) => setColour({ ...colour, name: ev.target.value })} />
             </Field>
-            <Field label="Colour number" required>
+            <Field label="Color number" required>
               <Input value={colour.number} onChange={(ev) => setColour({ ...colour, number: ev.target.value })} />
             </Field>
             <Field label="Swatch">
               <div className="flex items-center gap-2">
                 <Swatch hex={colour.hex} />
-                <Input type="color" value={colour.hex} onChange={(ev) => setColour({ ...colour, hex: ev.target.value })} className="h-10 w-20 p-1" aria-label="Swatch colour" />
+                <Input type="color" value={colour.hex} onChange={(ev) => setColour({ ...colour, hex: ev.target.value })} className="h-10 w-20 p-1" aria-label="Swatch color" />
               </div>
             </Field>
           </div>
@@ -179,7 +179,7 @@ export function CorrectionModal({ app, onClose }: { app?: Application; onClose: 
 
         {notice ? (
           <Banner tone="warn" title="Customer notice required">
-            A change to {field.toLowerCase()} on a shared record notifies the verified current owner. The notice is queued and a person must press Send (Rule 4).
+            A change to {field.toLowerCase()} on a shared record notifies the verified current owner. The notice waits until someone presses Send.
           </Banner>
         ) : (
           <Banner tone="info" title="No customer notice">Date and photograph changes do not trigger a notice.</Banner>
@@ -272,10 +272,10 @@ export function ReportedWorkModal({ open, onClose, property, defaultSurfaceId }:
         </Field>
         <Field label="Manufacturer"><Input value={f.manufacturer} onChange={(ev) => setF({ ...f, manufacturer: ev.target.value })} placeholder="Behr" /></Field>
         <Field label="Product"><Input value={f.product} onChange={(ev) => setF({ ...f, product: ev.target.value })} placeholder="Ultra Scuff Defense" /></Field>
-        <Field label="Colour name" required error={e.errors.colourName}>
+        <Field label="Color name" required error={e.errors.colourName}>
           <Input value={f.colourName} invalid={!!e.errors.colourName} onChange={(ev) => setF({ ...f, colourName: ev.target.value })} placeholder="Unknown" />
         </Field>
-        <Field label="Colour number"><Input value={f.colourNumber} onChange={(ev) => setF({ ...f, colourNumber: ev.target.value })} /></Field>
+        <Field label="Color number"><Input value={f.colourNumber} onChange={(ev) => setF({ ...f, colourNumber: ev.target.value })} /></Field>
         <Field label="Sheen">
           <Select value={f.sheen} onChange={(ev) => setF({ ...f, sheen: ev.target.value as Sheen })}>
             <option value="Unknown">Unknown</option>
@@ -289,7 +289,7 @@ export function ReportedWorkModal({ open, onClose, property, defaultSurfaceId }:
           <Input type="date" value={f.date} max={todayInput()} onChange={(ev) => setF({ ...f, date: ev.target.value })} />
         </Field>
         <Field label="Swatch">
-          <Input type="color" value={f.hex} onChange={(ev) => setF({ ...f, hex: ev.target.value })} className="h-10 w-20 p-1" aria-label="Swatch colour" />
+          <Input type="color" value={f.hex} onChange={(ev) => setF({ ...f, hex: ev.target.value })} className="h-10 w-20 p-1" aria-label="Swatch color" />
         </Field>
         <Field label="Source" required className="sm:col-span-2" error={e.errors.source} hint="Who told us, how and when.">
           <Input value={f.source} invalid={!!e.errors.source} onChange={(ev) => setF({ ...f, source: ev.target.value })} placeholder="Homeowner phone call — painted by Fresh Coat Co." />

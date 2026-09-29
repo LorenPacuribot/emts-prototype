@@ -147,7 +147,7 @@ export function RecordBody({ record, printMode, onTouchUp }: { record: CustomerR
 export function RecordFooter() {
   return (
     <footer className="border-t border-line pt-4 text-xs leading-relaxed text-gray-500">
-      This record is a specification reference for the paint used at this property. It is not a guarantee of physical colour match: paint
+      This record is a specification reference for the paint used at this property. It is not a guarantee of physical color match: paint
       ages, and batches and screens differ. Call {BUSINESS.name} on {BUSINESS.phone} with any questions.
     </footer>
   );

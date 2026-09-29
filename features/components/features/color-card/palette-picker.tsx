@@ -40,13 +40,13 @@ export function PalettePicker({ manufacturer, onManufacturerChange, selectedNumb
         )}
         <div className="relative flex-1">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder={`Search ${manufacturer} colours by name or number`} className="pl-9" aria-label="Search palette" />
+          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder={`Search ${manufacturer} colors by name or number`} className="pl-9" aria-label="Search palette" />
         </div>
       </div>
       <div className="mt-2 max-h-48 overflow-y-auto" role="listbox" aria-label={`${manufacturer} palette`}>
         {matches.length === 0 ? (
           <p className="px-2 py-4 text-center text-xs italic text-gray-400">
-            No {manufacturer} palette colour matches. Type the name and number below for a custom or off-palette colour.
+            No {manufacturer} palette color matches. Type the name and number below for a custom or off-palette color.
           </p>
         ) : (
           <div className="grid gap-1 sm:grid-cols-2">

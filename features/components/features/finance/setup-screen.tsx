@@ -141,7 +141,7 @@ function Setup() {
               <div className="font-semibold text-gray-700">Payroll journal</div>
               <p className="text-gray-600">
                 {fs.gustoPostsJournal === undefined ? "Waiting for the bookkeeper's written confirmation." : fs.gustoPostsJournal ? "Gusto posts the payroll journal. Estimate Master creates no second posting." : "Gusto does not post it. The bookkeeper journals manually in QuickBooks."}
-                {" "}Estimate Master never posts payroll journals; per-job labour stays internal (Rule 3).
+                {" "}Estimate Master never posts payroll journals; per-job labor stays internal.
               </p>
               {can(user, "finance.config") && (
                 <div className="mt-1 flex gap-2">

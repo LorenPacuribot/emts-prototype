@@ -141,7 +141,7 @@ function ClientView() {
           <div className="hidden text-sm font-bold text-gray-700 sm:block">{e.estimateNumber} · {money(total)}</div>
           <div className="flex items-center gap-2">
             {twin?.publicToken && (
-              <Link href={publicEstimateHref(twin.publicToken)} className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-green-200 bg-green-50 px-3 text-xs font-bold text-green-800 hover:bg-green-100" title="Colour approvals and change order decisions">
+              <Link href={publicEstimateHref(twin.publicToken)} className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-green-200 bg-green-50 px-3 text-xs font-bold text-green-800 hover:bg-green-100" title="Color approvals and change order decisions">
                 Customer page <NewBadge feature={[3, 24]} />
               </Link>
             )}

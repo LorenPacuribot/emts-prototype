@@ -1,6 +1,6 @@
 "use client";
 /**
- * Component 28.3 — Pricing Basis And Productivity Policy.
+ * Component 28.3 — Pricing Basis and Productivity Policy.
  * Patent 25 (Combination 8 step 8): keep last time's labour, material and
  * paint prices, or update to current pricing. Tax is always current.
  * Historical productivity only under an owner-approved policy for the property type.
@@ -54,7 +54,7 @@ export function PricingPanel({ rep, property, readOnly }: { rep: RepeatEstimate;
           ]}
         />
         <div className="rounded-xl border border-line p-3">
-          <MicroLabel>Labour, material and paint pricing</MicroLabel>
+          <MicroLabel>Labor, material and paint pricing</MicroLabel>
           <div role="radiogroup" aria-label="Pricing basis" className="mt-2 grid grid-cols-2 gap-1 rounded-lg bg-gray-100 p-1">
             {([["current", "Current pricing"], ["previous", "Last time's pricing"]] as const).map(([value, label]) => (
               <button
@@ -73,7 +73,7 @@ export function PricingPanel({ rep, property, readOnly }: { rep: RepeatEstimate;
           <p className="mt-2 text-xs text-gray-500">
             {mode === "previous"
               ? `Each surface keeps the price it had last time, scaled if its measurement changed. ${pricing.lines.filter((l) => l.basisSource === "current").length} surface(s) with no earlier price use current pricing.`
-              : "Today's labour rate, material prices and markup."}{" "}Tax is always today's rate.
+              : "Today's labor rate, material prices and markup."}{" "}Tax is always today's rate.
           </p>
         </div>
 

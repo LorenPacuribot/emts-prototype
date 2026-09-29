@@ -339,7 +339,7 @@ export default function EstimateBuilderPage() {
     if (paint) patch.paintProductId = paint.id;
     if (Object.keys(patch).length) updateLine(lineId, patch);
     if (wanted && !paint) {
-      toast(`"${cc.product || cc.productLine}" isn't in the Paint Library. Colour, sheen and coats were applied; pick the product on the row.`, 'info');
+      toast(`"${cc.product || cc.productLine}" isn't in the Paint Library. Color, sheen and coats were applied; pick the product on the row.`, 'info');
     }
   };
 
@@ -349,7 +349,7 @@ export default function EstimateBuilderPage() {
       actions.save(draft, 'Draft saved');
       setDirty(false);
       setPendingColour({ lineId, colourId });
-      toast('Saving the estimate to link this line to the colour card…', 'info');
+      toast('Saving the estimate to link this line to the color card…', 'info');
       return;
     }
     assignLineColour(draft.id, lineId, colourId, true);

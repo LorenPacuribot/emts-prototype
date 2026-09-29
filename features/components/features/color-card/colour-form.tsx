@@ -40,7 +40,7 @@ export function ColourForm({ open, onOpenChange, jobId, colour }: { open: boolea
     if (Object.keys(e).length) return;
     const res = colour ? act(updateColour, colour.id, draft, openedAt) : act(addColour, jobId, draft, openedAt);
     if (res.ok) {
-      toast.success(colour ? "Colour updated" : "Colour added", `${draft.name} ${draft.number}`);
+      toast.success(colour ? "Color updated" : "Color added", `${draft.name} ${draft.number}`);
       onOpenChange(false);
     } else if (res.field) setErrors({ [res.field]: res.error });
   }
@@ -49,13 +49,13 @@ export function ColourForm({ open, onOpenChange, jobId, colour }: { open: boolea
     <Modal
       open={open}
       onOpenChange={onOpenChange}
-      title={colour ? "Edit colour" : "Add colour"}
-      description="Manufacturer, colour name and colour number are required to save a draft."
+      title={colour ? "Edit color" : "Add color"}
+      description="Manufacturer, color name and color number are required to save a draft."
       footer={
         <>
           <Button onClick={() => onOpenChange(false)}>Cancel</Button>
           <Button variant="primary" onClick={save}>
-            {colour ? "Save colour" : "Add colour"}
+            {colour ? "Save color" : "Add color"}
           </Button>
         </>
       }
@@ -81,17 +81,17 @@ export function ColourForm({ open, onOpenChange, jobId, colour }: { open: boolea
             ))}
           </Select>
         </Field>
-        <Field label="Swatch" htmlFor="c-hex" hint="Pick the closest on-screen colour. Not a match guarantee.">
+        <Field label="Swatch" htmlFor="c-hex" hint="Pick the closest on-screen color. Not a match guarantee.">
           <div className="flex items-center gap-2">
             <Swatch hex={draft.hex} />
             <Input id="c-hex" type="color" value={draft.hex} onChange={(e) => set("hex", e.target.value)} className="h-10 w-16 p-1" />
             <Input value={draft.hex} onChange={(e) => set("hex", e.target.value)} className="w-28 font-mono" aria-label="Hex value" />
           </div>
         </Field>
-        <Field label="Colour name" required htmlFor="c-name" error={errors.name}>
+        <Field label="Color name" required htmlFor="c-name" error={errors.name}>
           <Input id="c-name" value={draft.name} onChange={(e) => set("name", e.target.value)} placeholder="e.g. Repose Gray" invalid={!!errors.name} />
         </Field>
-        <Field label="Colour number" required htmlFor="c-num" error={errors.number}>
+        <Field label="Color number" required htmlFor="c-num" error={errors.number}>
           <Input id="c-num" value={draft.number} onChange={(e) => set("number", e.target.value)} placeholder="e.g. SW 7015" invalid={!!errors.number} />
         </Field>
         <Field label="Tint formula" htmlFor="c-tint" hint="Optional free text.">
@@ -101,7 +101,7 @@ export function ColourForm({ open, onOpenChange, jobId, colour }: { open: boolea
           <Input id="c-ref" value={draft.sampleRef} onChange={(e) => set("sampleRef", e.target.value)} />
         </Field>
         <div className="sm:col-span-2">
-          <Switch checked={draft.customMatch} onCheckedChange={(v) => set("customMatch", v)} label={<span>Custom colour match <span className="text-gray-500">— starts in Pending sample until a sample is accepted</span></span>} />
+          <Switch checked={draft.customMatch} onCheckedChange={(v) => set("customMatch", v)} label={<span>Custom color match <span className="text-gray-500">— starts in Pending sample until a sample is accepted</span></span>} />
         </div>
       </div>
     </Modal>

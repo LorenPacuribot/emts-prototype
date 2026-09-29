@@ -240,13 +240,13 @@ export function ChangeOrdersSection({ job, estimateId, creating, setCreating }: 
       </Card>
 
       <Card className="mt-4 p-5">
-        <CardLabel icon={<Palette />}>Colour Re-approvals (Rule 1)</CardLabel>
+        <CardLabel icon={<Palette />}>Color Re-approvals</CardLabel>
         <p className="mt-2 text-xs text-gray-500">
-          A separately numbered record, used only when a colour changes with no price change, nothing tinted or ordered, and the same brand, product line and sheen. Never raised together with a change order.
+          A separately numbered record, used only when a color changes with no price change, nothing tinted or ordered, and the same brand, product line and sheen. Never raised together with a change order.
         </p>
         <div className="mt-3">
           {cras.length === 0 ? (
-            <EmptyState icon={<Palette />} title="No Colour Re-approvals." body="Choose + Create Change Order › No-cost colour change to run the Rule 1 check." />
+            <EmptyState icon={<Palette />} title="No color re-approvals yet" body="Choose + Create Change Order › No-cost color change. The app then tells you if a re-approval is enough or a change order is needed." />
           ) : (
             <Table>
               <THead>

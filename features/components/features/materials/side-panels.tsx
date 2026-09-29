@@ -46,7 +46,7 @@ export function PreliminaryListModal({ open, job, lines, onClose }: { open: bool
           <table className="w-full border-collapse text-xs">
             <thead>
               <tr className="text-left text-xxs uppercase tracking-wider text-gray-400">
-                <th className="border-b py-1">Product</th><th className="border-b py-1">Colour</th><th className="border-b py-1">Sheen</th><th className="border-b py-1 text-right">Need</th><th className="border-b py-1">Packs</th><th className="border-b py-1">Status</th>
+                <th className="border-b py-1">Product</th><th className="border-b py-1">Color</th><th className="border-b py-1">Sheen</th><th className="border-b py-1 text-right">Need</th><th className="border-b py-1">Packs</th><th className="border-b py-1">Status</th>
               </tr>
             </thead>
             <tbody>

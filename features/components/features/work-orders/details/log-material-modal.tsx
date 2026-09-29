@@ -67,7 +67,7 @@ export function LogMaterialModal({ open, onOpenChange, wo, job }: { open: boolea
         </Field>
         {surfaceId && (
           <p className="text-xs text-gray-500">
-            {colour ? `${colour.manufacturer} ${colour.name} ${colour.number}` : "No colour assigned"}
+            {colour ? `${colour.manufacturer} ${colour.name} ${colour.number}` : "No color assigned"}
             {spec?.product ? ` · ${spec.product}` : ""}
             {spec?.sheen ? ` · ${spec.sheen}` : ""}
             {" · "}{row?.actualGallons === undefined ? "nothing logged yet" : `${row.actualGallons} gal logged so far`}

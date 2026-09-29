@@ -102,7 +102,7 @@ export function ManageColorModal({ open, onOpenChange, job, colour, colorNumber,
 
   function save() {
     if (!f.name.trim()) return setError({ field: "name", message: "Color name is required" });
-    if (!f.number.trim()) return setError({ field: "number", message: "Colour code is required" });
+    if (!f.number.trim()) return setError({ field: "number", message: "Color code is required" });
     const life = f.lifeYears.trim() ? Number(f.lifeYears) : undefined;
     if (life !== undefined && !(Number.isFinite(life) && life > 0 && life <= 50)) return setError({ field: "life", message: "Enter an expected life between 1 and 50 years" });
     const colourDraft = { manufacturer: f.manufacturer, name: f.name.trim(), number: f.number.trim(), hex: f.hex, customMatch: f.customMatch, sampleRef: f.sampleRef || undefined };
@@ -179,7 +179,7 @@ export function ManageColorModal({ open, onOpenChange, job, colour, colorNumber,
                 setError(undefined);
               }}
             />
-            <p className="mt-1 text-xs text-gray-400">Or type the name and code below for a custom match or an off-palette colour.</p>
+            <p className="mt-1 text-xs text-gray-400">Or type the name and code below for a custom match or an off-palette color.</p>
           </div>
           <div className="grid gap-4 sm:grid-cols-[120px_1fr]">
             <Field label="Color Number" required>
@@ -190,18 +190,18 @@ export function ManageColorModal({ open, onOpenChange, job, colour, colorNumber,
             </Field>
           </div>
           <div className="mt-4 grid gap-4 sm:grid-cols-[1fr_120px]">
-            <Field label={<span className="inline-flex items-center gap-2">Colour Code <NewBadge feature={3} /></span>} required error={error?.field === "number" ? error.message : undefined} hint="Manufacturer number, e.g. SW 7008">
+            <Field label={<span className="inline-flex items-center gap-2">Color Code <NewBadge feature={3} /></span>} required error={error?.field === "number" ? error.message : undefined} hint="Manufacturer number, e.g. SW 7008">
               <Input value={f.number} onChange={(e) => set("number", e.target.value)} placeholder="SW 7008" invalid={error?.field === "number"} />
             </Field>
             <Field label={<span className="inline-flex items-center gap-2">Swatch <NewBadge feature={3} /></span>}>
               <div className="flex items-center gap-2">
                 <Swatch hex={f.hex} />
-                <input type="color" value={f.hex} onChange={(e) => set("hex", e.target.value)} className="h-10 w-14 cursor-pointer rounded-lg border border-gray-200" aria-label="Swatch colour" />
+                <input type="color" value={f.hex} onChange={(e) => set("hex", e.target.value)} className="h-10 w-14 cursor-pointer rounded-lg border border-gray-200" aria-label="Swatch color" />
               </div>
             </Field>
           </div>
           <div className="mt-3 flex flex-wrap items-center gap-3">
-            <Checkbox checked={f.customMatch} onCheckedChange={(v) => set("customMatch", v)} label="Custom colour match (needs a sample round)" />
+            <Checkbox checked={f.customMatch} onCheckedChange={(v) => set("customMatch", v)} label="Custom color match (needs a sample round)" />
             <NewBadge feature={3} />
           </div>
           {f.customMatch && (

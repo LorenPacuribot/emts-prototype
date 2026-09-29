@@ -94,7 +94,7 @@ export function useLeadActions() {
       if (!m || m.cancelledAt) return;
       leads.update(lead.id, { scheduledMessages: lead.scheduledMessages!.map((x) => (x.id === id ? { ...x, cancelledAt: new Date().toISOString(), cancelReason: 'Cancelled by hand' } : x)) });
       log(`Scheduled message "${m.name}" (${m.channel === 'EMAIL' ? 'email' : 'SMS'}) cancelled for ${fullName(lead)}`, 'lead', lead.id);
-      toast('Scheduled message cancelled');
+      toast('Scheduled message canceled');
     },
     [leads, log, toast],
   );

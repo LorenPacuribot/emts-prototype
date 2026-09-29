@@ -62,7 +62,7 @@ function Inner({ rep, line, onClose }: { rep: RepeatEstimate; line: RepeatEstima
           </Select>
         </Field>
         <div className="grid gap-3 sm:grid-cols-2">
-          <Field label="Colour number" required htmlFor="rp-colour" error={e("colourNumber")}>
+          <Field label="Color number" required htmlFor="rp-colour" error={e("colourNumber")}>
             <Input id="rp-colour" value={colourNumber} invalid={!!e("colourNumber")} onChange={(ev) => setColourNumber(ev.target.value)} />
           </Field>
           <Field label="Sheen" required htmlFor="rp-sheen" error={e("sheen")}>
@@ -81,7 +81,7 @@ function Inner({ rep, line, onClose }: { rep: RepeatEstimate; line: RepeatEstima
           </Banner>
         )}
         {preview && (
-          <Banner tone={preview.document === "ChangeOrder" ? "danger" : "success"} title={`Rule 1: ${preview.approver === "office" ? "Office manager approves" : "Business Owner approves"} · Document: ${preview.document === "ChangeOrder" ? "Priced change order" : "None"}`}>
+          <Banner tone={preview.document === "ChangeOrder" ? "danger" : "success"} title={`${preview.approver === "office" ? "Office manager approves" : "Business owner approves"} · ${preview.document === "ChangeOrder" ? "Needs a priced change order" : "No customer document needed"}`}>
             {"reason" in preview.decision ? preview.decision.reason : ""}
             {preview.document === "ChangeOrder" && " The customer must sign a priced change order before anything is ordered, even though this began as a repeat quote or reorder."}
           </Banner>

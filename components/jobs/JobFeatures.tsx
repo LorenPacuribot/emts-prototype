@@ -72,7 +72,7 @@ export function JobCostCard({ job }: { job: PJob }) {
       {!hoursOnly && <div className="-mt-3 mb-3"><ConfirmBadge /></div>}
       <div className="space-y-1.5 text-sm">
         {!hoursOnly && ([
-          ['Contract (ex tax)', f.contractExTax], ['Invoiced (ex tax)', f.invoicedExTax], ['Labour (approved hours, Rule 3)', f.labour],
+          ['Contract (ex tax)', f.contractExTax], ['Invoiced (ex tax)', f.invoicedExTax], ['Labor (from approved hours)', f.labour],
           ['Material', f.material], ['Other', f.other + f.subcontractor], ['Cost to date', f.costToDate],
         ] as const).map(([l, v]) => (
           <div key={l} className="flex justify-between gap-2"><span className="text-gray-500">{l}</span><b>{money(v, { cents: true })}</b></div>

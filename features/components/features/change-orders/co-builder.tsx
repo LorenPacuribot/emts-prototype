@@ -195,7 +195,7 @@ function BuilderBody({ co, onOpenCo }: { co: ChangeOrder; onOpenCo: (id: string)
                         <div className="text-xs text-gray-500">
                           {[l.product, l.colour].filter(Boolean).join(" · ")}
                           {l.treatment === "stranded_paint" && " · Nonreturnable tinted paint — billed here once, not again via leftover stock"}
-                          {l.treatment === "absorbed_labour" && " · Labour cancelled inside 24 h — absorbed by the contractor"}
+                          {l.treatment === "absorbed_labour" && " · Labor canceled inside 24 h — absorbed by the contractor"}
                         </div>
                       </td>
                       <td className="px-3 py-2 text-right">{l.sqft !== undefined ? `${l.sqft} sq ft` : "—"}</td>
@@ -204,7 +204,7 @@ function BuilderBody({ co, onOpenCo }: { co: ChangeOrder; onOpenCo: (id: string)
                           {money(l.cost)}
                           {(l.laborHours !== undefined || l.materialCost !== undefined) && (
                             <div className="text-xs text-gray-400">
-                              {l.laborHours ? `${l.laborHours} h labour` : "no labour"} · {money(l.materialCost ?? 0)} material
+                              {l.laborHours ? `${l.laborHours} h labor` : "no labor"} · {money(l.materialCost ?? 0)} material
                             </div>
                           )}
                         </td>

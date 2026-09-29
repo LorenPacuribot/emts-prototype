@@ -103,7 +103,7 @@ export function useJobActions() {
     (id: string) => {
       const job = get(id);
       if (!job) return;
-      if (job.scheduleProtected) { toast('Unprotect the schedule before cancelling it', 'error'); return false; }
+      if (job.scheduleProtected) { toast('Unprotect the schedule before canceling it', 'error'); return false; }
       change(
         id,
         { startDate: undefined, endDate: undefined, startTime: undefined, endTime: undefined, status: 'Unscheduled' },

@@ -68,7 +68,7 @@ export function NewCoModal({ open, onOpenChange, job, onCreated }: { open: boole
   function recordCra() {
     const res = act(createColourReapproval, job.id, cc);
     if (!res.ok) return setError({ field: res.field, message: res.error });
-    toast.success(`${res.value} recorded`, "Colour Re-approval recorded. No change order was raised.");
+    toast.success(`${res.value} recorded`, "Color Re-approval recorded. No change order was raised.");
     onOpenChange(false);
   }
 
@@ -84,7 +84,7 @@ export function NewCoModal({ open, onOpenChange, job, onCreated }: { open: boole
           <Button onClick={() => onOpenChange(false)}>Cancel</Button>
           {type === "no_cost_colour_change" && (
             <Button onClick={recordCra} disabled={!cc.specId}>
-              <ShieldCheck className="h-4 w-4" /> Record as Colour Re-approval
+              <ShieldCheck className="h-4 w-4" /> Record as Color Re-approval
             </Button>
           )}
           <Button variant="primary" onClick={create}>
@@ -127,7 +127,7 @@ export function NewCoModal({ open, onOpenChange, job, onCreated }: { open: boole
 
         {type === "no_cost_colour_change" && (
           <div className="space-y-3 rounded-xl border border-indigo-200 bg-indigo-50/40 p-4">
-            <div className="text-xs font-semibold text-indigo-900">Rule 1 check — does this need a change order or a Colour Re-approval?</div>
+            <div className="text-xs font-semibold text-indigo-900">Does this need a change order, or is a color re-approval enough?</div>
             <Field label="Specification" required htmlFor="nco-spec" error={fe(error, "specId")}>
               <Select id="nco-spec" value={cc.specId} invalid={!!fe(error, "specId")} onChange={(e) => pickSpec(e.target.value)}>
                 <option value="">Choose…</option>
@@ -142,10 +142,10 @@ export function NewCoModal({ open, onOpenChange, job, onCreated }: { open: boole
               </Select>
             </Field>
             <div className="grid gap-3 sm:grid-cols-2">
-              <Field label="New colour name" required htmlFor="nco-cn" error={fe(error, "toColour")}>
+              <Field label="New color name" required htmlFor="nco-cn" error={fe(error, "toColour")}>
                 <Input id="nco-cn" value={cc.toColourName} onChange={(e) => setCc({ ...cc, toColourName: e.target.value })} placeholder="e.g. Agreeable Gray" />
               </Field>
-              <Field label="New colour number" required htmlFor="nco-cnum">
+              <Field label="New color number" required htmlFor="nco-cnum">
                 <Input id="nco-cnum" value={cc.toColourNumber} onChange={(e) => setCc({ ...cc, toColourNumber: e.target.value })} placeholder="e.g. SW 7029" />
               </Field>
             </div>
@@ -157,8 +157,8 @@ export function NewCoModal({ open, onOpenChange, job, onCreated }: { open: boole
             </div>
             {cc.specId && specTintedOrOrdered(db, cc.specId) && <p className="text-xs text-gray-500">A supplier order already includes this specification, so its paint counts as ordered.</p>}
             {decision && decision.kind === "colour_reapproval" && (
-              <Banner tone="success" title="Qualifies for a Colour Re-approval">
-                {decision.reason} Record it as a Colour Re-approval — never both a re-approval and a change order.
+              <Banner tone="success" title="Qualifies for a Color Re-approval">
+                {decision.reason} Record it as a Color Re-approval — never both a re-approval and a change order.
               </Banner>
             )}
             {decision && decision.kind === "change_order" && <Banner tone="warn" title="A priced change order is required">{decision.reason}</Banner>}
@@ -224,7 +224,7 @@ export function LineModal({ co, line, open, onClose }: { co: ChangeOrder; line?:
   }
 
   function save() {
-    if (breakdown && hoursText === "" && materialText === "") return setError({ field: "laborHours", message: "Enter labour hours, material cost, or both." });
+    if (breakdown && hoursText === "" && materialText === "") return setError({ field: "laborHours", message: "Enter labor hours, material cost, or both." });
     if (!breakdown && costText === "") return setError({ field: "cost", message: "Enter the cost before markup (0 is allowed)." });
     const parts = breakdown
       ? { laborHours: optNum(hoursText) ?? 0, laborRate: optNum(rateText), materialCost: optNum(materialText) ?? 0 }
@@ -278,19 +278,19 @@ export function LineModal({ co, line, open, onClose }: { co: ChangeOrder; line?:
           <Field label="Product" htmlFor="ln-prod">
             <Input id="ln-prod" value={d.product ?? ""} onChange={(e) => setD({ ...d, product: e.target.value })} />
           </Field>
-          <Field label="Colour" htmlFor="ln-col">
+          <Field label="Color" htmlFor="ln-col">
             <Input id="ln-col" value={d.colour ?? ""} onChange={(e) => setD({ ...d, colour: e.target.value })} />
           </Field>
         </div>
         {canCost && (
           <div className="space-y-3 rounded-xl border border-gray-200 p-3">
-            <Checkbox checked={breakdown} onCheckedChange={setBreakdown} label="Break the cost down into labour and material" />
+            <Checkbox checked={breakdown} onCheckedChange={setBreakdown} label="Break the cost down into labor and material" />
             {breakdown && (
               <div className="grid gap-3 sm:grid-cols-3">
-                <Field label="Labour hours" htmlFor="ln-hours" error={fe(error, "laborHours")}>
+                <Field label="Labor hours" htmlFor="ln-hours" error={fe(error, "laborHours")}>
                   <Input id="ln-hours" type="number" min={0} step={0.25} value={hoursText} invalid={!!fe(error, "laborHours")} onChange={(e) => setHoursText(e.target.value)} />
                 </Field>
-                <Field label="Labour rate ($/h)" htmlFor="ln-rate" error={fe(error, "laborRate")} hint={laborCost ? `Labour ${money(laborCost)}` : undefined}>
+                <Field label="Labor rate ($/h)" htmlFor="ln-rate" error={fe(error, "laborRate")} hint={laborCost ? `Labor ${money(laborCost)}` : undefined}>
                   <Input id="ln-rate" type="number" min={0} step="0.01" value={rateText} invalid={!!fe(error, "laborRate")} onChange={(e) => setRateText(e.target.value)} />
                 </Field>
                 <Field label="Material cost" htmlFor="ln-mat" error={fe(error, "materialCost")} hint="Paint and sundries">
@@ -316,12 +316,12 @@ export function LineModal({ co, line, open, onClose }: { co: ChangeOrder; line?:
             <Select id="ln-treat" value={d.treatment ?? "billable"} onChange={(e) => setD({ ...d, treatment: e.target.value as LineDraft["treatment"] })}>
               <option value="billable">Billable</option>
               <option value="stranded_paint">Nonreturnable tinted paint (billed on this CO)</option>
-              <option value="absorbed_labour">Labour cancelled inside 24 h (contractor absorbs)</option>
+              <option value="absorbed_labour">Labor canceled inside 24 h (contractor absorbs)</option>
             </Select>
           </Field>
         </div>
         {d.treatment === "stranded_paint" && <Banner tone="info">Stranded paint is billed here once. It is kept as job cost and follows the leftover-stock process without being billed again.</Banner>}
-        {d.treatment === "absorbed_labour" && <Banner tone="info">Labour cancelled inside 24 hours is absorbed by the contractor. It is kept as job cost and not charged to the customer.</Banner>}
+        {d.treatment === "absorbed_labour" && <Banner tone="info">Labor canceled inside 24 hours is absorbed by the contractor. It is kept as job cost and not charged to the customer.</Banner>}
       </div>
     </Modal>
   );
@@ -473,7 +473,7 @@ export function SendModal({ co, reissue, onClose }: { co?: ChangeOrder; reissue?
       open
       onOpenChange={(v) => !v && onClose()}
       title={reissue ? `Reissue approval link · ${co.id}` : `Send ${co.id} v${co.version ?? 1}`}
-      description={`To ${co.recipientName ?? ""} <${co.recipient ?? ""}>. A person presses send; there is no automatic resend (Rule 4).`}
+      description={`To ${co.recipientName ?? ""} <${co.recipient ?? ""}>. You press send; nothing is resent automatically.`}
       footer={
         <>
           <Button onClick={onClose}>Cancel</Button>
