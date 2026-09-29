@@ -8,7 +8,7 @@
   Stats and Activity Log. Every tab reads live from the store, has a date
   range filter (Stats is yearly) and exports its rows to CSV.
 
-  NEW tabs (green NEW badge, from features/): Job Performance (21) next to
+  NEW tabs (green NEW badge, from features/): Estimated vs Actual (21) next to
   Jobs To Do, Estimating Feedback (30) and the finance reports Job Margin,
   Income & Expense, Aged Receivables (33, needs client confirmation; only
   for finance roles). See components/reports/FeatureTabs.tsx.
@@ -34,7 +34,7 @@ const TABS = [
   { key: 'jobs_sold', label: 'Jobs Sold', icon: Briefcase },
   { key: 'sales', label: 'Sales Goal', icon: TrendingUp },
   { key: 'production', label: 'Jobs To Do', icon: ClipboardList },
-  { key: 'job_performance', label: 'Job Performance', icon: BarChart3, isNew: true },
+  { key: 'job_performance', label: 'Estimated vs Actual', icon: BarChart3, isNew: true },
   { key: 'summary', label: 'Stats', icon: Target },
   { key: 'activity', label: 'Activity Log', icon: Activity },
   { key: 'estimating_feedback', label: 'Estimating Feedback', icon: Gauge, isNew: true },

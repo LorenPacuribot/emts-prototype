@@ -32,8 +32,25 @@ export function memberDayAvailability(member: TeamMember, day: string): { hours:
   return { hours: member.capacityHours / 5 };
 }
 
+/** One member's day at a glance: working window, hours already on other jobs, and what is left. */
+export interface MemberDayLoad { window: number; booked: number; remaining: number; reason?: string }
+
+/** The numbers the capacity check uses, for showing them next to the hours being typed. */
+export function memberDayLoad(member: TeamMember, day: string, others: Job[]): MemberDayLoad {
+  const avail = memberDayAvailability(member, day);
+  const booked = others.reduce((sum, j) => sum + assignedHours(j, member.id, day), 0);
+  return { window: avail.hours, booked, remaining: Math.max(0, avail.hours - booked), reason: avail.reason };
+}
+
 export type ConflictKind = 'time_off' | 'not_working' | 'capacity' | 'window' | 'weekly';
-export interface ScheduleConflict { memberId: string; day: string; kind: ConflictKind; message: string }
+export interface ScheduleConflict {
+  memberId: string;
+  day: string;
+  kind: ConflictKind;
+  message: string;
+  /** Capacity conflicts only: the day's window, hours on other jobs and hours this job asks for. */
+  load?: MemberDayLoad & { requested: number };
+}
 
 /** Every member/day problem with a candidate job against the other jobs (none = fits). */
 export function scheduleConflicts(candidate: Job, jobs: Job[], team: TeamMember[]): ScheduleConflict[] {
@@ -51,8 +68,9 @@ export function scheduleConflicts(candidate: Job, jobs: Job[], team: TeamMember[
     for (const day of days) {
       const hours = assignedHours(candidate, memberId, day);
       if (hours <= 0.00001) continue;
-      const other = others.reduce((sum, j) => sum + assignedHours(j, memberId, day), 0);
-      const avail = memberDayAvailability(member, day);
+      const load = memberDayLoad(member, day, others);
+      const other = load.booked;
+      const avail = { hours: load.window, reason: load.reason };
       if (avail.reason) {
         out.push({ memberId, day, kind: avail.reason.startsWith('time off') ? 'time_off' : 'not_working', message: `${name}: ${day} is ${avail.reason}; ${hours.toFixed(2)} hours requested.` });
         continue;
@@ -65,7 +83,7 @@ export function scheduleConflicts(candidate: Job, jobs: Job[], team: TeamMember[
         if (inScope > window + 0.00001) out.push({ memberId, day, kind: 'window', message: `${name}: ${day} has ${Math.max(0, window).toFixed(2)} hours in the ${shift ? `"${shift.name || 'Unnamed'}" shift` : 'daily'} window; ${inScope.toFixed(2)} requested.` });
       }
       if (hours + other > avail.hours + 0.00001) {
-        out.push({ memberId, day, kind: 'capacity', message: `${name}: ${day} has ${Math.max(0, avail.hours - other).toFixed(2)} hours available; ${hours.toFixed(2)} requested.` });
+        out.push({ memberId, day, kind: 'capacity', message: `${name}: ${day} has ${Math.max(0, avail.hours - other).toFixed(2)} hours available; ${hours.toFixed(2)} requested.`, load: { ...load, requested: hours } });
       }
       const week = weekDays(parseKey(day));
       if (weeksSeen.has(week[0]!)) continue;
@@ -190,6 +208,12 @@ export function requiredHoursChange(job: Pick<Job, 'estimatedHours' | 'scheduleB
   const from = job.scheduleBasisHours;
   if (from === undefined || !Number.isFinite(from) || Math.abs(from - job.estimatedHours) < 0.005) return undefined;
   return { from, to: job.estimatedHours, diff: Math.round((job.estimatedHours - from) * 100) / 100 };
+}
+
+/** A scheduled, still-open job whose required hours changed since it was planned: flag it for review on the board. */
+export function needsHoursReview(job: Pick<Job, 'estimatedHours' | 'scheduleBasisHours' | 'startDate' | 'status'>): boolean {
+  if (!job.startDate || job.status === 'Completed' || job.status === 'Cancelled') return false;
+  return !!requiredHoursChange(job);
 }
 
 /** Member-day availability problems over a span, for flags that are independent of other jobs. */

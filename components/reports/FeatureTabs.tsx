@@ -2,7 +2,7 @@
 
 /*
   NEW report tabs, embedded from the feature prototype (features/):
-    - Job Performance (feature 21), next to Jobs To Do
+    - Estimated vs Actual (feature 21), next to Jobs To Do
     - Estimating Feedback (feature 30), reads ?rate=
     - Job Margin, Income & Expense, Aged Receivables (feature 33, needs
       client confirmation), only for finance roles.
