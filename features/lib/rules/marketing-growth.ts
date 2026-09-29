@@ -12,7 +12,7 @@
  */
 import type { Database, Estimate, Job, Lead } from "@/features/types";
 import type {
-  AppointmentRequest, AudienceSegment, AudienceStatus, AutomationKind, CampaignObjective, ContactGroup, ExpenseCategory, FormField, FormKind, InboundChannel, IntakeAttribution,
+  AppointmentRequest, AudienceSegment, AudienceStatus, AutomationKind, CampaignObjective, CampaignStatus, ContactGroup, ExpenseCategory, FormField, FormKind, InboundChannel, IntakeAttribution,
   LandingPage, LinkClick, MarketingAutomation, MarketingCampaign, MarketingChannel, MarketingService, MessageCampaign, PromotionKind, Promotion, ReferralCode, ReferralRecord,
   SegmentRules, SendStatus, TrackLink, UtmParams,
 } from "@/features/types/marketing-growth";
@@ -46,6 +46,7 @@ export const STATUS_LABEL: Record<AudienceStatus, string> = { prospect: "Prospec
 export const OBJECTIVE_LABEL: Record<CampaignObjective, string> = {
   awareness: "Awareness", leads: "Leads", bookings: "Bookings", reviews: "Reviews", referrals: "Referrals", reengagement: "Re-engagement", seasonal: "Seasonal",
 };
+export const CAMPAIGN_STATUS_LABEL: Record<CampaignStatus, string> = { draft: "Draft", active: "Active", paused: "Paused", completed: "Completed" };
 export const EXPENSE_LABEL: Record<ExpenseCategory, string> = {
   ads: "Advertising", promo_materials: "Promotional materials", photography: "Photography", video: "Video", printing: "Printing", sponsorships: "Sponsorships", software: "Software", other: "Other",
 };
@@ -852,7 +853,7 @@ export function submissionToInbound(page: Pick<LandingPage, "id" | "campaignId" 
 
 export interface ReportTable { key: string; title: string; columns: string[]; rows: (string | number)[][] }
 const pctText = (r?: number) => (r === undefined ? "—" : `${Math.round(r * 100)}%`);
-const moneyText = (n?: number) => (n === undefined ? "—" : `$${n.toFixed(2)}`);
+const moneyText = (n?: number) => (n === undefined ? "—" : `${n < 0 ? "-" : ""}$${Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`);
 
 export interface Range { from?: string; to?: string }
 
@@ -877,7 +878,7 @@ export function revenueByCampaignReport(db: Database, nowIso: string, r: Range =
     key: "revenue-by-campaign", title: "Revenue by campaign", columns: ["Campaign", "Status", "Budget", "Spend", "Leads", "Jobs", "Revenue", "CAC", "ROI"],
     rows: (db.mktCampaigns ?? []).map((c) => {
       const x = campaignResults(db, c.id, nowIso, r);
-      return [c.name, c.status, c.budget, x.spend, x.leads, x.jobs, x.revenue, moneyText(x.cac), pctText(x.roi)];
+      return [c.name, CAMPAIGN_STATUS_LABEL[c.status], c.budget, x.spend, x.leads, x.jobs, x.revenue, moneyText(x.cac), pctText(x.roi)];
     }),
   };
 }

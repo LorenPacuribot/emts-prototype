@@ -1,31 +1,36 @@
 'use client';
 
 /*
-  Demo sign-in gate (features/lib/auth/demo-auth.ts).
-  - Every page except the public customer links needs a signed-in session;
-    without one the visitor is sent to /login?next=<page>.
+  Sign-in gate. proxy.ts already refuses staff pages without a valid session
+  cookie on the server; this is the in-app side of the same check:
+  - asks the server who is signed in (features/lib/auth/client-session.ts)
+    and sends a visitor whose session has ended to /login?next=<page>;
+  - makes the prototype's current user the person who signed in, so role
+    rules apply to them. Only the owner may then switch "Viewing as" to
+    demo other roles (features/components/layout/demo-bar.tsx);
   - /login renders without the sidebar.
-  This keeps casual visitors on the sign-in screen. It is not production
-  security: the session lives in this browser's localStorage.
 */
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { AUTH_EVENT, endSession, getSession, isPublicPath, SESSION_KEY, type DemoSession } from '@/features/lib/auth/demo-auth';
+import { isPublicPath, type SessionInfo } from '@/features/lib/auth/auth';
+import { AUTH_EVENT, getSession, loadSession, sessionChecked, signOut } from '@/features/lib/auth/client-session';
+import { useStore } from '@/features/lib/store';
 
-/** The current demo session; re-reads when it changes in this or another tab. */
-export function useDemoSession(): { session: DemoSession | undefined; ready: boolean } {
-  const [state, setState] = useState<{ session: DemoSession | undefined; ready: boolean }>({ session: undefined, ready: false });
+const RECHECK_MS = 5 * 60_000;
+
+/** The signed-in session; re-checks with the server on focus and every few minutes. */
+export function useSession(): { session: SessionInfo | undefined; ready: boolean } {
+  const [state, setState] = useState<{ session: SessionInfo | undefined; ready: boolean }>(() => ({ session: getSession(), ready: sessionChecked() }));
   useEffect(() => {
-    const read = () => setState({ session: getSession(), ready: true });
-    read();
-    const onStorage = (e: StorageEvent) => (e.key === null || e.key === SESSION_KEY) && read();
+    const read = () => setState({ session: getSession(), ready: sessionChecked() });
     window.addEventListener(AUTH_EVENT, read);
-    window.addEventListener('storage', onStorage);
-    // Expire the session while the page stays open.
-    const timer = window.setInterval(read, 60_000);
+    void loadSession().then(read);
+    const recheck = () => void loadSession().then(read);
+    window.addEventListener('focus', recheck);
+    const timer = window.setInterval(recheck, RECHECK_MS);
     return () => {
       window.removeEventListener(AUTH_EVENT, read);
-      window.removeEventListener('storage', onStorage);
+      window.removeEventListener('focus', recheck);
       window.clearInterval(timer);
     };
   }, []);
@@ -35,8 +40,7 @@ export function useDemoSession(): { session: DemoSession | undefined; ready: boo
 export function useSignOut() {
   const router = useRouter();
   return useCallback(() => {
-    endSession();
-    router.replace('/login');
+    void signOut().then(() => router.replace('/login'));
   }, [router]);
 }
 
@@ -44,7 +48,7 @@ export function useSignOut() {
 export function AppFrame({ sidebar, children }: { sidebar: React.ReactNode; children: React.ReactNode }) {
   const pathname = usePathname() || '/';
   const router = useRouter();
-  const { session, ready } = useDemoSession();
+  const { session, ready } = useSession();
   const isLogin = pathname === '/login' || pathname.startsWith('/login/');
   const isPublic = isPublicPath(pathname);
   const blocked = ready && !session && !isPublic;
@@ -54,6 +58,23 @@ export function AppFrame({ sidebar, children }: { sidebar: React.ReactNode; chil
     const next = typeof window !== 'undefined' ? window.location.pathname + window.location.search : pathname;
     router.replace(`/login?next=${encodeURIComponent(next)}`);
   }, [blocked, pathname, router]);
+
+  // Act as the person who signed in (once per sign-in; the owner may switch afterwards).
+  const currentUserId = useStore((s) => s.currentUserId);
+  const setUser = useStore((s) => s.setUser);
+  const appliedFor = useRef<string | undefined>(undefined);
+  useEffect(() => {
+    if (!session) {
+      appliedFor.current = undefined;
+      return;
+    }
+    const key = `${session.userId}|${session.expiresAt}`;
+    const mayViewAs = session.role === 'owner';
+    if (appliedFor.current !== key || (!mayViewAs && currentUserId !== session.userId)) {
+      appliedFor.current = key;
+      if (currentUserId !== session.userId) setUser(session.userId);
+    }
+  }, [session, currentUserId, setUser]);
 
   if (isLogin) return <div className="min-h-screen bg-gray-50">{children}</div>;
   if (!isPublic && !session) {

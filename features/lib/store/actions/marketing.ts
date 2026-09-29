@@ -545,7 +545,8 @@ export function resolveLeadReview(db: Database, actor: User, leadId: string, res
 
 /* ------------------------------ Reporting ---------------------------- */
 
-export const UNAVAILABLE_METRICS = ["Reach", "Engagement", "Revenue attribution"];
+/** Revenue attribution now comes from campaigns (Monthly Report › Campaign analytics). */
+export const UNAVAILABLE_METRICS = ["Reach", "Engagement"];
 
 /** Posts published and website leads by source. Nothing permission-dependent is estimated. */
 export function monthlyReport(db: Database, month: string) {

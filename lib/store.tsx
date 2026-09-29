@@ -25,7 +25,7 @@ import { BridgeSync } from './bridge/BridgeSync';
 import { getDb as getFeatureDb, useStore as useFeatureStore } from '@/features/lib/store';
 import { nextNumber as featureNextNumber } from '@/features/lib/store/helpers';
 import { produce } from 'immer';
-import { remoteSave } from './remote-state';
+import { onRemoteChange, remoteSave } from './remote-state';
 
 // v2: core records now come from the feature prototype (lib/bridge).
 const STORAGE_KEY = 'emts-replica-db-v2';
@@ -80,28 +80,32 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const [db, dispatch] = useReducer(reducer, undefined, createInitialDatabase);
   const [ready, setReady] = useState(false);
 
-  // Load saved data once, in the browser only.
+  // Load saved data once, in the browser only, and again when the shared copy changes.
   useEffect(() => {
-    try {
-      const raw = window.localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const saved = JSON.parse(raw) as Database;
-        // Merge so new collections added in code still appear for old saves.
-        const fresh = createInitialDatabase();
-        const merged = {
-          collections: migrateCollections({ ...fresh.collections, ...saved.collections }, fresh.collections),
-          singletons: { ...fresh.singletons, ...saved.singletons },
-        };
-        dispatch({ type: 'replace', db: applyOps(merged, runSync(merged, { baseline: true })) });
-      } else {
-        const fresh = createInitialDatabase();
-        dispatch({ type: 'replace', db: applyOps(fresh, runSync(fresh, { baseline: true })) });
+    const load = () => {
+      try {
+        const raw = window.localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const saved = JSON.parse(raw) as Database;
+          // Merge so new collections added in code still appear for old saves.
+          const fresh = createInitialDatabase();
+          const merged = {
+            collections: migrateCollections({ ...fresh.collections, ...saved.collections }, fresh.collections),
+            singletons: { ...fresh.singletons, ...saved.singletons },
+          };
+          dispatch({ type: 'replace', db: applyOps(merged, runSync(merged, { baseline: true })) });
+        } else {
+          const fresh = createInitialDatabase();
+          dispatch({ type: 'replace', db: applyOps(fresh, runSync(fresh, { baseline: true })) });
+        }
+      } catch (err) {
+        /* storage blocked or corrupt: keep sample data */
+        console.error(err);
       }
-    } catch (err) {
-      /* storage blocked or corrupt: keep sample data */
-      console.error(err);
-    }
+    };
+    load();
     setReady(true);
+    return onRemoteChange((c) => c.key === STORAGE_KEY && load());
   }, []);
 
   // Save on every change.

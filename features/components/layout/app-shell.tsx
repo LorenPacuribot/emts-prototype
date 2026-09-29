@@ -9,7 +9,7 @@ import { WebsiteInboxSync } from "@/components/WebsiteInboxSync";
 import { LeadMessageScheduler } from "@/components/leads/LeadMessageScheduler";
 
 /** Customer-facing pages and the sign-in page: no Prototype bar or tour on top of them. */
-const PUBLIC_PATHS = ["/estimates/view", "/paint-record/view", "/website-form", "/login"];
+const PUBLIC_PATHS = ["/estimates/view", "/paint-record/view", "/website-form", "/login", "/r"];
 
 /**
  * Feature layer mounted inside the replica providers (app/providers.tsx):

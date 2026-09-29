@@ -104,6 +104,11 @@ function bury(k: string) {
   }
 }
 
+/** Re-read the tombstone list after the shared copy changed it. */
+export function reloadTombstones() {
+  tombstones = undefined;
+}
+
 /** Forget every link (after a demo reset of both stores). */
 export function resetBridge() {
   snapshots.clear();

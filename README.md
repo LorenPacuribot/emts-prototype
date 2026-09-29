@@ -3,7 +3,7 @@
 A front-end replica of the live Estimate Master app (app.estimate-master.com).
 It reproduces the live screens and workflows using local mock data, so it can be the starting point for new features.
 
-Application records live in the browser and are saved to localStorage. There is no application login or shared production database. Supplier integration routes run on the server and have a separate access gate.
+Application records are saved to localStorage and, when Supabase is configured, shared through the `app_state` table so everyone works on one copy. Sign-in is checked on the server (see **Sign-in** below). Supplier integration routes have a separate access gate.
 
 ## New features (merged from emts-prototype)
 
@@ -122,10 +122,27 @@ To connect a real backend later, replace the inside of these hooks with API call
 
 ## Known differences from the live app
 
-- There is no login, and Logout only shows a message.
 - The logo and presentation cover photos are placeholders (SVG and gradients), because the live image files were not in the source export.
 - These are not built: file attachments, CSV contact import, rich-text email editing, and estimate packages (Good/Better/Best) inside the estimate builder. Package templates can still be managed in Settings.
 - Payment gateway, email and SMS sending are simulated. Configured supplier integrations can send real requests from the server.
+
+## Sign-in
+
+Passwords are checked on the server (`app/api/auth/*`, `lib/auth/server.ts`). A successful sign-in sets an HttpOnly, signed `emts_session` cookie for 12 hours, and `proxy.ts` redirects any staff page to `/login` without it. Customer links, the website form and API routes stay public. Passwords are stored only as scrypt hashes on the server: in Supabase `app_state` under a key `/api/state` never serves, or in server memory in local development without Supabase. Five failed attempts lock a username for 15 minutes on that server instance.
+
+Set these private environment variables (never with `NEXT_PUBLIC_`):
+
+| Variable | Needed | What it does |
+| --- | --- | --- |
+| `AUTH_SECRET` | Production | 32+ random characters that sign the session cookie. Without it nobody can sign in on a production build. |
+| `AUTH_OWNER_PASSWORD` | Optional | Lets the owner sign in before any password has been set, to set everyone else's in Settings › Team Access. |
+| `AUTH_DEMO_PASSWORDS` | Optional | `on` accepts the old demo passwords for people who have no password yet. On by default in development, off in production. Turn it off before real customer data is entered. |
+
+The owner or office manager sets passwords in Settings › Team Access. Anyone can change their own after entering their current one. Signing in makes you the current user; only the owner can switch to another person with Prototype › Viewing as.
+
+**Two people editing at once.** Each save names the version it started from. If someone else saved first, `/api/state` refuses it and the browser merges the two copies record by record (`lib/json-merge.ts`). Where both changed the same field, the other person's value is kept and a notice names the item. Other people's saves are picked up when the tab regains focus.
+
+**Not covered yet.** `/api/state` is still readable and writable without a session, because customer pages (estimate approval, paint record) run on the shared copy. Moving those pages onto their own narrow endpoints is the next step before real customer data.
 
 ## Supplier access
 

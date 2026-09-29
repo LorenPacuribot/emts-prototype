@@ -41,6 +41,8 @@ describe("Patent 22 — work order and shift on hours", () => {
     const d = produce(db, (x) => {
       const s = x.workOrders.find((w) => w.id === wo.id)!.shifts[0]!;
       s.startDate = "2000-01-01"; s.endDate = "2100-01-01"; s.dailyHours = undefined;
+      // The seed may leave this member mid-punch; a second punch is correctly blocked.
+      x.timeSegments.forEach((t) => { if (t.employeeId === member && !t.end) t.end = t.start; });
     });
     const clocker = d.users.find((u) => u.role === "owner" || u.id === "U-OWNER") ?? d.users[0]!;
     const { db: after, result } = run(d, clocker.id, clockIn, member, wo.jobId, "application");

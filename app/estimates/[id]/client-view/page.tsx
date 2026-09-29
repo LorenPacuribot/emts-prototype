@@ -32,7 +32,7 @@ import { useProtoEstimate } from '@/components/estimates/FeatureSections';
 import { publicEstimateHref } from '@/features/lib/hrefs';
 import { NewBadge } from '@/features/components/ui';
 import { PresentationCanvas } from '@/components/presentations/PresentationCanvas';
-import { useDemoSession } from '@/components/auth/AuthGate';
+import { useSession } from '@/components/auth/AuthGate';
 import { chosenTemplate } from '@/lib/proposal';
 import { appendView, viewLogOf } from '@/lib/estimate-views';
 
@@ -66,7 +66,7 @@ function ClientView() {
   const { items: presentations } = useCollection('presentations');
   const { update } = useCollection('estimates');
   const params = useSearchParams();
-  const { session, ready } = useDemoSession();
+  const { session, ready } = useSession();
   // Staff opening it from the app (Open Customer View) is a preview, not a customer visit.
   const staffPreview = params.get('preview') === '1';
   // Customers need the estimate's secure token (?t=), which rotates on re-approval;

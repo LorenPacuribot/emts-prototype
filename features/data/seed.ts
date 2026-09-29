@@ -31,6 +31,7 @@ import { financeSeed } from "./seed-finance";
 import { performanceSeed } from "./seed-performance";
 import { feedbackSeed } from "./seed-feedback";
 import { marketingSeed } from "./seed-marketing";
+import { marketingGrowthSeed } from "./seed-marketing-growth";
 import type { PerformanceSnapshot } from "@/features/types";
 import { presetRange } from "@/features/lib/rules/performance";
 import { addDaysToDay, localDay, weekStartOf } from "@/features/lib/rules/payroll";
@@ -998,6 +999,10 @@ export function createSeed(nowIso: string): Database {
   db.customers.push(...marketing.customers);
   db.leads.unshift(...marketing.leads);
   Object.assign(db.counters, marketing.counters);
+  // Feature 34 part 2: campaigns, spend, links, offers, referrals, segments, messages and reviews.
+  const { counters: growthCounters, ...growth } = marketingGrowthSeed(nowIso);
+  Object.assign(db, growth);
+  Object.assign(db.counters, growthCounters);
 
   // Live host screens: work orders, estimate history, one lead per estimate.
   hostSeed(db, nowIso);

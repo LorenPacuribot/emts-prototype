@@ -10,7 +10,7 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { useCollection, useLogActivity } from '@/lib/store';
 import { deliver, dueMessages, scheduledToPlanned } from '@/lib/lead-messages';
-import { getSession } from '@/features/lib/auth/demo-auth';
+import { getSession } from '@/features/lib/auth/client-session';
 import { fullName } from '@/lib/utils';
 
 const CHECK_MS = 30_000;

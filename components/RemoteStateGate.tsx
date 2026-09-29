@@ -1,8 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { loadRemoteState, type RemoteStatus } from '@/lib/remote-state';
-import { useStore as useFeatureStore } from '@/features/lib/store';
+import { loadRemoteState, onRemoteChange, type RemoteChange, type RemoteStatus } from '@/lib/remote-state';
+import { describeConflict } from '@/lib/json-merge';
+import { reloadTombstones } from '@/lib/bridge/sync';
+import { STORAGE_KEY as FEATURE_KEY, useStore as useFeatureStore } from '@/features/lib/store';
 
 // One load per page, even when Strict Mode runs effects twice.
 let loading: Promise<RemoteStatus> | undefined;
@@ -20,19 +22,50 @@ async function start(): Promise<RemoteStatus> {
 
 export function RemoteStateGate({ children }: { children: React.ReactNode }) {
   const [status, setStatus] = useState<RemoteStatus>();
+  const [notice, setNotice] = useState<{ conflicts: string[] }>();
 
   useEffect(() => {
     loading ??= start();
     void loading.then(setStatus);
   }, []);
 
+  // Someone else saved: reload the affected store (the replica store listens itself).
+  useEffect(
+    () =>
+      onRemoteChange((c: RemoteChange) => {
+        if (c.key === FEATURE_KEY) void useFeatureStore.persist.rehydrate();
+        if (c.key === 'emts-bridge-tombstones-v2') reloadTombstones();
+        if (c.merged) setNotice((n) => ({ conflicts: [...new Set([...(n?.conflicts ?? []), ...c.conflicts])] }));
+      }),
+    [],
+  );
+
   if (!status) return <div className="min-h-screen bg-gray-50" />;
+  const clashes = notice ? [...new Set(notice.conflicts.map(describeConflict))] : [];
   return (
     <>
       {children}
       {status === 'offline' && (
         <div role="status" className="fixed bottom-3 left-1/2 z-[100] -translate-x-1/2 rounded-full bg-amber-100 px-4 py-1.5 text-xs font-medium text-amber-900 shadow">
           Shared data is unavailable. Changes are saved in this browser only.
+        </div>
+      )}
+      {notice && (
+        <div role="alert" className="fixed bottom-3 left-1/2 z-[100] w-[min(36rem,calc(100%-2rem))] -translate-x-1/2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 shadow-lg">
+          <p className="font-semibold">Someone else saved changes at the same time.</p>
+          {clashes.length === 0 ? (
+            <p className="mt-1">Their changes and yours were combined. Nothing was lost.</p>
+          ) : (
+            <p className="mt-1">
+              Their changes and yours were combined, but you both changed the same {clashes.length === 1 ? 'item' : 'items'}, so their version was kept for:{' '}
+              <span className="font-medium">{clashes.slice(0, 5).join(', ')}{clashes.length > 5 ? ` and ${clashes.length - 5} more` : ''}</span>. Check {clashes.length === 1 ? 'it' : 'them'} and redo your change if it is still needed.
+            </p>
+          )}
+          <div className="mt-2 text-right">
+            <button type="button" onClick={() => setNotice(undefined)} className="min-h-[44px] rounded-lg px-3 font-semibold text-amber-900 hover:bg-amber-100">
+              Got it
+            </button>
+          </div>
         </div>
       )}
     </>

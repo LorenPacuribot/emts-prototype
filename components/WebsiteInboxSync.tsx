@@ -10,7 +10,7 @@ import { useEffect } from 'react';
 import { act, useStore } from '@/features/lib/store';
 import { submitWebsiteForm } from '@/features/lib/store/actions/marketing';
 import { toast } from '@/features/lib/toast';
-import { getSession } from '@/features/lib/auth/demo-auth';
+import { getSession } from '@/features/lib/auth/client-session';
 import type { InboxSubmission } from '@/lib/website-form';
 
 const POLL_MS = 30_000;
