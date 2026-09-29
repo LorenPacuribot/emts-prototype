@@ -25,6 +25,7 @@ import { BridgeSync } from './bridge/BridgeSync';
 import { getDb as getFeatureDb, useStore as useFeatureStore } from '@/features/lib/store';
 import { nextNumber as featureNextNumber } from '@/features/lib/store/helpers';
 import { produce } from 'immer';
+import { remoteSave } from './remote-state';
 
 // v2: core records now come from the feature prototype (lib/bridge).
 const STORAGE_KEY = 'emts-replica-db-v2';
@@ -106,8 +107,10 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   // Save on every change.
   useEffect(() => {
     if (!ready) return;
+    const raw = JSON.stringify(db);
+    remoteSave(STORAGE_KEY, raw);
     try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+      window.localStorage.setItem(STORAGE_KEY, raw);
     } catch {
       /* ignore quota / private mode */
     }
@@ -243,6 +246,7 @@ export function useDataActions() {
   return {
     /** Resets both stores (replica and feature prototype) to their demo data. */
     reset: () => {
+      remoteSave(STORAGE_KEY, null);
       try {
         window.localStorage.removeItem(STORAGE_KEY);
       } catch {

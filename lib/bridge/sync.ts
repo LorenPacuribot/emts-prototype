@@ -23,6 +23,7 @@ import type * as P from '@/features/types';
 import type { CollectionKey, Database as RDb, Estimate, Invoice, Job, Lead, Customer, TeamMember, WorkOrder, CalendarEvent, Activity } from '@/lib/types';
 import { act, getDb, useStore } from '@/features/lib/store';
 import { toast } from '@/features/lib/toast';
+import { remoteSave } from '@/lib/remote-state';
 import { randomRef, nextNumber } from '@/features/lib/store/helpers';
 import { sourceFromLabel } from '@/features/lib/rules/lead-pipeline';
 import { acceptEstimateByToken, amendEstimate, deleteEstimate, markEstimateApproved, sendEstimate } from '@/features/lib/store/actions/estimates';
@@ -94,8 +95,10 @@ function tombs(): Set<string> {
 }
 function bury(k: string) {
   tombs().add(k);
+  const raw = JSON.stringify([...tombs()]);
+  remoteSave(TOMB_KEY, raw);
   try {
-    localStorage.setItem(TOMB_KEY, JSON.stringify([...tombs()]));
+    localStorage.setItem(TOMB_KEY, raw);
   } catch {
     /* ignore */
   }
@@ -109,6 +112,7 @@ export function resetBridge() {
   seenP.clear();
   replicaOrigin.clear();
   tombstones = new Set();
+  remoteSave(TOMB_KEY, null);
   try {
     localStorage.removeItem(TOMB_KEY);
   } catch {

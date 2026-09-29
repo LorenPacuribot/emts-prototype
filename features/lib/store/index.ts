@@ -18,6 +18,7 @@ import type { ActionResult, Database, User } from "@/features/types";
 import { createSeed } from "@/features/data/seed";
 import { now, setClockMode, type ClockMode } from "@/features/lib/clock";
 import { toast } from "@/features/lib/toast";
+import { remoteSave } from "@/lib/remote-state";
 
 // Own key inside the merged replica app (the standalone prototype used emts-prototype-db-v2).
 export const STORAGE_KEY = "emts-features-db-v1";
@@ -33,6 +34,7 @@ export const safeStorage = {
     }
   },
   setItem: (k: string, v: string) => {
+    remoteSave(k, v);
     try {
       localStorage.setItem(k, v);
     } catch {
@@ -40,6 +42,7 @@ export const safeStorage = {
     }
   },
   removeItem: (k: string) => {
+    remoteSave(k, null);
     try {
       localStorage.removeItem(k);
     } catch {
