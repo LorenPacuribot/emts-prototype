@@ -190,10 +190,10 @@ export function ManageColorModal({ open, onOpenChange, job, colour, colorNumber,
             </Field>
           </div>
           <div className="mt-4 grid gap-4 sm:grid-cols-[1fr_120px]">
-            <Field label={<span className="inline-flex items-center gap-2">Color Code <NewBadge feature={3} /></span>} required error={error?.field === "number" ? error.message : undefined} hint="Manufacturer number, e.g. SW 7008">
+            <Field label={<span className="inline-flex items-center gap-2">Color Code</span>} required error={error?.field === "number" ? error.message : undefined} hint="Manufacturer number, e.g. SW 7008">
               <Input value={f.number} onChange={(e) => set("number", e.target.value)} placeholder="SW 7008" invalid={error?.field === "number"} />
             </Field>
-            <Field label={<span className="inline-flex items-center gap-2">Swatch <NewBadge feature={3} /></span>}>
+            <Field label={<span className="inline-flex items-center gap-2">Swatch</span>}>
               <div className="flex items-center gap-2">
                 <Swatch hex={f.hex} />
                 <input type="color" value={f.hex} onChange={(e) => set("hex", e.target.value)} className="h-10 w-14 cursor-pointer rounded-lg border border-gray-200" aria-label="Swatch color" />

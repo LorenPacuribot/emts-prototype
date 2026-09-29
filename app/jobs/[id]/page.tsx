@@ -110,7 +110,7 @@ export default function JobDetailPage() {
             </div>
             <h1 className="font-heading text-3xl font-extrabold tracking-tight text-gray-900 md:text-4xl">{job.title || job.jobNumber}</h1>
             <p className="text-sm text-gray-500">
-              Contract value <span className="font-bold text-gray-900">{money(job.value)}</span>
+              <span title="The job's value from the accepted estimate. The revised contract, with change orders and without tax, is under Job Cost.">Original contract value</span> <span className="font-bold text-gray-900">{money(job.value)}</span>
               {job.completedAt && <> · Completed {new Date(job.completedAt).toLocaleDateString('en-US')}</>}
             </p>
           </div>
@@ -126,7 +126,7 @@ export default function JobDetailPage() {
               }
             />
             {job.status !== 'Completed' && (!twin || twin.wo?.status === 'IN_PROGRESS') && (
-              <Button variant="success" className="rounded-xl" icon={<CheckCircle2 className="h-4 w-4" />} onClick={() => changeStatus('Completed')}
+              <Button variant="primary" className="rounded-xl" icon={<CheckCircle2 className="h-4 w-4" />} onClick={() => changeStatus('Completed')}
                 title={twin ? 'Opens the closeout on the work order' : undefined}>
                 Mark Complete
               </Button>

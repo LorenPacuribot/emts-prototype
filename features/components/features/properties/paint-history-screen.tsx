@@ -125,26 +125,25 @@ export function PaintHistoryPanel({ property }: { property: Property }) {
           <>
             <DropdownMenu.Root>
               <DropdownMenu.Trigger asChild>
-                <Button><Printer className="h-4 w-4" /> Export PDF <ChevronDown className="h-3.5 w-3.5" /></Button>
+                <Button><Printer className="h-4 w-4" /> Export <ChevronDown className="h-3.5 w-3.5" /></Button>
               </DropdownMenu.Trigger>
               <DropdownMenu.Portal>
-                <DropdownMenu.Content align="end" sideOffset={4} className="z-50 min-w-48 rounded-xl border border-line bg-white p-1 shadow-xl">
+                <DropdownMenu.Content align="end" sideOffset={4} className="z-50 min-w-52 rounded-xl border border-line bg-white p-1 shadow-xl">
                   {(["staff", "customer"] as const).map((v) => (
-                    <DropdownMenu.Item key={v} onSelect={() => setPrint({ open: true, variant: v })} className="cursor-pointer rounded-lg px-3 py-2 text-sm outline-none data-[highlighted]:bg-gray-100">
-                      {v === "staff" ? "Staff record" : "Customer variant"}
+                    <DropdownMenu.Item key={v} onSelect={() => setPrint({ open: true, variant: v })} className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm outline-none data-[highlighted]:bg-gray-100">
+                      <Printer className="h-4 w-4 text-gray-400" /> {v === "staff" ? "PDF · staff record" : "PDF · customer variant"}
                     </DropdownMenu.Item>
                   ))}
+                  <DropdownMenu.Item onSelect={exportCsv} className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm outline-none data-[highlighted]:bg-gray-100">
+                    <Download className="h-4 w-4 text-gray-400" /> CSV
+                  </DropdownMenu.Item>
                 </DropdownMenu.Content>
               </DropdownMenu.Portal>
             </DropdownMenu.Root>
-            <Button onClick={exportCsv}><Download className="h-4 w-4" /> Export CSV</Button>
             <Button onClick={() => correctionsRef.current?.scrollIntoView({ behavior: "smooth" })}>
               <History className="h-4 w-4" /> Corrections
               {pendingNotices > 0 && <span className="rounded-full bg-amber-500 px-1.5 text-xs font-bold text-white">{pendingNotices}</span>}
             </Button>
-            <AppLink href={propertyHref(property.id, "qr-links")}>
-              <Button variant="primary"><QrCode className="h-4 w-4" /> QR Links</Button>
-            </AppLink>
             <RowMenu
               label="More property actions"
               items={[

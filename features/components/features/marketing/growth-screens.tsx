@@ -384,7 +384,7 @@ function Reviews() {
         <Stat label="Testimonials" value={testimonials.length} hint="Owner approved" />
         <Stat label="Review requests sent" value={requests.filter((r) => r.status === "sent").length} hint="Sandbox" />
       </StatStrip>
-      <div className="mb-4"><PillTabs value={tab} onChange={setTab} options={[{ value: "respond", label: "Needs a response", count: waiting.length }, { value: "all", label: "All reviews", count: reviews.length }, { value: "testimonials", label: "Testimonials", count: testimonials.length }]} /></div>
+      <div className="mb-4"><PillTabs kind="view" value={tab} onChange={setTab} options={[{ value: "respond", label: "Needs a response", count: waiting.length }, { value: "all", label: "All reviews", count: reviews.length }, { value: "testimonials", label: "Testimonials", count: testimonials.length }]} /></div>
       {shown.length === 0 ? (
         tab === "respond" ? <EmptyState icon={<CheckCircle2 />} title="Every review has a response" body="Ask recently finished customers for a review to keep them coming." action={<GatedButton allowed={canPost} reason={reason} onClick={() => setRequesting(true)}>Request a review</GatedButton>} />
           : tab === "testimonials" ? <EmptyState icon={<Star />} title="No testimonials yet" body="Open All reviews and use a 4 or 5-star review as a testimonial." action={<Button className={TAP} onClick={() => setTab("all")}>See all reviews</Button>} />
@@ -604,7 +604,7 @@ function Messages() {
         {newMessage}
       </>} />
       <Banner tone="info" className="mb-4" title="Sandbox sending">No email or SMS provider is connected. Sending records every recipient in the send log and in each customer&apos;s history, exactly as a live send would, without delivering anything.</Banner>
-      <div className="mb-4"><PillTabs value={tab} onChange={setTab} options={[{ value: "messages", label: "Messages", count: messages.length }, { value: "segments", label: "Audience segments", count: segments.length }]} /></div>
+      <div className="mb-4"><PillTabs kind="view" value={tab} onChange={setTab} options={[{ value: "messages", label: "Messages", count: messages.length }, { value: "segments", label: "Audience segments", count: segments.length }]} /></div>
       {tab === "messages" ? (
         messages.length === 0 ? <EmptyState icon={<Mail />} title="No email or SMS campaigns yet" body={segments.length ? "Write a message to one of your audience segments." : "Save an audience segment first, then write a message to it."} action={newMessage} /> : (
           <Card className="p-0">

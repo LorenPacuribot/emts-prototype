@@ -1,5 +1,5 @@
 import { forwardRef, type ButtonHTMLAttributes } from "react";
-import { Loader2 } from "lucide-react";
+import { FlaskConical, Loader2 } from "lucide-react";
 import { cn } from "@/features/lib/cn";
 
 /*
@@ -10,7 +10,7 @@ import { cn } from "@/features/lib/cn";
   - "danger" is still the red outline. Use "danger-solid" for a filled
     red destructive confirmation (the live kit's "danger").
 */
-type Variant = "primary" | "secondary" | "outline" | "ghost" | "danger" | "danger-solid" | "dark" | "success";
+type Variant = "primary" | "secondary" | "outline" | "ghost" | "danger" | "danger-solid" | "dark" | "success" | "demo";
 type Size = "xs" | "sm" | "md" | "lg" | "icon" | "icon-sm";
 
 const variants: Record<Variant, string> = {
@@ -22,6 +22,8 @@ const variants: Record<Variant, string> = {
   "danger-solid": "bg-red-600 text-white hover:bg-red-700 border border-red-600 shadow-md shadow-red-500/20",
   dark: "bg-gray-900 text-white hover:bg-gray-800 border border-gray-900",
   success: "bg-green-600 text-white hover:bg-green-700 border border-green-600",
+  /** Prototype-only controls (simulations): never the primary action (H1). Use DemoButton. */
+  demo: "bg-amber-50/60 text-amber-900 hover:bg-amber-50 border border-dashed border-amber-400",
 };
 
 const sizes: Record<Size, string> = {
@@ -63,5 +65,16 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       {loading && <Loader2 className="h-4 w-4 animate-spin" aria-hidden />}
       {children}
     </button>
+  );
+});
+
+/** A prototype-only control (simulate a run, a reply, a failure): dashed amber, flask icon, "Demo" tag. */
+export const DemoButton = forwardRef<HTMLButtonElement, Omit<ButtonProps, "variant">>(function DemoButton({ children, ...rest }, ref) {
+  return (
+    <Button ref={ref} variant="demo" {...rest}>
+      <FlaskConical className="h-3.5 w-3.5 shrink-0" aria-hidden />
+      {children}
+      <span className="rounded bg-amber-200/70 px-1 text-xxs font-bold uppercase tracking-wide text-amber-900">Demo</span>
+    </Button>
   );
 });

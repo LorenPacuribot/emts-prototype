@@ -148,7 +148,7 @@ export function PaintColors({ job, editable, paintColourId, onPaint }: {
         </Banner>
       )}
       {flags.map((f) => (
-        <Banner key={f.id} tone="warn" className="mb-4" title={<span className="inline-flex items-center gap-2">Affected commitments <NewBadge feature={3} /></span>}
+        <Banner key={f.id} tone="warn" className="mb-4" title={<span className="inline-flex items-center gap-2">Affected commitments</span>}
           action={<Button size="sm" onClick={() => act(confirmStoreCall, f.id).ok && toast.success("Store call confirmed")}><PhoneCall className="h-3.5 w-3.5" /> Confirm store call</Button>}>
           {f.message}
         </Banner>
@@ -289,7 +289,6 @@ export function PaintColors({ job, editable, paintColourId, onPaint }: {
             </div>
             <div className="mt-3"><SurfaceChips ids={r.surfaces} /></div>
             <div className="mt-3 flex flex-wrap items-center gap-1.5">
-              <NewBadge feature={3} />
               {r.states.map((s) => <Badge key={s} tone={SPEC_STATE[s].tone}>{SPEC_STATE[s].label}</Badge>)}
             </div>
             {canCard && (

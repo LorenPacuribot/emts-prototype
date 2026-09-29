@@ -18,7 +18,7 @@ import { toast } from "@/features/lib/toast";
 import { now } from "@/features/lib/clock";
 import { affectedPosts, PLATFORM_LABEL, reconnectAccount, removeAccess, simulateAccountIssue, switchToDraftFallback } from "@/features/lib/store/actions/marketing";
 import { userName } from "@/features/lib/store/helpers";
-import { Badge, Banner, Button, Card, CardLabel, KV } from "@/features/components/ui";
+import { Badge, Banner, Button, Card, CardLabel, KV, DemoButton } from "@/features/components/ui";
 import { SettingsShell } from "@/features/components/features/settings/settings-shell";
 import { PlatformChip } from "./shared";
 
@@ -71,8 +71,8 @@ function Accounts() {
               <div className="mt-3 flex flex-wrap gap-2 border-t border-line pt-3">
                 {owner && a.status !== "connected" && <Button variant="primary" onClick={() => act(reconnectAccount, a.platform).ok && toast.success("Access renewed")}><KeyRound className="h-4 w-4" /> Renew access</Button>}
                 {owner && a.status === "connected" && days <= 14 && <Button onClick={() => act(reconnectAccount, a.platform).ok && toast.success("Access renewed for 60 days")}><KeyRound className="h-4 w-4" /> Renew now</Button>}
-                {a.status === "connected" && <><Button size="sm" onClick={() => sim(a.platform, "expired")}>Simulate expiry</Button><Button size="sm" onClick={() => sim(a.platform, "suspended")}>Simulate suspension</Button></>}
-                {a.mode === "publish" && <Button size="sm" onClick={() => act(switchToDraftFallback, a.platform).ok && toast.info("Draft-for-approval fallback in use", "The business owner has been notified. Launch isn't delayed.")}>Simulate draft-only permission</Button>}
+                {a.status === "connected" && <><DemoButton size="sm" onClick={() => sim(a.platform, "expired")}>Simulate expiry</DemoButton><DemoButton size="sm" onClick={() => sim(a.platform, "suspended")}>Simulate suspension</DemoButton></>}
+                {a.mode === "publish" && <DemoButton size="sm" onClick={() => act(switchToDraftFallback, a.platform).ok && toast.info("Draft-for-approval fallback in use", "The business owner has been notified. Launch isn't delayed.")}>Simulate draft-only permission</DemoButton>}
               </div>
             </Card>
           );

@@ -238,7 +238,7 @@ function Feeds() {
         )}
       />
       {!connected && <Banner tone="info" className="mb-4" title="Sandbox feed">No bank connection is configured, so Pull adds sample lines. CSV import works with any bank&apos;s export.</Banner>}
-      <div className="mb-4"><PillTabs value={tab} onChange={setTab} options={[{ value: "unreviewed", label: `To review (${open.length})` }, { value: "reviewed", label: `Reviewed (${done.length})` }]} /></div>
+      <div className="mb-4"><PillTabs kind="view" value={tab} onChange={setTab} options={[{ value: "unreviewed", label: `To review (${open.length})` }, { value: "reviewed", label: `Reviewed (${done.length})` }]} /></div>
       {tab === "unreviewed" ? (
         open.length ? <div className="space-y-3">{open.map((t) => <FeedRow key={t.id} t={t} />)}</div> : <EmptyState icon={<CheckCircle2 />} title="Nothing to review" body="New bank and card lines appear here after an import or pull." />
       ) : (

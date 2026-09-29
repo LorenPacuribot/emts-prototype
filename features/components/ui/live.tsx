@@ -82,7 +82,7 @@ export function EstimateSection({ id, children, isNew, className }: { id?: strin
 /** Work-order / job page card (`bg-white rounded-2xl shadow-sm border p-6 md:p-8`). */
 export function LiveCard({ children, className, isNew, ...rest }: { children: ReactNode; className?: string; isNew?: boolean } & React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={cn("rounded-2xl border border-gray-200 bg-white p-5 shadow-sm md:p-8", isNew && "border-green-300 ring-1 ring-green-100", className)} {...rest}>
+    <div className={cn("scroll-mt-24 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm md:p-8", isNew && "border-green-300 ring-1 ring-green-100", className)} {...rest}>
       {children}
     </div>
   );

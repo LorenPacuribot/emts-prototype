@@ -4,15 +4,44 @@ import { AlertTriangle, CheckCircle2, Info, OctagonAlert, X } from "lucide-react
 import { cn } from "@/features/lib/cn";
 import { useToasts } from "@/features/lib/toast";
 
-/** Filter pills, as on the Jobs page ("All Active", "Unscheduled", ...). Active pill is black. */
-export function PillTabs<T extends string>({ options, value, onChange, className }: {
+/**
+ * One component for tabs and filters, two looks (H4, S5):
+ * - kind="view": top-level views of a screen, underline tabs;
+ * - default ("filter"): filters and choices inside a view, small outline chips.
+ * A view row and a filter row never look the same.
+ */
+export function PillTabs<T extends string>({ options, value, onChange, className, kind = "filter" }: {
   options: { value: T; label: string; count?: number }[];
   value: T;
   onChange: (v: T) => void;
   className?: string;
+  kind?: "view" | "filter";
 }) {
+  if (kind === "view") {
+    return (
+      <div className={cn("flex gap-1 overflow-x-auto border-b border-gray-200 custom-scrollbar", className)} role="tablist" data-tour="pill-tabs">
+        {options.map((o) => (
+          <button
+            key={o.value}
+            role="tab"
+            aria-selected={value === o.value}
+            onClick={() => onChange(o.value)}
+            className={cn(
+              "-mb-px inline-flex h-11 shrink-0 items-center border-b-2 px-3 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400/60",
+              value === o.value ? "border-primary-600 text-primary-700" : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-900",
+            )}
+          >
+            {o.label}
+            {o.count !== undefined && (
+              <span className={cn("ml-1.5 rounded-full px-1.5 text-xs", value === o.value ? "bg-primary-100 text-primary-700" : "bg-gray-100 text-gray-600")}>{o.count}</span>
+            )}
+          </button>
+        ))}
+      </div>
+    );
+  }
   return (
-    <div className={cn("flex flex-wrap gap-2", className)} role="tablist" data-tour="pill-tabs">
+    <div className={cn("flex flex-wrap gap-1.5", className)} role="tablist" data-tour="pill-tabs">
       {options.map((o) => (
         <button
           key={o.value}
@@ -20,13 +49,13 @@ export function PillTabs<T extends string>({ options, value, onChange, className
           aria-selected={value === o.value}
           onClick={() => onChange(o.value)}
           className={cn(
-            "h-9 rounded-xl border px-3.5 text-xs font-semibold transition-colors",
-            value === o.value ? "border-ink bg-ink text-white" : "border-line bg-white text-gray-700 hover:bg-gray-50",
+            "inline-flex h-8 items-center rounded-full border px-3 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400/60",
+            value === o.value ? "border-primary-300 bg-primary-50 text-primary-700" : "border-gray-200 bg-white text-gray-600 hover:bg-gray-50 hover:text-gray-900",
           )}
         >
           {o.label}
           {o.count !== undefined && (
-            <span className={cn("ml-1.5 rounded-full px-1.5 text-xs", value === o.value ? "bg-white/20" : "bg-gray-100 text-gray-500")}>{o.count}</span>
+            <span className={cn("ml-1.5 rounded-full px-1.5 text-xs", value === o.value ? "bg-primary-100 text-primary-700" : "bg-gray-100 text-gray-600")}>{o.count}</span>
           )}
         </button>
       ))}

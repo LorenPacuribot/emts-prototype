@@ -245,7 +245,6 @@ function PaintColorsSection({ jobId }: { jobId: string }) {
                 <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${approved ? "bg-green-50 text-green-700" : "bg-amber-50 text-amber-700"}`}>
                   {approved ? "Approved" : "Awaiting your approval"}
                 </span>
-                <NewBadge feature={3} className="no-print" />
               </span>
             </div>
           );

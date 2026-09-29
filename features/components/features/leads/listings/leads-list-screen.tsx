@@ -259,7 +259,7 @@ function LeadsTable({ leads }: { leads: Lead[] }) {
                 <td className={td}>{l.estimateId ? <AppLink href={estimateHref(l.estimateId)} onClick={(e) => e.stopPropagation()} className="inline-flex items-center gap-1 text-xs font-bold text-primary-700 hover:underline"><FileText className="h-3.5 w-3.5" />{l.estimateId}</AppLink> : "-"}</td>
                 <td className={td}>{d.phone && <div className="flex items-center gap-1.5 text-xs"><Phone className="h-3 w-3 text-gray-400" />{d.phone}</div>}{d.email && <div className="flex items-center gap-1.5 text-xs"><Mail className="h-3 w-3 text-gray-400" />{d.email}</div>}</td>
                 <td className={td}>{d.place}</td>
-                <td className={td}>{l.source === "repaint_alert" ? <span className="inline-flex items-center gap-1">Repaint alert <NewBadge feature={29} /></span> : leadSourceLabel(l)}</td>
+                <td className={td}>{l.source === "repaint_alert" ? <span className="inline-flex items-center gap-1">Repaint alert</span> : leadSourceLabel(l)}</td>
                 <td className={cn(td, "whitespace-nowrap")}>{date(l.createdAt)}</td>
               </tr>
             );

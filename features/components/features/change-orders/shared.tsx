@@ -1,4 +1,5 @@
 "use client";
+import { AlertTriangle, Clock } from "lucide-react";
 /** Small display helpers shared by the change-order screens (feature 24). */
 import type { ReactNode } from "react";
 import type { ChangeOrder, Database } from "@/features/types";
@@ -32,8 +33,8 @@ export function EmergencyBadge({ co }: { co: ChangeOrder }) {
   if (!co.emergency) return null;
   const s = writtenConfirmationStatus(co.emergency.verbalAt, co.emergency.writtenConfirmedAt, now());
   if (s.state === "confirmed") return <Badge tone="green">Emergency · confirmed</Badge>;
-  if (s.state === "overdue") return <Badge tone="red" className="max-w-28 whitespace-normal">Emergency · overdue</Badge>;
-  return <Badge tone="amber" className="max-w-28 whitespace-normal">Emergency · due {new Date(`${s.dueDay}T12:00:00`).toLocaleDateString("en-US", { month: "numeric", day: "numeric" })}</Badge>;
+  if (s.state === "overdue") return <Badge tone="red" icon={<AlertTriangle className="h-3 w-3 shrink-0" aria-hidden />} className="max-w-28 whitespace-normal">Emergency · overdue</Badge>;
+  return <Badge tone="amber" icon={<Clock className="h-3 w-3 shrink-0" aria-hidden />} className="max-w-28 whitespace-normal">Emergency · due {new Date(`${s.dueDay}T12:00:00`).toLocaleDateString("en-US", { month: "numeric", day: "numeric" })}</Badge>;
 }
 
 export function TypeBadge({ type }: { type: string }) {

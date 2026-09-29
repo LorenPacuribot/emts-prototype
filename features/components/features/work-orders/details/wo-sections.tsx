@@ -6,7 +6,7 @@
 import { useState } from "react";
 import {
   Calendar, Check, CheckCircle2, ClipboardList, Clock, Droplet, FileText, ImagePlus, LogIn, LogOut, MapPin, MessageSquare, Paintbrush, Pencil, Play,
-  Timer, UserRound, Users, X,
+  Timer, UserRound, Users, X, AlertTriangle,
 } from "lucide-react";
 import type { Job, WorkOrder } from "@/features/types";
 import { act, useCurrentUser, useDb } from "@/features/lib/store";
@@ -393,7 +393,8 @@ export function TimeLogSection({ wo, job }: { wo: WorkOrder; job: Job }) {
   const canApprove = can(user, "time.approve");
   return (
     <LiveCard data-tour="wo-time-log">
-      <CardTitle icon={<Clock />} right={<span className="text-sm text-gray-500">{entries.length} Entries</span>}>Time Log</CardTitle>
+      <CardTitle icon={<Clock />} right={<span className="text-sm text-gray-500">{entries.length} logged · {segments.length} punches</span>}>Crew Time</CardTitle>
+      {entries.length > 0 && <h4 className="mb-1 text-xxs font-bold uppercase tracking-widest text-gray-500">Hours by surface</h4>}
       <div className="divide-y divide-gray-100">
         {entries.map((e) => {
           const who = byId(db.users, e.loggedBy);
@@ -404,9 +405,8 @@ export function TimeLogSection({ wo, job }: { wo: WorkOrder; job: Job }) {
               <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary-100 text-sm font-bold text-primary-700">{(emp?.name ?? who?.name ?? "?")[0]}</span>
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2 text-sm">
-                  <span className="font-bold text-gray-900">{who?.name}</span>
-                  <span className="text-xs text-gray-400">{dateTime(e.loggedAt)}</span>
-                  {emp && <span className="inline-flex items-center gap-1 rounded-md bg-gray-100 px-1.5 py-0.5 text-xs font-semibold text-gray-600"><UserRound className="h-3 w-3" />{emp.name} · {e.workDate && date(e.workDate)} <NewBadge feature={22} /></span>}
+                  <span className="text-gray-500">Worked by</span> <span className="font-bold text-gray-900">{emp?.name ?? who?.name}</span>
+                  {e.workDate && <span className="text-xs text-gray-500">{date(e.workDate)}</span>}
                   {state && <Badge tone={TIME_STATE_TONE[state]}>{TIME_STATE_LABEL[state]}</Badge>}
                   {state === "submitted" && canApprove && emp && (
                     <Tooltip content={`Approves ${emp.name}'s whole day for payroll, across every job that day. Hours stay tagged to this job.`}>
@@ -419,7 +419,7 @@ export function TimeLogSection({ wo, job }: { wo: WorkOrder; job: Job }) {
                     </Tooltip>
                   )}
                 </div>
-                <div className="text-xs text-gray-500">{surfaceLabel(db, e.surfaceId).replace(" · ", " — ")}</div>
+                <div className="text-xs text-gray-500">{surfaceLabel(db, e.surfaceId).replace(" · ", " — ")} · Entered by {who?.name ?? "—"} {dateTime(e.loggedAt)}</div>
                 {editing === e.id ? (
                   <div className="mt-2 flex flex-wrap items-start gap-2">
                     <Input type="number" step={0.25} value={h} onChange={(ev) => setH(ev.target.value)} className="h-9 w-24" aria-label="Hours" />
@@ -441,15 +441,27 @@ export function TimeLogSection({ wo, job }: { wo: WorkOrder; job: Job }) {
         })}
       </div>
       {segments.length > 0 && (
-        <div className="mt-4 rounded-xl border border-green-200 bg-green-50/30 p-3">
-          <div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-gray-500">Clocked time on this job <NewBadge feature={22} /></div>
-          <div className="grid gap-1.5 text-sm">
+        <div className={entries.length ? "mt-4 border-t border-gray-100 pt-3" : ""}>
+          <h4 className="mb-1 flex items-center gap-2 text-xxs font-bold uppercase tracking-widest text-gray-500">Clock punches <NewBadge feature={22} /></h4>
+          <div className="divide-y divide-gray-100">
             {segments.map((s) => {
               const st = dayState(s.employeeId, s.workDate);
+              const emp = byId(db.employees, s.employeeId);
+              const clocker = byId(db.users, s.clockedBy);
+              const t = (iso: string) => new Date(iso).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
               return (
-                <div key={s.id} className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="text-gray-700"><b>{byId(db.employees, s.employeeId)?.name}</b> · {date(s.workDate)} · {new Date(s.start).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}–{s.end ? new Date(s.end).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) : "now"} · {s.activity.replace("_", " ")}</span>
-                  <span className="flex items-center gap-2">{st && <Badge tone={TIME_STATE_TONE[st]}>{TIME_STATE_LABEL[st]}</Badge>}<AppLink href="/time" className="text-xs font-bold text-primary-700 hover:underline">Review in Time</AppLink></span>
+                <div key={s.id} className="flex items-start gap-3 py-3">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-green-100 text-sm font-bold text-green-700">{(emp?.name ?? "?")[0]}</span>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2 text-sm">
+                      <span className="text-gray-500">Worked by</span> <span className="font-bold text-gray-900">{emp?.name ?? "—"}</span>
+                      <span className="text-xs text-gray-500">{date(s.workDate)}</span>
+                      {st && <Badge tone={TIME_STATE_TONE[st]}>{TIME_STATE_LABEL[st]}</Badge>}
+                    </div>
+                    <div className="text-xs text-gray-500">{s.activity.replace("_", " ")} · Clocked by {clocker?.name ?? "—"}</div>
+                    <div className="mt-0.5 text-sm text-gray-800"><b>{t(s.start)}–{s.end ? t(s.end) : "now"}</b></div>
+                  </div>
+                  <AppLink href="/time" className="shrink-0 text-xs font-bold text-primary-700 hover:underline">Review in Time</AppLink>
                 </div>
               );
             })}
@@ -478,9 +490,14 @@ export function CrewClockCard({ wo, job }: { wo: WorkOrder; job: Job }) {
             const here = open?.jobId === job.id;
             return (
               <div key={e.id} className="flex items-center justify-between gap-2 rounded-xl border border-gray-200 bg-white p-3">
-                <div>
+                <div className="min-w-0">
                   <div className="text-sm font-bold text-gray-900">{e.name}</div>
-                  <div className="text-xs text-gray-500">{open ? `Clocked in ${new Date(open.start).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}${here ? "" : ` at ${open.jobId ?? "overhead"}`}` : "Not clocked in"}</div>
+                  <div className="text-xs text-gray-500">{open ? `Clocked in ${new Date(open.start).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}${here ? " on this job" : ""}` : "Not clocked in"}</div>
+                  {open && !here && (
+                    <div className="mt-0.5 flex items-center gap-1 text-xs font-semibold text-amber-700">
+                      <AlertTriangle className="h-3 w-3 shrink-0" aria-hidden /> {open.jobId ? `Clocked in at ${open.jobId}, not this job` : "Clocked in on overhead, not this job"}
+                    </div>
+                  )}
                 </div>
                 {open ? (
                   <Button size="sm" onClick={() => act(clockOut, e.id).ok && toast.success(`${e.name} clocked out`)}><LogOut className="h-3.5 w-3.5" /> Clock out</Button>

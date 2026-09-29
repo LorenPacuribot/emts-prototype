@@ -10,7 +10,7 @@
   Estimate with rule D4, + Create Change Order, the amendment chip and the
   customer page link.
 */
-import type React from 'react';
+import React, { useLayoutEffect, useRef } from 'react';
 import Link from 'next/link';
 import { Briefcase, CheckCircle2, Copy, Edit2, ExternalLink, Eye, Hash, History, MoreVertical, Printer, Save, Send, Trash2, Users, XCircle } from 'lucide-react';
 import type { Estimate, Lead } from '@/lib/types';
@@ -62,23 +62,15 @@ export function EstimateToolbar({
   ];
 
   return (
-    <div className="mb-6 flex flex-col flex-wrap items-start justify-between gap-4 md:mb-8 xl:flex-row xl:items-center xl:gap-6 print:hidden" data-tour="estimate-toolbar">
-      <div className="w-full min-w-[300px] flex-1 space-y-2 xl:w-auto">
+    <div className="mb-6 flex flex-col flex-wrap items-start justify-between gap-4 md:mb-8 2xl:flex-row 2xl:items-center 2xl:gap-6 print:hidden" data-tour="estimate-toolbar">
+      <div className="w-full min-w-0 flex-1 space-y-2 2xl:w-auto 2xl:min-w-[300px]">
         <div className="group">
           <label htmlFor="project-name" className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-gray-500">
             Project Name
             {!readOnly && <span className="text-xs font-medium normal-case tracking-normal text-gray-300 opacity-50 group-hover:opacity-100 md:text-xs">(Click to edit)</span>}
           </label>
           <div className="relative w-full">
-            <input
-              id="project-name"
-              type="text"
-              value={e.title}
-              disabled={readOnly}
-              onChange={(ev) => a.onTitle(ev.target.value)}
-              placeholder="Enter Project Name"
-              className="w-full border-b-2 border-transparent bg-transparent px-0 py-1 font-heading text-2xl font-extrabold text-gray-900 outline-none transition-all placeholder:text-gray-300 hover:border-gray-300 focus:border-primary-400 disabled:cursor-default disabled:hover:border-transparent md:text-3xl lg:text-4xl"
-            />
+            <TitleField value={e.title} readOnly={readOnly} onChange={a.onTitle} />
             {!readOnly && <Edit2 className="pointer-events-none absolute right-0 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-300 opacity-0 group-hover:opacity-100" />}
           </div>
         </div>
@@ -119,7 +111,7 @@ export function EstimateToolbar({
         )}
         <Button variant="secondary" onClick={a.onPreview} icon={<Eye className="h-5 w-5" />} title="Generate the customer presentation from this estimate">Client Preview</Button>
         {isOpen(e.status) && !f.hideApprove && (
-          <Button onClick={a.onApprove} icon={<CheckCircle2 className="h-5 w-5" />} title="Mark as approved without sending to the client">Mark Approved</Button>
+          <Button variant="secondary" onClick={a.onApprove} icon={<CheckCircle2 className="h-5 w-5" />} title="Mark as approved without sending to the client">Mark Approved</Button>
         )}
         {isOpen(e.status) && (
           <span title={f.sendDisabledReason} className="inline-flex">
@@ -154,5 +146,32 @@ export function EstimateToolbar({
         />
       </div>
     </div>
+  );
+}
+
+/**
+ * Project name (H2, V3): wraps instead of being clipped. A one-line textarea
+ * that grows with its text; Enter finishes editing like the old input.
+ */
+function TitleField({ value, readOnly, onChange }: { value: string; readOnly?: boolean; onChange: (v: string) => void }) {
+  const ref = useRef<HTMLTextAreaElement>(null);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${el.scrollHeight}px`;
+  }, [value]);
+  return (
+    <textarea
+      ref={ref}
+      id="project-name"
+      rows={1}
+      value={value}
+      disabled={readOnly}
+      onChange={(ev) => onChange(ev.target.value.replace(/\n/g, ' '))}
+      onKeyDown={(ev) => { if (ev.key === 'Enter') { ev.preventDefault(); ev.currentTarget.blur(); } }}
+      placeholder="Enter Project Name"
+      className="block w-full resize-none overflow-hidden border-b-2 border-transparent bg-transparent px-0 py-1 pr-7 font-heading text-2xl font-extrabold leading-tight text-balance text-gray-900 outline-none transition-all placeholder:text-gray-300 hover:border-gray-300 focus:border-primary-400 disabled:cursor-default disabled:hover:border-transparent md:text-3xl lg:text-4xl"
+    />
   );
 }

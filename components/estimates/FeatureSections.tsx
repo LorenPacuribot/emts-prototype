@@ -187,17 +187,20 @@ export function ApprovedEstimateActions({ estimateId, onCreateChangeOrder }: { e
   return (
     <>
       {showAmend && (
-        <Tooltip content={amendBlock ?? 'Open this accepted estimate for editing'}>
-          <span data-tour="amend-button">
-            <Button variant="secondary" disabled={!!amendBlock} onClick={() => setConfirm(true)} icon={<PencilLine className="h-4 w-4" />}>
-              Amend Estimate
-            </Button>
-          </span>
-        </Tooltip>
+        <span className="inline-flex max-w-[18rem] flex-col gap-1">
+          <Tooltip content={amendBlock ?? 'Open this accepted estimate for editing'}>
+            <span data-tour="amend-button" className="inline-flex">
+              <Button variant="secondary" disabled={!!amendBlock} onClick={() => setConfirm(true)} icon={<PencilLine className="h-4 w-4" />} aria-describedby={amendBlock ? 'amend-blocked-reason' : undefined}>
+                Amend Estimate
+              </Button>
+            </span>
+          </Tooltip>
+          {amendBlock && <span id="amend-blocked-reason" className="text-xs leading-snug text-gray-500">{amendBlock}</span>}
+        </span>
       )}
       {showCo && (
-        <Button onClick={onCreateChangeOrder} icon={<FilePlus2 className="h-4 w-4" />} data-tour="create-change-order">
-          Create Change Order <NewBadge feature={24} className="ml-1 bg-white/90 text-emerald-700" />
+        <Button variant="secondary" onClick={onCreateChangeOrder} icon={<FilePlus2 className="h-4 w-4" />} data-tour="create-change-order">
+          Create Change Order <NewBadge feature={24} className="ml-1" />
         </Button>
       )}
       <ConfirmDialog

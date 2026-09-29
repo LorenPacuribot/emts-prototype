@@ -46,8 +46,8 @@ export function FinancialsCard({ job }: { job: Job }) {
         )}
       </div>
       <div className="space-y-4">
-        <Row label="Total Price" value={money(job.value)} />
-        <Row label="Paid to Date" value={money(paid)} valueClass="text-green-600" />
+        <Row label="Total Price" hint="The job's value from the accepted estimate. Change orders show under Job Cost." value={money(job.value)} />
+        <Row label="Paid on invoices" hint="Payments recorded on this job's invoices. A deposit taken before invoicing is not counted here." value={money(paid)} valueClass="text-green-600" />
         <div className="flex items-center justify-between py-2">
           <span className="text-xs font-bold uppercase tracking-wider text-gray-400">Balance Due</span>
           <span className={cn('text-xl font-black', balance > 0 ? 'text-red-600' : 'text-gray-900')}>{money(balance)}</span>
@@ -58,9 +58,9 @@ export function FinancialsCard({ job }: { job: Job }) {
   );
 }
 
-function Row({ label, value, valueClass }: { label: string; value: string; valueClass?: string }) {
+function Row({ label, value, valueClass, hint }: { label: string; value: string; valueClass?: string; hint?: string }) {
   return (
-    <div className="flex items-center justify-between border-b border-gray-100 py-2">
+    <div className="flex items-center justify-between border-b border-gray-100 py-2" title={hint}>
       <span className="text-sm font-medium text-gray-500">{label}</span>
       <span className={cn('text-lg font-bold text-gray-900', valueClass)}>{value}</span>
     </div>
@@ -207,13 +207,13 @@ export function WorkOrdersCard({ job, workOrders, onCreate, statusOf }: { job: J
           </div>
         </div>
         <div className="flex items-center gap-6">
-          <div className="text-right">
-            <div className="text-xxs font-bold uppercase tracking-widest text-gray-400">Assigned</div>
+          <div className="text-right" title="Crew hours booked on the schedule">
+            <div className="text-xxs font-bold uppercase tracking-widest text-gray-400">Scheduled</div>
             <div className="text-xl font-black text-primary-600">{assigned.toFixed(2)} hrs</div>
           </div>
           <div className="hidden h-8 w-px bg-gray-100 sm:block" />
-          <div className="text-right">
-            <div className="text-xxs font-bold uppercase tracking-widest text-gray-400">Total Hours</div>
+          <div className="text-right" title="Hours the estimate allows for this job">
+            <div className="text-xxs font-bold uppercase tracking-widest text-gray-400">Estimated</div>
             <div className="text-xl font-black text-gray-900">{job.estimatedHours.toFixed(2)} hrs</div>
           </div>
         </div>

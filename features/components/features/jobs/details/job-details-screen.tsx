@@ -175,7 +175,7 @@ function JobCostCard({ jobId }: { jobId: string }) {
       <CardTitle icon={<DollarSign />} badge={<NewBadge feature={33} />}>Job Cost</CardTitle>
       <div className="-mt-3 mb-3"><ConfirmBadge /></div>
       <div className="space-y-1.5 text-sm">
-        {[["Contract (ex tax)", f.contractExTax], ["Invoiced (ex tax)", f.invoicedExTax], ["Labor (from approved hours)", f.labour], ["Material", f.material], ["Other", f.other + f.subcontractor], ["Cost to date", f.costToDate]].map(([l, v]) => (
+        {[["Revised contract (ex tax, with change orders)", f.contractExTax], ["Invoiced (ex tax)", f.invoicedExTax], ["Labor (from approved hours)", f.labour], ["Material", f.material], ["Other", f.other + f.subcontractor], ["Cost to date", f.costToDate]].map(([l, v]) => (
           <div key={l as string} className="flex justify-between gap-2"><span className="text-gray-500">{l}</span><b>{money(v as number, { cents: true })}</b></div>
         ))}
         <div className="mt-2 flex justify-between border-t border-gray-100 pt-2"><span className="text-xs font-bold uppercase tracking-widest text-gray-400">{f.actual !== null ? "Margin" : "Projected margin"}</span><b>{margin === null ? "—" : `${(margin * 100).toFixed(1)}%`}</b></div>

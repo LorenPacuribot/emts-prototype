@@ -123,7 +123,7 @@ function Clock() {
                 </div>
                 <div className="flex shrink-0 flex-col gap-1.5">
                   {seg ? (
-                    <Button size="sm" variant="dark" onClick={() => act(clockOut, e.id, opts).ok && toast.success(`${e.name} clocked out`, offline ? "Queued until signal returns." : undefined)}>
+                    <Button size="sm" variant="primary" onClick={() => act(clockOut, e.id, opts).ok && toast.success(`${e.name} clocked out`, offline ? "Queued until signal returns." : undefined)}>
                       <LogOut className="h-3.5 w-3.5" /> Clock Out
                     </Button>
                   ) : (

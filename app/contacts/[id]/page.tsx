@@ -226,7 +226,7 @@ function ContactDetail() {
             <h3 className="mb-6 font-heading text-lg font-bold text-gray-900">Customer Stats</h3>
             <div className="space-y-5">
               <div className="flex items-center justify-between border-b border-gray-100 pb-2">
-                <span className="font-medium text-gray-500">Total Jobs</span>
+                <span className="font-medium text-gray-500" title="Jobs run in Estimate Master. Paint records imported from earlier work are under Paint History.">Jobs in Estimate Master</span>
                 <span className="font-bold text-gray-900">{stats.totalJobs}</span>
               </div>
               <button type="button" onClick={() => setTab('jobs')} className="group flex w-full items-center justify-between rounded border-b border-gray-100 pb-2 text-left">
@@ -243,15 +243,17 @@ function ContactDetail() {
 
         {/* Right column: tabs */}
         <div className="min-w-0 lg:col-span-2">
-          <div className="-mx-1 mb-6 flex gap-2 overflow-x-auto px-1 pb-1 lg:flex-wrap">
+          <div className="-mx-1 mb-6 flex gap-2 overflow-x-auto px-1 pb-1 custom-scrollbar" role="tablist" aria-label="Contact sections">
 
             {TABS.map((t) => (
               <button
                 key={t.key}
                 type="button"
                 onClick={() => setTab(t.key)}
+                role="tab"
+                aria-selected={tab === t.key}
                 className={cn(
-                  'flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-xl px-5 py-2.5 text-sm font-bold transition-colors',
+                  'flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-xl px-4 py-2.5 text-sm font-bold transition-colors',
                   tab === t.key ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/20' : 'border border-gray-200 bg-white text-gray-600 hover:bg-gray-50',
                 )}
               >

@@ -114,7 +114,7 @@ function AlertsQueue() {
       )}
 
       <StatStrip className="mb-4">
-        <Stat label="Open alerts" value={openCount} hint="live queue, incl. suppressed" tone="brand" />
+        <Stat label="Open alerts" value={openCount} hint={`${rows.filter((r) => r.st.state === "live" && !r.a.backlog).length} live + ${rows.filter((r) => r.st.state === "suppressed" && !r.a.backlog).length} suppressed`} tone="brand" />
         <Stat label="Escalated" value={counts.escalated} hint="to the business owner" tone={counts.escalated ? "danger" : "good"} />
         <Stat label="Snoozed" value={counts.snoozed} />
         <Stat label="Backlog remaining" value={counts.backlog} hint="imported overdue" tone={counts.backlog ? "warn" : "good"} />

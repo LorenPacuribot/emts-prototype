@@ -167,8 +167,8 @@ export function SurfaceRatesScreen() {
                 <thead className="border-b border-gray-100">
                   <tr>
                     {["Item Name", "Unit", "Base Rate (1st Coat)"].map((h) => <th key={h} className="px-6 py-4 text-xs font-extrabold uppercase tracking-wider text-gray-500">{h}</th>)}
-                    <th className="px-6 py-4 text-xs font-extrabold uppercase tracking-wider text-gray-500"><span className="inline-flex items-center gap-1.5">Suggestion <NewBadge feature={30} /></span></th>
-                    <th className="px-6 py-4 text-xs font-extrabold uppercase tracking-wider text-gray-500"><span className="inline-flex items-center gap-1.5">Versions <NewBadge feature={30} /></span></th>
+                    <th className="px-6 py-4 text-xs font-extrabold uppercase tracking-wider text-gray-500"><span className="inline-flex items-center gap-1.5">Suggestion</span></th>
+                    <th className="px-6 py-4 text-xs font-extrabold uppercase tracking-wider text-gray-500"><span className="inline-flex items-center gap-1.5">Versions</span></th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">

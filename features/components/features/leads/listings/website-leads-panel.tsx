@@ -44,7 +44,7 @@ export function WebsiteLeadsPanel() {
         <h2 className="font-heading text-xl font-black text-gray-900">Website Lead Review</h2><NewBadge feature={34} /><ConfirmBadge />
         <p className="w-full text-sm text-gray-500">Website-form enquiries become leads once. A retried event never duplicates a lead.</p>
       </div>
-      <div className="mb-4"><PillTabs value={tab} onChange={setTab} options={[{ value: "leads", label: `Website leads (${website.length})` }, { value: "review", label: `Lead review (${reviews.filter((r) => r.review!.status === "open").length})` }]} /></div>
+      <div className="mb-4"><PillTabs kind="view" value={tab} onChange={setTab} options={[{ value: "leads", label: `Website leads (${website.length})` }, { value: "review", label: `Lead review (${reviews.filter((r) => r.review!.status === "open").length})` }]} /></div>
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_340px] [&>*]:min-w-0">
         {tab === "leads" ? <LeadList leads={website} /> : <ReviewList leads={reviews} />}
         <div className="space-y-4"><LiveForm /><Simulator /></div>

@@ -26,7 +26,7 @@ import {
 } from "@/features/lib/store/actions/marketing";
 import { userName } from "@/features/lib/store/helpers";
 import { PageHeader } from "@/features/components/layout/screen";
-import { Badge, Banner, Button, Card, CardLabel, Checkbox, Field, Input, Modal, Select, Textarea } from "@/features/components/ui";
+import { Badge, Banner, Button, Card, CardLabel, Checkbox, Field, Input, Modal, Select, Textarea, DemoButton } from "@/features/components/ui";
 import { MarketingFrame } from "./marketing-frame";
 import { AssetTile, PlatformChip, PostStateBadge } from "./shared";
 
@@ -260,7 +260,7 @@ function Publishing({ post }: { post: MarketingPost }) {
       )}
       {late && late.state === "waiting" && <Banner tone="warn" className="mt-3">{late.minutes} minutes past its time. It won&apos;t publish on its own — publish now or reschedule. After 30 minutes it becomes a missed post.</Banner>}
       <div className="mt-3 flex flex-wrap gap-2">
-        {office && post.state === "scheduled" && late?.state === "not_due" && <Button onClick={() => { const r = act(publishPost, post.id, "on_time"); if (r.ok) toast.success(r.value === "published" ? "Published" : "Partly published", "Simulated the scheduler reaching the scheduled minute."); }}>Simulate scheduled time</Button>}
+        {office && post.state === "scheduled" && late?.state === "not_due" && <DemoButton onClick={() => { const r = act(publishPost, post.id, "on_time"); if (r.ok) toast.success(r.value === "published" ? "Published" : "Partly published", "Simulated the scheduler reaching the scheduled minute."); }}>Simulate scheduled time</DemoButton>}
         {office && post.state === "scheduled" && late?.state === "waiting" && <Button variant="primary" onClick={() => { const r = act(publishPost, post.id, "manual"); if (r.ok) toast.success("Published by the office manager"); }}>Publish now</Button>}
         {office && post.state === "partially_failed" && <Button variant="primary" onClick={() => { const r = act(retryFailed, post.id); if (r.ok) toast.success("Retried the failed platform only"); }}>Retry failed platform</Button>}
         {office && other && <Button onClick={() => { const r = act(copyToPlatform, post.id, other); if (r.ok) toast.success(`Copied to ${PLATFORM_LABEL[other]} as ${r.value}`, "The approval requirement was re-evaluated for the copy."); }}><Copy className="h-4 w-4" /> Copy to {PLATFORM_LABEL[other]}</Button>}

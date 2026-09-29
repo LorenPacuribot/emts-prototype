@@ -102,7 +102,6 @@ function Board() {
               {db.branches.map((b) => <option key={b.id} value={b.id}>{b.name}{b.storeNumber ? ` (${b.storeNumber})` : ""}</option>)}
             </Select>
             {perms.submit && <Button variant="primary" onClick={() => setNewSub(true)}><Send className="h-4 w-4" /> New Submission</Button>}
-            <Button onClick={() => setView("exceptions")}><AlertTriangle className="h-4 w-4" /> Exception List</Button>
             <Button onClick={exportCsv}><Download className="h-4 w-4" /> Export</Button>
           </>
         }
@@ -119,6 +118,7 @@ function Board() {
       </StatStrip>
 
       <PillTabs<View>
+        kind="view"
         className="mb-4"
         value={view}
         onChange={setView}

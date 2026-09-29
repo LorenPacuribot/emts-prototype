@@ -185,7 +185,7 @@ function LeadsTab({ customerId }: { customerId: string }) {
                 {p && <span className="rounded-md bg-gray-100 px-2 py-0.5 text-gray-600">{p.city}, {p.state}</span>}
                 <span className="rounded-md bg-gray-100 px-2 py-0.5 text-gray-600">{l.source === "repaint_alert" ? "Repaint alert" : l.source === "existing_customer" ? "Existing Client" : l.source === "website" ? "Website" : "Referral"}</span>
                 <span className="rounded-md bg-gray-100 px-2 py-0.5 text-gray-600">{date(l.createdAt)}</span>
-                {fu && <span className="inline-flex items-center gap-1 rounded-md border border-green-200 bg-green-50 px-2 py-0.5 font-semibold text-green-700">Repaint follow-up {fu.id} <NewBadge feature={29} /></span>}
+                {fu && <span className="inline-flex items-center gap-1 rounded-md border border-green-200 bg-green-50 px-2 py-0.5 font-semibold text-green-700">Repaint follow-up {fu.id}</span>}
               </div>
               <div className="mt-2 text-xs font-bold text-primary-700">View Lead →</div>
             </AppLink>
@@ -285,12 +285,12 @@ function JobHistoryTab({ customerId }: { customerId: string }) {
                 <span className="flex flex-wrap gap-2">
                   {p && can(user, "qr.generate") && (
                     <AppLink href={contactHref(customerId, "paint-history", { location: p.id, view: "qr" })}>
-                      <Button size="sm"><QrCode className="h-3.5 w-3.5" /> Generate QR Code <NewBadge feature={26} /></Button>
+                      <Button size="sm"><QrCode className="h-3.5 w-3.5" /> Generate QR Code</Button>
                     </AppLink>
                   )}
                   {p && hasHistory && can(user, "repeat.build") && (
                     <Button size="sm" onClick={() => setFromHistory(p)} data-tour="new-estimate-from-history">
-                      <FilePlus2 className="h-3.5 w-3.5" /> New Estimate from History <NewBadge feature={28} />
+                      <FilePlus2 className="h-3.5 w-3.5" /> New Estimate from History
                     </Button>
                   )}
                 </span>

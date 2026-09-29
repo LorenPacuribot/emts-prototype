@@ -92,7 +92,6 @@ function FollowUps() {
         subtitle="One property conversation per qualified alert. Calls are made by people, and every email needs a person to press send."
         actions={
           <>
-            {office && <Button variant="primary" onClick={() => setFilter("unqualified")}><CheckCircle2 className="h-4 w-4" /> Qualify</Button>}
             {office && <Button onClick={() => setFilter("qualified")}><UserPlus className="h-4 w-4" /> Assign</Button>}
             <AppLink href="/repaint-alerts/monthly-measures"><Button><BarChart3 className="h-4 w-4" /> Monthly Measures</Button></AppLink>
             <Button onClick={exportCsv}><Download className="h-4 w-4" /> Export</Button>
@@ -104,7 +103,7 @@ function FollowUps() {
         <Stat label="Unqualified alerts" value={unqualified.length} hint="waiting at the gate" tone="brand" />
         <Stat label="Qualified & unassigned" value={fus.filter(({ x }) => x.unassigned).length} tone={fus.some(({ x }) => x.unassigned) ? "warn" : "good"} />
         <Stat label="Assigned & overdue" value={fus.filter(({ x }) => x.overdue).length} tone={fus.some(({ x }) => x.overdue) ? "danger" : "good"} />
-        <Stat label="Escalated to owner" value={escalatedToOwner} hint="alert clock, 14 days" tone={escalatedToOwner ? "danger" : "good"} />
+        <Stat label="Escalated to owner" value={escalatedToOwner} hint="unqualified alerts past 14 days (the Escalated tab lists follow-ups)" tone={escalatedToOwner ? "danger" : "good"} />
         <Stat label="Recycled" value={fus.filter(({ x }) => x.recycled).length} hint="for next season" />
       </StatStrip>
 
@@ -153,7 +152,7 @@ function FollowUps() {
                       <TD><EscalationBadge escalated={esc.escalated} age={esc.age} daysLeft={esc.running ? esc.daysLeft : undefined} /></TD>
                       <TD>{optOut ? <OptOutBadge /> : "—"}</TD>
                       <TD onClick={(e) => e.stopPropagation()}>
-                        <Button size="sm" variant="primary" disabled={!!optOut} onClick={() => setQualify(a)}>Qualify</Button>
+                        <Button size="sm" variant="secondary" disabled={!!optOut} onClick={() => setQualify(a)}>Qualify</Button>
                       </TD>
                     </TR>
                   );

@@ -35,6 +35,8 @@ import {
   WoFieldSections, WoMaterialSections, WoTwinActions, WoTwinChips, WoTwinDialogs, twinHours, useCan, useCanSchedule, useWoDialog, useWoTwin,
 } from '@/components/work-orders/WoFeatures';
 import { useCollection, useLogActivity, useLookups } from '@/lib/store';
+import { useCurrentUser as useFeatureUser } from '@/features/lib/store';
+import { SectionIndex } from '@/components/ui/SectionIndex';
 import type { WorkOrder } from '@/lib/types';
 import { cn, fullName, shortDate, uid } from '@/lib/utils';
 
@@ -64,6 +66,8 @@ export default function WorkOrderDetailPage() {
   const [dialog, setDialog] = useWoDialog();
   const canSchedule = useCanSchedule(twin);
   const canManageCrew = useCan('workOrder.manageCrew');
+  // Crew leads open a work order to clock the crew in: their crew and time sections come first (C5).
+  const crewFirst = useFeatureUser().role === 'crew_lead';
   // ?closeout=1 (from the job page's Mark Complete) opens the closeout drawer.
   const twinInProgress = twin?.wo.status === 'IN_PROGRESS';
   useEffect(() => {
@@ -125,8 +129,18 @@ export default function WorkOrderDetailPage() {
       <div className="mx-auto max-w-[1100px] space-y-8">
         <Link href="/work-orders" className="flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-gray-900"><ArrowLeft className="h-4 w-4" /> Back to Work Orders</Link>
 
+        <SectionIndex items={[
+          { id: 'wo-overview', label: 'Overview' },
+          ...(crewFirst ? [{ id: 'wo-crew-time', label: 'Crew & time' }] : []),
+          { id: 'section-paint-card', label: 'Paint & materials' },
+          { id: 'section-paint-orders', label: 'Orders' },
+          { id: 'wo-checklist', label: 'Checklist' },
+          ...(crewFirst ? [] : [{ id: 'wo-crew-time', label: 'Crew & time' }]),
+          { id: 'wo-notes', label: 'Notes & photos' },
+        ]} />
+
         {/* 1. Header */}
-        <div className={cn(card, 'p-6 md:p-8')}>
+        <div id="wo-overview" className={cn(card, 'scroll-mt-24 p-6 md:p-8')}>
           {/* The twin's extra actions (Log Hours) need the full width: stack the header there. */}
           <div className={cn('flex flex-col items-start justify-between gap-6', twin ? '2xl:flex-row 2xl:items-center' : 'xl:flex-row xl:items-center')}>
             <div className="min-w-0 flex-1 space-y-3">
@@ -147,11 +161,11 @@ export default function WorkOrderDetailPage() {
             </div>
             <div className="flex w-full flex-col items-start gap-6 sm:flex-row sm:items-center xl:w-auto">
               <div className="flex w-full items-center justify-between gap-3 rounded-xl border border-gray-100 bg-gray-50/80 px-3 py-2.5 shadow-sm sm:w-auto sm:justify-start sm:gap-4 sm:px-4">
-                <Stat label="Total Hours" value={totalHours} />
+                <Stat label="Estimated" hint="Hours the estimate allows for this job" value={totalHours} />
                 <div className="h-8 w-px bg-gray-200" />
-                <Stat label="Assigned" value={assigned} />
+                <Stat label="Scheduled" hint="Crew hours booked on the schedule" value={assigned} />
                 <div className="h-8 w-px bg-gray-200" />
-                <Stat label="Rendered" value={rendered} primary />
+                <Stat label="Logged" hint="Hours the crew has logged so far" value={rendered} primary />
               </div>
               <div className="flex flex-wrap items-center gap-3">
                 <Link href={`/work-orders/${wo.id}/print`}><Button variant="secondary" className="h-11 px-4" icon={<Printer className="h-4 w-4" />}>Print</Button></Link>
@@ -193,6 +207,8 @@ export default function WorkOrderDetailPage() {
             </div>
           </div>
         </div>
+
+        {twin && crewFirst && <WoFieldSections twin={twin} />}
 
         {/* 2. Location & crew */}
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -244,8 +260,11 @@ export default function WorkOrderDetailPage() {
                       {crewOptions.map((m) => <option key={m.id} value={m.id}>{fullName(m)} ({m.role})</option>)}
                     </NativeSelect>
                   </div>
-                  <Button size="sm" className="h-9" disabled={!addMember} onClick={() => { setCrew([...wo.assignedTo, addMember], 'Crew member assigned'); setAddMember(''); }}>Add</Button>
+                  <Button size="sm" className="h-9" disabled={!addMember} aria-describedby={addMember ? undefined : 'crew-add-hint'} onClick={() => { setCrew([...wo.assignedTo, addMember], 'Crew member assigned'); setAddMember(''); }}>Add</Button>
                 </div>
+              )}
+              {crewOptions.length > 0 && !addMember && (
+                <p id="crew-add-hint" className="text-xs text-gray-500">Choose a crew member in the list, then press Add.</p>
               )}
             </div>
           </div>
@@ -278,13 +297,13 @@ export default function WorkOrderDetailPage() {
         )}
 
         {/* 4. Checklist */}
-        <div className={cn(card, 'p-6 md:p-8')}>
+        <div id="wo-checklist" className={cn(card, 'scroll-mt-24 p-6 md:p-8')}>
           <div className="mb-4 flex items-center justify-between">
             <h4 className="text-base font-bold text-gray-900">Task Checklist</h4>
-            <span className="text-sm font-bold text-gray-500">{done} / {wo.tasks.length} done</span>
+            {wo.tasks.length > 0 && <span className="text-sm font-bold text-gray-500">{done} / {wo.tasks.length} done</span>}
           </div>
-          <ProgressBar value={wo.tasks.length ? (done / wo.tasks.length) * 100 : 0} className="mb-5" barClassName="bg-green-500" />
-          {wo.tasks.length === 0 && <p className="mb-4 text-sm text-gray-400">No tasks yet. Add the first one below.</p>}
+          {wo.tasks.length > 0 && <ProgressBar value={(done / wo.tasks.length) * 100} className="mb-5" barClassName="bg-green-500" />}
+          {wo.tasks.length === 0 && <p className="mb-4 text-sm text-gray-500">Tasks the crew ticks off on site appear here. Add the first one below.</p>}
           <ul className="divide-y divide-gray-100">
             {wo.tasks.map((t) => (
               <li key={t.id} className="group flex items-center gap-3 py-3">
@@ -307,7 +326,7 @@ export default function WorkOrderDetailPage() {
 
         {/* NEW: crew clock + time log (22), field notes & attachments with Use in marketing (34) */}
         {twin ? (
-          <WoFieldSections twin={twin} />
+          !crewFirst && <WoFieldSections twin={twin} />
         ) : (
           <NotLinkedNote what="The crew clock, time log and field notes" />
         )}
@@ -326,9 +345,9 @@ export default function WorkOrderDetailPage() {
   );
 }
 
-function Stat({ label, value, primary }: { label: string; value: number; primary?: boolean }) {
+function Stat({ label, value, primary, hint }: { label: string; value: number; primary?: boolean; hint?: string }) {
   return (
-    <div className="flex min-w-0 flex-col sm:min-w-[60px]">
+    <div className="flex min-w-0 flex-col sm:min-w-[60px]" title={hint}>
       <span className={cn('mb-0.5 text-xxs font-black uppercase tracking-[0.15em]', primary ? 'text-primary-500' : 'text-gray-400')}>{label}</span>
       <div className={cn('flex items-center gap-1.5 font-black', primary ? 'text-primary-600' : 'text-gray-900')}>
         <Clock className={cn('h-3.5 w-3.5', !primary && 'text-gray-400')} /><span className="text-base leading-none sm:text-lg">{value.toFixed(2)}</span>

@@ -7,7 +7,7 @@ import { resolveRunFailure, runNightly } from "@/features/lib/store/actions/serv
 import { can } from "@/features/lib/permissions";
 import { dateTime } from "@/features/lib/format";
 import { toast } from "@/features/lib/toast";
-import { Banner, Button, ConfirmDialog, RowMenu } from "@/features/components/ui";
+import { Banner, Button, DemoButton, ConfirmDialog, RowMenu } from "@/features/components/ui";
 
 export function RunControls() {
   const user = useCurrentUser();
@@ -22,9 +22,9 @@ export function RunControls() {
   };
   return (
     <div className="flex items-center gap-1">
-      <Button variant="primary" onClick={run}>
-        <Moon className="h-4 w-4" /> Run now (simulate 2 a.m.)
-      </Button>
+      <DemoButton onClick={run}>
+        <Moon className="h-4 w-4" /> Run now (as at 2 a.m.)
+      </DemoButton>
       <RowMenu label="More run actions" items={[{ label: "Simulate failed run", icon: <OctagonAlert />, onSelect: () => setConfirmFail(true) }]} />
       <ConfirmDialog
         open={confirmFail}

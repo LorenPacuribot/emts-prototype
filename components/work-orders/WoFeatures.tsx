@@ -189,9 +189,13 @@ export function WoMaterialSections({ twin }: { twin: WoTwin }) {
 export function WoFieldSections({ twin }: { twin: WoTwin }) {
   return (
     <>
-      <CrewClockCard wo={twin.wo} job={twin.job} />
-      <TimeLogSection wo={twin.wo} job={twin.job} />
-      <FieldNotesSection wo={twin.wo} extraAttachmentAction={(attId) => <UseInMarketing wo={twin.wo} attId={attId} />} />
+      <div id="wo-crew-time" className="scroll-mt-24 space-y-8">
+        <CrewClockCard wo={twin.wo} job={twin.job} />
+        <TimeLogSection wo={twin.wo} job={twin.job} />
+      </div>
+      <div id="wo-notes" className="scroll-mt-24">
+        <FieldNotesSection wo={twin.wo} extraAttachmentAction={(attId) => <UseInMarketing wo={twin.wo} attId={attId} />} />
+      </div>
     </>
   );
 }
