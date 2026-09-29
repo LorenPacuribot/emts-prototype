@@ -17,6 +17,7 @@ import {
 } from "@/features/lib/rules/payroll";
 import { allocateLabourCost, reconcileLabour } from "@/features/lib/rules/labour-cost";
 import { roundMoney } from "@/features/lib/rules/rounding";
+import { punchTags } from "@/features/lib/rules/shift-tag";
 import { denied, fail, log, nextId, ok, userName } from "../helpers";
 
 const MODULE = "Time";
@@ -150,7 +151,7 @@ export function clockIn(db: Database, actor: User, employeeId: string, jobId: st
   const existing = db.timeEntries.find((x) => x.employeeId === employeeId && x.workDate === workDate);
   if (existing && existing.state !== "open") return fail("This day has already been submitted. Ask the office to reopen it first.");
   const seg: TimeSegment = {
-    id: nextId(db, "ts", "TS-"), employeeId, workDate, jobId: job, activity, start: t,
+    id: nextId(db, "ts", "TS-"), employeeId, workDate, jobId: job, ...punchTags(db, employeeId, job, workDate), activity, start: t,
     source: opts.offline ? "offline" : "online", queued: opts.offline || undefined,
     location: opts.locationDenied ? "denied" : "captured", gps: opts.locationDenied ? undefined : fakeGps(db.timeSegments.length),
     clockedBy: actor.id,
@@ -183,7 +184,7 @@ export function changeJob(db: Database, actor: User, employeeId: string, newJobI
   seg.end = t;
   if (opts.offline) seg.queued = true;
   db.timeSegments.push({
-    id: nextId(db, "ts", "TS-"), employeeId, workDate: seg.workDate, jobId: newJobId, activity: "travel", start: t,
+    id: nextId(db, "ts", "TS-"), employeeId, workDate: seg.workDate, jobId: newJobId, ...punchTags(db, employeeId, newJobId, seg.workDate), activity: "travel", start: t,
     source: opts.offline ? "offline" : "online", queued: opts.offline || undefined,
     location: opts.locationDenied ? "denied" : "captured", gps: opts.locationDenied ? undefined : fakeGps(db.timeSegments.length), clockedBy: actor.id,
   });
@@ -204,7 +205,7 @@ export function setActivity(db: Database, actor: User, employeeId: string, activ
   const jobId = jobForActivity(activity, seg.jobId ?? last?.jobId);
   if (!jobId && !OVERHEAD_ACTIVITIES.includes(activity)) return fail("Choose a job for this activity.", "job");
   db.timeSegments.push({
-    id: nextId(db, "ts", "TS-"), employeeId, workDate: seg.workDate, jobId, activity, start: t,
+    id: nextId(db, "ts", "TS-"), employeeId, workDate: seg.workDate, jobId, ...punchTags(db, employeeId, jobId, seg.workDate), activity, start: t,
     source: opts.offline ? "offline" : "online", queued: opts.offline || undefined,
     location: opts.locationDenied ? "denied" : "captured", gps: opts.locationDenied ? undefined : fakeGps(db.timeSegments.length), clockedBy: actor.id,
   });

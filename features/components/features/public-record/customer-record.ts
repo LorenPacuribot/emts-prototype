@@ -31,13 +31,15 @@ export interface CustomerRecord {
   photos: Pick<SharedPhoto, "id" | "caption" | "takenAt" | "surfaceId">[];
 }
 
-export function buildCustomerRecord(db: Database, property: Property, periodId: string, opts: { asOf?: string } = {}): CustomerRecord {
+export function buildCustomerRecord(db: Database, property: Property, periodId: string, opts: { asOf?: string; jobIds?: string[] } = {}): CustomerRecord {
   const period = property.ownership.find((o) => o.id === periodId) ?? property.ownership[property.ownership.length - 1];
   const first = property.ownership[0]?.id === period.id;
   const access = predecessorAccess(period, first);
   const liveSurfaces = db.surfaces.filter((s) => s.propertyId === property.id && !s.removedAt);
   let apps = db.applications.filter((a) => a.propertyId === property.id && liveSurfaces.some((s) => s.id === a.surfaceId));
   if (opts.asOf) apps = apps.filter((a) => !a.completedAt || a.completedAt <= opts.asOf!);
+  // Paint Passport: only the chosen jobs.
+  if (opts.jobIds) apps = apps.filter((a) => !!a.jobId && opts.jobIds!.includes(a.jobId));
   const { own, earlier } = scopeApplications(apps, period, first);
   const predecessorAllowed = access === "full" || access === "spec_only";
   const visible = [...own.map((a) => ({ a, predecessor: false })), ...(predecessorAllowed ? earlier.map((a) => ({ a, predecessor: true })) : [])];

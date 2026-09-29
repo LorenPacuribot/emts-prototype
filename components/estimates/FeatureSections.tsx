@@ -14,7 +14,7 @@
   mirrored on the next sync tick), so every wrapper renders nothing then.
 */
 import React, { Suspense, useEffect, useMemo, useRef, useState } from 'react';
-import { FilePlus2, Package, PaintBucket, PencilLine, Printer } from 'lucide-react';
+import { FilePlus2, Package, PaintBucket, Palette, PencilLine, Printer } from 'lucide-react';
 import type { Estimate as PEstimate, Job as PJob } from '@/features/types';
 import { act, useCurrentUser, useDb } from '@/features/lib/store';
 import { useParam } from '@/features/lib/navigation';
@@ -27,7 +27,7 @@ import { byId } from '@/features/lib/selectors';
 import { can } from '@/features/lib/permissions';
 import { money } from '@/features/lib/format';
 import { toast } from '@/features/lib/toast';
-import { Button as FButton, EstimateSection, NewBadge, SectionHeader, Swatch, Tooltip } from '@/features/components/ui';
+import { Button as FButton, EmptyState, EstimateSection, NewBadge, SectionHeader, Swatch, Tooltip } from '@/features/components/ui';
 import { PaintColors } from '@/features/components/features/estimates/details/paint-colors';
 import { ChangeOrdersSection } from '@/features/components/features/change-orders/change-orders-section';
 import { FromHistorySection } from '@/features/components/features/future-estimate/from-history-section';
@@ -47,9 +47,27 @@ export function useProtoEstimate(id: string) {
 
 /* ---------- Paint Color Card (feature 3) ---------- */
 
-export function PaintCardSection({ estimateId, paintColourId, onPaint }: { estimateId: string; paintColourId?: string; onPaint: (id?: string) => void }) {
+export function PaintCardSection({ estimateId, paintColourId, onPaint, onSave, readOnly }: { estimateId: string; paintColourId?: string; onPaint: (id?: string) => void; onSave?: () => boolean | void; readOnly?: boolean }) {
   const { job, editable } = useProtoEstimate(estimateId);
-  if (!job) return null;
+  const [starting, setStarting] = useState(false);
+  // Before the first save there is no project record yet: show the card empty (patent 3), ready to start.
+  if (!job) {
+    return (
+      <EstimateSection id="section-paint-card">
+        <SectionHeader icon={<Palette />} title="Paint Color Card" right={<NewBadge feature={3} />} />
+        <EmptyState
+          icon={<Palette />}
+          title="No colours on this estimate yet"
+          body={readOnly ? undefined : 'Adding your first colour saves the draft, then the colour card opens here.'}
+          action={!readOnly && onSave && (
+            <FButton variant="primary" disabled={starting} onClick={() => { setStarting(true); if (onSave() === false) setStarting(false); }}>
+              {starting ? 'Opening colour card…' : 'Add your first colour'}
+            </FButton>
+          )}
+        />
+      </EstimateSection>
+    );
+  }
   return (
     <Suspense fallback={null}>
       <PaintColors job={job} editable={editable} paintColourId={paintColourId} onPaint={onPaint} />

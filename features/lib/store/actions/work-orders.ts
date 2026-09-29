@@ -22,6 +22,7 @@ import { byId } from "@/features/lib/selectors";
 import { workDateOf } from "@/features/lib/rules/payroll";
 import { ensureEntry } from "./workforce";
 import { denied, fail, log, nextId, ok } from "../helpers";
+import { punchTags } from "@/features/lib/rules/shift-tag";
 import { shiftCapacityError } from '@/features/lib/rules/scheduling';
 import { addDays, daysInclusive } from '@/components/scheduling/schedule-utils';
 
@@ -184,7 +185,7 @@ export function logWorkOrderHours(db: Database, actor: User, woId: string, input
     const logged = rows.reduce((a, e) => a + e.hours, 0);
     if (logged * 60 > minutes + 0.5) return fail(`${logged} hours were entered but ${input.start}–${input.end} is only ${(minutes / 60).toFixed(2)} hours.`, "end");
     segmentId = nextId(db, "ts", "TS-");
-    db.timeSegments.push({ id: segmentId, employeeId: emp.id, workDate, jobId: job.id, activity: "application", start: at(input.start), end: at(input.end), source: "online", location: "captured", clockedBy: actor.id });
+    db.timeSegments.push({ id: segmentId, employeeId: emp.id, workDate, jobId: job.id, ...punchTags(db, emp.id, job.id, workDate), activity: "application", start: at(input.start), end: at(input.end), source: "online", location: "captured", clockedBy: actor.id });
     ensureEntry(db, emp.id, workDate);
   }
 

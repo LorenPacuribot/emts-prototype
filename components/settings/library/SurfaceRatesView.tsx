@@ -25,6 +25,7 @@ import { useCollection } from '@/lib/store';
 import type { RateGroup, SurfaceRate } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { round2 } from '@/lib/calculations';
+import { hoursPer100, unitsPerHourFromHours } from '@/lib/estimating';
 import { RateVersionsSection } from '@/features/components/features/settings/rate-versions-section';
 import { CardKebab, FieldError, LibraryToolbar, NoMatches, UNIT_LABELS, nextSort, num } from './ui';
 
@@ -310,9 +311,13 @@ function SurfaceRateModal({
   const [multOn, setMultOn] = useState(false);
   const [mult, setMult] = useState({ coat2: 1.25, coat3: 1.35, coat4: 1.5 });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  // Patent 8: rates can be typed as units per hour or hours per 100 units; always stored as units per hour.
+  const [entry, setEntry] = useState<'rate' | 'hours'>('rate');
+  const [hoursText, setHoursText] = useState<string[]>(['', '', '', '']);
 
   useEffect(() => {
     if (!open) return;
+    setEntry('rate');
     if (rate) {
       setForm({ ...rate, amountFormula: rate.amountFormula ?? 'LENGTH_X_HEIGHT' });
       setCoats([rate.rateCoat2, rate.rateCoat3, rate.rateCoat4].map((n) => (n ? String(n) : '')));
@@ -332,12 +337,24 @@ function SurfaceRateModal({
     setCoats([m.coat2, m.coat3, m.coat4].map((x) => String(Math.round(base * x))));
   };
 
+  const switchEntry = (next: 'rate' | 'hours') => {
+    if (next === 'hours') setHoursText([form.rateCoat1, ...coats.map((c) => num(c, 0))].map((r) => (r > 0 ? String(hoursPer100(r)) : '')));
+    setEntry(next);
+  };
+  const setHours = (i: number, text: string) => {
+    setHoursText((h) => h.map((x, j) => (j === i ? text : x)));
+    const r = unitsPerHourFromHours(num(text, 0));
+    if (i === 0) setForm((f) => ({ ...f, rateCoat1: r }));
+    else setCoats((c) => c.map((x, j) => (j === i - 1 ? (r ? String(r) : '') : x)));
+  };
+
   const submit = () => {
     const e: Record<string, string> = {};
     if (!form.name.trim()) e.name = 'Name is required';
     if (!form.rateGroup) e.rateGroup = 'Rate group is required';
     if (!(form.defaultCoats >= 1 && form.defaultCoats <= 4)) e.defaultCoats = 'Default coats must be between 1 and 4';
     if (!(form.rateCoat1 > 0)) e.rateCoat1 = 'Rate must be greater than 0';
+    if ((form.coverageOverrides ?? []).some((o) => !(o.coverageCoat1 > 0) || (o.coverageCoat2 !== undefined && !(o.coverageCoat2 > 0)))) e.coverage = 'Enter a coverage above 0 sq ft per gallon, or remove the product';
     setErrors(e);
     if (Object.keys(e).length) return;
     // A blank coat stays 0: estimates then use the nearest earlier coat's rate (lib/estimating.ts coatRate).
@@ -371,8 +388,18 @@ function SurfaceRateModal({
 
         <div className="space-y-3 rounded-xl border border-gray-100 bg-gray-50 p-4">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Production Rates ({unit} per labor hour)</span>
-            <div className="flex items-center gap-2">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Production Rates ({entry === 'hours' ? `labor hours per 100 ${unit}` : `${unit} per labor hour`})</span>
+            <div className="flex flex-wrap items-center justify-end gap-3">
+              {!multOn && (
+                <div role="radiogroup" aria-label="Enter rates as" className="inline-flex rounded-lg border border-gray-200 bg-white p-0.5 text-[11px] font-bold">
+                  {([['rate', `${unit} / hr`], ['hours', `Hrs / 100 ${unit}`]] as const).map(([v, label]) => (
+                    <button key={v} type="button" role="radio" aria-checked={entry === v} onClick={() => switchEntry(v)} className={cn('rounded-md px-2 py-1', entry === v ? 'bg-primary-600 text-white' : 'text-gray-600 hover:bg-gray-50')}>
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              )}
+              <div className="flex items-center gap-2">
               <Wand2 className={cn('h-3 w-3', multOn ? 'text-indigo-600' : 'text-gray-400')} />
               <span className={cn('text-[10px] font-bold uppercase tracking-wider', multOn ? 'text-indigo-600' : 'text-gray-400')}>Multiplier</span>
               <Switch
@@ -381,15 +408,21 @@ function SurfaceRateModal({
                 onChange={(v) => {
                   setMultOn(v);
                   setForm((f) => ({ ...f, useMultipliers: v }));
-                  if (v) applyMult(form.rateCoat1);
+                  if (v) {
+                    setEntry('rate');
+                    applyMult(form.rateCoat1);
+                  }
                 }}
               />
+              </div>
             </div>
           </div>
 
           <p className="text-xs text-gray-500">
-            How many {unit} one painter covers in an hour.
-            {form.rateCoat1 > 0 && <> At {form.rateCoat1} {unit}/hr, the 1st coat takes {round2(100 / form.rateCoat1)} hrs per 100 {unit}.</>}
+            {entry === 'hours' ? <>How many labor hours 100 {unit} takes. Saved as {unit} per hour.</> : <>How many {unit} one painter covers in an hour.</>}
+            {form.rateCoat1 > 0 && (entry === 'hours'
+              ? <> {hoursText[0]} hrs per 100 {unit} is {form.rateCoat1} {unit}/hr for the 1st coat.</>
+              : <> At {form.rateCoat1} {unit}/hr, the 1st coat takes {round2(100 / form.rateCoat1)} hrs per 100 {unit}.</>)}
           </p>
 
           {multOn ? (
@@ -416,6 +449,19 @@ function SurfaceRateModal({
                 ))}
               </div>
             </div>
+          ) : entry === 'hours' ? (
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+              {['1st Coat', '2nd Coat', '3rd Coat', '4th Coat'].map((label, i) => {
+                const r = i === 0 ? form.rateCoat1 : num(coats[i - 1] ?? '', 0);
+                return (
+                  <div key={label}>
+                    <Label required={i === 0}>{label}</Label>
+                    <Input type="number" min={0} step={0.05} value={hoursText[i]} invalid={i === 0 && !!errors.rateCoat1} onChange={(e) => setHours(i, e.target.value)} placeholder={i === 0 ? 'Required' : `Same as coat ${i}`} aria-label={`${label} hours per 100 ${unit}`} />
+                    {r > 0 && <div className="mt-1 text-[10px] font-semibold text-gray-500">= {r} {unit}/hr</div>}
+                  </div>
+                );
+              })}
+            </div>
           ) : (
             <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
               <div>
@@ -433,6 +479,12 @@ function SurfaceRateModal({
           <FieldError>{errors.rateCoat1}</FieldError>
         </div>
 
+        <CoverageOverrides
+          rows={form.coverageOverrides ?? []}
+          error={errors.coverage}
+          onChange={(coverageOverrides) => setForm((f) => ({ ...f, coverageOverrides: coverageOverrides.length ? coverageOverrides : undefined }))}
+        />
+
         <div className="flex gap-3 pt-1">
           {onDelete && (
             <Button variant="danger" className="px-4" onClick={onDelete} aria-label="Delete rate">
@@ -443,6 +495,61 @@ function SurfaceRateModal({
         </div>
       </div>
     </Modal>
+  );
+}
+
+/** Patent 8: coverage for a particular product on this surface, ahead of the product's own coverage. */
+function CoverageOverrides({ rows, error, onChange }: {
+  rows: NonNullable<SurfaceRate['coverageOverrides']>;
+  error?: string;
+  onChange: (rows: NonNullable<SurfaceRate['coverageOverrides']>) => void;
+}) {
+  const paints = useCollection('paintProducts').items;
+  const [pick, setPick] = useState('');
+  const name = (id: string) => paints.find((p) => p.id === id)?.name ?? 'Removed product';
+  const available = paints.filter((p) => !rows.some((r) => r.paintProductId === p.id));
+  const set = (i: number, patch: Partial<(typeof rows)[number]>) => onChange(rows.map((r, j) => (j === i ? { ...r, ...patch } : r)));
+  return (
+    <div className="space-y-3 rounded-xl border border-gray-100 bg-gray-50 p-4">
+      <div className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Coverage for specific products (sq ft per gallon)</div>
+      <p className="text-xs text-gray-500">Optional. When a line on this surface uses one of these products, this coverage is used instead of the product&apos;s own coverage in the Paint Library.</p>
+      {rows.map((r, i) => {
+        const paint = paints.find((p) => p.id === r.paintProductId);
+        return (
+          <div key={r.paintProductId} className="grid grid-cols-[minmax(0,1fr)_7rem_7rem_auto] items-end gap-2">
+            <div className="min-w-0 truncate pb-2 text-sm font-semibold text-gray-800" title={name(r.paintProductId)}>{name(r.paintProductId)}</div>
+            <div>
+              <Label>1st coat</Label>
+              <Input type="number" min={0} value={r.coverageCoat1 || ''} onChange={(e) => set(i, { coverageCoat1: num(e.target.value) })} placeholder={paint?.coverageCoat1 ? String(paint.coverageCoat1) : 'Required'} aria-label={`${name(r.paintProductId)} first coat coverage`} />
+            </div>
+            <div>
+              <Label>Later coats</Label>
+              <Input type="number" min={0} value={r.coverageCoat2 ?? ''} onChange={(e) => set(i, { coverageCoat2: e.target.value === '' ? undefined : num(e.target.value) })} placeholder="Same as 1st" aria-label={`${name(r.paintProductId)} later coat coverage`} />
+            </div>
+            <Button variant="ghost" className="mb-0.5 px-2" onClick={() => onChange(rows.filter((_, j) => j !== i))} aria-label={`Remove ${name(r.paintProductId)}`}>
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+        );
+      })}
+      <div className="flex flex-wrap gap-2">
+        <div className="min-w-0 flex-1">
+          <Select value={pick} onChange={setPick} options={available.map((p) => ({ label: p.name, value: p.id }))} placeholder="Add a product..." />
+        </div>
+        <Button
+          variant="secondary"
+          disabled={!pick}
+          onClick={() => {
+            const p = paints.find((x) => x.id === pick);
+            onChange([...rows, { paintProductId: pick, coverageCoat1: p?.coverageCoat1 || 0 }]);
+            setPick('');
+          }}
+        >
+          <Plus className="h-4 w-4" /> Add
+        </Button>
+      </div>
+      <FieldError>{error}</FieldError>
+    </div>
   );
 }
 

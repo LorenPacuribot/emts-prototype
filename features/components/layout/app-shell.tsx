@@ -5,9 +5,11 @@ import { DemoBar } from "./demo-bar";
 import { ProductTour } from "@/features/components/tour/product-tour";
 import { Toaster, TooltipProvider } from "@/features/components/ui";
 import { useHydrated } from "@/features/lib/hooks";
+import { WebsiteInboxSync } from "@/components/WebsiteInboxSync";
+import { LeadMessageScheduler } from "@/components/leads/LeadMessageScheduler";
 
 /** Customer-facing pages and the sign-in page: no Prototype bar or tour on top of them. */
-const PUBLIC_PATHS = ["/estimates/view", "/paint-record/view", "/login"];
+const PUBLIC_PATHS = ["/estimates/view", "/paint-record/view", "/website-form", "/login"];
 
 /**
  * Feature layer mounted inside the replica providers (app/providers.tsx):
@@ -23,6 +25,7 @@ export function FeatureShell({ children }: { children: ReactNode }) {
     <TooltipProvider>
       {children}
       {hydrated && !isPublic && <DemoBar />}
+      {hydrated && !isPublic && <><WebsiteInboxSync /><LeadMessageScheduler /></>}
       {hydrated && !isPublic && (
         <Suspense fallback={null}>
           <ProductTour />

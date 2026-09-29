@@ -15,6 +15,7 @@ import { estimateTotals, invoiceTotals } from '@/lib/calculations';
 import { ESTIMATE_STATUS_BADGE, INVOICE_STATUS_BADGE, JOB_STATUS_BADGE } from '@/lib/constants';
 import { cn, money, shortDate } from '@/lib/utils';
 import { LEAD_STATUS_BADGE, LEAD_STATUS_DISPLAY_NAMES } from '@/components/leads/leadHelpers';
+import { PaintPassportButton } from './PaintPassport';
 import { JobFeatureActions, useImportedJobs, type ImportedJob } from './ContactFeatures';
 
 type Sort = 'DateNewest' | 'DateOldest' | 'AmountHigh' | 'AmountLow';
@@ -207,7 +208,10 @@ export function JobHistoryTab({ jobs, customerId }: { jobs: Job[]; customerId: s
   const rows = useSorted(all, sort, (r) => (r.kind === 'live' ? r.job.createdAt : r.job.completedAt), (r) => r.job.value);
   return (
     <div>
-      <SortMenu value={sort} onChange={setSort} />
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <PaintPassportButton customerId={customerId} />
+        <div className="ml-auto"><SortMenu value={sort} onChange={setSort} /></div>
+      </div>
       {rows.length === 0 ? <Empty text="No job history found for this customer." /> : (
         <div className="space-y-6">
           {rows.map((r) => {

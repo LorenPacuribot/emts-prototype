@@ -7,8 +7,11 @@
   lead's sentMessages log is checked first, so moving a card back and forth
   doesn't repeat it. Without a live email/SMS service the server runs in
   sandbox mode and the log says so.
+ A message with a delay is scheduled on
+  the lead instead and sent when due (LeadMessageScheduler); it is cancelled
+  if the lead leaves that stage first, or by hand.
 */
-import type { AutomatedMessage, Lead, LeadMessageLog, LeadStatus } from '@/lib/types';
+import type { AutomatedMessage, Lead, LeadMessageLog, LeadStatus, ScheduledLeadMessage } from '@/lib/types';
 
 /** Triggers sent when a lead enters each stage. */
 export const STAGE_TRIGGERS: Record<LeadStatus, string[]> = {
@@ -50,7 +53,10 @@ export interface PlannedSend { message: AutomatedMessage; channel: 'EMAIL' | 'SM
 export function planStageSends(lead: Lead, status: LeadStatus, all: readonly AutomatedMessage[], vars: Record<string, string | undefined>): { sends: PlannedSend[]; skipped: string[] } {
   const sends: PlannedSend[] = [];
   const skipped: string[] = [];
-  const already = new Set((lead.sentMessages ?? []).filter((s) => s.ok).map((s) => `${s.messageId}|${s.channel}`));
+  const already = new Set([
+    ...(lead.sentMessages ?? []).filter((s) => s.ok),
+    ...pendingMessages(lead),
+  ].map((s) => `${s.messageId}|${s.channel}`));
   for (const m of stageMessages(status, all)) {
     const channels: ('EMAIL' | 'SMS')[] = m.channel === 'BOTH' ? ['EMAIL', 'SMS'] : [m.channel];
     for (const ch of channels) {
@@ -68,6 +74,48 @@ export function planStageSends(lead: Lead, status: LeadStatus, all: readonly Aut
     }
   }
   return { sends, skipped };
+}
+
+const UNIT_MS = { minutes: 60_000, hours: 3_600_000, days: 86_400_000 } as const;
+
+/** The message's delay after the stage change, in milliseconds. */
+export function delayMs(m: Pick<AutomatedMessage, 'delayValue' | 'delayUnit'>): number {
+  return Math.max(0, m.delayValue || 0) * (UNIT_MS[m.delayUnit] ?? 0);
+}
+
+/** Messages with no delay go now; the rest become scheduled entries on the lead. */
+export function splitByDelay(sends: PlannedSend[], stage: LeadStatus, fromIso: string, newId: () => string): { now: PlannedSend[]; later: ScheduledLeadMessage[] } {
+  const now: PlannedSend[] = [];
+  const later: ScheduledLeadMessage[] = [];
+  for (const p of sends) {
+    const ms = delayMs(p.message);
+    if (!ms) now.push(p);
+    else later.push({
+      id: newId(), messageId: p.message.id, name: p.message.name, stage, channel: p.channel, to: p.to, subject: p.subject, body: p.body,
+      createdAt: fromIso, sendAt: new Date(new Date(fromIso).getTime() + ms).toISOString(),
+    });
+  }
+  return { now, later };
+}
+
+/** Scheduled messages still waiting (not cancelled). */
+export function pendingMessages(lead: Pick<Lead, 'scheduledMessages'>): ScheduledLeadMessage[] {
+  return (lead.scheduledMessages ?? []).filter((m) => !m.cancelledAt);
+}
+
+/** Waiting messages whose send time has come. */
+export function dueMessages(lead: Pick<Lead, 'scheduledMessages'>, nowIso: string): ScheduledLeadMessage[] {
+  return pendingMessages(lead).filter((m) => m.sendAt <= nowIso);
+}
+
+/** Cancels waiting messages from other stages when the lead moves (they no longer apply). */
+export function cancelForStageChange(list: ScheduledLeadMessage[] | undefined, status: LeadStatus, atIso: string): ScheduledLeadMessage[] | undefined {
+  if (!list?.length) return list;
+  return list.map((m) => (m.cancelledAt || m.stage === status ? m : { ...m, cancelledAt: atIso, cancelReason: `Lead moved to ${status}` }));
+}
+
+export function scheduledToPlanned(m: ScheduledLeadMessage): PlannedSend {
+  return { message: { id: m.messageId, name: m.name } as AutomatedMessage, channel: m.channel, to: m.to, subject: m.subject, body: m.body };
 }
 
 /** Sends one planned message through the server connector. Never throws. */

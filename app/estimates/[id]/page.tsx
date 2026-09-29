@@ -21,7 +21,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import { Columns3, ExternalLink, FileQuestion, Grid, Plus } from 'lucide-react';
+import { Columns3, ExternalLink, FileQuestion, Grid, Palette, Plus } from 'lucide-react';
 import { RowMenu } from '@/components/ui/menu';
 import type { AreaTemplate, Estimate, EstimateLineItem, SurfaceRate } from '@/lib/types';
 import { PageShell } from '@/components/Navigation';
@@ -49,7 +49,7 @@ import { act } from '@/features/lib/store';
 import { amendEstimate } from '@/features/lib/store/actions/estimates';
 import { publicEstimateHref } from '@/features/lib/hrefs';
 import { areaFromTemplate, newLine, priceLine, quantityFromDimensions, sendBlocker } from '@/components/estimates/estimate-utils';
-import { materialPerUnit } from '@/lib/estimating';
+import { coverageFor, materialPerUnit } from '@/lib/estimating';
 import { TableColumnsModal } from '@/components/estimates/TableColumnsModal';
 import { ScopeTotals } from '@/components/estimates/ScopeTotals';
 
@@ -200,7 +200,7 @@ export default function EstimateBuilderPage() {
           next.paintName = paint?.name;
           // A new product brings its finish unless a sheen was chosen for this surface.
           if ('paintProductId' in patch && paint && !l.sheen) next.sheen = paint.finish;
-          next.unitPrice = materialPerUnit(next, paint);
+          next.unitPrice = materialPerUnit(next, coverageFor(paint, c.surfaceRates.find((s) => s.name === next.surfaceType)));
         }
         next = priceLine(next, { ...ctx, profitMargin: e.profitMargin });
         return next;
@@ -282,12 +282,13 @@ export default function EstimateBuilderPage() {
   };
 
   const save = () => {
-    if (!validate()) return;
+    if (!validate()) return false;
     actions.save(draft, draft.status === 'Draft' ? 'Draft saved' : 'Estimate updated');
     setDirty(false);
     setEditOverride(false);
     setLastSavedAt(new Date());
     toast('Estimate saved');
+    return true;
   };
 
   const afterStatus = () => {
@@ -370,8 +371,19 @@ export default function EstimateBuilderPage() {
                 }}
               />
             ),
-            chips: (proto.est?.amendmentNumber ?? 0) > 0 && (
-              <span className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-700">Amendment #{proto.est!.amendmentNumber}</span>
+            chips: (
+              <>
+                <button
+                  type="button"
+                  onClick={() => document.getElementById('section-paint-card')?.scrollIntoView({ behavior: 'smooth' })}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700 hover:bg-emerald-100"
+                >
+                  <Palette className="h-3.5 w-3.5" /> Color Card
+                </button>
+                {(proto.est?.amendmentNumber ?? 0) > 0 && (
+                  <span className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-700">Amendment #{proto.est!.amendmentNumber}</span>
+                )}
+              </>
             ),
             menu: proto.est?.publicToken
               ? [{ label: 'Customer Page (NEW)', icon: <ExternalLink />, onClick: () => window.open(publicEstimateHref(proto.est!.publicToken!), '_blank') }]
@@ -437,7 +449,7 @@ export default function EstimateBuilderPage() {
 
           <div className="space-y-10 p-4 md:space-y-12 md:p-12">
             <FromHistoryBlock estimateId={draft.id} />
-            <PaintCardSection estimateId={draft.id} paintColourId={paintColourId} onPaint={setPaintColourId} />
+            <PaintCardSection estimateId={draft.id} paintColourId={paintColourId} onPaint={setPaintColourId} onSave={save} readOnly={readOnly} />
 
             {/* Area & Line Items */}
             <section id="section-scope" className="scroll-mt-24 border-b border-gray-200 pb-10">

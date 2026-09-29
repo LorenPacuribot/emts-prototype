@@ -3,7 +3,8 @@
  *
  * Adjustment sequence, applied in this order and each counted once:
  *   1. start with the colour card lifespan, else the library interval
- *      (product, product line, surface type, then room)
+ *      (product on this surface type, product line on this surface type,
+ *       product, product line, surface type, then room)
  *   2. minus 1 year for south or west exterior exposure
  *   3. plus 1 year for a premium product tier
  *   4. minus 2 years for poor preparation or a failing coating
@@ -27,14 +28,21 @@ export interface DefaultInput {
 }
 
 /**
- * The library's base interval, most specific entry first:
- * product → product line → surface type → room type → 7 years.
+ * The library's base interval, most specific entry first (patent 27: the
+ * expected life can differ by product, surface, or the combination):
+ * product on surface → product line on surface → product → product line →
+ * surface type → room type → 7 years.
  */
 export function libraryDefault(lib: LifespanLibrary, x: DefaultInput): { years: number; basis: string } {
   const sameMaker = (d: { manufacturer: string }) => !x.manufacturer || d.manufacturer === x.manufacturer;
-  const byProduct = x.product ? lib.productDefaults?.find((d) => d.product === x.product && sameMaker(d)) : undefined;
+  const onSurface = (d: { surfaceType?: string }) => !!x.surfaceType && d.surfaceType === x.surfaceType;
+  const productOnSurface = x.product ? lib.productDefaults?.find((d) => d.product === x.product && onSurface(d) && sameMaker(d)) : undefined;
+  if (productOnSurface) return { years: productOnSurface.years, basis: `${productOnSurface.product} on ${labelSurfaceType(x.surfaceType!).toLowerCase()} default ${productOnSurface.years} yrs` };
+  const lineOnSurface = x.productLine ? lib.productDefaults?.find((d) => !d.product && d.productLine === x.productLine && onSurface(d) && sameMaker(d)) : undefined;
+  if (lineOnSurface) return { years: lineOnSurface.years, basis: `${lineOnSurface.productLine} line on ${labelSurfaceType(x.surfaceType!).toLowerCase()} default ${lineOnSurface.years} yrs` };
+  const byProduct = x.product ? lib.productDefaults?.find((d) => d.product === x.product && !d.surfaceType && sameMaker(d)) : undefined;
   if (byProduct) return { years: byProduct.years, basis: `${byProduct.product} default ${byProduct.years} yrs` };
-  const byLine = x.productLine ? lib.productDefaults?.find((d) => !d.product && d.productLine === x.productLine && sameMaker(d)) : undefined;
+  const byLine = x.productLine ? lib.productDefaults?.find((d) => !d.product && !d.surfaceType && d.productLine === x.productLine && sameMaker(d)) : undefined;
   if (byLine) return { years: byLine.years, basis: `${byLine.productLine} line default ${byLine.years} yrs` };
   const bySurface = x.surfaceType ? lib.surfaceDefaults?.find((d) => d.surfaceType === x.surfaceType) : undefined;
   if (bySurface) return { years: bySurface.years, basis: `${labelSurfaceType(bySurface.surfaceType)} default ${bySurface.years} yrs` };

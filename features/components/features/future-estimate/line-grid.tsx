@@ -139,9 +139,9 @@ export function LineGrid({ rep, readOnly, onPropose, onAddSurfaces }: { rep: Rep
                 </TD>
                 <TD className="min-w-36">
                   <NumInput value={line.price} disabled={readOnly} placeholder="$ price" step={1} ariaLabel={`Price for ${surface?.name}`} invalid={gaps.includes("price") && !readOnly} onCommit={(v) => patch(line, { price: v })} />
-                  {!readOnly && lp.suggested.price > 0 && line.price !== lp.suggested.price && (
-                    <button className="mt-1 block text-[11px] font-semibold text-brand hover:underline" onClick={() => patch(line, { price: lp.suggested.price })}>
-                      Use current basis {money(lp.suggested.price)}
+                  {!readOnly && lp.basis > 0 && line.price !== lp.basis && (
+                    <button className="mt-1 block text-[11px] font-semibold text-brand hover:underline" onClick={() => patch(line, { price: lp.basis })}>
+                      {lp.basisSource === "previous" ? "Use last time's price" : "Use current basis"} {money(lp.basis)}
                     </button>
                   )}
                   {lp.suggested.missingMaterialPrice && <div className="mt-0.5 text-[10.5px] text-amber-700">Material not priced</div>}

@@ -47,7 +47,7 @@ export function WebsiteLeadsPanel() {
       <div className="mb-4"><PillTabs value={tab} onChange={setTab} options={[{ value: "leads", label: `Website leads (${website.length})` }, { value: "review", label: `Lead review (${reviews.filter((r) => r.review!.status === "open").length})` }]} /></div>
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_340px] [&>*]:min-w-0">
         {tab === "leads" ? <LeadList leads={website} /> : <ReviewList leads={reviews} />}
-        <Simulator />
+        <div className="space-y-4"><LiveForm /><Simulator /></div>
       </div>
     </>
   );
@@ -129,6 +129,21 @@ function ReviewList({ leads }: { leads: Lead[] }) {
           );
         })}
       </div>
+    </Card>
+  );
+}
+
+function LiveForm() {
+  return (
+    <Card className="p-4">
+      <CardLabel icon={<Globe />}>Live website form</CardLabel>
+      <p className="mt-1 text-[12px] text-slate-500">Your website posts enquiries to this endpoint. New ones appear here within 30 seconds.</p>
+      <dl className="mt-3 space-y-2 text-[12px]">
+        <div><dt className="font-semibold text-slate-600">Endpoint</dt><dd className="break-all font-mono text-slate-800">POST /api/website-form (on this site)</dd></div>
+        <div><dt className="font-semibold text-slate-600">Fields</dt><dd className="text-slate-800">siteKey, name, phone or email, town, message; optional ref (your stable event id)</dd></div>
+        <div><dt className="font-semibold text-slate-600">Protection</dt><dd className="text-slate-800">Site key, hidden honeypot field, 5 submissions per 10 minutes per address</dd></div>
+      </dl>
+      <a href="/website-form" target="_blank" rel="noreferrer" className="mt-3 inline-flex h-9 w-full items-center justify-center rounded-lg border border-line bg-white text-[13px] font-semibold text-ink hover:border-slate-300">Open sample form</a>
     </Card>
   );
 }

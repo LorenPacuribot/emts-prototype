@@ -4,6 +4,7 @@
  * rounded total, job allocation, flags, and every action the viewer's role
  * allows. Nothing here edits a locked or paid day.
  */
+import { punchTagLabel } from "@/features/lib/rules/shift-tag";
 import { useState } from "react";
 import { AlertTriangle, CheckCircle2, Lock, MapPinOff, RotateCcw, Scale, UtensilsCrossed, WifiOff } from "lucide-react";
 import { act, useCurrentUser, useDb } from "@/features/lib/store";
@@ -104,7 +105,7 @@ export function EntryDrawer({ entryId, onClose }: { entryId?: string; onClose: (
             {segs.map((s) => (
               <TR key={s.id} className={s.supersededAt ? "opacity-50" : ""}>
                 <TD className="font-semibold">{s.id}{s.supersededAt && <div className="text-[10.5px] font-normal text-red-600">Superseded — 0 hours</div>}</TD>
-                <TD>{s.jobId ?? <span className="text-slate-400">Overhead</span>}<div className="text-[11px] text-slate-400">{ACTIVITY_LABEL[s.activity]}</div></TD>
+                <TD>{s.jobId ?? <span className="text-slate-400">Overhead</span>}<div className="text-[11px] text-slate-400">{ACTIVITY_LABEL[s.activity]}</div>{punchTagLabel(db, s) && <div className="text-[11px] font-medium text-slate-500">{punchTagLabel(db, s)}</div>}</TD>
                 <TD className="tabular-nums">{timeLabel(s.start)}</TD>
                 <TD className="tabular-nums">{s.end ? timeLabel(s.end) : <Badge tone="green">Clocked in</Badge>}</TD>
                 <TD className="tabular-nums">{s.end ? hm(elapsedMinutes(s.start, s.end)) : "—"}</TD>

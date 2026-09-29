@@ -1367,6 +1367,8 @@ export interface ProductLifespanDefault {
   manufacturer: string;
   productLine: string;
   product?: string;
+  /** Patent 27: the product (or line) on this surface type only. Most specific entry of all. */
+  surfaceType?: SurfaceType;
   years: number;
 }
 
@@ -1640,6 +1642,8 @@ export interface RepeatEstimate {
     recordedAt?: ISODate;
   };
   useHistoricalProductivity: boolean;
+  /** Patent 25 (Combination 8 step 8): keep last time's labour, material and paint prices, or update to current. Default current. */
+  pricingMode?: "current" | "previous";
   issuedAt?: ISODate;
   validUntil?: ISODate;
   estimateId?: ID;
@@ -1757,6 +1761,9 @@ export interface TimeSegment {
   workDate: string;
   /** Undefined for overhead (training, rained out). Travel between jobs is charged to the second job. */
   jobId?: ID;
+  /** Patent 22: the job's work order, and the shift the employee was scheduled on that day (if any). */
+  workOrderId?: ID;
+  shiftId?: ID;
   activity: ActivityCode;
   start: ISODate;
   end?: ISODate;
@@ -2520,7 +2527,29 @@ export interface Database {
   activity: ActivityEntry[];
   tasks: Task[];
   notifications?: Notification[];
+  paintPassports?: PaintPassport[];
   counters: Record<string, number>;
+}
+
+/**
+ * Customer Paint Passport (patent 26): chosen completed jobs behind one
+ * customer-viewable link, so the customer can look up past colours,
+ * products and surfaces without contacting the contractor.
+ */
+export interface PaintPassport {
+  id: ID; // PP-1
+  /** Unguessable link reference; never derived from the address or ids. */
+  ref: string;
+  customerId: ID;
+  jobIds: ID[];
+  createdAt: ISODate;
+  createdBy: ID;
+  revokedAt?: ISODate;
+  lastSentAt?: ISODate;
+  lastSentTo?: string;
+  lastSentChannel?: "email" | "text";
+  openCount: number;
+  lastOpenAt?: ISODate;
 }
 
 /** A message for one staff member, shown under the header bell until read (patent 12). */

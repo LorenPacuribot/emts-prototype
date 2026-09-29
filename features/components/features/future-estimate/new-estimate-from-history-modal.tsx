@@ -40,6 +40,7 @@ export function NewEstimateFromHistoryModal({ open, onOpenChange, property, foll
   const [when, setWhen] = useState("");
   const [estimatorId, setEstimatorId] = useState("");
   const [ack, setAck] = useState(false);
+  const [pricingMode, setPricingMode] = useState<"current" | "previous">("current");
   const [error, setError] = useState<{ field?: string; message: string }>();
 
   useEffect(() => {
@@ -48,6 +49,7 @@ export function NewEstimateFromHistoryModal({ open, onOpenChange, property, foll
     setSelected(preselect);
     setError(undefined);
     setAck(false);
+    setPricingMode("current");
     const d = new Date(Date.now() + 2 * 86400000);
     d.setHours(10, 0, 0, 0);
     setWhen(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}T10:00`);
@@ -66,7 +68,7 @@ export function NewEstimateFromHistoryModal({ open, onOpenChange, property, foll
 
   function create() {
     const r = act(startEstimateFromHistory, {
-      propertyId: property.id, applicationIds: selected, followUpId, acknowledgedOpen: ack,
+      propertyId: property.id, applicationIds: selected, followUpId, acknowledgedOpen: ack, pricingMode,
       ...(leadId === "new" ? { newLead: { scheduledAt: when ? new Date(when).toISOString() : "", estimatorId } } : { leadId }),
     });
     if (!r.ok) return setError({ field: r.field, message: r.error });
@@ -111,6 +113,21 @@ export function NewEstimateFromHistoryModal({ open, onOpenChange, property, foll
               </div>
             </label>
           </div>
+          <fieldset className="space-y-2">
+            <legend className="mb-1 text-sm font-semibold text-gray-900">Labour, material and paint pricing</legend>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {([
+                ["current", "Update to current pricing", "Today's labour rate, material prices and markup."],
+                ["previous", "Keep last time's pricing", "The price each surface had on the earlier job, scaled if its measurement changed. Surfaces with no earlier price use current pricing."],
+              ] as const).map(([value, title, body]) => (
+                <label key={value} className={cn("flex cursor-pointer items-start gap-3 rounded-xl border p-3", pricingMode === value ? "border-primary-500 bg-primary-50/40" : "border-gray-200")}>
+                  <input type="radio" name="pricing-mode" className="mt-1" checked={pricingMode === value} onChange={() => setPricingMode(value)} />
+                  <span className="text-sm"><b className="block text-gray-900">{title}</b><span className="text-gray-500">{body}</span></span>
+                </label>
+              ))}
+            </div>
+            <p className="text-xs text-gray-500">Tax is always today's rate. You can switch later on the estimate; changed prices need reconfirming.</p>
+          </fieldset>
           {openCount > 0 && (
             <Banner tone="warn" title="This address already has an open record">
               {[...open_.repeatDrafts.map((r) => r.id), ...open_.openEstimates.map((e) => e.id), ...open_.pendingReorders.map((r) => r.id)].join(", ")}. Open it instead, or confirm a separate estimate is needed.

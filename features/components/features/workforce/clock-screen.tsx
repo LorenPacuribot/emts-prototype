@@ -8,6 +8,7 @@
  * device and keep their captured time; a denied location records a flag and
  * never blocks clock-in.
  */
+import { punchTagLabel } from "@/features/lib/rules/shift-tag";
 import { useState } from "react";
 import { ArrowRightLeft, LogIn, LogOut, MapPinOff, RefreshCw, Smartphone, WifiOff } from "lucide-react";
 import type { ActivityCode } from "@/features/types";
@@ -109,7 +110,7 @@ function Clock() {
                   <div className="font-display text-[15px] font-bold text-ink">{e.name}{e.userId === user.id && <span className="ml-1.5 text-[11px] font-medium text-slate-400">(you)</span>}</div>
                   {seg ? (
                     <div className="mt-0.5 text-[12.5px] text-slate-600">
-                      In since {timeLabel(seg.start)} · {seg.jobId ?? "Overhead"} · {ACTIVITY_LABEL[seg.activity]} · {hm(elapsedMinutes(seg.start, now()))}
+                      In since {timeLabel(seg.start)} · {seg.jobId ?? "Overhead"}{seg.shiftId ? ` · ${punchTagLabel(db, seg)}` : ""} · {ACTIVITY_LABEL[seg.activity]} · {hm(elapsedMinutes(seg.start, now()))}
                       <div className="mt-1 flex flex-wrap gap-1">
                         {seg.source === "offline" && <Badge tone="blue" icon={<WifiOff className="h-3 w-3" />}>Offline</Badge>}
                         {seg.queued && <Badge tone="amber">Queued</Badge>}

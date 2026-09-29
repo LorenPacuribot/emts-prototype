@@ -32,6 +32,7 @@ import { LeadFormModal } from '@/components/leads/LeadFormModal';
 import { ScheduleEstimateModal } from '@/components/leads/ScheduleEstimateModal';
 import { PipelineStatusBar } from '@/components/leads/PipelineStatusBar';
 import { NotesSection } from '@/components/leads/NotesSection';
+import { LeadMessagesCard } from '@/components/leads/LeadMessagesCard';
 import { FollowUpLockNote, LeadSourceChip, RepaintFollowUpHost, useFollowUpLocks } from '@/components/leads/leadFeatures';
 import { PropertyMapCard, ServiceLocationModal, useAddServiceLocation } from '@/components/contacts/ServiceLocations';
 
@@ -174,6 +175,7 @@ export default function LeadDetailPage() {
         </div>
         <div className="min-w-0 space-y-8 lg:col-span-2">
           <RepaintFollowUpHost leadId={lead.id} />
+          <LeadMessagesCard lead={lead} onCancel={(id) => actions.cancelScheduled(lead, id)} />
           <NotesSection notes={lead.notes} onAddNote={(t) => actions.addNote(lead, t)} />
         </div>
       </div>

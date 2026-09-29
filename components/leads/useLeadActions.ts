@@ -6,12 +6,14 @@
   - changeStatus: refuses a lead locked by an open repaint follow-up (NEW, 29), moves the lead, keeps the LEAD/CONTACT/CLIENT badge and the
     linked customer's type in sync, logs activity and shows a toast. It then sends the stage's automated
     messages (Settings > Automated Messages) once per lead, and a second toast confirms what was sent.
+    Messages with a delay are scheduled on the lead instead; moving the lead to another stage cancels them.
+  - cancelScheduled: cancels one waiting message by hand.
   - archive / restore / remove / addNote / convert.
 */
 import { useCallback, useRef } from 'react';
 import type { Lead, LeadStatus } from '@/lib/types';
 import { useCollection, useLogActivity, useSingleton } from '@/lib/store';
-import { deliver, leadVars, planStageSends } from '@/lib/lead-messages';
+import { cancelForStageChange, deliver, leadVars, planStageSends, splitByDelay } from '@/lib/lead-messages';
 import { useToast } from '@/components/ui/toast';
 import { fullName } from '@/lib/utils';
 import { LEAD_LIFECYCLE, appendNote, customerTypeFor } from './leadHelpers';
@@ -32,8 +34,18 @@ export function useLeadActions() {
   /** Sends the stage's automated messages (once per lead) and logs them on the lead. */
   const sendStageMessages = useCallback(
     (lead: Lead, status: LeadStatus) => {
-      const { sends, skipped } = planStageSends(lead, status, messages.items, leadVars(lead, bp.companyName || 'our team'));
-      if (skipped.length) toast(`Not sent: ${skipped.join(', ')}`, 'info');
+      const plan = planStageSends(lead, status, messages.items, leadVars(lead, bp.companyName || 'our team'));
+      if (plan.skipped.length) toast(`Not sent: ${plan.skipped.join(', ')}`, 'info');
+      const at = new Date().toISOString();
+      const { now: sends, later } = splitByDelay(plan.sends, status, at, () => `sm-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`);
+      if (later.length) {
+        // The caller passes the lead as it is after this change (a status change may have cancelled some).
+        leadsRef.current.update(lead.id, { scheduledMessages: [...(lead.scheduledMessages ?? []), ...later] });
+        const first = later.reduce((a, b) => (a.sendAt <= b.sendAt ? a : b));
+        const names = Array.from(new Set(later.map((m) => `"${m.name}"`))).join(', ');
+        log(`Automated message ${names} scheduled for ${fullName(lead)}, sending ${new Date(first.sendAt).toLocaleString()}`, 'lead', lead.id);
+        toast(`Automated message ${names} scheduled for ${new Date(first.sendAt).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}. Cancel it on the lead if needed.`, 'info');
+      }
       if (!sends.length) return;
       void Promise.all(sends.map((s) => deliver(s, status))).then((results) => {
         const current = leadsRef.current.get(lead.id);
@@ -59,7 +71,11 @@ export function useLeadActions() {
       const fu = currentFollowUpLock(lead.id);
       if (fu) { toast(followUpLockMessage(fu), 'error'); return; }
       const contactType = status === 'Archived' ? lead.contactType : LEAD_LIFECYCLE[status].type;
-      leads.update(lead.id, { status, contactType, updatedAt: new Date().toISOString() });
+      const at = new Date().toISOString();
+      const scheduledMessages = cancelForStageChange(lead.scheduledMessages, status, at);
+      const cancelled = (scheduledMessages ?? []).filter((m) => m.cancelledAt === at).length;
+      leads.update(lead.id, { status, contactType, updatedAt: at, ...(cancelled ? { scheduledMessages } : {}) });
+      if (cancelled) log(`${cancelled} scheduled message${cancelled === 1 ? '' : 's'} cancelled for ${fullName(lead)}: lead moved to ${status}`, 'lead', lead.id);
       const customer = customers.get(lead.customerId);
       if (customer) {
         const type = customerTypeFor(status, customer.type);
@@ -67,9 +83,20 @@ export function useLeadActions() {
       }
       log(`${fullName(lead)} (${lead.leadNumber}) moved to ${status}`, 'lead', lead.id);
       if (!opts.silent) toast(opts.message ?? 'Lead status updated successfully');
-      sendStageMessages({ ...lead, status }, status);
+      sendStageMessages({ ...lead, status, scheduledMessages }, status);
     },
     [leads, customers, log, toast, sendStageMessages],
+  );
+
+  const cancelScheduled = useCallback(
+    (lead: Lead, id: string) => {
+      const m = lead.scheduledMessages?.find((x) => x.id === id);
+      if (!m || m.cancelledAt) return;
+      leads.update(lead.id, { scheduledMessages: lead.scheduledMessages!.map((x) => (x.id === id ? { ...x, cancelledAt: new Date().toISOString(), cancelReason: 'Cancelled by hand' } : x)) });
+      log(`Scheduled message "${m.name}" (${m.channel === 'EMAIL' ? 'email' : 'SMS'}) cancelled for ${fullName(lead)}`, 'lead', lead.id);
+      toast('Scheduled message cancelled');
+    },
+    [leads, log, toast],
   );
 
   const archive = useCallback((lead: Lead) => changeStatus(lead, 'Archived', { message: 'Lead archived' }), [changeStatus]);
@@ -113,5 +140,5 @@ export function useLeadActions() {
     [customers, leads, log, toast],
   );
 
-  return { changeStatus, archive, restore, remove, addNote, convert, sendStageMessages };
+  return { changeStatus, archive, restore, remove, addNote, convert, sendStageMessages, cancelScheduled };
 }

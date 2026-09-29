@@ -76,10 +76,10 @@ function Library() {
                 <TR key={d.surfaceType}><TD>{labelSurfaceType(d.surfaceType)}s (any room) <Badge tone="gray" className="ml-1">surface type wins</Badge></TD><TD className="font-semibold text-ink">{d.years} years</TD></TR>
               ))}
               {(lib.productDefaults ?? []).map((d) => (
-                <TR key={`${d.manufacturer}|${d.productLine}|${d.product ?? ""}`}>
+                <TR key={`${d.manufacturer}|${d.productLine}|${d.product ?? ""}|${d.surfaceType ?? ""}`}>
                   <TD>
-                    {d.product ?? `${d.productLine} line (any product)`} <span className="text-[11px] text-slate-500">· {d.manufacturer}</span>
-                    <Badge tone="blue" className="ml-1">{d.product ? "product wins" : "product line wins"}</Badge>
+                    {d.product ?? `${d.productLine} line (any product)`}{d.surfaceType ? ` on ${labelSurfaceType(d.surfaceType).toLowerCase()}` : ""} <span className="text-[11px] text-slate-500">· {d.manufacturer}</span>
+                    <Badge tone="blue" className="ml-1">{d.surfaceType ? "product + surface wins" : d.product ? "product wins" : "product line wins"}</Badge>
                   </TD>
                   <TD className="font-semibold text-ink">{d.years} years</TD>
                 </TR>
@@ -289,6 +289,8 @@ function EditLibraryModal({ lib, onClose }: { lib: LifespanLibrary; onClose: () 
   );
 }
 
+const SURFACE_TYPES = ["walls", "ceiling", "trim", "door", "body", "siding", "cabinets"] as const;
+
 /** Product and product-line defaults: most specific wins over surface and room. */
 function ProductDefaultsEditor({ rows, errField, errMessage, onChange }: {
   rows: LibraryDraft["productDefaults"];
@@ -297,28 +299,32 @@ function ProductDefaultsEditor({ rows, errField, errMessage, onChange }: {
   onChange: (rows: LibraryDraft["productDefaults"]) => void;
 }) {
   const catalog = useDb((d) => d.catalog);
-  const key = (d: ProductLifespanDefault) => `${d.manufacturer}|${d.productLine}|${d.product ?? ""}`;
+  const key = (d: ProductLifespanDefault) => `${d.manufacturer}|${d.productLine}|${d.product ?? ""}|${d.surfaceType ?? ""}`;
   const options = useMemo(() => {
     const lines = Array.from(new Map(catalog.map((c) => [`${c.manufacturer}|${c.productLine}|`, { manufacturer: c.manufacturer, productLine: c.productLine }])).values());
     return [
       ...lines.map((l) => ({ value: `${l.manufacturer}|${l.productLine}|`, label: `${l.productLine} line (any product) · ${l.manufacturer}` })),
       ...catalog.map((c) => ({ value: `${c.manufacturer}|${c.productLine}|${c.product}`, label: `${c.product} · ${c.manufacturer}` })),
-    ].filter((o) => !rows.some((r) => key(r) === o.value));
-  }, [catalog, rows]);
+    ];
+  }, [catalog]);
   const [pick, setPick] = useState("");
+  const [surface, setSurface] = useState("");
+  const duplicate = !!pick && rows.some((r) => key(r) === `${pick}|${surface}`);
   const num = (v: string) => (v === "" ? NaN : Number(v));
   const add = () => {
     if (!pick) return;
+    if (duplicate) return;
     const [manufacturer, productLine, product] = pick.split("|");
-    onChange([...rows, { manufacturer, productLine, product: product || undefined, years: 7 }]);
+    onChange([...rows, { manufacturer, productLine, product: product || undefined, surfaceType: (surface || undefined) as ProductLifespanDefault["surfaceType"], years: 7 }]);
     setPick("");
+    setSurface("");
   };
   return (
     <div>
-      <div className="mb-2 text-[12.5px] font-semibold text-slate-600">Product and product-line defaults <span className="font-normal text-slate-400">— win over surface and room defaults</span></div>
+      <div className="mb-2 text-[12.5px] font-semibold text-slate-600">Product and product-line defaults <span className="font-normal text-slate-400">— win over surface and room defaults; a product on one surface type wins over all</span></div>
       <div className="grid gap-3 sm:grid-cols-2">
         {rows.map((d, i) => (
-          <Field key={key(d)} label={`${d.product ?? `${d.productLine} line`} (years)`} error={errField === `years-${key(d)}` ? errMessage : undefined}>
+          <Field key={key(d)} label={`${d.product ?? `${d.productLine} line`}${d.surfaceType ? ` on ${labelSurfaceType(d.surfaceType).toLowerCase()}` : ""} (years)`} error={errField === `years-${key(d)}` ? errMessage : undefined}>
             <div className="flex gap-2">
               <Input type="number" min={1} step={0.5} value={Number.isNaN(d.years) ? "" : d.years} invalid={errField === `years-${key(d)}`}
                 onChange={(e) => onChange(rows.map((y, j) => (j === i ? { ...y, years: num(e.target.value) } : y)))} />
@@ -329,15 +335,20 @@ function ProductDefaultsEditor({ rows, errField, errMessage, onChange }: {
           </Field>
         ))}
       </div>
-      <div className="mt-2 flex gap-2">
-        <Select value={pick} onChange={(e) => setPick(e.target.value)} aria-label="Add product default" className="flex-1">
+      <div className="mt-2 flex flex-wrap gap-2">
+        <Select value={pick} onChange={(e) => setPick(e.target.value)} aria-label="Add product default" className="min-w-0 flex-1">
           <option value="">Add a product or product line…</option>
           {options.map((o) => (
             <option key={o.value} value={o.value}>{o.label}</option>
           ))}
         </Select>
-        <Button onClick={add} disabled={!pick}><Plus className="h-4 w-4" /> Add</Button>
+        <Select value={surface} onChange={(e) => setSurface(e.target.value)} aria-label="On surface type" className="w-40">
+          <option value="">On any surface</option>
+          {SURFACE_TYPES.map((t) => <option key={t} value={t}>On {labelSurfaceType(t).toLowerCase()}</option>)}
+        </Select>
+        <Button onClick={add} disabled={!pick || duplicate}><Plus className="h-4 w-4" /> Add</Button>
       </div>
+      {duplicate && <p className="mt-1 text-[11.5px] text-amber-700">That product and surface is already listed. Change its years above.</p>}
     </div>
   );
 }

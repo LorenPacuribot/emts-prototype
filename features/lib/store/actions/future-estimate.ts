@@ -24,6 +24,7 @@ import {
   type ProductivityDecision,
 } from "@/features/lib/rules/future-estimate";
 import { formatPacks } from "@/features/lib/rules/materials";
+import { roundMoney } from "@/features/lib/rules/rounding";
 import { denied, fail, log, nextNumber, ok } from "../helpers";
 
 const REP = "Repeat Estimate";
@@ -162,7 +163,20 @@ export interface LinePricing {
   productivity: ProductivityDecision;
   catalog?: ProductCatalogItem;
   suggested: ReturnType<typeof priceLine>;
+  /** Last time's customer price for this surface, scaled to today's measurement (patent 25). */
+  previous?: number;
+  /** The price the chosen pricing basis gives: last time's where it exists, else current. */
+  basis: number;
+  basisSource: "current" | "previous";
   combination: string;
+}
+
+/** Last time's pre-tax price for the surface, scaled when the measurement changed. */
+export function previousLinePrice(db: Database, line: RepeatEstimateLine): number | undefined {
+  const old = historicalJob(db, line.sourceJobId)?.linePrices[line.surfaceId];
+  if (old === undefined) return undefined;
+  const recorded = byId(db.surfaces, line.surfaceId)?.areaSqft;
+  return roundMoney(recorded && recorded > 0 && line.sqft !== recorded ? (old * line.sqft) / recorded : old);
 }
 
 export function repPricing(db: Database, rep: RepeatEstimate, nowIso = now()) {
@@ -193,7 +207,13 @@ export function repPricing(db: Database, rep: RepeatEstimate, nowIso = now()) {
       prep: line.prep,
       condition: line.condition,
     });
-    return { line, productivity, catalog, suggested, combination: `${area?.name ?? "—"} ${surface?.name.toLowerCase() ?? ""} · ${line.product}` };
+    const previous = previousLinePrice(db, line);
+    const usePrevious = rep.pricingMode === "previous" && previous !== undefined;
+    return {
+      line, productivity, catalog, suggested, previous,
+      basis: usePrevious ? previous! : suggested.price, basisSource: usePrevious ? "previous" as const : "current" as const,
+      combination: `${area?.name ?? "—"} ${surface?.name.toLowerCase() ?? ""} · ${line.product}`,
+    };
   });
   const totals = quoteTotals(rep.lines.map((l) => l.price ?? 0), CURRENT_BASIS.taxRatePct);
   const historical = lines.filter((l) => l.productivity.source === "historical");
@@ -515,6 +535,38 @@ export function setProductivityMode(db: Database, actor: User, repId: string, us
   }
   rep!.updatedAt = now();
   return ok();
+}
+
+/**
+ * Patent 25, Combination 8 step 8: keep last time's labour, material and paint
+ * prices, or update to current pricing. Sets every line's price to the chosen
+ * basis; a changed price needs reconfirming. Tax is always today's rate.
+ */
+export function setPricingMode(db: Database, actor: User, repId: string, mode: "current" | "previous") {
+  const blocked = guardBuild(db, actor, "change the pricing basis");
+  if (blocked) return blocked;
+  const { rep, error } = getDraft(db, repId);
+  if (error) return error;
+  return ok(applyPricingMode(db, actor, rep!, mode));
+}
+
+export function applyPricingMode(db: Database, actor: User, rep: RepeatEstimate, mode: "current" | "previous") {
+  rep.pricingMode = mode;
+  let changed = 0;
+  let withoutPrevious = 0;
+  for (const lp of repPricing(db, rep).lines) {
+    if (mode === "previous" && lp.previous === undefined) withoutPrevious++;
+    if (!(lp.basis > 0) || lp.line.price === lp.basis) continue;
+    lp.line.price = lp.basis;
+    changed++;
+    if (lp.line.reconfirmed) {
+      lp.line.reconfirmed = false;
+      lp.line.reconfirmedAt = undefined;
+    }
+  }
+  rep.updatedAt = now();
+  log(db, actor, REP, `Repeat Estimate: Estimate ${rep.id} – ${mode === "previous" ? "Last time's prices kept" : "Updated to current pricing"} by ${actor.name}. ${changed} line price${changed === 1 ? "" : "s"} set${withoutPrevious ? `; ${withoutPrevious} without an earlier price use current pricing` : ""}.`);
+  return { changed, withoutPrevious };
 }
 
 export interface ReplacementDraft {

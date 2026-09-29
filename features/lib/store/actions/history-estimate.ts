@@ -20,7 +20,7 @@ import { byId, currentOwnership } from "@/features/lib/selectors";
 import { leadEligibleForEstimate } from "@/features/lib/rules/estimate-lifecycle";
 import { specLifespanDefault } from "@/features/lib/rules/lifespan";
 import { createDraftEstimate } from "./estimates";
-import { startRepeatEstimate } from "./future-estimate";
+import { applyPricingMode, startRepeatEstimate } from "./future-estimate";
 import { denied, fail, log, nextId, nextNumber, ok } from "../helpers";
 
 const MODULE = "Estimates";
@@ -34,6 +34,8 @@ export interface EstimateFromHistoryInput {
   newLead?: { scheduledAt: string; estimatorId: string; source?: LeadSource };
   followUpId?: string;
   acknowledgedOpen?: boolean;
+  /** Patent 25: keep last time's prices or use current pricing; prefills every line's price. */
+  pricingMode?: "current" | "previous";
 }
 
 export function startEstimateFromHistory(db: Database, actor: User, input: EstimateFromHistoryInput) {
@@ -61,6 +63,7 @@ export function startEstimateFromHistory(db: Database, actor: User, input: Estim
   const started = startRepeatEstimate(db, actor, property.id, input.applicationIds, { followUpId: input.followUpId, acknowledgedOpen: input.acknowledgedOpen });
   if (!started.ok) return started;
   const rep = byId(db.repeatEstimates, started.value as string)!;
+  if (input.pricingMode) applyPricingMode(db, actor, rep, input.pricingMode);
 
   let leadId = input.leadId;
   // NEW (29, D5): a follow-up already has its pipeline lead. Book the appointment on it

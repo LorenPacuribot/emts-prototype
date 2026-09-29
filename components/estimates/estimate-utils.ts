@@ -15,7 +15,7 @@ import type {
   PaintProduct, SurfaceRate, TableColumn,
 } from '@/lib/types';
 import { estimateTotals, includedLine, lineTotal, round2 } from '@/lib/calculations';
-import { deriveLine, materialPerUnit } from '@/lib/estimating';
+import { coverageFor, deriveLine, materialPerUnit } from '@/lib/estimating';
 import { uid } from '@/lib/utils';
 
 /* ---------- Status display ---------- */
@@ -52,12 +52,12 @@ export function addDays(iso: string, days: number) {
  * gallon (lib/estimating.ts).
  */
 export function materialPricePerUnit(
-  sr: Pick<SurfaceRate, 'unit'> | undefined,
+  sr: Pick<SurfaceRate, 'unit' | 'coverageOverrides'> | undefined,
   paint: PaintProduct | undefined,
   coats: number,
   line?: Pick<EstimateLineItem, 'quantity' | 'coatingAreaSqft' | 'condition'>,
 ) {
-  return materialPerUnit({ unit: sr?.unit ?? 'sqft', quantity: line?.quantity ?? 0, coatingAreaSqft: line?.coatingAreaSqft, coats, condition: line?.condition }, paint);
+  return materialPerUnit({ unit: sr?.unit ?? 'sqft', quantity: line?.quantity ?? 0, coatingAreaSqft: line?.coatingAreaSqft, coats, condition: line?.condition }, coverageFor(paint, sr));
 }
 
 /** Multiplier = height tier x access tier (1 when none is picked). */

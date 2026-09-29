@@ -397,8 +397,8 @@ export function publishLibrary(db: Database, actor: User, draft: LibraryDraft, r
   for (const d of [...draft.defaults, ...draft.surfaceDefaults]) {
     if (!Number.isFinite(d.years) || d.years <= 0 || d.years > 30) return fail("Each interval must be a positive number of years (30 or fewer).", `years-${"roomType" in d ? d.roomType : d.surfaceType}`);
   }
-  const productKey = (d: { manufacturer: string; productLine: string; product?: string }) => `${d.manufacturer}|${d.productLine}|${d.product ?? ""}`;
-  const productLabel = (d: { productLine: string; product?: string }) => d.product ?? `${d.productLine} line`;
+  const productKey = (d: { manufacturer: string; productLine: string; product?: string; surfaceType?: string }) => `${d.manufacturer}|${d.productLine}|${d.product ?? ""}|${d.surfaceType ?? ""}`;
+  const productLabel = (d: { productLine: string; product?: string; surfaceType?: string }) => `${d.product ?? `${d.productLine} line`}${d.surfaceType ? ` on ${labelSurfaceType(d.surfaceType).toLowerCase()}` : ""}`;
   const seen = new Set<string>();
   for (const d of draft.productDefaults) {
     if (!Number.isFinite(d.years) || d.years <= 0 || d.years > 30) return fail("Each interval must be a positive number of years (30 or fewer).", `years-${productKey(d)}`);

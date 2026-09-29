@@ -76,6 +76,34 @@ export function coatingArea(line: Pick<EstimateLineItem, 'unit' | 'quantity' | '
   return line.unit === 'sqft' ? line.quantity : line.coatingAreaSqft ?? 0;
 }
 
+/** Coverage used when neither the product nor the surface rate gives one. */
+export const FALLBACK_COVERAGE = 350;
+
+/**
+ * Patent 8 step 3 states production as hours per 100 units; surface rates are
+ * stored as units per hour. These convert between the two (0 stays 0).
+ */
+export function hoursPer100(unitsPerHour: number): number {
+  return unitsPerHour > 0 ? Math.round((100 / unitsPerHour) * 1000) / 1000 : 0;
+}
+export function unitsPerHourFromHours(hoursPer100Units: number): number {
+  return hoursPer100Units > 0 ? Math.round((100 / hoursPer100Units) * 100) / 100 : 0;
+}
+
+/**
+ * Patent 8: coverage for a product/surface combination. The surface rate's
+ * override for this product wins over the product's own coverage.
+ */
+export function coverageFor<P extends Pick<PaintProduct, 'id' | 'coverageCoat1' | 'coverageCoat2'>>(paint: P | undefined, sr?: Pick<SurfaceRate, 'coverageOverrides'>): P | undefined {
+  const o = paint && sr?.coverageOverrides?.find((x) => x.paintProductId === paint.id);
+  return o && paint ? { ...paint, coverageCoat1: o.coverageCoat1, coverageCoat2: o.coverageCoat2 ?? o.coverageCoat1 } : paint;
+}
+
+/** True when the line's paint has no coverage anywhere, so the 350 sq ft/gal fallback is used. */
+export function usesCoverageFallback(paint: Pick<PaintProduct, 'coverageCoat1'> | undefined): boolean {
+  return !!paint && !(paint.coverageCoat1 > 0);
+}
+
 /** Gallons of paint for the line (unrounded to containers; procurement rounds up). */
 export function lineGallons(
   line: Pick<EstimateLineItem, 'unit' | 'quantity' | 'coatingAreaSqft' | 'coats' | 'condition'>,
@@ -87,7 +115,7 @@ export function lineGallons(
   const factor = conditionOf(line).coverage;
   let gal = 0;
   for (let c = 1; c <= Math.max(1, line.coats || 1); c++) {
-    const cov = (c === 1 ? paint.coverageCoat1 : paint.coverageCoat2 || paint.coverageCoat1) || 350;
+    const cov = (c === 1 ? paint.coverageCoat1 : paint.coverageCoat2 || paint.coverageCoat1) || FALLBACK_COVERAGE;
     gal += area / (cov * factor);
   }
   return round2(gal);
@@ -121,7 +149,7 @@ function lineGallonsExact(
   const area = coatingArea(line);
   const factor = conditionOf(line).coverage;
   let gal = 0;
-  for (let c = 1; c <= Math.max(1, line.coats || 1); c++) gal += area / (((c === 1 ? paint.coverageCoat1 : paint.coverageCoat2 || paint.coverageCoat1) || 350) * factor);
+  for (let c = 1; c <= Math.max(1, line.coats || 1); c++) gal += area / (((c === 1 ? paint.coverageCoat1 : paint.coverageCoat2 || paint.coverageCoat1) || FALLBACK_COVERAGE) * factor);
   return gal;
 }
 
@@ -190,7 +218,7 @@ export function deriveLine<T extends EstimateLineItem>(line: T, ctx: LineEngineC
   const sr = ctx.surfaceRates.find((s) => s.name === line.surfaceType);
   const prepHours = ctx.tableColumns ? preparationHours(line, ctx.tableColumns) : line.prepHours ?? 0;
   const appHours = sr ? applicationHours(line, sr) : line.applicationHours ?? Math.max(0, round2(line.laborHours - (line.prepHours ?? 0)));
-  const paint = ctx.paints?.find((p) => p.id === line.paintProductId);
+  const paint = coverageFor(ctx.paints?.find((p) => p.id === line.paintProductId), sr);
   const gallons = ctx.paints ? lineGallons(line, paint) : line.gallons;
   return { ...line, applicationHours: appHours, prepHours, laborHours: round2(appHours + prepHours), gallons };
 }

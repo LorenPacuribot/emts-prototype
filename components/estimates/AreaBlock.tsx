@@ -21,7 +21,7 @@ import type { DifficultyTier, EstimateArea, EstimateLineItem, PaintProduct, Surf
 import { RowMenu } from '@/components/ui/menu';
 import { cn, money } from '@/lib/utils';
 import { includedLine, lineCost } from '@/lib/calculations';
-import { CONDITIONS, SURFACE_CONDITIONS, prepColumns, prepSummary } from '@/lib/estimating';
+import { CONDITIONS, FALLBACK_COVERAGE, SURFACE_CONDITIONS, coverageFor, prepColumns, prepSummary, usesCoverageFallback } from '@/lib/estimating';
 
 export const SHEENS = ['Flat', 'Matte', 'Eggshell', 'Satin', 'Semi-Gloss', 'Gloss'];
 export const UNIT_LABEL: Record<EstimateLineItem['unit'], string> = { sqft: 'sq ft', lnft: 'lin ft', each: 'each', hour: 'hour', gallon: 'gallon' };
@@ -183,7 +183,19 @@ export function AreaBlock(p: AreaBlockProps) {
       case 'tcol_hours':
         return <span className="font-bold text-gray-900">{l.laborHours.toFixed(2)}</span>;
       case 'tcol_gal':
-        return <span className="font-semibold text-blue-600" title="Gallons of paint">{(l.gallons ?? 0).toFixed(2)}</span>;
+        {
+          const paint = coverageFor(p.paints.find((x) => x.id === l.paintProductId), p.surfaceRates.find((s) => s.name === l.surfaceType));
+          return (
+            <span className="inline-flex flex-col items-end">
+              <span className="font-semibold text-blue-600" title="Gallons of paint">{(l.gallons ?? 0).toFixed(2)}</span>
+              {usesCoverageFallback(paint) && (
+                <span className="mt-0.5 whitespace-nowrap rounded bg-amber-50 px-1 text-[10px] font-semibold text-amber-700" title={`No coverage is set for ${paint?.name ?? 'this product'} in the Paint Library or on this surface rate, so ${FALLBACK_COVERAGE} sq ft per gallon is assumed.`}>
+                  Coverage not set
+                </span>
+              )}
+            </span>
+          );
+        }
       case 'tcol_rate':
         return <input type="number" min={0} disabled={readOnly} value={l.laborRate} onChange={(e) => up({ laborRate: num(e.target.value) })} className={cn(cellInput, 'w-20 text-center')} aria-label="Labor rate" />;
       case 'tcol_matunit':

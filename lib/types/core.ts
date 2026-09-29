@@ -127,6 +127,24 @@ export interface Lead {
   appointmentDuration?: number;
   /** Automated messages sent for this lead's pipeline stages (Settings > Automated Messages). */
   sentMessages?: LeadMessageLog[];
+  /** Stage messages with a delay, waiting for their send time (patent 1). Sent ones move to sentMessages. */
+  scheduledMessages?: ScheduledLeadMessage[];
+}
+
+export interface ScheduledLeadMessage {
+  id: ID;
+  /** AutomatedMessage id */
+  messageId: ID;
+  name: string;
+  stage: LeadStatus;
+  channel: 'EMAIL' | 'SMS';
+  to: string;
+  subject?: string;
+  body: string;
+  createdAt: string;
+  sendAt: string;
+  cancelledAt?: string;
+  cancelReason?: string;
 }
 
 export interface LeadMessageLog {

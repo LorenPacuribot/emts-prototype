@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { AutomatedMessage, Lead } from '@/lib/types';
 import { automatedMessages } from '@/lib/data/settings-config';
-import { deliver, fillMessage, leadVars, planStageSends, stageMessages } from './lead-messages';
+import { cancelForStageChange, delayMs, deliver, dueMessages, fillMessage, leadVars, pendingMessages, planStageSends, scheduledToPlanned, splitByDelay, stageMessages } from './lead-messages';
 
 const lead = (o: Partial<Lead> = {}): Lead => ({
   id: 'LEAD-2026-99', leadNumber: 'LEAD-2026-99', firstName: 'Olivia', lastName: 'Bennett', phone: '(512) 555-0101', email: 'olivia@example.com',
@@ -58,5 +58,39 @@ describe('lead stage automated messages (patent 1)', () => {
 
     const down = (async () => { throw new Error('offline'); }) as unknown as typeof fetch;
     expect(await deliver({ message: msg, channel: 'SMS', to: '5125550101', body: 'B' }, 'Contacted', down)).toMatchObject({ ok: false, error: 'offline' });
+  });
+});
+
+describe('delayed stage messages (patent 1)', () => {
+  const contacted = { ...(automatedMessages.find((m) => m.id === 'am_lead_contacted') as AutomatedMessage), delayValue: 2, delayUnit: 'hours' as const };
+  const at = '2026-09-30T10:00:00.000Z';
+  let n = 0;
+  const id = () => `sm-${++n}`;
+
+  it('schedules a message with a delay instead of sending it', () => {
+    expect(delayMs({ delayValue: 3, delayUnit: 'days' })).toBe(3 * 86_400_000);
+    const plan = planStageSends(lead(), 'Contacted', [contacted], {});
+    const { now, later } = splitByDelay(plan.sends, 'Contacted', at, id);
+    expect(now).toEqual([]);
+    expect(later).toHaveLength(1);
+    expect(later[0]).toMatchObject({ messageId: 'am_lead_contacted', stage: 'Contacted', channel: 'EMAIL', sendAt: '2026-09-30T12:00:00.000Z' });
+  });
+
+  it('does not schedule the same message twice and sends it when due', () => {
+    const later = splitByDelay(planStageSends(lead(), 'Contacted', [contacted], {}).sends, 'Contacted', at, id).later;
+    const l = lead({ scheduledMessages: later });
+    expect(planStageSends(l, 'Contacted', [contacted], {}).sends).toEqual([]);
+    expect(dueMessages(l, '2026-09-30T11:59:00.000Z')).toEqual([]);
+    expect(dueMessages(l, '2026-09-30T12:00:00.000Z').map((m) => m.messageId)).toEqual(['am_lead_contacted']);
+    expect(scheduledToPlanned(later[0]!)).toMatchObject({ channel: 'EMAIL', to: 'olivia@example.com', message: { id: 'am_lead_contacted' } });
+  });
+
+  it('cancels waiting messages when the lead moves to another stage', () => {
+    const later = splitByDelay(planStageSends(lead(), 'Contacted', [contacted], {}).sends, 'Contacted', at, id).later;
+    expect(cancelForStageChange(later, 'Contacted', at)).toEqual(later);
+    const moved = cancelForStageChange(later, 'Lost', '2026-09-30T11:00:00.000Z')!;
+    expect(moved[0]).toMatchObject({ cancelledAt: '2026-09-30T11:00:00.000Z', cancelReason: 'Lead moved to Lost' });
+    expect(pendingMessages({ scheduledMessages: moved })).toEqual([]);
+    expect(dueMessages({ scheduledMessages: moved }, '2026-10-01T00:00:00.000Z')).toEqual([]);
   });
 });

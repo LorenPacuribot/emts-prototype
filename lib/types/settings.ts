@@ -304,6 +304,8 @@ export interface SurfaceRate {
   sortOrder: number;
   /** How quantity is measured: LENGTH_X_HEIGHT, LENGTH_X_WIDTH, PERIMETER_X_HEIGHT, PERIMETER, LENGTH, NONE */
   amountFormula?: string;
+  /** Patent 8: coverage for a particular product on this surface (sq ft per gallon), used ahead of the product's own coverage. */
+  coverageOverrides?: { paintProductId: ID; coverageCoat1: number; coverageCoat2?: number }[];
   /** Last change made by an approved estimating-feedback rate (patent 30). */
   feedback?: { rateId: string; version: number; at: string; pct: number; previous: Pick<SurfaceRate, 'rateCoat1' | 'rateCoat2' | 'rateCoat3' | 'rateCoat4'> };
 }

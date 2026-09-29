@@ -1,19 +1,21 @@
 "use client";
 /**
  * Component 28.3 — Pricing Basis And Productivity Policy.
- * Wages, material prices, markup and tax are always current. Historical
- * productivity only under an owner-approved policy for the property type.
+ * Patent 25 (Combination 8 step 8): keep last time's labour, material and
+ * paint prices, or update to current pricing. Tax is always current.
+ * Historical productivity only under an owner-approved policy for the property type.
  */
 import { BadgeCheck, Calculator, History, ShieldCheck } from "lucide-react";
 import type { Property, RepeatEstimate } from "@/features/types";
 import { act, useCurrentUser, useDb } from "@/features/lib/store";
-import { approveProductivityPolicy, historicalJob, repPricing, setProductivityMode } from "@/features/lib/store/actions/future-estimate";
+import { approveProductivityPolicy, historicalJob, repPricing, setPricingMode, setProductivityMode } from "@/features/lib/store/actions/future-estimate";
 import { CURRENT_BASIS, HISTORICAL_RATE_WARN_MONTHS, NO_POLICY_MESSAGE } from "@/features/lib/rules/future-estimate";
 import { can } from "@/features/lib/permissions";
 import { dateLong, money, titleCase } from "@/features/lib/format";
 import { toast } from "@/features/lib/toast";
 import { byId } from "@/features/lib/selectors";
-import { Badge, Banner, Button, Card, CardLabel, KV, MicroLabel, Switch } from "@/features/components/ui";
+import { useState } from "react";
+import { Badge, Banner, Button, Card, CardLabel, ConfirmDialog, KV, MicroLabel, Switch } from "@/features/components/ui";
 
 export function PricingPanel({ rep, property, readOnly }: { rep: RepeatEstimate; property: Property; readOnly: boolean }) {
   const db = useDb((d) => d);
@@ -25,6 +27,20 @@ export function PricingPanel({ rep, property, readOnly }: { rep: RepeatEstimate;
     .map((id) => historicalJob(db, id))
     .filter((j) => j?.discountPct);
   const staleLines = pricing.lines.filter((l) => l.productivity.stale);
+  const mode = rep.pricingMode ?? "current";
+  const [switchTo, setSwitchTo] = useState<"current" | "previous">();
+  const preview = (target: "current" | "previous") => {
+    const next = pricing.lines.map((l) => {
+      const basis = target === "previous" ? l.previous ?? l.suggested.price : l.suggested.price;
+      return basis > 0 ? basis : l.line.price ?? 0;
+    });
+    return {
+      changed: pricing.lines.filter((l, i) => next[i]! > 0 && next[i] !== l.line.price).length,
+      subtotal: next.reduce((a, b) => a + b, 0),
+      withoutPrevious: pricing.lines.filter((l) => l.previous === undefined).length,
+    };
+  };
+  const pv = switchTo ? preview(switchTo) : undefined;
 
   return (
     <Card className="p-5">
@@ -37,6 +53,30 @@ export function PricingPanel({ rep, property, readOnly }: { rep: RepeatEstimate;
             ["Tax rate", <span key="t">{CURRENT_BASIS.taxRatePct}% <span className="block text-[11px] font-normal text-slate-400">{CURRENT_BASIS.taxSource}</span></span>],
           ]}
         />
+        <div className="rounded-xl border border-line p-3">
+          <MicroLabel>Labour, material and paint pricing</MicroLabel>
+          <div role="radiogroup" aria-label="Pricing basis" className="mt-2 grid grid-cols-2 gap-1 rounded-lg bg-slate-100 p-1">
+            {([["current", "Current pricing"], ["previous", "Last time's pricing"]] as const).map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                role="radio"
+                aria-checked={mode === value}
+                disabled={readOnly}
+                onClick={() => mode !== value && setSwitchTo(value)}
+                className={`rounded-md px-2 py-1.5 text-[12px] font-semibold ${mode === value ? "bg-white text-ink shadow-sm" : "text-slate-500 hover:text-ink"} disabled:cursor-not-allowed`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          <p className="mt-2 text-[11.5px] text-slate-500">
+            {mode === "previous"
+              ? `Each surface keeps the price it had last time, scaled if its measurement changed. ${pricing.lines.filter((l) => l.basisSource === "current").length} surface(s) with no earlier price use current pricing.`
+              : "Today's labour rate, material prices and markup."}{" "}Tax is always today's rate.
+          </p>
+        </div>
+
         <div>
           <MicroLabel>Current material prices (paint library)</MicroLabel>
           <ul className="mt-1 space-y-0.5 text-[12px] text-slate-600">
@@ -55,7 +95,7 @@ export function PricingPanel({ rep, property, readOnly }: { rep: RepeatEstimate;
 
         {discounts.map((j) => (
           <Banner key={j!.id} tone="info" title="Historical discount not carried forward">
-            {j!.id} had a {j!.discountPct}% {j!.discountNote?.toLowerCase() ?? "discount"}. This quote is priced at today's rates with no discount.
+            {j!.id} had a {j!.discountPct}% {j!.discountNote?.toLowerCase() ?? "discount"}. {mode === "previous" ? "Last time's prices are kept, but the discount is not." : "This quote is priced at today's rates with no discount."}
           </Banner>
         ))}
 
@@ -131,6 +171,19 @@ export function PricingPanel({ rep, property, readOnly }: { rep: RepeatEstimate;
           />
         </div>
       </div>
+      <ConfirmDialog
+        open={!!switchTo}
+        onOpenChange={(v) => !v && setSwitchTo(undefined)}
+        title={switchTo === "previous" ? "Keep last time's pricing?" : "Update to current pricing?"}
+        body={pv && `${pv.changed} line price${pv.changed === 1 ? "" : "s"} will change and need reconfirming. New subtotal before tax: ${money(pv.subtotal)}.${switchTo === "previous" && pv.withoutPrevious ? ` ${pv.withoutPrevious} surface(s) have no earlier price and keep current pricing.` : ""}`}
+        confirmLabel={switchTo === "previous" ? "Keep last time's pricing" : "Update to current pricing"}
+        onConfirm={() => {
+          if (!switchTo) return;
+          const r = act(setPricingMode, rep.id, switchTo);
+          if (r.ok) toast.success(switchTo === "previous" ? "Last time's pricing kept" : "Updated to current pricing", `${r.value?.changed ?? 0} line price(s) set. Reconfirm the changed lines.`);
+          setSwitchTo(undefined);
+        }}
+      />
     </Card>
   );
 }
