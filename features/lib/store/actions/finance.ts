@@ -37,7 +37,7 @@ const COST_TYPES: FinanceRecordType[] = ["bill", "receipt", "check"];
 
 /** Is this record a live cost (not a settlement, not deleted, not an overhead-only record)? */
 function isCost(r: FinanceRecord) {
-  return COST_TYPES.includes(r.type) && !r.deletedInQbo && !r.approvalRequest;
+  return COST_TYPES.includes(r.type) && !r.deletedInQbo && !r.approvalRequest && !r.voidedAt;
 }
 
 export interface JobFinancials {

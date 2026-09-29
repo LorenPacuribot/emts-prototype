@@ -2556,7 +2556,7 @@ export interface PaintPassport {
 export interface Notification {
   id: ID;
   userId: ID;
-  kind: "estimate_accepted";
+  kind: "estimate_accepted" | "finance_alert" | "campaign";
   title: string;
   body: string;
   /** Page the notification opens. */

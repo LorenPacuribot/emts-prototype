@@ -12,10 +12,21 @@
  *   kept in overhead, a deposit still held as a liability, a $2,640 payment
  *   waiting for owner approval, and a correction posted out of a closed month.
  * - Reimbursements at each step, including a suspected duplicate.
+ * - Books (patent 33): an operating account register with checks 1188-1190,
+ *   bank and card feed lines to review (one matches check 1188, one is a
+ *   transfer to exclude), four recurring overheads and a fuel-spend alert.
  */
 import type { AccountMapping, CostCode, EstimateBaseline, ExchangeItem, FinanceRecord, MigrationTotal, ReimbursementClaim, Vendor } from "@/features/types";
+import type { BankAccount, FeedTransaction, FinanceAlertRule, RecurringExpense, RegisterEntry } from "@/features/types/finance";
 import { addDays, addMonths } from "@/features/lib/rules/dates";
 import { lastExchangeRun, periodOf } from "@/features/lib/rules/finance";
+
+/** Overhead codes the recurring expenses use (also added to older saved data, see books.ts). */
+export const BOOK_COST_CODES = [
+  { code: "INS", label: "Insurance — overhead" },
+  { code: "OCC", label: "Rent and occupancy — overhead" },
+  { code: "OFFICE", label: "Office and software — overhead" },
+];
 
 export function financeSeed(nowIso: string) {
   const d = (days: number) => addDays(nowIso, days);
@@ -47,6 +58,7 @@ export function financeSeed(nowIso: string) {
     r({ id: "FIN-9", type: "receipt", ref: "Receipt 0544-31877", externalRef: "QBO-RCT-9120", party: "Home Depot #0544 — drop cloths and tape", amount: 86.4, purchaseTax: 7.13, date: d(-5), origin: "quickbooks" }),
     r({ id: "FIN-10", type: "receipt", ref: "Receipt 7248-40211", externalRef: "QBO-RCT-9118", party: "Sherwin-Williams #7248 — caulk and sundries for three jobs", amount: 214.37, purchaseTax: 17.69, date: d(-8), origin: "quickbooks" }),
     r({ id: "FIN-11", type: "check", ref: "Check 1188", externalRef: "QBO-CHK-1188", party: "Sunbelt Rentals — boom lift deposit", amount: 450, date: d(-9), jobId: "JOB-2026-1", costCode: "RENT", origin: "quickbooks", deletedInQbo: { at: d(-1) } }),
+    r({ id: "FIN-17", type: "check", ref: "Check 1189", party: "Brightline Drywall", vendorId: "VEN-3", amount: 600, date: d(-12), jobId: "JOB-2026-5", costCode: "SUB", origin: "estimate_master", paymentMethod: "check", checkId: "REG-3", memo: "Drywall repair before paint" }),
     r({ id: "FIN-12", type: "receipt", ref: "Fuel card 3391", externalRef: "QBO-RCT-9125", party: "Shell — crew truck fuel", amount: 96.12, date: d(-2), costCode: "VEH", allocations: [{ overhead: true, amount: 96.12 }], origin: "quickbooks" }),
     r({ id: "FIN-14", type: "check", ref: "Check 1190", party: "Sherwin-Williams — September statement", amount: 2640.18, date: d(-1), origin: "estimate_master", approvalRequest: { by: "U-OFFICE", at: d(-1) }, note: "Above $2,500 — owner approval captured before it is recorded." }),
     { id: "FIN-15", type: "credit", ref: "COR-AUG-SUND", party: "Correction", amount: 45, date: midLastMonth, period: p(nowIso), postedFromClosedPeriod: lastMonth, jobId: "JOB-2026-1", origin: "estimate_master", note: "Sundries double-charged in a closed month. Posted to the current period." },
@@ -88,6 +100,39 @@ export function financeSeed(nowIso: string) {
     { code: "RENT", label: "Equipment rental", status: "approved", proposedBy: "U-BOOK", approvedBy: "U-OWNER", approvedAt: d(-400) },
     { code: "VEH", label: "Vehicles and equipment — overhead", status: "approved", proposedBy: "U-BOOK", approvedBy: "U-OWNER", approvedAt: d(-400) },
     { code: "WARR", label: "Warranty rework", status: "proposed", proposedBy: "U-BOOK" },
+    ...BOOK_COST_CODES.map((c) => ({ ...c, status: "approved" as const, proposedBy: "U-BOOK", approvedBy: "U-OWNER", approvedAt: d(-400) })),
+  ];
+
+  const bankAccounts: BankAccount[] = [
+    { id: "BA-1", name: "Operating checking", kind: "checking", last4: "4471", openingBalance: 18250, openingDate: d(-40), nextCheckNumber: 1191 },
+    { id: "BA-2", name: "Company Visa", kind: "credit_card", last4: "4417", openingBalance: 0, openingDate: d(-40) },
+  ];
+  const reg = (x: Omit<RegisterEntry, "accountId" | "createdBy" | "createdAt">): RegisterEntry => ({ accountId: "BA-1", createdBy: "U-OFFICE", createdAt: x.date, ...x });
+  const checkRegister: RegisterEntry[] = [
+    reg({ id: "REG-1", kind: "deposit", payee: "Korah Singer", amount: 4553.2, date: d(-38), purpose: "Check 5521 — INV-2026-1", status: "cleared", clearedAt: d(-36) }),
+    reg({ id: "REG-2", kind: "check", number: 1188, payee: "Sunbelt Rentals", vendorId: "VEN-2", amount: 450, date: d(-9), purpose: "Boom lift deposit", jobId: "JOB-2026-1", costCode: "RENT", recordId: "FIN-11", status: "written" }),
+    reg({ id: "REG-3", kind: "check", number: 1189, payee: "Brightline Drywall", vendorId: "VEN-3", amount: 600, date: d(-12), purpose: "Drywall repair before paint", jobId: "JOB-2026-5", costCode: "SUB", recordId: "FIN-17", status: "cleared", clearedAt: d(-10) }),
+    reg({ id: "REG-4", kind: "check", number: 1190, payee: "Sherwin-Williams", vendorId: "VEN-1", amount: 2640.18, date: d(-1), purpose: "September statement", recordId: "FIN-14", status: "written" }),
+  ];
+  const ftx = (x: Omit<FeedTransaction, "status" | "origin" | "importedAt">): FeedTransaction => ({ status: "unreviewed", origin: "sandbox", importedAt: d(0), ...x });
+  const feedTransactions: FeedTransaction[] = [
+    ftx({ id: "FTX-1", source: "bank", accountId: "BA-1", externalId: "SBX-1", date: d(-6), description: "CHECK 1188", amount: -450 }),
+    ftx({ id: "FTX-2", source: "bank", accountId: "BA-1", externalId: "SBX-2", date: d(-3), description: "ONLINE TRANSFER TO SAVINGS 8820", amount: -2000 }),
+    ftx({ id: "FTX-3", source: "card", accountId: "BA-2", externalId: "SBX-3", date: d(-2), description: "GRACO PARTS DIRECT", amount: -129.99 }),
+    ftx({ id: "FTX-4", source: "card", accountId: "BA-2", externalId: "SBX-4", date: d(-1), description: "SHELL OIL 57442", amount: -96.12 }),
+    ftx({ id: "FTX-5", source: "card", accountId: "BA-2", externalId: "SBX-5", date: d(-1), description: "SUNBELT RENTALS RETURN CREDIT", amount: 75 }),
+  ];
+  const monthDay = (offsetDays: number) => d(offsetDays).slice(0, 10);
+  const rec = (x: Omit<RecurringExpense, "active" | "createdBy" | "createdAt">): RecurringExpense => ({ active: true, createdBy: "U-BOOK", createdAt: d(-120), ...x });
+  const recurringExpenses: RecurringExpense[] = [
+    rec({ id: "REC-1", name: "General liability insurance", kind: "insurance", payee: "Hartwell Mutual", amount: 412.5, costCode: "INS", frequency: "monthly", startDate: monthDay(-117), reminderDays: 5, paymentMethod: "ach" }),
+    rec({ id: "REC-2", name: "Crew truck lease", kind: "vehicle", payee: "Ford Credit", amount: 689, costCode: "VEH", frequency: "monthly", startDate: monthDay(-113), reminderDays: 3, paymentMethod: "ach" }),
+    rec({ id: "REC-3", name: "Shop and storage rent", kind: "rent", payee: "Northgate Storage", amount: 1150, costCode: "OCC", frequency: "monthly", startDate: monthDay(-89), reminderDays: 5, paymentMethod: "check" }),
+    rec({ id: "REC-4", name: "Estimate Master subscription", kind: "subscription", payee: "Estimate Master", amount: 149, costCode: "OFFICE", frequency: "monthly", startDate: monthDay(-100), reminderDays: 2, paymentMethod: "card" }),
+  ];
+  const financeAlertRules: FinanceAlertRule[] = [
+    { id: "FAR-1", name: "Fuel and vehicle spend over $600 this month", metric: "category_spend", comparator: "above", threshold: 600, period: "month", costCode: "VEH", active: true, createdBy: "U-OWNER", createdAt: d(-60) },
+    { id: "FAR-2", name: "Revenue below $10,000 this month", metric: "revenue", comparator: "below", threshold: 10000, period: "month", active: true, createdBy: "U-OWNER", createdAt: d(-60) },
   ];
 
   const accountMappings: AccountMapping[] = [
@@ -120,6 +165,14 @@ export function financeSeed(nowIso: string) {
   return {
     financeRecords,
     exchangeQueue,
+    bankAccounts,
+    checkRegister,
+    feedTransactions,
+    recurringExpenses,
+    recurringOccurrences: [],
+    financeAlertRules,
+    financeNotices: [],
+    otherIncome: [],
     reimbursements,
     vendors,
     costCodes,
@@ -133,6 +186,6 @@ export function financeSeed(nowIso: string) {
       migrationSignOff: { by: "U-BOOK", at: d(-60), batchId: "MIG-1" },
       jurisdiction: "Dallas County, TX",
     },
-    counters: { fin: 16, exq: 7, rmb: 4, ven: 5 },
+    counters: { fin: 17, exq: 7, rmb: 4, ven: 5, reg: 4, ftx: 5, rec: 4, far: 2 },
   };
 }

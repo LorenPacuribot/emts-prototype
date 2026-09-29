@@ -11,7 +11,7 @@
  * approve crew claims.
  */
 import type { ReactNode } from "react";
-import { ArrowLeftRight, BarChart3, BookOpen, FileCheck2, Inbox, Landmark, Lock, ReceiptText, Settings2 } from "lucide-react";
+import { ArrowLeftRight, BarChart3, Bell, BookOpen, FileCheck2, Inbox, Landmark, Lock, ReceiptText, Repeat, Search, Settings2, Wallet, Waves } from "lucide-react";
 import type { User } from "@/features/types";
 import { useCurrentUser, useDb } from "@/features/lib/store";
 import { can } from "@/features/lib/permissions";
@@ -30,6 +30,11 @@ export const FINANCE_TABS = [
   { key: "unallocated", label: "Unallocated", path: "/accounting/unallocated", icon: Inbox },
   { key: "bills", label: "Bills & Matching", path: "/accounting/bills", icon: FileCheck2 },
   { key: "reimbursements", label: "Reimbursements", path: "/accounting/reimbursements", icon: ReceiptText },
+  { key: "checkbook", label: "Checkbook", path: "/accounting/checkbook", icon: Wallet },
+  { key: "feeds", label: "Bank & Card Feeds", path: "/accounting/feeds", icon: Waves },
+  { key: "recurring", label: "Recurring", path: "/accounting/recurring", icon: Repeat },
+  { key: "alerts", label: "Alerts", path: "/accounting/alerts", icon: Bell },
+  { key: "search", label: "Search", path: "/accounting/search", icon: Search },
   { key: "reports", label: "Reports", path: "/reports?tab=job_margin", icon: BarChart3 },
   { key: "setup", label: "Vendors & Mappings", path: "/settings/accounting", icon: Settings2 },
 ] as const;
@@ -49,6 +54,8 @@ export function FinanceFrame({ tab, children }: { tab: FinanceTabKey; children: 
   const rejected = db.exchangeQueue.filter((q) => q.status === "rejected" && !q.supersededBy).length;
   const toCode = unallocated(db).length;
   const claims = db.reimbursements.filter((c) => ["submitted", "crew_approved", "office_reviewed"].includes(c.status)).length;
+  const toReview = (db.feedTransactions ?? []).filter((t) => t.status === "unreviewed").length;
+  const alerts = (db.financeNotices ?? []).filter((n) => !n.dismissedAt && !n.readAt && n.severity !== "info").length;
 
   if (tab === "setup") {
     return (
@@ -76,7 +83,7 @@ export function FinanceFrame({ tab, children }: { tab: FinanceTabKey; children: 
               title: "Accounting",
               items: FINANCE_TABS.filter((t) => t.key !== "setup" && canSeeFinanceTab(user, t.key)).map((t) => ({
                 href: t.path, label: t.label, icon: t.icon,
-                badge: t.key === "queue" ? rejected || undefined : t.key === "unallocated" ? toCode || undefined : t.key === "reimbursements" ? claims || undefined : undefined,
+                badge: t.key === "queue" ? rejected || undefined : t.key === "unallocated" ? toCode || undefined : t.key === "reimbursements" ? claims || undefined : t.key === "feeds" ? toReview || undefined : t.key === "alerts" ? alerts || undefined : undefined,
               })),
             },
           ]}
