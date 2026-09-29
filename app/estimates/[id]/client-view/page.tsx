@@ -66,14 +66,17 @@ function ClientView() {
   const { items: presentations } = useCollection('presentations');
   const { update } = useCollection('estimates');
   const params = useSearchParams();
-  const { session } = useDemoSession();
+  const { session, ready } = useDemoSession();
   // Staff opening it from the app (Open Customer View) is a preview, not a customer visit.
   const staffPreview = params.get('preview') === '1';
+  // Customers need the estimate's secure token (?t=), which rotates on re-approval;
+  // the estimate number alone is guessable. Signed-in staff can always open it.
+  const allowed = !!session || (!!twin?.publicToken && params.get('t') === twin.publicToken);
 
   // Every customer open is recorded (first open and return visits, patent 12); the first one also marks it Viewed.
   const marked = useRef(false);
   useEffect(() => {
-    if (!e || marked.current || staffPreview) return;
+    if (!e || !ready || !allowed || marked.current || staffPreview) return;
     marked.current = true;
     const at = new Date().toISOString();
     const viewLog = appendView(viewLogOf(e), at);
@@ -84,9 +87,10 @@ function ClientView() {
     } else if (viewLog.length > 1) {
       log(`${e.estimateNumber} opened again by ${fullName(customer)} (view ${viewLog.length})`, 'estimate', e.id);
     }
-  }, [e, actions, log, customer, update, staffPreview]);
+  }, [e, actions, log, customer, update, staffPreview, ready, allowed]);
 
-  if (!e) {
+  if (!ready) return null;
+  if (!e || !allowed) {
     return (
       <div className="fixed inset-0 z-[70] flex items-center justify-center bg-gray-100 p-6">
         <EmptyState icon={<FileQuestion />} title="Estimate not found" message="This link is no longer valid. Please contact your contractor." />

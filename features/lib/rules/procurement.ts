@@ -19,6 +19,7 @@ import {
 } from "./materials";
 import { demandBalance, type DemandBalance } from "./demand";
 import { roundHalfUp, roundMoney } from "./rounding";
+import { appliedChangeOrderLines, lineMatchesSpec } from "./change-order-effects";
 import { classifyChange, type Selection } from "./change-rule";
 import { ackClock, DAY_MS } from "./dates";
 
@@ -138,9 +139,20 @@ export function specDemand(db: Database, spec: SpecLine): DemandLine {
       };
     });
 
+  // Patent 24: approved change orders whose materials step succeeded add (or give back) area on this colour.
+  const kind = parts.some((p) => p.kind === "exterior") ? "exterior" : "interior";
+  for (const l of appliedChangeOrderLines(db, spec.jobId, "materials")) {
+    if (!(l.sqft && l.sqft > 0) || !lineMatchesSpec(db, l, spec)) continue;
+    const sqft = l.kind === "remove" ? -l.sqft : l.sqft;
+    parts.push({
+      surfaceId: `${l.coId}:${l.id}`, name: l.description, areaName: `Change order ${l.coId}`, kind, condition: "sound",
+      sqft, coatSqft: sqft * coats, rate: soundRate, source: soundRate > 0 ? source : "missing", baseNeedGal: soundRate > 0 ? (sqft * coats) / soundRate : 0,
+    });
+  }
+
   const measuredSqft = parts.reduce((a, p) => a + p.sqft, 0);
   const coatSqft = parts.reduce((a, p) => a + p.coatSqft, 0);
-  const baseNeedGal = parts.reduce((a, p) => a + p.baseNeedGal, 0);
+  const baseNeedGal = Math.max(0, parts.reduce((a, p) => a + p.baseNeedGal, 0));
   const ruleWaste = wasteAllowance({ kind: parts.some((p) => p.kind === "exterior") ? "exterior" : "interior", conditions: parts.map((p) => p.condition) });
   const waste = wasteOverride?.value ?? ruleWaste;
   const unroundedNeedGal = baseNeedGal * (1 + waste);

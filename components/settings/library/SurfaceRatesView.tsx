@@ -170,7 +170,17 @@ export function SurfaceRatesView() {
                     <tbody className="divide-y divide-gray-100">
                       {list.map((r) => (
                         <tr key={r.id} className="transition-colors hover:bg-primary-50/20">
-                          <td className="px-6 py-4 text-sm font-bold text-gray-900">{r.name}</td>
+                          <td className="px-6 py-4 text-sm font-bold text-gray-900">
+                            {r.name}
+                            {r.feedback && (
+                              <span
+                                className="mt-1 block w-fit rounded-md bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700"
+                                title={`Coat 1 was ${r.feedback.previous.rateCoat1}/hr before ${r.feedback.rateId} v${r.feedback.version}`}
+                              >
+                                Updated from feedback {new Date(r.feedback.at).toLocaleDateString()} ({r.feedback.pct >= 0 ? '+' : ''}{r.feedback.pct}%)
+                              </span>
+                            )}
+                          </td>
                           <td className="px-6 py-4">
                             <span className="rounded-md border border-gray-200 bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-gray-600">{UNIT_LABELS[r.unit] ?? r.unit}</span>
                           </td>
@@ -214,7 +224,9 @@ export function SurfaceRatesView() {
         defaultGroup={defaultGroup}
         onSave={(data) => {
           if (editingRate) {
-            rates.update(editingRate.id, data);
+            // A rate changed by hand is no longer the feedback value, so its label goes.
+            const byHand = (['rateCoat1', 'rateCoat2', 'rateCoat3', 'rateCoat4'] as const).some((k) => data[k] !== editingRate[k]);
+            rates.update(editingRate.id, byHand ? { ...data, feedback: undefined } : data);
             toast('Surface rate updated successfully');
           } else {
             rates.add({ ...data, sortOrder: nextSort(rates.items) });

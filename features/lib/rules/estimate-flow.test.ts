@@ -7,6 +7,7 @@ import {
   markEstimateApproved, openPublicEstimate, saveEstimate, sendEstimate, sendForReapproval, updateEstimateDetails,
 } from "@/features/lib/store/actions/estimates";
 import { addColour, saveSpec } from "@/features/lib/store/actions/color-card";
+import { markNotificationRead } from "@/features/lib/store/actions/notifications";
 import { PRIMER_NONE_SOUND } from "@/features/types";
 
 const NOW = "2026-06-10T15:00:00.000Z";
@@ -92,7 +93,20 @@ describe("Estimate flow — lead → estimate → accept → job, work order and
     expect(db.leads.find((l) => l.id === "LEAD-2026-10")!.stage).toBe("pending");
   });
 
-  it("customer acceptance creates the job, a Pending Deposit work order and a draft deposit invoice", () => {
+  it("the draft invoice exists even at 0% deposit", () => {
+    let { db, estimateId, jobId } = draftEstimate();
+    db = { ...db, financialSettings: { ...db.financialSettings!, depositPercent: 0 } };
+    db = run(db, "U-EST", sendEstimate, estimateId).db;
+    const token = db.estimates.find((e) => e.id === estimateId)!.publicToken!;
+    db = run(db, "U-EST", acceptEstimateByToken, token, { signatureName: "Olivia Bennett", signed: true }).db;
+    const inv = db.invoices.find((i) => i.jobId === jobId)!;
+    expect(inv.status).toBe("draft");
+    expect(inv.amount).toBeCloseTo(db.estimates.find((e) => e.id === estimateId)!.total, 2);
+    expect(inv.depositDue).toBeUndefined();
+    expect(db.workOrders.find((w) => w.jobId === jobId)!.status).toBe("UNSCHEDULED");
+  });
+
+  it("customer acceptance creates the job, a Pending Deposit work order and a draft invoice for the accepted scope", () => {
     let { db, estimateId, jobId } = draftEstimate();
     db = run(db, "U-EST", sendEstimate, estimateId).db;
     const token = db.estimates.find((e) => e.id === estimateId)!.publicToken!;
@@ -109,7 +123,15 @@ describe("Estimate flow — lead → estimate → accept → job, work order and
     expect(db.workOrders.find((w) => w.jobId === jobId)!.status).toBe("PENDING_DEPOSIT");
     const inv = db.invoices.find((i) => i.jobId === jobId)!;
     expect(inv.status).toBe("draft");
-    expect(inv.amount).toBeCloseTo(est.total * 0.3333, 1);
+    expect(inv.amount).toBeCloseTo(est.total, 2);
+    expect(inv.lines!.length).toBeGreaterThan(0);
+    expect(inv.depositDue).toBeCloseTo(est.total * 0.3333, 1);
+    expect(inv.estimateId).toBe(estimateId);
+    const note = db.notifications!.find((n) => n.kind === "estimate_accepted" && n.userId === est.estimatorId)!;
+    expect(note.href).toBe(`/estimates/${estimateId}`);
+    expect(note.readAt).toBeUndefined();
+    expect(run(db, est.estimatorId!, markNotificationRead, note.id).db.notifications!.find((n) => n.id === note.id)!.readAt).toBeDefined();
+    expect(run(db, "U-CREW", markNotificationRead, note.id).result.ok).toBe(false);
     expect(db.leads.find((l) => l.id === "LEAD-2026-10")!.stage).toBe("sold");
   });
 

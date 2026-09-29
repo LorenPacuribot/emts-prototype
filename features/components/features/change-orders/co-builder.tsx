@@ -10,7 +10,7 @@ import {
   RefreshCw, Receipt, RotateCcw, Scissors, Send, ShieldCheck, Siren, Trash2, UserCheck, Wrench, XCircle,
 } from "lucide-react";
 import type { ApprovalLink, ChangeOrder, ChangeOrderLine, DownstreamKey } from "@/features/types";
-import { act, useCurrentUser, useDb } from "@/features/lib/store";
+import { act, useCurrentUser, useDb, useStore } from "@/features/lib/store";
 import { can } from "@/features/lib/permissions";
 import { byId } from "@/features/lib/selectors";
 import { date, dateLong, dateTime, money, relDays } from "@/features/lib/format";
@@ -23,9 +23,9 @@ import {
 import {
   coLinkState, coLinks, coPricing, coTaxRate, coVersion, currentLink, DOWNSTREAM_KEYS, DOWNSTREAM_LABEL, markReconciled, ownerApprove, ownerReturn,
   recordCustomerCall, recordDispute, recordRefundChoice, recordWrittenConfirmation, removeLine, reopenAsNewVersion, retryDownstream, scopeVersion,
-  sendBlock, setDiscount, simulateSignerChange, simulateUndeliverable, submitForInternalApproval,
+  sendBlock, setDiscount, applyChangeOrder, applyPreview, simulateSignerChange, simulateUndeliverable, submitForInternalApproval,
 } from "@/features/lib/store/actions/change-orders";
-import { Badge, Banner, Button, ConfirmDialog, Drawer, EmptyState, IdChip, Input, KV, RowMenu, Tooltip } from "@/features/components/ui";
+import { Badge, Banner, Button, ConfirmDialog, Drawer, EmptyState, Field, IdChip, Input, KV, RowMenu, Select, Tooltip } from "@/features/components/ui";
 import { DownstreamBadge, EmergencyBadge, Section, StatusBadge, TypeBadge } from "./shared";
 import { DecisionModal, EmergencyModal, LineModal, NoteModal, SendModal, SplitModal, VerifyRecipientModal } from "./co-modals";
 import { CustomerLinkModal, PresentationModal } from "./co-document";
@@ -464,8 +464,9 @@ function BuilderBody({ co, onOpenCo }: { co: ChangeOrder; onOpenCo: (id: string)
         <EmergencyPanel co={co} total={p.total} canPrice={canPrice} canBuild={canBuild} canDecide={canDecide} onRaise={() => setEmergency(true)} onWritten={() => setNote("written")} onCall={() => setNote("call")} />
       )}
 
-      {/* ---------- Downstream ---------- */}
-      {signed && (
+      {/* ---------- Apply Change Order (patent 24 step 6), then downstream status ---------- */}
+      {co.status === "approved" && !co.appliedAt && <ApplyPanel co={co} canDecide={canDecide} canPrice={canPrice} />}
+      {signed && (co.appliedAt || co.status !== "approved") && (
         <Section title="Downstream updates" icon={<RefreshCw />}>
           {DOWNSTREAM_KEYS.every((k) => co.downstream[k] === "done") ? (
             <Banner tone="success" className="mb-3" title="All four downstream actions succeeded">Work order, material demand, scheduler task and billing action are complete.</Banner>
@@ -704,6 +705,63 @@ function EmergencyPanel({ co, total, canPrice, canBuild, canDecide, onRaise, onW
           ...(canPrice ? ([["Amount", `${money(e.amount ?? total)} (below $500.00)`]] as [string, string][]) : []),
         ]}
       />
+    </Section>
+  );
+}
+
+/** Patent 24: "Once approved, click Apply Change Order." Shows what will change first. */
+function ApplyPanel({ co, canDecide, canPrice }: { co: ChangeOrder; canDecide: boolean; canPrice: boolean }) {
+  const db = useDb((d) => d);
+  const [failAction, setFailAction] = useState<"" | DownstreamKey>("");
+  const pv = applyPreview(db, co.id);
+  if (!pv) return null;
+  const billing =
+    pv.billingDeferred ? "Waits for the customer's written confirmation of the emergency work"
+    : pv.billing === "draft_update" ? `Adds a change-order line to draft invoice ${pv.invoiceId}`
+    : pv.billing === "supplemental" ? "Creates a supplemental invoice"
+    : pv.billing === "credit_note" ? "Creates a credit note"
+    : pv.billing === "account_credit" ? "Raises an account credit"
+    : "No invoice yet, so billing does not change";
+  const rows: [React.ReactNode, string, string][] = [
+    [<Wrench key="w" className="h-4 w-4" />, "Work order", `${pv.lines} line${pv.lines === 1 ? "" : "s"} added to the Work Order tab`],
+    [<CalendarClock key="c" className="h-4 w-4" />, "Schedule", pv.hours ? `Required hours ${pv.hours > 0 ? "+" : ""}${pv.hours} h; the scheduler is asked to review${pv.linesWithoutHours ? ` (${pv.linesWithoutHours} line${pv.linesWithoutHours === 1 ? " has" : "s have"} no labour hours)` : ""}` : "No labour hours on the lines, so required hours stay the same; the scheduler is asked to review"],
+    [<ClipboardList key="m" className="h-4 w-4" />, "Materials", `Paint demand revised for ${pv.sqft}${pv.unmatchedPaint ? `; ${pv.unmatchedPaint} line${pv.unmatchedPaint === 1 ? " has" : "s have"} no matching colour on the card` : ""}`],
+    [<Receipt key="b" className="h-4 w-4" />, "Invoice", canPrice ? `${billing} (${money(pv.total, { cents: true })})` : billing],
+  ];
+  const apply = () => {
+    const r = act(applyChangeOrder, co.id, { failAction: failAction || undefined });
+    if (!r.ok) return;
+    const after = byId(useStore.getState().db.changeOrders, co.id);
+    const failed = DOWNSTREAM_KEYS.filter((k) => after?.downstream[k] === "failed");
+    if (failed.length) toast.error("Change order applied with a failure", `${failed.map((k) => DOWNSTREAM_LABEL[k]).join(", ")} failed. Retry it below.`);
+    else toast.success("Change order applied", "Work order, schedule, materials and invoice updated.");
+  };
+  return (
+    <Section title="Apply Change Order" icon={<CheckCircle2 />}>
+      <Banner tone="info" className="mb-3" title={`Approved by ${co.signer ?? "the customer"}${co.decidedAt ? ` on ${dateLong(co.decidedAt)}` : ""}`}>
+        Nothing on the job has changed yet. Applying updates the items below. Each step that fails can be retried on its own.
+      </Banner>
+      <div className="divide-y divide-line rounded-lg border border-line">
+        {rows.map(([icon, label, text]) => (
+          <div key={label} className="flex items-start gap-3 px-3 py-3">
+            <span className="mt-0.5 text-slate-400">{icon}</span>
+            <div className="min-w-0"><div className="font-semibold text-ink">{label}</div><div className="text-[12px] text-slate-500">{text}</div></div>
+          </div>
+        ))}
+      </div>
+      {canDecide ? (
+        <div className="mt-3 flex flex-wrap items-end gap-3">
+          <Button variant="primary" onClick={apply}><CheckCircle2 className="h-4 w-4" /> Apply Change Order</Button>
+          <Field label="Demo: simulate a failure" htmlFor="apply-fail" className="min-w-52">
+            <Select id="apply-fail" value={failAction} onChange={(e) => setFailAction(e.target.value as DownstreamKey | "")}>
+              <option value="">None — all four succeed</option>
+              {DOWNSTREAM_KEYS.map((k) => <option key={k} value={k}>{DOWNSTREAM_LABEL[k]} fails</option>)}
+            </Select>
+          </Field>
+        </div>
+      ) : (
+        <p className="mt-3 text-[12px] text-slate-500">The owner or office manager applies approved change orders. Your role can view only.</p>
+      )}
     </Section>
   );
 }

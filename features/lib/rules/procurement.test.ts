@@ -49,8 +49,25 @@ describe("18.1 — demand calculation", () => {
     const line = specDemand(db, db.specs.find((s) => s.id === "SPEC-7")!);
     expect(line.blocked.join(" ")).toContain("Living Room · Ceiling");
   });
+  it("an applied change order adds its area to the matching colour; a pending one adds nothing", () => {
+    const db = fresh();
+    db.changeOrders = db.changeOrders.filter((c) => c.jobId !== db.specs.find((s) => s.id === "SPEC-6")!.jobId);
+    const base = specDemand(db, db.specs.find((s) => s.id === "SPEC-6")!).baseNeedGal;
+    const spec = db.specs.find((s) => s.id === "SPEC-6")!;
+    const co = {
+      ...db.changeOrders[0]!, id: "CO-T", jobId: spec.jobId, status: "approved" as const,
+      lines: [{ id: "L1", kind: "add" as const, description: "Closet", sqft: 190, cost: 300, colour: "Agreeable Gray SW 7029" }],
+      downstream: { work_order: "done" as const, materials: "not_started" as const, scheduler: "done" as const, billing: "done" as const },
+    };
+    db.changeOrders.push(co);
+    expect(specDemand(db, spec).baseNeedGal).toBeCloseTo(base, 9);
+    co.downstream.materials = "done" as never;
+    // 190 sq ft × 2 coats / 380 = 1 gal more
+    expect(specDemand(db, spec).baseNeedGal).toBeCloseTo(base + 1, 9);
+  });
   it("carries full precision and rounds once to three decimals (Rule 6)", () => {
     const db = fresh();
+    db.changeOrders = [];
     const line = specDemand(db, db.specs.find((s) => s.id === "SPEC-6")!);
     // 1,140 sq ft × 2 coats / 380 = 6 gal; × 1.05 = 6.3
     expect(line.baseNeedGal).toBeCloseTo(6, 9);

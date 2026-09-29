@@ -25,6 +25,9 @@ import { appendView } from '@/lib/estimate-views';
 import {
   amendBlockedReason, customerCanAccept, DEFAULT_DEPOSIT_PERCENT, depositAmount, firstWorkOrderStatus, isEditable, leadEligibleForEstimate,
 } from "@/features/lib/rules/estimate-lifecycle";
+import { contractInvoiceLine, invoiceLinesTotal, scopeInvoiceLines } from "@/features/lib/rules/invoice-lines";
+import { money } from "@/features/lib/format";
+import { acceptanceRecipients, notify } from "./notifications";
 import { approvalGaps } from "./color-card";
 import { issueBlockers, recordRepeatIssued, repPricing } from "./future-estimate";
 import { denied, fail, log, nextId, nextNumber, ok, randomRef } from "../helpers";
@@ -387,6 +390,10 @@ export function declineEstimateByToken(db: Database, _actor: User, token: string
 /* Acceptance: job, work order and draft invoice                       */
 /* ------------------------------------------------------------------ */
 
+function acceptedInvoiceScope(est: Estimate, job: Job, invoiceId: string) {
+  return est.pricingSnapshot ? scopeInvoiceLines(est.pricingSnapshot, invoiceId) : contractInvoiceLine(invoiceId, job.name, est.total);
+}
+
 function accept(db: Database, actor: User, est: Estimate, job: Job, opts: { trigger: string; by: "ORG_USER" | "CLIENT"; signer: string }) {
   const t = now();
   const first = !job.contractSigned;
@@ -408,18 +415,37 @@ function accept(db: Database, actor: User, est: Estimate, job: Job, opts: { trig
       statusHistory: [{ id: nextId(db, "wsh", "WSH-"), to: woStatus, by: actor.id, at: t, notes: "Created when the estimate was accepted." }],
     };
     db.workOrders.push(wo);
-    if (pct > 0) {
-      // The draft references the accepted estimate and its lead (estimate and lead numbers are their ids).
-      db.invoices.push({ id: nextId(db, "invoice", `INV-${year()}-`), jobId: job.id, estimateId: est.id, leadId: est.leadId, kind: "standard", status: "draft", amount: depositAmount(est.total, pct), createdAt: t });
-    }
+    // Patent 23: the draft always exists and carries the accepted scope; the deposit is requested against it.
+    const id = nextId(db, "invoice", `INV-${year()}-`);
+    const scope = acceptedInvoiceScope(est, job, id);
+    db.invoices.push({
+      id, jobId: job.id, estimateId: est.id, leadId: est.leadId, kind: "standard", status: "draft", createdAt: t,
+      ...scope, amount: invoiceLinesTotal(scope), depositDue: pct > 0 ? depositAmount(est.total, pct) : undefined,
+    });
   } else {
-    // Live: a draft invoice is updated in place when the amendment is re-signed.
+    // Live: a draft invoice is updated in place when the amendment is re-signed. Change-order lines stay.
     const draft = db.invoices.find((i) => i.jobId === job.id && i.status === "draft" && i.kind === "standard");
     if (draft) {
-      draft.amount = depositAmount(est.total, db.financialSettings?.depositPercent ?? DEFAULT_DEPOSIT_PERCENT);
+      const scope = acceptedInvoiceScope(est, job, draft.id);
+      draft.lines = [...(scope.lines ?? []), ...(draft.lines ?? []).filter((l) => l.changeOrderId)];
+      draft.taxRatePct = scope.taxRatePct;
+      draft.discount = scope.discount;
+      draft.amount = invoiceLinesTotal(draft);
+      const pct = db.financialSettings?.depositPercent ?? DEFAULT_DEPOSIT_PERCENT;
+      draft.depositDue = pct > 0 ? depositAmount(est.total, pct) : undefined;
       draft.estimateId ??= est.id;
       draft.leadId ??= est.leadId;
     }
+  }
+
+  if (opts.by === "CLIENT") {
+    const who = byId(db.customers, est.customerId)?.name ?? opts.signer;
+    notify(db, acceptanceRecipients(db, est.estimatorId), {
+      kind: "estimate_accepted",
+      title: `${who} accepted ${est.id}${reapproval ? " (amended)" : ""}`,
+      body: `${est.title} · ${money(est.total, { cents: true })} · signed by ${opts.signer}`,
+      href: `/estimates/${est.id}`,
+    });
   }
 
   // NEW (feature 3): the signature is the approval evidence for every

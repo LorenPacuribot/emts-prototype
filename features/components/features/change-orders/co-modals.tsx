@@ -2,7 +2,7 @@
 /** Forms used by the change-order builder (feature 24). Each validates inline and toasts on success. */
 import { useEffect, useMemo, useState } from "react";
 import { Camera, Scissors, Send, ShieldCheck } from "lucide-react";
-import type { ChangeOrder, ChangeOrderLine, ChangeOrderType, DownstreamKey, Job } from "@/features/types";
+import type { ChangeOrder, ChangeOrderLine, ChangeOrderType, Job } from "@/features/types";
 import { act, useCurrentUser, useDb } from "@/features/lib/store";
 import { can } from "@/features/lib/permissions";
 import { byId, surfaceLabel } from "@/features/lib/selectors";
@@ -12,7 +12,7 @@ import { now } from "@/features/lib/clock";
 import { CO_TYPE } from "@/features/lib/status";
 import { emergencyEligible, EMERGENCY_LIMIT, lineSell, writtenConfirmationStatus } from "@/features/lib/rules/change-orders";
 import {
-  allowedRecipients, classifyColourCheck, coPricing, createChangeOrder, createColourReapproval, currentLink, DOWNSTREAM_KEYS, DOWNSTREAM_LABEL,
+  allowedRecipients, classifyColourCheck, coPricing, createChangeOrder, createColourReapproval, currentLink,
   jobChangeOrders, raiseEmergency, recordApproval, recordRejection, reissueLink, saveLine, sendChangeOrder, specTintedOrOrdered, splitChangeOrder,
   verifyRecipient, type ColourCheckInput, type LineDraft,
 } from "@/features/lib/store/actions/change-orders";
@@ -525,7 +525,6 @@ export function DecisionModal({ co, onClose, onSplit }: { co?: ChangeOrder; onCl
   const [channel, setChannel] = useState<"portal" | "email">("portal");
   const [evidence, setEvidence] = useState("");
   const [reason, setReason] = useState("");
-  const [failAction, setFailAction] = useState<"" | DownstreamKey>("");
   const [error, setError] = useState<Err>(null);
   useEffect(() => {
     if (!co) return;
@@ -534,7 +533,6 @@ export function DecisionModal({ co, onClose, onSplit }: { co?: ChangeOrder; onCl
     setChannel(currentLink(co)?.channel ?? "portal");
     setEvidence("");
     setReason("");
-    setFailAction("");
     setError(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [co]);
@@ -543,10 +541,10 @@ export function DecisionModal({ co, onClose, onSplit }: { co?: ChangeOrder; onCl
   function submit() {
     const res =
       kind === "approved"
-        ? act(recordApproval, co!.id, { signer, channel, evidenceRef: evidence, failAction: failAction || undefined })
+        ? act(recordApproval, co!.id, { signer, channel, evidenceRef: evidence })
         : act(recordRejection, co!.id, { signer, reason });
     if (!res.ok) return setError({ field: res.field, message: res.error });
-    toast.success(kind === "approved" ? "Approval recorded" : "Rejection recorded", kind === "approved" ? "Downstream updates attempted." : "Dependent drafts were repriced.");
+    toast.success(kind === "approved" ? "Approval recorded" : "Rejection recorded", kind === "approved" ? "Next: Apply Change Order to update the work order, schedule, materials and invoice." : "Dependent drafts were repriced.");
     onClose();
   }
 
@@ -611,16 +609,6 @@ export function DecisionModal({ co, onClose, onSplit }: { co?: ChangeOrder; onCl
                 </Field>
                 <Field label="Evidence reference" required htmlFor="dc-ev" error={fe(error, "evidenceRef")} hint="Portal signature ID, or the email reply's date, time and sender.">
                   <Input id="dc-ev" value={evidence} invalid={!!fe(error, "evidenceRef")} onChange={(e) => setEvidence(e.target.value)} placeholder={channel === "portal" ? "Portal signature PS-…" : "Email reply 9/24 10:14 from …"} />
-                </Field>
-                <Field label="Demo: simulate a downstream failure" htmlFor="dc-fail" hint="Shows the exception list and retry path.">
-                  <Select id="dc-fail" value={failAction} onChange={(e) => setFailAction(e.target.value as DownstreamKey | "")}>
-                    <option value="">None — all four succeed</option>
-                    {DOWNSTREAM_KEYS.map((k) => (
-                      <option key={k} value={k}>
-                        {DOWNSTREAM_LABEL[k]} fails
-                      </option>
-                    ))}
-                  </Select>
                 </Field>
               </>
             ) : (

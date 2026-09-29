@@ -17,6 +17,7 @@ import type {
   Payment, TeamMember, TeamRole, WorkOrder,
 } from '@/lib/types';
 import { estimateTotals as protoTotals, surfaceHours, BASE_LABOR_RATE } from '@/features/lib/rules/estimate';
+import { changeOrderHours } from '@/features/lib/rules/change-order-effects';
 import { draftTotal } from '@/features/lib/store/actions/estimates';
 import { round2 } from '@/lib/calculations';
 
@@ -316,7 +317,8 @@ export function projectJob(db: P.Database, job: P.Job): Job {
   const sched = jobSchedule(db, job);
   const wo = db.workOrders.find((w) => w.jobId === job.id);
   const shift = wo?.shifts[0];
-  const hours = job.surfaceIds.length ? protoTotals(db, job).totalHours : 0;
+  // Approved change orders (scheduler step done) raise or lower the required hours (patent 15, 24).
+  const hours = round2((job.surfaceIds.length ? protoTotals(db, job).totalHours : 0) + changeOrderHours(db, job.id));
   return {
     id: job.id, jobNumber: job.id, title: job.name, customerId: job.customerId, estimateId: job.estimateId, leadId: job.leadId ?? est?.leadId,
     address: addressLine(prop), status: JOB_STATUS_R[job.status as Exclude<P.JobStatus, 'estimating'>] ?? 'Unscheduled',
@@ -362,8 +364,15 @@ export function projectInvoice(db: P.Database, inv: P.Invoice): Invoice {
   return {
     id: inv.id, invoiceNumber: inv.id, customerId: job?.customerId ?? '', jobId: inv.jobId, estimateId: job?.estimateId, leadId: est?.leadId,
     date: created, dueDate: localDay(due), status: INV_STATUS_R[inv.status],
-    lineItems: [{ id: `${inv.id}-L1`, description: `${INV_KIND[inv.kind]} · ${job?.name ?? inv.jobId}`, quantity: 1, rate: inv.amount }],
-    taxRate: 0, discount: 0, payments: projectPayments(inv), sentAt: inv.sentAt, history: [{ date: inv.createdAt, text: 'Invoice created' }],
-    invoiceType: inv.kind === 'standard' ? 'Deposit' : 'Progress',
+    ...projectInvoiceLines(inv, job?.name),
+    payments: projectPayments(inv), sentAt: inv.sentAt, history: [{ date: inv.createdAt, text: 'Invoice created' }],
+    // A scope invoice is the contract invoice: its first Send asks for the deposit percent.
+    invoiceType: inv.lines ? 'Final' : inv.kind === 'standard' ? 'Deposit' : 'Progress',
   };
+}
+
+/** The replica's line, tax and discount fields for a prototype invoice (scope lines when it has them). */
+export function projectInvoiceLines(inv: P.Invoice, jobName?: string): Pick<Invoice, 'lineItems' | 'taxRate' | 'discount'> {
+  if (inv.lines) return { lineItems: inv.lines.map((l) => ({ id: l.id, description: l.description, quantity: l.quantity, rate: l.rate })), taxRate: inv.taxRatePct ?? 0, discount: inv.discount ?? 0 };
+  return { lineItems: [{ id: `${inv.id}-L1`, description: `${INV_KIND[inv.kind]} · ${jobName ?? inv.jobId}`, quantity: 1, rate: inv.amount }], taxRate: 0, discount: 0 };
 }

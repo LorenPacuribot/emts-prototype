@@ -262,6 +262,21 @@ export interface Invoice {
   sentAt?: ISODate;
   /** Live Record Payment (RecordPaymentDto) entries. */
   payments?: { id: ID; amount: number; method: "check" | "cash" | "bank_transfer" | "credit_card" | "other"; reference?: string; notes?: string; at: ISODate; by: ID }[];
+  /** Pre-tax lines (accepted scope, extras, change orders). When set, amount = invoiceLinesTotal(this). */
+  lines?: InvoiceLine[];
+  taxRatePct?: number;
+  /** Flat discount taken off the lines before tax. */
+  discount?: number;
+  /** Deposit requested from the customer at acceptance (paid against this invoice). */
+  depositDue?: number;
+}
+
+export interface InvoiceLine {
+  id: ID;
+  description: string;
+  quantity: number;
+  rate: number;
+  changeOrderId?: ID;
 }
 
 /* ------------------------------------------------------------------ */
@@ -1287,6 +1302,9 @@ export interface ChangeOrder {
   linkExpiresAt?: ISODate;
   signer?: string;
   decidedAt?: ISODate;
+  /** "Apply Change Order" (patent 24 step 6): when staff pushed the approved scope into the job. */
+  appliedAt?: ISODate;
+  appliedBy?: ID;
   emergency?: {
     authoriser: ID;
     verbalAt: ISODate;
@@ -2501,7 +2519,21 @@ export interface Database {
   mktRecommendationLog?: import("./marketing-growth").RecommendationLogEntry[];
   activity: ActivityEntry[];
   tasks: Task[];
+  notifications?: Notification[];
   counters: Record<string, number>;
+}
+
+/** A message for one staff member, shown under the header bell until read (patent 12). */
+export interface Notification {
+  id: ID;
+  userId: ID;
+  kind: "estimate_accepted";
+  title: string;
+  body: string;
+  /** Page the notification opens. */
+  href: string;
+  createdAt: ISODate;
+  readAt?: ISODate;
 }
 
 /** Standard result shape for store actions. */

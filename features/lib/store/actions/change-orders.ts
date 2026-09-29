@@ -17,6 +17,9 @@ import { byId, catalogFor } from "@/features/lib/selectors";
 import { dateLong, dateTime, money } from "@/features/lib/format";
 import { CO_TYPE } from "@/features/lib/status";
 import { roundMoney } from "@/features/lib/rules/rounding";
+import { invoiceLinesTotal } from "@/features/lib/rules/invoice-lines";
+import { lineLabourHours, lineMatchesSpec } from "@/features/lib/rules/change-order-effects";
+import { roundHalfUp } from "@/features/lib/rules/rounding";
 import { classifyChange, type ChangeDecision, type Selection } from "@/features/lib/rules/change-rule";
 import {
   addWorkingDays, billingMode, dependencyBlock, depositReview, emergencyEligible, isWorkingDay, linkExpiry, linkState,
@@ -244,14 +247,24 @@ function mainInvoice(db: Database, jobId: string): Invoice | undefined {
 function performDownstream(db: Database, actor: User, co: ChangeOrder, key: DownstreamKey): string | null {
   const job = byId(db.jobs, co.jobId)!;
   switch (key) {
-    case "work_order":
-      return `Work order ${job.id}-WO revised to scope v${scopeVersion(db, job.id)} (approved scope only)`;
-    case "materials":
-      return `Demand revised for ${sqftSummary(co)} — Materials tab`;
+    // Marking a step done is what applies it: the work-order scope, paint demand and
+    // required hours read the lines of change orders whose step is done (rules/change-order-effects).
+    case "work_order": {
+      const wo = db.workOrders.find((w) => w.jobId === job.id);
+      return `Work order ${wo?.id ?? job.id} scope v${scopeVersion(db, job.id)}: ${co.lines.length} change-order line${co.lines.length === 1 ? "" : "s"} added`;
+    }
+    case "materials": {
+      const specs = db.specs.filter((s) => s.jobId === job.id && s.state !== "superseded");
+      const paintLines = co.lines.filter((l) => (l.sqft ?? 0) > 0);
+      const unmatched = paintLines.filter((l) => l.kind === "add" && !specs.some((s) => lineMatchesSpec(db, l, s))).length;
+      return `Paint demand revised for ${sqftSummary(co)}${unmatched ? `; ${unmatched} line${unmatched === 1 ? " has" : "s have"} no matching colour on the card — add it before ordering` : ""} — Materials tab`;
+    }
     case "scheduler": {
+      const hours = roundHalfUp(co.lines.reduce((a, l) => a + lineLabourHours(db, l), 0), 2);
+      const change = hours ? `required hours ${hours > 0 ? "+" : ""}${hours} h` : "no labour hours on the lines";
       const taskId = nextId(db, "task", "T-");
-      db.tasks.unshift({ id: taskId, title: `Scheduler: review labour for ${co.id} on ${job.id} (${sqftSummary(co)}). Crews are not rescheduled automatically.`, done: false, createdAt: now() });
-      return `Task ${taskId} for the scheduler`;
+      db.tasks.unshift({ id: taskId, title: `Scheduler: review labour for ${co.id} on ${job.id} (${change}). Crews are not rescheduled automatically.`, done: false, createdAt: now() });
+      return `${change[0]!.toUpperCase()}${change.slice(1)}; task ${taskId} for the scheduler`;
     }
     case "billing": {
       if (co.emergency && !co.emergency.writtenConfirmedAt) return null; // billed only once confirmed in writing
@@ -261,7 +274,14 @@ function performDownstream(db: Database, actor: User, co: ChangeOrder, key: Down
       const mode = billingMode(total, inv?.status);
       let docId: string | undefined;
       if (mode === "draft_update" && inv) {
-        inv.amount = roundMoney(inv.amount + total);
+        if (inv.lines) {
+          // A pre-tax line that adds exactly the change order's total once the invoice's tax is applied.
+          const rate = roundMoney(total / (1 + (inv.taxRatePct ?? 0) / 100));
+          inv.lines.push({ id: `${inv.id}-${co.id}`, description: `Change order ${co.id} · ${co.title}`, quantity: 1, rate, changeOrderId: co.id });
+          inv.amount = invoiceLinesTotal(inv);
+        } else {
+          inv.amount = roundMoney(inv.amount + total);
+        }
         docId = inv.id;
         log(db, actor, MODULE, `Change Order ${co.id} – DraftUpdate ${inv.id} created by ${actor.name}`);
       } else if (mode === "supplemental" || mode === "credit_note" || mode === "account_credit") {
@@ -736,8 +756,6 @@ export interface ApprovalInput {
   signer: string;
   channel: "portal" | "email";
   evidenceRef: string;
-  /** Demo: make one downstream action fail so the recovery path can be shown. */
-  failAction?: DownstreamKey;
 }
 
 export function recordApproval(db: Database, actor: User, coId: string, input: ApprovalInput) {
@@ -772,7 +790,6 @@ function applyApproval(db: Database, actor: User, co: ChangeOrder, input: Approv
   co.decidedAt = at;
   co.evidence = { version: coVersion(co), signer: co.signer, channel: input.channel, ref: input.evidenceRef.trim(), at, recordedBy: actor.id };
   log(db, actor, MODULE, `Change Order ${co.id} v${coVersion(co)} approved by ${co.signer} via ${channelLabel(input.channel)} at ${dateTime(at)}. Evidence: ${co.evidence.ref}`);
-  runDownstream(db, actor, co, input.failAction);
   return ok();
 }
 
@@ -930,7 +947,6 @@ export function raiseEmergency(db: Database, actor: User, coId: string, input: E
   co!.decidedAt = input.verbalAt;
   co!.evidence = { version: coVersion(co!), signer: customer?.name ?? "Customer", channel: "verbal", ref: input.customerMessageRef.trim(), at: input.verbalAt, recordedBy: actor.id };
   log(db, actor, MODULE, `Change Order ${co!.id} – Emergency work ${money(p.total)} verbally authorised by ${authoriser.name} at ${dateTime(input.verbalAt)}. Written confirmation due ${dateLong(`${due}T12:00:00`)}`);
-  runDownstream(db, actor, co!);
   return ok();
 }
 
@@ -944,7 +960,7 @@ export function recordWrittenConfirmation(db: Database, actor: User, coId: strin
   co.emergency.writtenRef = ref.trim();
   co.emergency.workStopped = false;
   log(db, actor, MODULE, `Change Order ${co.id} – Written confirmation (${ref.trim()}) recorded by ${actor.name} at ${dateTime(now())}. Work may continue.`);
-  runDownstream(db, actor, co); // billing was deferred until now
+  if (co.appliedAt) runDownstream(db, actor, co); // billing was deferred until now
   return ok();
 }
 
@@ -958,6 +974,45 @@ export function recordCustomerCall(db: Database, actor: User, coId: string, note
   const task = db.tasks.find((t) => t.id === co.emergency!.callTaskId);
   if (task) task.done = true;
   log(db, actor, MODULE, `Change Order ${co.id} – Written confirmation missing after two working days. Escalated to owner; work stopped; customer called by ${actor.name}. Note: ${note.trim()}`);
+  return ok();
+}
+
+/* ================================================================== */
+/* Apply Change Order (patent 24 step 6)                               */
+/* ================================================================== */
+
+/** What applying the change order will change, shown before the click. */
+export function applyPreview(db: Database, coId: string) {
+  const co = getCo(db, coId);
+  if (!co) return undefined;
+  const job = byId(db.jobs, co.jobId);
+  const specs = db.specs.filter((s) => s.jobId === co.jobId && s.state !== "superseded");
+  const total = coPricing(db, co).total;
+  const inv = job ? mainInvoice(db, job.id) : undefined;
+  return {
+    lines: co.lines.length,
+    hours: roundHalfUp(co.lines.reduce((a, l) => a + lineLabourHours(db, l), 0), 2),
+    linesWithoutHours: co.lines.filter((l) => l.laborHours === undefined && !(l.kind === "remove" && l.surfaceId)).length,
+    sqft: sqftSummary(co),
+    unmatchedPaint: co.lines.filter((l) => l.kind === "add" && (l.sqft ?? 0) > 0 && !specs.some((s) => lineMatchesSpec(db, l, s))).length,
+    total,
+    billing: billingMode(total, inv?.status),
+    invoiceId: inv?.id,
+    billingDeferred: !!co.emergency && !co.emergency.writtenConfirmedAt,
+  };
+}
+
+/** Pushes an approved change order into the work order, schedule, materials and invoice. */
+export function applyChangeOrder(db: Database, actor: User, coId: string, opts: { failAction?: DownstreamKey } = {}) {
+  const co = getCo(db, coId);
+  if (!co) return fail("Change order not found.");
+  if (!can(actor, "co.recordDecision")) return denied(db, actor, MODULE, "apply a change order", whoCan("co.recordDecision"));
+  if (co.status !== "approved") return fail("Only an approved change order can be applied.");
+  if (co.appliedAt) return fail(`Already applied ${dateTime(co.appliedAt)}. Retry any failed step below.`);
+  co.appliedAt = now();
+  co.appliedBy = actor.id;
+  log(db, actor, MODULE, `Change Order ${co.id} applied to job ${co.jobId} by ${actor.name} at ${dateTime(co.appliedAt)}`);
+  runDownstream(db, actor, co, opts.failAction);
   return ok();
 }
 

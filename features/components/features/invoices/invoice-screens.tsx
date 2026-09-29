@@ -170,9 +170,19 @@ export function InvoiceDetailsScreen() {
             </div>
             <table className="mt-6 w-full text-sm">
               <thead><tr className="border-b border-gray-200 text-left text-xs uppercase tracking-wider text-gray-500"><th className="py-2">Item</th><th className="py-2 text-right">Price</th></tr></thead>
-              <tbody><tr className="border-b border-gray-100"><td className="py-2">{inv.kind === "standard" ? (inv.amount < (job?.contractValue ?? 0) ? "Deposit" : "Contract work") : inv.kind === "credit_note" ? "Credit note" : "Supplemental: change order"} {inv.changeOrderId && `(${inv.changeOrderId})`}</td><td className="py-2 text-right">{money(inv.amount, { cents: true })}</td></tr></tbody>
+              <tbody>
+                {inv.lines
+                  ? inv.lines.map((l) => <tr key={l.id} className="border-b border-gray-100"><td className="py-2">{l.description}{l.quantity !== 1 && ` × ${l.quantity}`}</td><td className="py-2 text-right">{money(l.quantity * l.rate, { cents: true })}</td></tr>)
+                  : <tr className="border-b border-gray-100"><td className="py-2">{inv.kind === "standard" ? (inv.amount < (job?.contractValue ?? 0) ? "Deposit" : "Contract work") : inv.kind === "credit_note" ? "Credit note" : "Supplemental: change order"} {inv.changeOrderId && `(${inv.changeOrderId})`}</td><td className="py-2 text-right">{money(inv.amount, { cents: true })}</td></tr>}
+              </tbody>
             </table>
-            <div className="mt-6 flex justify-end"><div className="w-64 space-y-1 text-sm"><div className="flex justify-between border-t-2 border-gray-900 pt-2 font-extrabold"><span>Total</span><span>{money(inv.amount, { cents: true })}</span></div><div className="flex justify-between text-gray-500"><span>Paid</span><span>{money(invoicePaid(inv), { cents: true })}</span></div></div></div>
+            <div className="mt-6 flex justify-end"><div className="w-64 space-y-1 text-sm">
+              {!!inv.discount && <div className="flex justify-between text-gray-500"><span>Discount</span><span>−{money(inv.discount, { cents: true })}</span></div>}
+              {!!inv.taxRatePct && <div className="flex justify-between text-gray-500"><span>Tax ({inv.taxRatePct}%)</span><span>{money(inv.amount - ((inv.lines ?? []).reduce((s, l) => s + l.quantity * l.rate, 0) - (inv.discount ?? 0)), { cents: true })}</span></div>}
+              <div className="flex justify-between border-t-2 border-gray-900 pt-2 font-extrabold"><span>Total</span><span>{money(inv.amount, { cents: true })}</span></div>
+              {inv.depositDue !== undefined && <div className="flex justify-between text-gray-500"><span>Deposit due</span><span>{money(inv.depositDue, { cents: true })}</span></div>}
+              <div className="flex justify-between text-gray-500"><span>Paid</span><span>{money(invoicePaid(inv), { cents: true })}</span></div>
+            </div></div>
             {job && <div className="no-print mt-6 text-xs text-gray-400">Job <AppLink href={jobHref(job.id)} className="font-semibold text-primary-700 hover:underline">{job.id}</AppLink></div>}
           </div>
 

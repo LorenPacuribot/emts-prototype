@@ -12,7 +12,7 @@
 import { useState } from "react";
 import { CalendarClock, Calculator, ClipboardCopy, Download, Gauge, History, ListChecks, RotateCcw, ShieldCheck, Undo2 } from "lucide-react";
 import type { ActionResult, RateRecord } from "@/features/types";
-import { act, useCurrentUser, useDb } from "@/features/lib/store";
+import { act, useCurrentUser, useDb, useStore } from "@/features/lib/store";
 import { useParam } from "@/features/lib/navigation";
 import { can } from "@/features/lib/permissions";
 import { byId } from "@/features/lib/selectors";
@@ -28,6 +28,26 @@ import { userName } from "@/features/lib/store/helpers";
 import { PanelHeader as PageHeader } from "@/features/components/features/contacts/details/panel-header";
 import { Badge, Banner, Button, Card, CardLabel, EmptyState, Field, Modal, PillTabs, Select, Stat, StatStrip, Table, TD, TH, THead, TR, Textarea } from "@/features/components/ui";
 import { ReportsFrame } from "./reports-frame";
+import { useCollection } from "@/lib/store";
+import { matchingSurfaceRates, scaledRates } from "@/lib/feedback-rates";
+
+/** Moves the Surface Rates matching a productivity record by the same proportion (patent 30). */
+function useSurfaceRateUpdate() {
+  const rates = useCollection("surfaceRates");
+  const preview = (rate: RateRecord) => (rate.kind === "productivity" ? matchingSurfaceRates(rates.items, rate.comboKey) : []);
+  const apply = (rate: RateRecord, from: number, to: number, version: number): string => {
+    if (rate.kind !== "productivity") return "Coverage is set per product in Settings → Paint Library.";
+    const targets = preview(rate);
+    if (!from || !to || !targets.length) return "No surface rate matches this combination; update Settings → Surface Rates by hand.";
+    const ratio = to / from;
+    const pct = Math.round((ratio - 1) * 1000) / 10;
+    for (const r of targets) {
+      rates.update(r.id, { ...scaledRates(r, ratio), feedback: { rateId: rate.id, version, at: new Date().toISOString(), pct, previous: { rateCoat1: r.rateCoat1, rateCoat2: r.rateCoat2, rateCoat3: r.rateCoat3, rateCoat4: r.rateCoat4 } } });
+    }
+    return `Surface Rates updated ${pct >= 0 ? "+" : ""}${pct}%: ${targets.map((r) => r.name).join(", ")}.`;
+  };
+  return { preview, apply };
+}
 
 export function EstimatingFeedbackScreen() {
   return (
@@ -339,6 +359,8 @@ function Preview({ s }: { s: Suggestion }) {
 
 function Approval({ s }: { s: Suggestion }) {
   const db = useDb((d) => d);
+  const surfaceRates = useSurfaceRateUpdate();
+  const affected = surfaceRates.preview(s.rate);
   const user = useCurrentUser();
   const [rejecting, setRejecting] = useState(false);
   const d = s.decision;
@@ -350,11 +372,24 @@ function Approval({ s }: { s: Suggestion }) {
       <div className="mt-3 rounded-lg border border-line bg-slate-50 px-3 py-2 text-[12.5px]">
         Rate record affected: <strong>{s.rate.id}</strong> — {kindLabel(s.rate)} for {s.pool.label}. No other rate in the family changes.
         <div className="mt-1 tabular-nums">{s.rate.value ? rateText(s.rate, s.rate.value) : "No current rate"} → <strong>{rateText(s.rate, s.observed)}</strong></div>
+        {s.status === "suggested" && s.rate.kind === "productivity" && (
+          <div className="mt-1 text-slate-600">
+            {affected.length
+              ? <>Approving also updates Settings → Surface Rates: <strong>{affected.map((r) => r.name).join(", ")}</strong> (every coat, same proportion).</>
+              : "No surface rate matches this combination, so Surface Rates will not change."}
+          </div>
+        )}
       </div>
       {s.status === "suggested" && (
         owner ? (
           <div className="mt-3 flex flex-wrap gap-2">
-            <Button variant="primary" onClick={() => { const r = act(approveRate, s.rate.id, ""); if (r.ok) toast.success(`${s.rate.id} version ${r.value?.version} approved`, `Effective today. ${r.value?.drafts} open draft estimates flagged.`); }}>Approve {s.rate.id}</Button>
+            <Button variant="primary" onClick={() => {
+              const from = s.rate.value;
+              const r = act(approveRate, s.rate.id, "");
+              if (!r.ok) return;
+              const to = byId(useStore.getState().db.rateRecords, s.rate.id)?.value ?? s.observed;
+              toast.success(`${s.rate.id} version ${r.value?.version} approved`, `${surfaceRates.apply(s.rate, from, to, r.value?.version ?? 0)} ${r.value?.drafts} open draft estimates flagged.`);
+            }}>Approve {s.rate.id}</Button>
             <Button variant="danger" onClick={() => setRejecting(true)}>Reject</Button>
           </div>
         ) : (
@@ -383,6 +418,7 @@ function Approval({ s }: { s: Suggestion }) {
 
 function VersionHistory({ rate, onClose }: { rate?: RateRecord; onClose: () => void }) {
   const db = useDb((d) => d);
+  const surfaceRates = useSurfaceRateUpdate();
   const user = useCurrentUser();
   const [rolling, setRolling] = useState(false);
   if (!rate) return null;
@@ -410,7 +446,15 @@ function VersionHistory({ rate, onClose }: { rate?: RateRecord; onClose: () => v
         </Table>
       )}
       <ReasonModal open={rolling} onClose={() => setRolling(false)} title={`Roll back ${live.id}`} label="Reason" confirm="Roll back" done="Rolled back as a new version" description="Creates a new version. The approval it reverses stays in the history."
-        onSubmit={(reason) => act(rollbackRate, live.id, reason)} />
+        onSubmit={(reason) => {
+          const from = live.value;
+          const r = act(rollbackRate, live.id, reason);
+          if (r.ok) {
+            const after = byId(useStore.getState().db.rateRecords, live.id)!;
+            toast.info("Surface Rates", surfaceRates.apply(after, from, after.value, after.versions.length));
+          }
+          return r;
+        }} />
     </Modal>
   );
 }

@@ -740,12 +740,28 @@ const invoices: Entity<Invoice> = {
   },
   facets: [
     {
-      name: 'amount', dir: 'toP',
+      // Either side: replica line edits reach the prototype; change orders and re-approvals on a draft reach the replica.
+      name: 'amount', dir: 'both',
       readP: (p, id) => round2(byId(p.invoices, id)!.amount),
       readR: (r) => round2(invoiceTotals(r).total),
-      writeP: (v, id) => {
+      writeR: (_v, r, p) => {
+        const inv = byId(p.invoices, r.id)!;
+        if (inv.status !== 'draft') return {};
+        return M.projectInvoiceLines(inv, byId(p.jobs, inv.jobId)?.name);
+      },
+      writeP: (v, id, r) => {
         if (byId(getDb().invoices, id)?.status !== 'draft') return 'keep';
-        pWrite((d) => { const i = byId(d.invoices, id); if (i) i.amount = v as number; });
+        pWrite((d) => {
+          const i = byId(d.invoices, id);
+          if (!i) return;
+          i.amount = v as number;
+          if (i.lines) {
+            const coLines = new Map(i.lines.filter((l) => l.changeOrderId).map((l) => [l.id, l.changeOrderId]));
+            i.lines = r.lineItems.map((l) => ({ id: l.id, description: l.description, quantity: l.quantity, rate: l.rate, changeOrderId: coLines.get(l.id) }));
+            i.taxRatePct = r.taxRate;
+            i.discount = r.discount;
+          }
+        });
       },
     },
     {

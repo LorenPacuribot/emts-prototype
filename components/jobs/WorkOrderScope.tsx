@@ -18,6 +18,9 @@ import { useDb, useLookups } from '@/lib/store';
 import { Button } from '@/components/ui/button';
 import { RefChip } from '@/components/ui/display';
 import { useLineColours } from '@/components/estimates/FeatureSections';
+import { useDb as useFeatureDb } from '@/features/lib/store';
+import { jobHref } from '@/features/lib/hrefs';
+import { appliedChangeOrderLines, changeOrderHours, lineLabourHours } from '@/features/lib/rules/change-order-effects';
 
 export function WorkOrderScope({ job, estimate, lead, workOrder, onSchedule }: {
   job: Job;
@@ -29,6 +32,9 @@ export function WorkOrderScope({ job, estimate, lead, workOrder, onSchedule }: {
   const db = useDb();
   const look = useLookups();
   const colours = useLineColours(estimate?.id ?? '');
+  const fdb = useFeatureDb((d) => d);
+  const coLines = appliedChangeOrderLines(fdb, job.id, 'work_order');
+  const coHours = changeOrderHours(fdb, job.id);
   const lines = estimate ? estimate.lineItems.filter(includedLine) : [];
   const prep = round2(lines.reduce((s, l) => s + (l.prepHours ?? 0), 0));
   const total = round2(lines.reduce((s, l) => s + l.laborHours, 0));
@@ -110,6 +116,36 @@ export function WorkOrderScope({ job, estimate, lead, workOrder, onSchedule }: {
               )}
             </tbody>
           </table>
+        </div>
+      )}
+      {coLines.length > 0 && (
+        <div className="border-t border-gray-100">
+          <div className="flex flex-wrap items-center justify-between gap-2 px-5 pt-4">
+            <h4 className="text-sm font-bold text-gray-900">Added by change orders</h4>
+            <span className="text-xs text-gray-500">{coHours >= 0 ? '+' : ''}{coHours.toFixed(2)} h included in the required hours</span>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="mt-2 w-full min-w-[700px] text-sm">
+              <thead className="bg-gray-50 text-left text-[11px] font-bold uppercase tracking-wider text-gray-500">
+                <tr>{['Change order', 'Work', 'Amount', 'Colour', 'Product', 'Est. hours'].map((h) => <th key={h} className={`px-4 py-2.5 ${h === 'Est. hours' ? 'text-right' : ''}`}>{h}</th>)}</tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {coLines.map((l) => {
+                  const h = lineLabourHours(fdb, l);
+                  return (
+                    <tr key={`${l.coId}-${l.id}`} className={l.kind === 'remove' ? 'text-gray-500' : ''}>
+                      <td className="px-4 py-2.5"><RefChip href={jobHref(job.id, 'change-orders')}>{l.coId}</RefChip></td>
+                      <td className="px-4 py-2.5 font-semibold text-gray-900">{l.kind === 'remove' ? <span className="mr-1 rounded bg-red-50 px-1.5 py-0.5 text-[10px] font-bold uppercase text-red-700">Removed</span> : null}{l.description}</td>
+                      <td className="px-4 py-2.5 text-gray-600">{l.sqft ? `${l.kind === 'remove' ? '−' : ''}${l.sqft} sq ft` : '—'}</td>
+                      <td className="px-4 py-2.5 text-gray-600">{l.colour || '—'}</td>
+                      <td className="px-4 py-2.5 text-gray-600">{l.product || '—'}</td>
+                      <td className="px-4 py-2.5 text-right font-bold text-gray-900">{h ? h.toFixed(2) : <span className="font-normal text-gray-400" title="Add labour hours to this change-order line to include it in the required hours">Not given</span>}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
       {estimate && estimate.lineItems.some((l) => !includedLine(l)) && (

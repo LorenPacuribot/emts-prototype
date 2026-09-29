@@ -581,6 +581,7 @@ export function createSeed(nowIso: string): Database {
         ],
         markupPct: 45, taxRatePct: 8.25, taxDate: d(-30), createdAt: d(-32), createdBy: "U-EST", recipient: "korah.singer@example.com", recipientVerified: true,
         channel: "portal", sentAt: d(-30), linkExpiresAt: d(0), signer: "Korah Singer", decidedAt: d(-28),
+        appliedAt: d(-28), appliedBy: "U-OFFICE",
         downstream: { work_order: "done", materials: "done", scheduler: "done", billing: "failed" },
         // Feature 24 detail
         version: 1, recipientName: "Korah Singer", submittedAt: d(-31),
@@ -625,6 +626,7 @@ export function createSeed(nowIso: string): Database {
         ownerApprovedBy: "U-OWNER", ownerApprovedAt: addDays(nowIso, -0.1),
         emergency: { authoriser: "U-OWNER", verbalAt: addDays(nowIso, -0.1), findings: "Fascia above garage door soft for 12 lf; water entering soffit. Cannot prime over it.", photos: 3, customerMessageRef: "Text from Korah Singer: \"Yes, go ahead and replace the fascia\"", amount: 440.51 },
         evidence: { version: 1, signer: "Korah Singer", channel: "verbal", ref: "Text from Korah Singer: \"Yes, go ahead and replace the fascia\"", at: addDays(nowIso, -0.1), recordedBy: "U-EST" },
+        appliedAt: addDays(nowIso, -0.1), appliedBy: "U-OFFICE",
         downstream: { work_order: "done", materials: "done", scheduler: "done", billing: "not_started" },
         downstreamMeta: {
           work_order: { at: addDays(nowIso, -0.1), by: "U-EST", ref: "Work order JOB-2026-1-WO revised (approved scope only)" },
@@ -670,6 +672,7 @@ export function createSeed(nowIso: string): Database {
         recipientVerified: false, ownerApprovedBy: "U-OFFICE", ownerApprovedAt: d(-8),
         emergency: { authoriser: "U-OFFICE", ownerUnreachable: true, verbalAt: d(-8), findings: "Old roof-leak stain bleeding through the first coat. Needs stain-blocking primer before finish.", photos: 2, customerMessageRef: "Email from Steven Omodth: \"OK to fix the stain\"", amount: 392.41 },
         evidence: { version: 1, signer: "Steven Omodth", channel: "verbal", ref: "Email from Steven Omodth: \"OK to fix the stain\"", at: d(-8), recordedBy: "U-EST" },
+        appliedAt: d(-8), appliedBy: "U-OFFICE",
         downstream: { work_order: "done", materials: "done", scheduler: "done", billing: "not_started" },
         downstreamMeta: {
           work_order: { at: d(-8), by: "U-EST", ref: "Work order JOB-2026-5-WO revised (approved scope only)" },
@@ -687,6 +690,7 @@ export function createSeed(nowIso: string): Database {
         links: [{ id: "LNK-9006", version: 1, recipientName: "Steven Omodth", recipient: "steven.omodth@example.com", channel: "email", sentAt: d(-19), sentBy: "U-OFFICE", expiresAt: d(11), delivery: "delivered" }],
         evidence: { version: 1, signer: "Steven Omodth", channel: "email", ref: "Email reply \"Approved, go ahead\" from steven.omodth@example.com", at: d(-18), recordedBy: "U-OFFICE" },
         dispute: { note: "Customer says the closet was included in the original quote and won't pay the change order.", at: d(-1), by: "U-OFFICE" },
+        appliedAt: d(-18), appliedBy: "U-OFFICE",
         downstream: { work_order: "done", materials: "done", scheduler: "done", billing: "done" },
         billing: { mode: "draft_update", docId: "INV-2026-3", amount: 502.28 },
         downstreamMeta: {
@@ -917,6 +921,8 @@ export function createSeed(nowIso: string): Database {
       { id: "ACT-3", at: d(-2), userId: "U-OFFICE", module: "Supplier Orders", message: "Purchase Order JOB-2026-2-PO-01 phoned in to branch 7248." },
       { id: "ACT-4", at: d(-5), userId: "U-EST", module: "Colour Card", message: "Colour Card: Job JOB-2026-1 – Custom sample \"Round 2\" recorded, delivered by Priya Shah." },
     ],
+
+    notifications: [],
 
     tasks: [
       { id: "T-1", title: "Call SW 7132 about backordered Repose Gray", done: false, createdAt: d(-1) },

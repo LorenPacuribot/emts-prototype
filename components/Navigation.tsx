@@ -16,6 +16,7 @@ import { useMobileMenu } from './Sidebar';
 import { Avatar } from './ui/display';
 import { DropdownMenu } from './ui/menu';
 import { useSignOut } from './auth/AuthGate';
+import { NotificationBell } from './NotificationBell';
 
 export interface Crumb {
   label: string;
@@ -71,6 +72,8 @@ export function AppHeader({ title, breadcrumbs = [], backHref }: { title: string
         </div>
       </div>
 
+      <div className="flex shrink-0 items-center gap-1">
+      <NotificationBell />
       <DropdownMenu
         items={[
           { label: 'My Profile', icon: <User />, onClick: () => router.push('/settings/my-profile') },
@@ -84,6 +87,7 @@ export function AppHeader({ title, breadcrumbs = [], backHref }: { title: string
           </button>
         }
       />
+      </div>
     </header>
   );
 }

@@ -304,6 +304,8 @@ export interface SurfaceRate {
   sortOrder: number;
   /** How quantity is measured: LENGTH_X_HEIGHT, LENGTH_X_WIDTH, PERIMETER_X_HEIGHT, PERIMETER, LENGTH, NONE */
   amountFormula?: string;
+  /** Last change made by an approved estimating-feedback rate (patent 30). */
+  feedback?: { rateId: string; version: number; at: string; pct: number; previous: Pick<SurfaceRate, 'rateCoat1' | 'rateCoat2' | 'rateCoat3' | 'rateCoat4'> };
 }
 
 /** A named category of surface rates ("Interior Walls"). SurfaceRate.rateGroup holds the name. */
