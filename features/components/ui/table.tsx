@@ -1,10 +1,32 @@
-import type { ReactNode, TdHTMLAttributes, ThHTMLAttributes } from "react";
+"use client";
+import { useLayoutEffect, useRef, type ReactNode, type TdHTMLAttributes, type ThHTMLAttributes } from "react";
 import { cn } from "@/features/lib/cn";
 
-/** Table styled like the Pending Sales widget: grey header band, uppercase micro labels. */
+/**
+ * Table styled like the Pending Sales widget: grey header band, uppercase
+ * micro labels. Responsive (H8, see .rtable in app/globals.css): below md each
+ * row is a stacked card, so every cell is labeled with its column header;
+ * at md and up the first column is pinned while the table scrolls sideways.
+ */
 export function Table({ children, className }: { children: ReactNode; className?: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  // Copy each header's text onto its column's cells for the card layout (runs after every render, cheap).
+  useLayoutEffect(() => {
+    const table = ref.current?.querySelector(":scope > table");
+    if (!table) return;
+    const heads = Array.from(table.querySelectorAll(":scope > thead > tr:last-child > th")).map((th) => th.textContent?.trim() ?? "");
+    for (const tr of Array.from(table.querySelectorAll(":scope > tbody > tr"))) {
+      let col = 0;
+      for (const td of Array.from(tr.children) as HTMLTableCellElement[]) {
+        const span = td.colSpan || 1;
+        const label = span === 1 ? heads[col] ?? "" : "";
+        if (td.getAttribute("data-label") !== label) td.setAttribute("data-label", label);
+        col += span;
+      }
+    }
+  });
   return (
-    <div className={cn("overflow-x-auto rounded-xl border border-line", className)}>
+    <div ref={ref} className={cn("rtable overflow-x-auto rounded-xl border border-line", className)}>
       <table className="w-full min-w-max border-collapse text-left text-xs">{children}</table>
     </div>
   );

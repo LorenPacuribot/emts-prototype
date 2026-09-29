@@ -10,7 +10,7 @@
  */
 import { punchTagLabel } from "@/features/lib/rules/shift-tag";
 import { useState } from "react";
-import { ArrowRightLeft, LogIn, LogOut, MapPinOff, RefreshCw, Smartphone, WifiOff } from "lucide-react";
+import { ArrowRightLeft, LogIn, LogOut, MapPinOff, RefreshCw, Smartphone, WifiOff, FlaskConical } from "lucide-react";
 import type { ActivityCode } from "@/features/types";
 import { act, useCurrentUser, useDb, useStore } from "@/features/lib/store";
 import { byId } from "@/features/lib/selectors";
@@ -60,14 +60,7 @@ function Clock() {
         subtitle="Clock the crew in and out at the job. Pick the job and activity first."
       />
 
-      <Card className="mb-4 space-y-3 p-4">
-        <CardLabel>Device (simulated)</CardLabel>
-        <div className="flex flex-wrap gap-x-6 gap-y-2">
-          <Switch checked={offline} onCheckedChange={setOffline} label={<span className="text-xs">No signal</span>} />
-          <Switch checked={denied} onCheckedChange={setDenied} label={<span className="text-xs">Location permission denied</span>} />
-        </div>
-        {denied && <p className="flex items-center gap-1.5 text-xs text-amber-700"><MapPinOff className="h-3.5 w-3.5" /> Location is off. Clock-in still works — each punch records a flag and the crew is prompted to turn location on. There is no continuous tracking.</p>}
-      </Card>
+      {denied && <p className="mb-4 flex items-center gap-1.5 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800"><MapPinOff className="h-3.5 w-3.5 shrink-0" /> Location is off. Clock-in still works — each punch records a flag and the crew is prompted to turn location on. There is no continuous tracking.</p>}
 
       {queued.length > 0 && (
         <Banner
@@ -176,6 +169,21 @@ function Clock() {
           </Select>
         </Field>
       </Modal>
+
+      {/* Prototype-only device simulation (M5): out of the crew's way, still one click away. */}
+      <details className="mt-6 rounded-xl border border-dashed border-amber-400 bg-amber-50/50 p-4" open={offline || denied || undefined}>
+        <summary className="flex cursor-pointer items-center gap-2 text-sm font-semibold text-amber-900">
+          <FlaskConical className="h-4 w-4" aria-hidden /> Demo controls
+          <span className="rounded bg-amber-200/70 px-1 text-xxs font-bold uppercase tracking-wide">Demo</span>
+        </summary>
+        <div className="mt-3 space-y-2">
+          <p className="text-xs text-amber-900/80">Simulate the crew lead's phone.</p>
+          <div className="flex flex-wrap gap-x-6 gap-y-2">
+            <Switch checked={offline} onCheckedChange={setOffline} label={<span className="text-xs">No signal</span>} />
+            <Switch checked={denied} onCheckedChange={setDenied} label={<span className="text-xs">Location permission denied</span>} />
+          </div>
+        </div>
+      </details>
     </div>
   );
 }

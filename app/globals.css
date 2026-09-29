@@ -89,3 +89,98 @@
     display: none !important;
   }
 }
+
+/*
+  Responsive tables (H8), for the feature Table component (.rtable):
+  - below md, each row is a stacked card: the first cell is the row's title,
+    the others are label/value pairs (labels copied from the header cells);
+  - at md and up, the table scrolls sideways inside its box with a visible
+    scrollbar, the first column stays pinned, and a shadow at the right edge
+    shows there is more. The page itself never scrolls sideways.
+*/
+@media (max-width: 767.98px) {
+  .rtable {
+    border: 0 !important;
+    overflow: visible !important;
+  }
+  .rtable > table {
+    min-width: 0 !important;
+    display: block;
+  }
+  .rtable > table > thead {
+    display: none;
+  }
+  .rtable > table > tbody {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .rtable > table > tbody > tr {
+    display: block;
+    border: 1px solid var(--color-gray-200);
+    border-radius: 0.75rem;
+    background: #fff;
+    padding: 0.625rem 0.875rem;
+  }
+  .rtable > table > tbody > tr > td {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.25rem 0 !important;
+    border: 0;
+    text-align: right;
+    white-space: normal;
+    max-width: none;
+  }
+  .rtable > table > tbody > tr > td::before {
+    content: attr(data-label);
+    flex-shrink: 0;
+    max-width: 45%;
+    padding-top: 0.125rem;
+    text-align: left;
+    font-size: 0.625rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-gray-500);
+  }
+  .rtable > table > tbody > tr > td:first-child,
+  .rtable > table > tbody > tr > td[colspan] {
+    display: block;
+    text-align: left;
+  }
+  .rtable > table > tbody > tr > td:first-child {
+    font-weight: 600;
+    padding-bottom: 0.375rem !important;
+  }
+  .rtable > table > tbody > tr > td:first-child::before,
+  .rtable > table > tbody > tr > td[colspan]::before,
+  .rtable > table > tbody > tr > td[data-label=""]::before {
+    display: none;
+  }
+  .rtable > table > tbody > tr > td:empty {
+    display: none;
+  }
+}
+@media (min-width: 768px) {
+  .rtable {
+    scrollbar-width: thin;
+    scrollbar-color: #d1d5db transparent;
+    background:
+      linear-gradient(to left, #fff 30%, rgb(255 255 255 / 0)) right center / 2.5rem 100% no-repeat local,
+      radial-gradient(farthest-side at 100% 50%, rgb(0 0 0 / 0.1), transparent) right center / 0.875rem 100% no-repeat scroll;
+  }
+  .rtable > table > thead > tr > th:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background: var(--color-gray-50);
+  }
+  .rtable > table > tbody > tr > td:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background: #fff;
+  }
+}

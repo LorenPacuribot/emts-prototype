@@ -63,6 +63,13 @@ What Phase 1 kept on purpose:
 | Work order: crew time | "Time Log" and "Clocked time on this job" are one "Crew Time" card with two titled groups, "Hours by surface" and "Clock punches", in the same row layout. Rows say "Worked by …", then "Entered by …" (logged hours) or "Clocked by …" (punches). The Crew Clock card says "on this job", or warns "Clocked in at JOB-2026-1, not this job". | M6 | `features/components/features/work-orders/details/wo-sections.tsx` |
 | Counts that looked wrong | Repaint Alerts "Open alerts" hint shows its breakdown ("3 live + 1 suppressed"). Follow-Ups "Escalated to owner" hint says it counts unqualified alerts past 14 days, and that the Escalated tab lists follow-ups. Contact "Total Jobs" is "Jobs in Estimate Master", with a tooltip saying imported paint records are under Paint History. No count changed. | M9, M7 | `features/components/features/service/alerts-screen.tsx`, `follow-ups-screen.tsx`, `app/contacts/[id]/page.tsx` |
 
+### Phase 5: Responsive (H8, M5)
+
+| Screen / area | What changed | Rule | Files |
+| --- | --- | --- | --- |
+| Every feature table (the shared `Table`) | Below 768px each row becomes a stacked card. The first cell is the card title, and every other cell shows its column header as a small label ("Status", "Due", …). The labels are copied from the table's own header row after each render, so no table had to change. Full-width (`colSpan`) cells and empty cells are handled. At 768px and up the table keeps its columns; the first column stays pinned while the rest scroll sideways, the scrollbar is thin, and a soft shadow on the right edge shows there is more to scroll. | H8 | `app/globals.css` (`.rtable`), `features/components/ui/table.tsx` |
+| Mobile clock | The "Device (simulated)" card ("No signal", "Location permission denied") is no longer the first thing on the crew's screen. It is a collapsed "Demo controls" panel at the bottom, styled like the other demo controls (dashed amber, flask icon, "Demo" tag), and it opens by itself while either toggle is on. When location is denied, the "Location is off…" note still shows at the top of the screen. | M5, H1 | `features/components/features/workforce/clock-screen.tsx` |
+
 ## Moved, not removed
 
 | Action | Was | Now |
@@ -71,6 +78,7 @@ What Phase 1 kept on purpose:
 | Follow-Ups › show unqualified alerts | Primary "Qualify" button in the header, which set the Unqualified filter | The "Unqualified" filter chip (one click, same filter). Each row keeps its "Qualify" button. |
 | Paint History › QR Links | Primary "QR Links" button in the paint record's header | The "QR Links" view in the Paint History bar just above (one click) |
 | Paint History › Export PDF (staff or customer) and Export CSV | "Export PDF ▾" menu plus a separate "Export CSV" button | One "Export ▾" menu with all three (two clicks, as before for PDF) |
+| Mobile clock › "No signal" and "Location permission denied" toggles | "Device (simulated)" card at the top of the screen | "Demo controls" panel at the bottom (one click to open; it stays open while a toggle is on) |
 
 ## Data questions
 
@@ -101,3 +109,7 @@ Phase 4:
 - Raw `<tr onClick>` rows outside the shared `TR` (the leads list table, scope of work, and the live Reports Activity and Interaction tables) keep their mouse-only behavior. They should move to the `TR` component or get the same keyboard handling.
 - The feature prototype's own estimate screen (`features/components/features/estimates/details/project-toolbar.tsx`) isn't routed in the app, so its title was left as it is.
 - Two product-tour stops point at targets that don't exist, before and after this pass: `surface-selector` and `warning-strip` in `features/components/tour/tour-steps.ts`. A developer should add the `data-tour` attributes or drop the stops.
+
+Phase 5:
+
+- The card layout covers the shared feature `Table`. Tables built by hand in the live app (`components/**`, for example the leads list, estimates list and reports tables) were not changed. Moving them to the shared `Table` would give them the card layout too.
