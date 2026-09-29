@@ -111,9 +111,12 @@ export function LineGrid({ rep, readOnly, onPropose, onAddSurfaces }: { rep: Rep
                 </TD>
                 <TD><SourceChip jobId={line.sourceJobId} appId={line.sourceApplicationId} /></TD>
                 <TD className="text-right">
-                  {line.priorActualGal !== undefined ? (
-                    <Tooltip content="Reference only. It never fills the new quantity.">
-                      <span className="cursor-help rounded bg-slate-100 px-1.5 py-0.5 text-[11.5px] text-slate-500">{line.priorActualGal} gal used</span>
+                  {line.priorActualGal !== undefined || line.priorActualHours !== undefined ? (
+                    <Tooltip content="Reference only. It never fills the new quantity or hours.">
+                      <span className="inline-flex cursor-help flex-col items-end gap-0.5">
+                        <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[11.5px] text-slate-500">{line.priorActualGal !== undefined ? `${line.priorActualGal} gal used` : "Gallons not recorded"}</span>
+                        <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[11.5px] text-slate-500">{line.priorActualHours !== undefined ? `${line.priorActualHours} h labour` : "Hours not recorded"}</span>
+                      </span>
                     </Tooltip>
                   ) : (
                     <span className="text-[11px] italic text-slate-400">Not recorded</span>

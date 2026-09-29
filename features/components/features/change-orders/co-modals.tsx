@@ -180,24 +180,41 @@ export function LineModal({ co, line, open, onClose }: { co: ChangeOrder; line?:
   const [d, setD] = useState<LineDraft>(blank());
   const [costText, setCostText] = useState("");
   const [sqftText, setSqftText] = useState("");
+  // Optional labour / material breakdown (patent 24). When on, cost = hours × rate + material.
+  const [breakdown, setBreakdown] = useState(false);
+  const [hoursText, setHoursText] = useState("");
+  const [rateText, setRateText] = useState("");
+  const [materialText, setMaterialText] = useState("");
   const [error, setError] = useState<Err>(null);
 
   useEffect(() => {
     if (!open) return;
     setError(null);
+    const str = (v?: number) => (v === undefined ? "" : String(v));
     if (line) {
       setD({ ...line, treatment: line.treatment ?? "billable" });
       setCostText(String(line.cost));
-      setSqftText(line.sqft !== undefined ? String(line.sqft) : "");
+      setSqftText(str(line.sqft));
+      setBreakdown(line.laborHours !== undefined || line.materialCost !== undefined);
+      setHoursText(str(line.laborHours));
+      setRateText(str(line.laborRate));
+      setMaterialText(str(line.materialCost));
     } else {
       setD(blank());
       setCostText("");
       setSqftText("");
+      setBreakdown(false);
+      setHoursText("");
+      setRateText("");
+      setMaterialText("");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, line]);
 
-  const cost = costText === "" ? NaN : Number(costText);
+  const optNum = (t: string) => (t === "" ? undefined : Number(t));
+  const laborCost = (Number(hoursText) || 0) * (Number(rateText) || 0);
+  const materialCost = Number(materialText) || 0;
+  const cost = breakdown ? laborCost + materialCost : costText === "" ? NaN : Number(costText);
   const canCost = can(user, "co.seeCost");
 
   function pickSurface(id: string) {
@@ -207,8 +224,12 @@ export function LineModal({ co, line, open, onClose }: { co: ChangeOrder; line?:
   }
 
   function save() {
-    if (costText === "") return setError({ field: "cost", message: "Enter the cost before markup (0 is allowed)." });
-    const res = act(saveLine, co.id, { ...d, cost, sqft: sqftText === "" ? undefined : Number(sqftText) }, line?.id);
+    if (breakdown && hoursText === "" && materialText === "") return setError({ field: "laborHours", message: "Enter labour hours, material cost, or both." });
+    if (!breakdown && costText === "") return setError({ field: "cost", message: "Enter the cost before markup (0 is allowed)." });
+    const parts = breakdown
+      ? { laborHours: optNum(hoursText) ?? 0, laborRate: optNum(rateText), materialCost: optNum(materialText) ?? 0 }
+      : { laborHours: undefined, laborRate: undefined, materialCost: undefined };
+    const res = act(saveLine, co.id, { ...d, ...parts, cost, sqft: sqftText === "" ? undefined : Number(sqftText) }, line?.id);
     if (!res.ok) return setError({ field: res.field, message: res.error });
     toast.success(line ? "Line updated" : "Line added", co.id);
     onClose();
@@ -261,10 +282,32 @@ export function LineModal({ co, line, open, onClose }: { co: ChangeOrder; line?:
             <Input id="ln-col" value={d.colour ?? ""} onChange={(e) => setD({ ...d, colour: e.target.value })} />
           </Field>
         </div>
+        {canCost && (
+          <div className="space-y-3 rounded-xl border border-gray-200 p-3">
+            <Checkbox checked={breakdown} onCheckedChange={setBreakdown} label="Break the cost down into labour and material" />
+            {breakdown && (
+              <div className="grid gap-3 sm:grid-cols-3">
+                <Field label="Labour hours" htmlFor="ln-hours" error={fe(error, "laborHours")}>
+                  <Input id="ln-hours" type="number" min={0} step={0.25} value={hoursText} invalid={!!fe(error, "laborHours")} onChange={(e) => setHoursText(e.target.value)} />
+                </Field>
+                <Field label="Labour rate ($/h)" htmlFor="ln-rate" error={fe(error, "laborRate")} hint={laborCost ? `Labour ${money(laborCost)}` : undefined}>
+                  <Input id="ln-rate" type="number" min={0} step="0.01" value={rateText} invalid={!!fe(error, "laborRate")} onChange={(e) => setRateText(e.target.value)} />
+                </Field>
+                <Field label="Material cost" htmlFor="ln-mat" error={fe(error, "materialCost")} hint="Paint and sundries">
+                  <Input id="ln-mat" type="number" min={0} step="0.01" value={materialText} invalid={!!fe(error, "materialCost")} onChange={(e) => setMaterialText(e.target.value)} />
+                </Field>
+              </div>
+            )}
+          </div>
+        )}
         <div className="grid gap-4 sm:grid-cols-2">
           {canCost ? (
             <Field label="Cost before markup" required htmlFor="ln-cost" error={fe(error, "cost")} hint={!Number.isNaN(cost) ? `Customer price at the original ${co.markupPct}% markup: ${money(lineSell(cost, co.markupPct))}` : "Internal cost; the customer never sees it."}>
-              <Input id="ln-cost" type="number" min={0} step="0.01" value={costText} invalid={!!fe(error, "cost")} onChange={(e) => setCostText(e.target.value)} />
+              {breakdown ? (
+                <Input id="ln-cost" value={money(cost)} readOnly className="bg-gray-50 font-semibold" />
+              ) : (
+                <Input id="ln-cost" type="number" min={0} step="0.01" value={costText} invalid={!!fe(error, "cost")} onChange={(e) => setCostText(e.target.value)} />
+              )}
             </Field>
           ) : (
             <Banner tone="info">Pricing is entered by an estimator.</Banner>

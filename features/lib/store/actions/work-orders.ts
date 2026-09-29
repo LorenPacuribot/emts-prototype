@@ -227,12 +227,16 @@ export function addFieldNote(db: Database, actor: User, woId: string, content: s
   return ok();
 }
 
-export function addAttachment(db: Database, actor: User, woId: string, input: { fileName: string; fileType: string; fileSize?: number; caption?: string }) {
+export function addAttachment(db: Database, actor: User, woId: string, input: { fileName: string; fileType: string; fileSize?: number; caption?: string; surfaceId?: string }) {
   if (!can(actor, "workOrder.addAttachments")) return denied(db, actor, MODULE, "upload a file", whoCan("workOrder.addAttachments"));
   const wo = byId(db.workOrders, woId);
   if (!wo) return fail("Work order not found.");
   if (!input.fileName.trim()) return fail("Choose a file.");
-  wo.attachments.unshift({ id: nextId(db, "att", "ATT-"), fileName: input.fileName.trim(), fileType: input.fileType, fileSize: input.fileSize, caption: input.caption, createdAt: now(), by: actor.id });
+  if (input.surfaceId && !byId(db.jobs, wo.jobId)?.surfaceIds.includes(input.surfaceId)) return fail("That surface isn't in this job's scope.", "surfaceId");
+  wo.attachments.unshift({
+    id: nextId(db, "att", "ATT-"), fileName: input.fileName.trim(), fileType: input.fileType, fileSize: input.fileSize,
+    caption: input.caption?.trim() || undefined, surfaceId: input.surfaceId || undefined, createdAt: now(), by: actor.id,
+  });
   log(db, actor, MODULE, `Work order ${wo.id} – File "${input.fileName.trim()}" uploaded by ${actor.name} (recorded, not stored: prototype)`);
   return ok();
 }

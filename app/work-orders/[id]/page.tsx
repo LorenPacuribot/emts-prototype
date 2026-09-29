@@ -156,7 +156,7 @@ export default function WorkOrderDetailPage() {
               <div className="flex flex-wrap items-center gap-3">
                 <Link href={`/work-orders/${wo.id}/print`}><Button variant="secondary" className="h-11 px-4" icon={<Printer className="h-4 w-4" />}>Print</Button></Link>
                 {twin ? (
-                  <WoTwinActions twin={twin} onLogHours={() => setDialog('hours')} onSchedule={() => setDialog('schedule')} onMarkComplete={() => setDialog('closeout')} onEdit={() => setEditOpen(true)} />
+                  <WoTwinActions twin={twin} onLogHours={() => setDialog('hours')} onLogMaterial={() => setDialog('material')} onSchedule={() => setDialog('schedule')} onMarkComplete={() => setDialog('closeout')} onEdit={() => setEditOpen(true)} />
                 ) : <>
                 {primaryAction()}
                 <RowMenu items={[
@@ -271,7 +271,11 @@ export default function WorkOrderDetailPage() {
         </div>
 
         {/* NEW: paint colour card (3, 18), materials (18) and paint orders (19) */}
-        {twin && <WoMaterialSections twin={twin} />}
+        {twin ? (
+          <WoMaterialSections twin={twin} />
+        ) : (
+          <NotLinkedNote what="The paint colour card, material list and paint orders" />
+        )}
 
         {/* 4. Checklist */}
         <div className={cn(card, 'p-6 md:p-8')}>
@@ -302,7 +306,11 @@ export default function WorkOrderDetailPage() {
         </div>
 
         {/* NEW: crew clock + time log (22), field notes & attachments with Use in marketing (34) */}
-        {twin && <WoFieldSections twin={twin} />}
+        {twin ? (
+          <WoFieldSections twin={twin} />
+        ) : (
+          <NotLinkedNote what="The crew clock, time log and field notes" />
+        )}
       </div>
 
       {twin && <WoTwinDialogs twin={twin} open={dialog} onClose={() => setDialog(null)} />}
@@ -334,6 +342,15 @@ function SectionHead({ icon, tone, title }: { icon: React.ReactNode; tone: strin
     <div className="mb-3 flex items-center gap-2 border-b border-gray-100 pb-2 pr-8">
       <div className={cn('rounded-lg p-1.5', tone)}>{icon}</div>
       <h4 className="text-xs font-bold uppercase tracking-widest text-gray-400">{title}</h4>
+    </div>
+  );
+}
+
+/** Stands in for the production sections when this work order has no production record yet. */
+function NotLinkedNote({ what }: { what: string }) {
+  return (
+    <div className={cn(card, 'border-dashed p-6 text-sm text-gray-500')}>
+      {what} will appear here once this work order is synced with its production record.
     </div>
   );
 }

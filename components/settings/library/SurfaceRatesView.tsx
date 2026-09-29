@@ -24,6 +24,7 @@ import { ConfirmDialog, Modal } from '@/components/Modals/Modal';
 import { useCollection } from '@/lib/store';
 import type { RateGroup, SurfaceRate } from '@/lib/types';
 import { cn } from '@/lib/utils';
+import { round2 } from '@/lib/calculations';
 import { RateVersionsSection } from '@/features/components/features/settings/rate-versions-section';
 import { CardKebab, FieldError, LibraryToolbar, NoMatches, UNIT_LABELS, nextSort, num } from './ui';
 
@@ -358,7 +359,7 @@ function SurfaceRateModal({
 
         <div className="space-y-3 rounded-xl border border-gray-100 bg-gray-50 p-4">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Efficiency Rates ({unit}/hr)</span>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Production Rates ({unit} per labor hour)</span>
             <div className="flex items-center gap-2">
               <Wand2 className={cn('h-3 w-3', multOn ? 'text-indigo-600' : 'text-gray-400')} />
               <span className={cn('text-[10px] font-bold uppercase tracking-wider', multOn ? 'text-indigo-600' : 'text-gray-400')}>Multiplier</span>
@@ -373,6 +374,11 @@ function SurfaceRateModal({
               />
             </div>
           </div>
+
+          <p className="text-xs text-gray-500">
+            How many {unit} one painter covers in an hour.
+            {form.rateCoat1 > 0 && <> At {form.rateCoat1} {unit}/hr, the 1st coat takes {round2(100 / form.rateCoat1)} hrs per 100 {unit}.</>}
+          </p>
 
           {multOn ? (
             <div className="space-y-4 rounded-xl border border-indigo-100 bg-indigo-50 p-3">

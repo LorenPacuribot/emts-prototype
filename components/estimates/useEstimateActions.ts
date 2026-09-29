@@ -35,6 +35,16 @@ export function useEstimateActions() {
     [estimates, me],
   );
 
+  /** Background save while editing a draft: writes the estimate without a history entry (Save still adds one). */
+  const autosave = useCallback(
+    (e: Estimate) => {
+      const next = { ...e, updatedAt: new Date().toISOString() };
+      estimates.update(e.id, next);
+      return next;
+    },
+    [estimates],
+  );
+
   /** Changes the status, sets the matching date fields and logs it. */
   const setStatus = useCallback(
     (e: Estimate, status: Estimate['status'], note: string, extra: Partial<Estimate> = {}, changedBy = me) => {
@@ -170,5 +180,5 @@ export function useEstimateActions() {
     [jobs, estimates, nextNumber, log],
   );
 
-  return { save, setStatus, send, markApproved, markDeclined, duplicate, remove, convertToJob };
+  return { save, autosave, setStatus, send, markApproved, markDeclined, duplicate, remove, convertToJob };
 }

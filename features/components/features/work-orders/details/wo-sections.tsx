@@ -14,7 +14,7 @@ import {
   addAttachment, addFieldNote, addShift, FIELD_NOTE_STATUSES, LOG_HOURS_ALLOWED_STATUSES, logWorkOrderHours, removeShift, renderedHoursBySurface, scheduleWorkOrder,
   updateSiteInstructions, updateWorkOrderTimeEntry,
 } from "@/features/lib/store/actions/work-orders";
-import { clockIn, clockOut } from "@/features/lib/store/actions/workforce";
+import { approveEntry, clockIn, clockOut } from "@/features/lib/store/actions/workforce";
 import { jobDemand, lineState } from "@/features/lib/rules/procurement";
 import { formatPacks } from "@/features/lib/rules/materials";
 import { specForSurface, jobSurfaceHours } from "@/features/lib/rules/estimate";
@@ -27,7 +27,7 @@ import { SPEC_STATE } from "@/features/lib/status";
 import { date, dateTime } from "@/features/lib/format";
 import { toast } from "@/features/lib/toast";
 import { cn } from "@/features/lib/cn";
-import { Badge, Banner, Button, CardTitle, ConfirmDialog, Field, Input, LiveCard, LiveLabel, Modal, NewBadge, Swatch, Textarea, Tooltip } from "@/features/components/ui";
+import { Badge, Banner, Button, CardTitle, ConfirmDialog, Field, Input, LiveCard, LiveLabel, Modal, NewBadge, Select, Swatch, Textarea, Tooltip } from "@/features/components/ui";
 
 const TIME_STATE_TONE = { open: "gray", submitted: "blue", approved: "green", locked: "purple", paid: "green" } as const;
 const TIME_STATE_LABEL = { open: "Open", submitted: "Submitted", approved: "Approved", locked: "In export batch", paid: "Paid" } as const;
@@ -384,7 +384,9 @@ export function TimeLogSection({ wo, job }: { wo: WorkOrder; job: Job }) {
   const segments = db.timeSegments.filter((s) => s.jobId === job.id && !s.supersededAt).sort((a, b) => b.start.localeCompare(a.start)).slice(0, 12);
   if (wo.timeEntries.length === 0 && segments.length === 0) return null;
   const entries = [...wo.timeEntries].sort((a, b) => b.loggedAt.localeCompare(a.loggedAt));
-  const dayState = (employeeId?: string, workDate?: string) => (employeeId && workDate ? db.timeEntries.find((x) => x.employeeId === employeeId && x.workDate === workDate)?.state : undefined);
+  const dayEntry = (employeeId?: string, workDate?: string) => (employeeId && workDate ? db.timeEntries.find((x) => x.employeeId === employeeId && x.workDate === workDate) : undefined);
+  const dayState = (employeeId?: string, workDate?: string) => dayEntry(employeeId, workDate)?.state;
+  const canApprove = can(user, "time.approve");
   return (
     <LiveCard data-tour="wo-time-log">
       <CardTitle icon={<Clock />} right={<span className="text-sm text-gray-500">{entries.length} Entries</span>}>Time Log</CardTitle>
@@ -402,6 +404,16 @@ export function TimeLogSection({ wo, job }: { wo: WorkOrder; job: Job }) {
                   <span className="text-xs text-gray-400">{dateTime(e.loggedAt)}</span>
                   {emp && <span className="inline-flex items-center gap-1 rounded-md bg-gray-100 px-1.5 py-0.5 text-[11px] font-semibold text-gray-600"><UserRound className="h-3 w-3" />{emp.name} · {e.workDate && date(e.workDate)} <NewBadge feature={22} /></span>}
                   {state && <Badge tone={TIME_STATE_TONE[state]}>{TIME_STATE_LABEL[state]}</Badge>}
+                  {state === "submitted" && canApprove && emp && (
+                    <Tooltip content={`Approves ${emp.name}'s whole day for payroll, across every job that day. Hours stay tagged to this job.`}>
+                      <Button size="sm" variant="primary" className="h-6 px-2 text-[11px]" onClick={() => {
+                        const entry = dayEntry(e.employeeId, e.workDate);
+                        if (entry && act(approveEntry, entry.id).ok) toast.success("Day approved", `${emp.name} · ${e.workDate ? date(e.workDate) : ""}`);
+                      }}>
+                        Approve day
+                      </Button>
+                    </Tooltip>
+                  )}
                 </div>
                 <div className="text-xs text-gray-500">{surfaceLabel(db, e.surfaceId).replace(" · ", " — ")}</div>
                 {editing === e.id ? (
@@ -488,9 +500,23 @@ export function FieldNotesSection({ wo, extraAttachmentAction }: { wo: WorkOrder
   const user = useCurrentUser();
   const [note, setNote] = useState("");
   const allowed = FIELD_NOTE_STATUSES.includes(wo.status);
-  function upload(files: FileList | null) {
-    for (const f of Array.from(files ?? [])) act(addAttachment, wo.id, { fileName: f.name, fileType: f.type || "application/octet-stream", fileSize: f.size });
-    if (files?.length) toast.success("Uploaded", "Recorded, not stored (prototype).");
+  // Chosen files wait here for a caption and surface before they're recorded.
+  const [pending, setPending] = useState<File[]>([]);
+  const [caption, setCaption] = useState("");
+  const [surfaceId, setSurfaceId] = useState("");
+  const jobSurfaceIds = byId(db.jobs, wo.jobId)?.surfaceIds ?? [];
+  function stage(files: FileList | null) {
+    setPending(Array.from(files ?? []));
+    setCaption("");
+    setSurfaceId("");
+  }
+  function upload() {
+    let n = 0;
+    for (const f of pending) {
+      if (act(addAttachment, wo.id, { fileName: f.name, fileType: f.type || "application/octet-stream", fileSize: f.size, caption, surfaceId }).ok) n++;
+    }
+    if (n) toast.success(n === 1 ? "Uploaded" : `${n} files uploaded`, "Recorded, not stored (prototype).");
+    setPending([]);
   }
   return (
     <LiveCard>
@@ -520,7 +546,8 @@ export function FieldNotesSection({ wo, extraAttachmentAction }: { wo: WorkOrder
             <div key={a.id} className="overflow-hidden rounded-xl border border-gray-200 bg-white">
               <div className="flex h-24 items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 text-gray-400">{a.fileType.startsWith("image") ? <ImagePlus className="h-6 w-6" /> : <FileText className="h-6 w-6" />}</div>
               <div className="p-2">
-                <div className="truncate text-xs font-semibold text-gray-800" title={a.fileName}>{a.caption ?? a.fileName}</div>
+                <div className="truncate text-xs font-semibold text-gray-800" title={a.caption ? `${a.caption} (${a.fileName})` : a.fileName}>{a.caption ?? a.fileName}</div>
+                {a.surfaceId && <div className="truncate text-[11px] font-medium text-primary-700" title={surfaceLabel(db, a.surfaceId)}>{surfaceLabel(db, a.surfaceId)}</div>}
                 <div className="text-[11px] text-gray-400">{date(a.createdAt)}</div>
                 {extraAttachmentAction?.(a.id)}
               </div>
@@ -529,10 +556,32 @@ export function FieldNotesSection({ wo, extraAttachmentAction }: { wo: WorkOrder
           {can(user, "workOrder.addAttachments") && (
             <label className="flex h-full min-h-32 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-gray-200 text-sm font-semibold text-gray-500 hover:border-primary-300 hover:text-primary-700">
               <ImagePlus className="h-5 w-5" /> Upload Photos / Files
-              <input type="file" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx" className="hidden" onChange={(e) => upload(e.target.files)} />
+              <input type="file" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx" className="hidden" onChange={(e) => { stage(e.target.files); e.target.value = ""; }} />
             </label>
           )}
         </div>
+        {pending.length > 0 && (
+          <div className="mt-4 rounded-xl border border-primary-200 bg-primary-50/40 p-4">
+            <div className="mb-3 text-sm font-semibold text-gray-800">
+              {pending.length === 1 ? pending[0].name : `${pending.length} files`} ready to upload
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <Field label="Caption" hint="Optional, e.g. Before: peeling paint on north wall">
+                <Input value={caption} onChange={(e) => setCaption(e.target.value)} placeholder="What does this show?" />
+              </Field>
+              <Field label="Surface" hint="Optional: keeps the photo with that surface's record">
+                <Select value={surfaceId} onChange={(e) => setSurfaceId(e.target.value)}>
+                  <option value="">Whole work order</option>
+                  {jobSurfaceIds.map((sid) => <option key={sid} value={sid}>{surfaceLabel(db, sid)}</option>)}
+                </Select>
+              </Field>
+            </div>
+            <div className="mt-3 flex justify-end gap-2">
+              <Button size="sm" onClick={() => setPending([])}>Cancel</Button>
+              <Button size="sm" variant="primary" onClick={upload}>Upload</Button>
+            </div>
+          </div>
+        )}
       </div>
     </LiveCard>
   );

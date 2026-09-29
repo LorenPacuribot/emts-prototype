@@ -16,7 +16,7 @@
   to that day and keeps its length.
 */
 import { useEffect, useState, type DragEvent } from 'react';
-import { CalendarClock, CheckCircle2, ChevronLeft, ChevronRight, Clock, GripVertical } from 'lucide-react';
+import { CalendarClock, CheckCircle2, ChevronLeft, ChevronRight, Clock, GripVertical, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar } from '@/components/ui/display';
 import type { Job, TeamMember } from '@/lib/types';
@@ -116,7 +116,7 @@ function JobBar({ job, color, days, onSelect, compact }: { job: Job; color: stri
       onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && onSelect(job.id)}
       role="button"
       tabIndex={0}
-      title={`${job.title} (${job.jobNumber})`}
+      title={`${job.title} (${job.jobNumber})${job.scheduleProtected ? ' · Protected: stays on its date in bulk reschedules' : ''}`}
       className={cn(
         'relative flex h-full w-full select-none flex-col justify-center overflow-hidden rounded-lg px-2 py-1 text-xs font-bold text-white shadow-sm hover:brightness-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80',
         drag ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer opacity-75',
@@ -124,7 +124,10 @@ function JobBar({ job, color, days, onSelect, compact }: { job: Job; color: stri
       style={{ backgroundColor: color }}
     >
       {!compact && <span className="absolute right-1.5 top-1/2 -translate-y-1/2 text-[10px] font-black opacity-90">{days}d</span>}
-      <span className="truncate pr-6">{job.title} <span className="font-medium text-white/80">({job.jobNumber})</span></span>
+      <span className="flex items-center gap-1 truncate pr-6">
+        {job.scheduleProtected && <Lock className="h-3 w-3 shrink-0" aria-label="Protected" />}
+        <span className="truncate">{job.title} <span className="font-medium text-white/80">({job.jobNumber})</span></span>
+      </span>
       {!compact && job.startTime && <span className="truncate pr-6 text-[10px] font-semibold opacity-80">{fmtTimeShort(job.startTime)} – {fmtTimeShort(job.endTime)}</span>}
     </div>
   );

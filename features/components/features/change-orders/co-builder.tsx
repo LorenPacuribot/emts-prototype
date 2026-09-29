@@ -199,7 +199,16 @@ function BuilderBody({ co, onOpenCo }: { co: ChangeOrder; onOpenCo: (id: string)
                         </div>
                       </td>
                       <td className="px-3 py-2 text-right">{l.sqft !== undefined ? `${l.sqft} sq ft` : "—"}</td>
-                      {canCost && <td className="px-3 py-2 text-right text-slate-500">{money(l.cost)}</td>}
+                      {canCost && (
+                        <td className="px-3 py-2 text-right text-slate-500">
+                          {money(l.cost)}
+                          {(l.laborHours !== undefined || l.materialCost !== undefined) && (
+                            <div className="text-[11px] text-slate-400">
+                              {l.laborHours ? `${l.laborHours} h labour` : "no labour"} · {money(l.materialCost ?? 0)} material
+                            </div>
+                          )}
+                        </td>
+                      )}
                       {canPrice && <td className={`px-3 py-2 text-right font-semibold ${amt < 0 ? "text-pink-700" : "text-ink"}`}>{amt > 0 ? "+" : ""}{money(amt)}</td>}
                       <td className="px-1">
                         {isDraft && canBuild && (

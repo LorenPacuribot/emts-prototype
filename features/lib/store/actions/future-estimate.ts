@@ -270,6 +270,7 @@ function buildLines(db: Database, property: Property, rep: RepeatEstimate, appli
       sheen: app.sheen,
       coats: app.coats,
       priorActualGal: access === "full" ? app.actualGallons : undefined,
+      priorActualHours: access === "full" ? app.actualHours : undefined,
       unverified: app.verification === "unverified",
       sourceNote: app.verification === "unverified" ? app.source ?? "recorded from customer" : undefined,
       specOnly: access === "spec_only" || undefined,

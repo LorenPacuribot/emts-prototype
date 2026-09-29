@@ -134,6 +134,34 @@ export function saveCloseoutRow(db: Database, actor: User, jobId: string, draft:
   return ok();
 }
 
+/**
+ * Log Material Usage during production (patent 20): adds gallons used on a
+ * surface to its closeout actuals. Unlike saveCloseoutRow it leaves the
+ * crew lead's confirmation in place, so usage can be logged day by day.
+ */
+export function logMaterialUsage(db: Database, actor: User, jobId: string, entry: { surfaceId: string; gallons: number; date: string; note?: string }) {
+  if (!can(actor, "property.confirmApplications")) return denied(db, actor, MODULE, "log material usage", whoCan("property.confirmApplications"));
+  const job = byId(db.jobs, jobId);
+  if (!job) return fail("Job not found.");
+  if (job.status === "completed") return fail("This job is closed. Use a correction on the property record instead.");
+  if (!job.surfaceIds.includes(entry.surfaceId)) return fail("Choose a surface in this job's approved scope.", "surfaceId");
+  if (!Number.isFinite(entry.gallons) || entry.gallons <= 0) return fail("Enter the gallons used (more than zero).", "gallons");
+  if (!entry.date) return fail("Choose the date the material was used.", "date");
+  if (entry.date > now()) return fail("The usage date can't be in the future.", "date");
+
+  const current = closeoutRowsFor(db, job).find((r) => r.surfaceId === entry.surfaceId)!;
+  const total = Math.round(((current.actualGallons ?? 0) + entry.gallons) * 100) / 100;
+  const c = closeoutFor(db, jobId);
+  c.rows = [...c.rows.filter((r) => r.surfaceId !== entry.surfaceId), { ...current, actualGallons: total, savedBy: actor.id, savedAt: now() }];
+  log(
+    db,
+    actor,
+    MODULE,
+    `Material usage: Job ${jobId} – ${surfaceLabel(db, entry.surfaceId)} ${entry.gallons} gal on ${dateLong(entry.date)} (total ${total} gal) by ${actor.name}${entry.note?.trim() ? `. Note: ${entry.note.trim()}` : ""}`,
+  );
+  return ok(total);
+}
+
 /** Confirm All Matching: confirms every unconfirmed row that still matches its approved spec. */
 export function confirmAllMatching(db: Database, actor: User, jobId: string, completedAt: string) {
   if (!can(actor, "property.confirmApplications")) return denied(db, actor, MODULE, "confirm applications at closeout", whoCan("property.confirmApplications"));

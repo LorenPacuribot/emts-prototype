@@ -5,7 +5,7 @@
  * the outcome panel (Contacted, Snoozed, Dismissed, Converted).
  */
 import { useState } from "react";
-import { BellOff, Check, CheckCircle2, Clock, Layers, PhoneCall, RotateCcw, ShieldCheck, Sparkles, X, XCircle } from "lucide-react";
+import { BellOff, Check, CheckCircle2, Clock, ExternalLink, Layers, PhoneCall, RotateCcw, ShieldCheck, Sparkles, X, XCircle } from "lucide-react";
 import type { RepaintAlert, RepaintSchedule } from "@/features/types";
 import { act, useCurrentUser, useDb } from "@/features/lib/store";
 import { decideExtension } from "@/features/lib/store/actions/service";
@@ -17,7 +17,9 @@ import { date, dateTime } from "@/features/lib/format";
 import { now } from "@/features/lib/clock";
 import { toast } from "@/features/lib/toast";
 import { AppLink } from "@/features/lib/navigation";
-import { Badge, Banner, Button, Drawer, Field, IdChip, KV, Modal, Textarea } from "@/features/components/ui";
+import { contactHref } from "@/features/lib/hrefs";
+import { Badge, Banner, Button, Drawer, Field, IdChip, KV, Modal, Swatch, Textarea } from "@/features/components/ui";
+import { colourText } from "@/features/components/features/properties/property-shared";
 import { ExtensionModal, OutcomeModal, QualifyModal, ReopenModal, SnoozeModal } from "./alert-modals";
 import { NoticeBadge, Section } from "./shared";
 
@@ -101,6 +103,11 @@ export function AlertDrawer({ alertId, onClose }: { alertId?: string; onClose: (
         </Section>
 
         <Section title={`Due surfaces (${alert.surfaces.length})`} icon={<Clock />}>
+          {owner && (
+            <AppLink href={contactHref(owner.id, "paint-history", { location: property.id })} className="mb-3 inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-brand hover:underline">
+              <ExternalLink className="h-3.5 w-3.5" /> Full paint history for this property
+            </AppLink>
+          )}
           <div className="space-y-3">
             {[...alert.surfaces].sort((a, b) => a.dueDate.localeCompare(b.dueDate)).map((s) => {
               const sch = schedules.find((x) => x.applicationId === s.applicationId);
@@ -109,10 +116,18 @@ export function AlertDrawer({ alertId, onClose }: { alertId?: string; onClose: (
               return (
                 <div key={s.applicationId} className="rounded-lg border border-line bg-slate-50/50 p-3">
                   <div className="flex flex-wrap items-start justify-between gap-2">
-                    <div>
-                      <div className="text-[13px] font-semibold text-ink">{surfaceLabel(db, s.surfaceId)}</div>
-                      <div className="text-[11.5px] text-slate-500">
-                        {s.surfaceId} · completed {date(app?.completedAt)} · {app?.product}
+                    <div className="flex items-start gap-2.5">
+                      {app && <Swatch hex={app.hex} />}
+                      <div>
+                        <div className="text-[13px] font-semibold text-ink">{surfaceLabel(db, s.surfaceId)}</div>
+                        {app && (
+                          <div className="text-[12px] font-medium text-slate-700">
+                            {app.manufacturer} {colourText(app)} · {app.sheen} · {app.coats} coat{app.coats === 1 ? "" : "s"}
+                          </div>
+                        )}
+                        <div className="text-[11.5px] text-slate-500">
+                          {s.surfaceId} · completed {date(app?.completedAt)} · {app?.product}
+                        </div>
                       </div>
                     </div>
                     <div className="text-right">

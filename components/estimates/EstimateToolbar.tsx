@@ -47,8 +47,8 @@ export interface ToolbarFeatures {
 }
 
 export function EstimateToolbar({
-  estimate: e, lead, readOnly, canEdit, dirty, a, f = {},
-}: { estimate: Estimate; lead?: Lead; readOnly: boolean; canEdit: boolean; dirty: boolean; a: ToolbarActions; f?: ToolbarFeatures }) {
+  estimate: e, lead, readOnly, canEdit, dirty, saving = false, lastSavedAt, a, f = {},
+}: { estimate: Estimate; lead?: Lead; readOnly: boolean; canEdit: boolean; dirty: boolean; saving?: boolean; lastSavedAt?: Date; a: ToolbarActions; f?: ToolbarFeatures }) {
   const menu: MenuItem[] = [
     { label: 'Download PDF', icon: <Printer />, onClick: a.onPrint },
     { label: 'Open Customer View', icon: <ExternalLink />, onClick: a.onClientView },
@@ -93,7 +93,18 @@ export function EstimateToolbar({
             </Link>
           )}
           {f.chips}
-          {dirty && <span className="text-xs font-semibold text-amber-600">Unsaved changes</span>}
+          {saving ? (
+            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-600" aria-live="polite">
+              <span className="h-3 w-3 animate-spin rounded-full border-2 border-amber-600 border-t-transparent" />
+              Saving…
+            </span>
+          ) : dirty ? (
+            <span className="text-xs font-semibold text-amber-600">Unsaved changes</span>
+          ) : lastSavedAt ? (
+            <span className="text-xs font-semibold text-gray-500" aria-live="polite">
+              Saved {lastSavedAt.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
+            </span>
+          ) : null}
         </div>
       </div>
 

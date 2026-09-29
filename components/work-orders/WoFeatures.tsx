@@ -20,7 +20,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import * as DM from '@radix-ui/react-dropdown-menu';
 import {
-  BadgeDollarSign, CalendarPlus, CalendarX2, CheckCircle2, ClipboardCheck, FilePlus2, MoreVertical, Pencil, Play, Share2, Timer, Trash2,
+  BadgeDollarSign, CalendarPlus, CalendarX2, CheckCircle2, ClipboardCheck, FilePlus2, MoreVertical, PaintBucket, Pencil, Play, Share2, Timer, Trash2,
 } from 'lucide-react';
 import type { Database, Job, WorkOrder } from '@/features/types';
 import { act, useCurrentUser, useDb } from '@/features/lib/store';
@@ -38,6 +38,7 @@ import { Drawer, NewBadge } from '@/features/components/ui';
 import { CloseoutPanel } from '@/features/components/features/closeout/closeout-panel';
 import { MaterialsSections } from '@/features/components/features/materials/materials-sections';
 import { LogHoursModal } from '@/features/components/features/work-orders/details/log-hours-modal';
+import { LogMaterialModal } from '@/features/components/features/work-orders/details/log-material-modal';
 import { CrewClockCard, FieldNotesSection, ScheduleModal, TimeLogSection, WoPaintColorCard } from '@/features/components/features/work-orders/details/wo-sections';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -106,8 +107,8 @@ export function WoTwinChips({ twin }: { twin: WoTwin }) {
 
 /* ---------- status actions + kebab ---------- */
 
-export function WoTwinActions({ twin, onLogHours, onSchedule, onMarkComplete, onEdit }: {
-  twin: WoTwin; onLogHours: () => void; onSchedule: () => void; onMarkComplete: () => void; onEdit: () => void;
+export function WoTwinActions({ twin, onLogHours, onLogMaterial, onSchedule, onMarkComplete, onEdit }: {
+  twin: WoTwin; onLogHours: () => void; onLogMaterial: () => void; onSchedule: () => void; onMarkComplete: () => void; onEdit: () => void;
 }) {
   const { wo, job, db } = twin;
   const user = useCurrentUser();
@@ -125,6 +126,9 @@ export function WoTwinActions({ twin, onLogHours, onSchedule, onMarkComplete, on
     <>
       {can(user, 'workOrder.logTime') && (
         <Button variant="secondary" className={big} icon={<Timer className="h-4 w-4" />} onClick={onLogHours} data-tour="log-hours">Log Hours</Button>
+      )}
+      {wo.status === 'IN_PROGRESS' && can(user, 'property.confirmApplications') && (
+        <Button variant="secondary" className={big} icon={<PaintBucket className="h-4 w-4" />} onClick={onLogMaterial}>Log Material Usage</Button>
       )}
       {wo.status === 'PENDING_DEPOSIT' && canStatus && <Button className={big} icon={<BadgeDollarSign className="h-4 w-4" />} onClick={() => status('UNSCHEDULED')}>Confirm Deposit</Button>}
       {wo.status === 'UNSCHEDULED' && canSchedule && <Button className={big} icon={<CalendarPlus className="h-4 w-4" />} onClick={onSchedule}>Schedule</Button>}
@@ -211,7 +215,7 @@ function UseInMarketing({ wo, attId }: { wo: WorkOrder; attId: string }) {
 
 /* ---------- dialogs ---------- */
 
-export type WoDialog = 'hours' | 'schedule' | 'closeout' | null;
+export type WoDialog = 'hours' | 'material' | 'schedule' | 'closeout' | null;
 
 export function WoTwinDialogs({ twin, open, onClose }: { twin: WoTwin; open: WoDialog; onClose: () => void }) {
   const { wo, job } = twin;
@@ -219,6 +223,7 @@ export function WoTwinDialogs({ twin, open, onClose }: { twin: WoTwin; open: WoD
   return (
     <>
       <LogHoursModal open={open === 'hours'} onOpenChange={set} wo={wo} job={job} />
+      <LogMaterialModal open={open === 'material'} onOpenChange={set} wo={wo} job={job} />
       <ScheduleModal key={`${wo.id}-${open === 'schedule'}`} open={open === 'schedule'} onOpenChange={set} wo={wo} />
       <Drawer open={open === 'closeout'} onOpenChange={set} width="max-w-4xl"
         title={<span className="inline-flex items-center gap-2">Mark Complete · Closeout <NewBadge feature={25} /></span>} subtitle={`${wo.id} · ${job.name}`}>

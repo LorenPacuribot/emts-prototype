@@ -42,6 +42,31 @@ export function JobPerformanceScreen() {
   );
 }
 
+type RowSort = "default" | "over" | "under" | "pct" | "name";
+const SORT_LABEL: Record<RowSort, string> = {
+  default: "Default order",
+  over: "Most over budget first",
+  under: "Most under budget first",
+  pct: "Largest variance % first",
+  name: "Name (A–Z)",
+};
+
+/** Sorts grid rows by variance against the chosen baseline; rows without an actual go last. */
+function sortRows(rows: PerformanceRow[], sort: RowSort, baseline: "revised" | "original", measure: PerformanceMeasure): PerformanceRow[] {
+  if (sort === "default") return rows;
+  if (sort === "name") return [...rows].sort((a, b) => a.label.localeCompare(b.label));
+  const key = (r: PerformanceRow) => {
+    if (r.actual === undefined) return undefined;
+    const v = variance(r.actual, baseline === "revised" ? r.revised : r.original, measure);
+    return sort === "pct" ? (v.pct === null ? undefined : Math.abs(v.pct)) : sort === "over" ? v.amount : -v.amount;
+  };
+  return [...rows].sort((a, b) => {
+    const ka = key(a), kb = key(b);
+    if (ka === undefined || kb === undefined) return ka === undefined ? (kb === undefined ? 0 : 1) : -1;
+    return kb - ka;
+  });
+}
+
 function fmt(v: number | undefined, m: PerformanceMeasure) {
   if (v === undefined) return "—";
   return m === "hours" ? `${v.toFixed(1)} h` : money(v);
@@ -65,11 +90,23 @@ export function Performance() {
   const filter: PerfFilter = { ...range, dimension, baseline, measure };
   const rangeOk = validRange(range.from, range.to);
 
-  const jobs = useMemo(() => (rangeOk ? visibleTo(user, jobPerformance(db, range)) : []), [db, user, range.from, range.to, rangeOk]); // eslint-disable-line react-hooks/exhaustive-deps
+  const [jobFilter, setJobFilter] = useState("");
+  const [crewFilter, setCrewFilter] = useState("");
+  const [sort, setSort] = useState<RowSort>("default");
+
+  const allJobs = useMemo(() => (rangeOk ? visibleTo(user, jobPerformance(db, range)) : []), [db, user, range.from, range.to, rangeOk]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Crew members on any visible job: its crew lead, or anyone with approved time on it in the period.
+  const crewByJob = useMemo(() => new Map(allJobs.map((j) => {
+    const ids = new Set(employeeHoursOnJob(db, j.jobId, range).map((e) => e.employeeId));
+    for (const e of db.employees) if (e.userId && e.userId === j.crewLeadId) ids.add(e.id);
+    return [j.jobId, ids] as const;
+  })), [allJobs, db, range.from, range.to]); // eslint-disable-line react-hooks/exhaustive-deps
+  const crewOptions = db.employees.filter((e) => [...crewByJob.values()].some((ids) => ids.has(e.id)));
+  const jobs = allJobs.filter((j) => (!jobFilter || j.jobId === jobFilter) && (!crewFilter || crewByJob.get(j.jobId)?.has(crewFilter)));
   const completeJobs = jobs.filter((j) => j.complete && j.actual);
   const incompleteJobs = jobs.filter((j) => !(j.complete && j.actual));
-  const rows = buildRows(db, completeJobs, dimension, measure);
-  const incompleteRows = buildRows(db, incompleteJobs, dimension, measure);
+  const rows = sortRows(buildRows(db, completeJobs, dimension, measure), sort, baseline, measure);
+  const incompleteRows = sortRows(buildRows(db, incompleteJobs, dimension, measure), sort, baseline, measure);
   const broken = [...rows, ...incompleteRows].filter((r) => !reconciles(r.original, r.change, r.revised));
   const excluded = overheadExcluded(db, range);
   const filters = filtersFor(db, user);
@@ -77,6 +114,7 @@ export function Performance() {
   const csv = () => {
     downloadCsv(`job-performance-${range.from}-${range.to}.csv`, [
       [`Period ${range.from} to ${range.to}`], ["Date basis: work date"], [`Timezone: ${db.payrollSettings.timezone}`], [`Role filter: ${user.role}${user.role === "estimator" || user.role === "senior_estimator" ? " (own jobs)" : ""}`], [`Measure: ${measure}; baseline: ${baseline}`],
+      [`Job: ${jobFilter ? allJobs.find((j) => j.jobId === jobFilter)?.name ?? jobFilter : "all"}; crew member: ${crewFilter ? byId(db.employees, crewFilter)?.name ?? crewFilter : "all"}`],
       ["row", "original_approved", "approved_change", "revised_approved", "actual", "pending_hours", "variance", "variance_pct", "label", "reason_code", "status"],
       ...[...rows, ...incompleteRows].map((r) => {
         const base = baseline === "revised" ? r.revised : r.original;
@@ -126,6 +164,23 @@ export function Performance() {
           </Field>
           <Field label="Measure">
             {user.role === "crew_lead" ? <Badge tone="gray">Hours only for crew leads</Badge> : <PillTabs value={measureSel} onChange={setMeasure} options={[{ value: "cost", label: "Cost" }, { value: "hours", label: "Hours" }]} />}
+          </Field>
+          <Field label="Job">
+            <Select value={jobFilter} onChange={(e) => setJobFilter(e.target.value)} className="w-52">
+              <option value="">All jobs</option>
+              {allJobs.map((j) => <option key={j.jobId} value={j.jobId}>{j.name}</option>)}
+            </Select>
+          </Field>
+          <Field label="Crew member">
+            <Select value={crewFilter} onChange={(e) => setCrewFilter(e.target.value)} className="w-44">
+              <option value="">All crew</option>
+              {crewOptions.map((e) => <option key={e.id} value={e.id}>{e.name}</option>)}
+            </Select>
+          </Field>
+          <Field label="Sort">
+            <Select value={sort} onChange={(e) => setSort(e.target.value as RowSort)} className="w-52">
+              {(Object.keys(SORT_LABEL) as RowSort[]).map((s) => <option key={s} value={s}>{SORT_LABEL[s]}</option>)}
+            </Select>
           </Field>
           {filters.length > 0 && (
             <Field label="Saved filter">

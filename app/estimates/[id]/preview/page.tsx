@@ -36,6 +36,9 @@ import { useEstimateActions } from '@/components/estimates/useEstimateActions';
 import { sendBlocker } from '@/components/estimates/estimate-utils';
 import { PresentationCanvas } from '@/components/presentations/PresentationCanvas';
 import { SECTION_META } from '@/components/presentations/presentation-utils';
+import { useProtoEstimate } from '@/components/estimates/FeatureSections';
+import { publicEstimateHref } from '@/features/lib/hrefs';
+import { longDate } from '@/lib/utils';
 
 function Preview() {
   const { id } = useParams<{ id: string }>();
@@ -50,6 +53,8 @@ function Preview() {
   const [sendOpen, setSendOpen] = useState(false);
   const [gearOpen, setGearOpen] = useState(false);
   const e = get(id);
+  // The customer link carries the estimate's access token, which is rotated on re-approval (patent 24).
+  const proto = useProtoEstimate(id);
   const autoPrint = params.get('print') === '1';
 
   useEffect(() => {
@@ -73,12 +78,15 @@ function Preview() {
   const templates = matchingTemplates(presentations, e);
   const template = chosenTemplate(presentations, e);
   const save = (s: EstimatePresentationSettings) => update(e.id, { presentation: s });
-  const customerLink = typeof window !== 'undefined' ? `${window.location.origin}/estimates/${e.id}/client-view` : `/estimates/${e.id}/client-view`;
+  const origin = typeof window !== 'undefined' ? window.location.origin : '';
+  const token = proto.est?.publicToken;
+  const customerLink = `${origin}${token ? publicEstimateHref(token) : `/estimates/${e.id}/client-view`}`;
+  const linkExpires = token ? proto.est?.validUntil : undefined;
 
   const copyLink = async () => {
     try {
       await navigator.clipboard.writeText(customerLink);
-      toast('Customer link copied');
+      toast(linkExpires ? `Secure link copied. It works until ${longDate(linkExpires)}.` : 'Customer link copied');
     } catch {
       window.prompt('Copy the customer link:', customerLink);
     }

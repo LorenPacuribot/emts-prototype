@@ -348,6 +348,9 @@ export function ScheduleJobModal({
                       </NativeSelect>
                       <span className="text-xs text-gray-400">{days.length} working day{days.length === 1 ? '' : 's'} · {window > 0 ? `${round1(window)} h window` : 'no window'}</span>
                     </div>
+                    <p className="text-[11px] text-gray-400">
+                      &quot;Free&quot; is each member&apos;s available hours on these days (set in Settings › Team Access) minus hours already booked on other jobs. Saving is refused when a day goes over. Hover a day&apos;s hours to see what&apos;s left.
+                    </p>
                   </div>
                 </div>
               );

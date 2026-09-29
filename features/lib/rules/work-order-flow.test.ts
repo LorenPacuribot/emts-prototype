@@ -3,7 +3,7 @@ import { produce } from "immer";
 import type { ActionResult, Database, User } from "@/features/types";
 import { createSeed } from "@/features/data/seed";
 import { logWorkOrderHours, markUnscheduled, scheduleWorkOrder, setWorkOrderStatus, updateWorkOrderTimeEntry } from "@/features/lib/store/actions/work-orders";
-import { closeJob, confirmAllMatching } from "@/features/lib/store/actions/property";
+import { closeJob, closeoutRowsFor, confirmAllMatching, logMaterialUsage } from "@/features/lib/store/actions/property";
 import { setJobStage } from "@/features/lib/store/actions/jobs";
 
 const NOW = "2026-06-10T15:00:00.000Z";
@@ -111,5 +111,36 @@ describe("Feature 25 — Mark Complete runs the closeout", () => {
   it("a job whose work order hasn't started can't be closed", () => {
     const r = run(createSeed(NOW), "U-OFFICE", closeJob, "JOB-2026-2");
     expect(r.result.ok).toBe(false);
+  });
+});
+
+describe("Patent 20 — Log Material Usage", () => {
+  const row = (db: Database, sid: string) => closeoutRowsFor(db, db.jobs.find((j) => j.id === "JOB-2026-5")!).find((r) => r.surfaceId === sid)!;
+  const day = "2026-06-09T12:00:00.000Z";
+
+  it("adds gallons to the surface's actuals and keeps the crew lead's confirmation", () => {
+    const db = createSeed(NOW);
+    const before = row(db, "SF-4011");
+    expect(before.actualGallons).toBe(2.5);
+    expect(before.confirmedBy).toBe("U-CREW");
+    const r = run(db, "U-CREW", logMaterialUsage, "JOB-2026-5", { surfaceId: "SF-4011", gallons: 1.5, date: day });
+    expect(r.result).toMatchObject({ ok: true, value: 4 });
+    expect(row(r.db, "SF-4011").actualGallons).toBe(4);
+    expect(row(r.db, "SF-4011").confirmedBy).toBe("U-CREW");
+  });
+
+  it("starts from zero on a surface with nothing recorded", () => {
+    const db = createSeed(NOW);
+    const empty = closeoutRowsFor(db, db.jobs.find((j) => j.id === "JOB-2026-5")!).find((r) => r.actualGallons === undefined)!;
+    const r = run(db, "U-CREW", logMaterialUsage, "JOB-2026-5", { surfaceId: empty.surfaceId, gallons: 0.75, date: day });
+    expect(row(r.db, empty.surfaceId).actualGallons).toBe(0.75);
+  });
+
+  it("refuses bad entries and users who can't confirm applications", () => {
+    const db = createSeed(NOW);
+    expect(run(db, "U-CREW", logMaterialUsage, "JOB-2026-5", { surfaceId: "SF-4011", gallons: 0, date: day }).result).toMatchObject({ ok: false, field: "gallons" });
+    expect(run(db, "U-CREW", logMaterialUsage, "JOB-2026-5", { surfaceId: "SF-9999", gallons: 1, date: day }).result).toMatchObject({ ok: false, field: "surfaceId" });
+    expect(run(db, "U-CREW", logMaterialUsage, "JOB-2026-5", { surfaceId: "SF-4011", gallons: 1, date: "2099-01-01T12:00:00.000Z" }).result).toMatchObject({ ok: false, field: "date" });
+    expect(run(db, "U-BOOK", logMaterialUsage, "JOB-2026-5", { surfaceId: "SF-4011", gallons: 1, date: day }).result.ok).toBe(false);
   });
 });

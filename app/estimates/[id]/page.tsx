@@ -116,6 +116,21 @@ export default function EstimateBuilderPage() {
     if (stored && !dirty) setDraft(stored);
   }, [stored, dirty]);
 
+  // Drafts save themselves 2s after the last edit (patent 4: rows save as the estimator walks the property).
+  // Autosave skips the version history; Save Draft still records a version.
+  const { autosave } = actions;
+  const [lastSavedAt, setLastSavedAt] = useState<Date>();
+  const autosavePending = !!draft && dirty && draft.status === 'Draft' && !!draft.title.trim();
+  useEffect(() => {
+    if (!autosavePending || !draft) return;
+    const t = setTimeout(() => {
+      autosave(draft);
+      setDirty(false);
+      setLastSavedAt(new Date());
+    }, 2000);
+    return () => clearTimeout(t);
+  }, [autosavePending, draft, autosave]);
+
   const ctx = useMemo(
     () => ({ surfaceRates: c.surfaceRates, tiers: c.difficultyTiers, tableColumns: c.tableColumns, paints: c.paintProducts }),
     [c.surfaceRates, c.difficultyTiers, c.tableColumns, c.paintProducts],
@@ -271,6 +286,7 @@ export default function EstimateBuilderPage() {
     actions.save(draft, draft.status === 'Draft' ? 'Draft saved' : 'Estimate updated');
     setDirty(false);
     setEditOverride(false);
+    setLastSavedAt(new Date());
     toast('Estimate saved');
   };
 
@@ -294,14 +310,23 @@ export default function EstimateBuilderPage() {
     const norm = (s?: string) => (s ?? '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
     const wanted = norm(cc.product || cc.productLine);
     const brandIds = new Set(c.brands.filter((b) => norm(b.name) === norm(cc.manufacturer)).map((b) => b.id));
-    const paint = wanted
-      ? c.paintProducts.find((p) => (!brandIds.size || brandIds.has(p.brandId)) && (norm(p.name) === wanted || wanted.includes(norm(p.name)) || norm(p.name).includes(wanted)))
-      : undefined;
+    const inBrand = c.paintProducts.filter((p) => !brandIds.size || brandIds.has(p.brandId));
+    // Exact name within the brand wins; a partial match is a fallback, longest name first
+    // so "SuperPaint Exterior" beats "SuperPaint" for a card that names the exterior line.
+    const paint = !wanted
+      ? undefined
+      : inBrand.find((p) => norm(p.name) === wanted)
+        ?? [...inBrand]
+          .filter((p) => wanted.includes(norm(p.name)) || norm(p.name).includes(wanted))
+          .sort((a, b) => b.name.length - a.name.length)[0];
     const patch: Partial<EstimateLineItem> = {};
     if (cc.sheen) patch.sheen = cc.sheen;
     if (cc.coats) patch.coats = cc.coats;
     if (paint) patch.paintProductId = paint.id;
     if (Object.keys(patch).length) updateLine(lineId, patch);
+    if (wanted && !paint) {
+      toast(`"${cc.product || cc.productLine}" isn't in the Paint Library. Colour, sheen and coats were applied; pick the product on the row.`, 'info');
+    }
   };
 
   const assignColour = (lineId: string, colourId: string) => {
@@ -333,6 +358,8 @@ export default function EstimateBuilderPage() {
           readOnly={readOnly}
           canEdit={canEdit}
           dirty={dirty}
+          saving={autosavePending}
+          lastSavedAt={lastSavedAt}
           f={{
             actions: (
               <ApprovedEstimateActions

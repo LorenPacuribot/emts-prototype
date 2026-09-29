@@ -459,6 +459,9 @@ export interface LineDraft {
   description: string;
   sqft?: number;
   cost: number;
+  laborHours?: number;
+  laborRate?: number;
+  materialCost?: number;
   product?: string;
   colour?: string;
   surfaceId?: string;
@@ -473,14 +476,23 @@ export function saveLine(db: Database, actor: User, coId: string, draft: LineDra
   if (d) return d;
   if (!draft.description.trim()) return fail("Describe the scope being added or removed.", "description");
   if (draft.sqft !== undefined && (Number.isNaN(draft.sqft) || draft.sqft < 0)) return fail("Measurement must be zero or more.", "sqft");
-  if (Number.isNaN(draft.cost) || draft.cost < 0) return fail("Cost must be zero or more. Use a Remove line for a reduction.", "cost");
+  const bad = (v?: number) => v !== undefined && (!Number.isFinite(v) || v < 0);
+  if (bad(draft.laborHours)) return fail("Labour hours must be zero or more.", "laborHours");
+  if (bad(draft.laborRate)) return fail("Labour rate must be zero or more.", "laborRate");
+  if (bad(draft.materialCost)) return fail("Material cost must be zero or more.", "materialCost");
+  if ((draft.laborHours ?? 0) > 0 && draft.laborRate === undefined) return fail("Enter the labour rate for these hours.", "laborRate");
+  // A breakdown, when given, is the source of the cost.
+  const broken = draft.laborHours !== undefined || draft.materialCost !== undefined;
+  const cost = broken ? (draft.laborHours ?? 0) * (draft.laborRate ?? 0) + (draft.materialCost ?? 0) : draft.cost;
+  if (Number.isNaN(cost) || cost < 0) return fail("Cost must be zero or more. Use a Remove line for a reduction.", "cost");
   if (draft.treatment === "stranded_paint" && draft.kind !== "add") return fail("Stranded tinted paint is billed as an added line.", "treatment");
   const clean: ChangeOrderLine = {
     id: lineId ?? `L${Math.max(0, ...co!.lines.map((l) => Number(l.id.replace(/\D/g, "")) || 0)) + 1}`,
     kind: draft.kind,
     description: draft.description.trim(),
     sqft: draft.sqft,
-    cost: roundMoney(draft.cost),
+    cost: roundMoney(cost),
+    ...(broken ? { laborHours: draft.laborHours, laborRate: draft.laborRate, materialCost: draft.materialCost !== undefined ? roundMoney(draft.materialCost) : undefined } : {}),
     product: draft.product?.trim() || undefined,
     colour: draft.colour?.trim() || undefined,
     surfaceId: draft.surfaceId || undefined,

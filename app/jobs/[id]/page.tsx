@@ -41,7 +41,7 @@ import { cn, money } from '@/lib/utils';
 export default function JobDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
-  const { get } = useCollection('jobs');
+  const { get, update } = useCollection('jobs');
   const { items: workOrders } = useCollection('workOrders');
   const look = useLookups();
   const actions = useJobActions();
@@ -164,7 +164,15 @@ export default function JobDetailPage() {
         <div className="space-y-8 lg:col-span-4">
           {canFinancials && <FinancialsCard job={job} />}
           {twin && <JobCostCard job={twin.job} />}
-          <ScheduleCard job={job} onEdit={() => setScheduleOpen(true)} onCancel={!twin || twin.wo?.status === 'SCHEDULED' ? () => setConfirmCancel(true) : undefined} />
+          <ScheduleCard
+            job={job}
+            onEdit={() => setScheduleOpen(true)}
+            onCancel={!twin || twin.wo?.status === 'SCHEDULED' ? () => setConfirmCancel(true) : undefined}
+            onToggleProtected={job.status === 'Completed' ? undefined : (v) => {
+              update(job.id, { scheduleProtected: v });
+              toast(v ? 'Date protected from bulk rescheduling' : 'Date protection removed');
+            }}
+          />
           <CustomerCard job={job} customer={customer} />
           <CrewCard job={job} />
         </div>

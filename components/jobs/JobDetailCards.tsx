@@ -11,7 +11,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import {
   ArrowRight, Briefcase, Calendar, Check, ClipboardList, Clock, DollarSign, Edit2, History, MapPin, Mail, NotebookPen,
-  PauseCircle, Phone, Plus, Trash2, User, Users,
+  Lock, PauseCircle, Phone, Plus, Trash2, Unlock, User, Users,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, EmptyState, ProgressBar } from '@/components/ui/display';
@@ -96,7 +96,7 @@ export function CustomerCard({ job, customer }: { job: Job; customer?: Customer 
 /* ---------- Schedule ---------- */
 
 /** Without `onCancel` there is no Cancel schedule link (a twinned job that is already in production). */
-export function ScheduleCard({ job, onEdit, onCancel }: { job: Job; onEdit: () => void; onCancel?: () => void }) {
+export function ScheduleCard({ job, onEdit, onCancel, onToggleProtected }: { job: Job; onEdit: () => void; onCancel?: () => void; onToggleProtected?: (v: boolean) => void }) {
   const fmt = (k: string) => fmtDay(k, { weekday: 'short', month: 'long', day: 'numeric' });
   return (
     <div className={cn(card, 'flex min-h-[240px] flex-col')}>
@@ -118,6 +118,25 @@ export function ScheduleCard({ job, onEdit, onCancel }: { job: Job; onEdit: () =
               <div className="mb-1 text-xs font-bold uppercase tracking-widest text-gray-500">End Date</div>
               <div className="text-lg font-bold text-gray-700">{fmt(job.endDate)}</div>
             </div>
+          )}
+          {onToggleProtected && (
+            <label className="flex cursor-pointer items-start gap-2 rounded-xl border border-gray-200 p-3 text-sm">
+              <input
+                type="checkbox"
+                className="mt-0.5 h-4 w-4 cursor-pointer accent-amber-600"
+                checked={!!job.scheduleProtected}
+                onChange={(e) => onToggleProtected(e.target.checked)}
+              />
+              <span>
+                <span className="flex items-center gap-1 font-bold text-gray-900">
+                  {job.scheduleProtected ? <Lock className="h-3.5 w-3.5 text-amber-600" /> : <Unlock className="h-3.5 w-3.5 text-gray-400" />}
+                  Protect this date
+                </span>
+                <span className="block text-xs text-gray-500">
+                  {job.scheduleProtected ? 'Stays on its date when other jobs are bulk rescheduled.' : 'Bulk rescheduling can move this job.'}
+                </span>
+              </span>
+            </label>
           )}
           {onCancel && <button onClick={onCancel} className="pt-1 text-xs font-semibold text-red-600 hover:underline">Cancel schedule</button>}
         </div>

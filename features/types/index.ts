@@ -205,6 +205,8 @@ export interface WorkOrderAttachment {
   createdAt: ISODate;
   by: ID;
   caption?: string;
+  /** The surface this photo documents (patent 20: photos sit with the surface record). */
+  surfaceId?: ID;
   /** NEW (feature 34): the media-library asset made from this photo. */
   mediaAssetId?: ID;
 }
@@ -1192,8 +1194,12 @@ export interface ChangeOrderLine {
   kind: "add" | "remove";
   description: string;
   sqft?: number;
-  /** Cost before markup. */
+  /** Cost before markup. With a labour/material breakdown it is laborHours × laborRate + materialCost. */
   cost: number;
+  /** Optional breakdown of cost (patent 24: incremental labour and materials for the added scope). */
+  laborHours?: number;
+  laborRate?: number;
+  materialCost?: number;
   /** Product and colour for the line (feature 24 builder). */
   product?: string;
   colour?: string;
@@ -1552,6 +1558,8 @@ export interface RepeatEstimateLine {
   sheen: string;
   coats: number;
   priorActualGal?: number;
+  /** Labour hours actually used last time (patent 28), reference only like priorActualGal. */
+  priorActualHours?: number;
   unverified: boolean;
   newQtyGal?: number;
   prep?: "standard" | "extra_scrape" | "full_prime";

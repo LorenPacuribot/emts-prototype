@@ -23,6 +23,8 @@ import { date, dateLong, titleCase } from "@/features/lib/format";
 import { downloadCsv } from "@/features/lib/export";
 import { toast } from "@/features/lib/toast";
 import { actualLabel, inPeriod, newestFirst } from "@/features/lib/rules/property";
+import { calcRepaintDate } from "@/features/lib/rules/lifespan";
+import { jobSurfaceHours } from "@/features/lib/rules/estimate";
 import { PanelHeader as PageHeader } from "@/features/components/features/contacts/details/panel-header";
 import { Badge, Banner, Button, Card, CardLabel, EmptyState, IdChip, KV, MicroLabel, RowMenu, Select, Stat, StatStrip, Swatch, Tooltip } from "@/features/components/ui";
 import { propertyHref } from "@/features/lib/hrefs";
@@ -384,6 +386,11 @@ function ApplicationCard({ app, latest, seeCosts, canCorrect, canLog, onCorrect,
     return e ? `Unknown approved by ${byId(db.users, e.approvedBy)?.name} (${e.kind}). ${e.reason}` : undefined;
   };
   const job = app.jobId && byId(db.jobs, app.jobId);
+  // Expected life and repaint date, by the same rule the repaint alerts use (patent 25, 27).
+  const surface = byId(db.surfaces, app.surfaceId);
+  const area = surface && byId(db.areas, surface.areaId);
+  const repaint = area ? calcRepaintDate(app, area, db.lifespanLibrary, surface) : undefined;
+  const estHours = job && surface ? jobSurfaceHours(db, job.id, surface) : undefined;
 
   return (
     <div className={latest ? "rounded-xl border border-blue-100 bg-brand-soft/30 p-4" : "rounded-xl border border-line bg-white p-4"}>
@@ -422,6 +429,13 @@ function ApplicationCard({ app, latest, seeCosts, canCorrect, canLog, onCorrect,
         <Cell label="Surface completed">{app.completedAt ? dateLong(app.completedAt) : <NotRecorded />}<Mark field="Completion date" /></Cell>
         <Cell label="Confirmed by">{app.confirmedBy ? byId(db.users, app.confirmedBy)?.name : <NotRecorded text={app.verification === "unverified" ? "Not crew-confirmed" : "Not recorded"} />}</Cell>
         <Cell label="Customer accepted">{app.customerAcceptedAt ? dateLong(app.customerAcceptedAt) : <NotRecorded />}</Cell>
+        <Cell label="Preparation">{app.prepQuality === "good" ? "Good" : app.prepQuality === "poor" ? "Poor" : <NotRecorded />}</Cell>
+        <Cell label="Expected life">
+          {repaint?.years !== undefined ? (
+            <Tooltip content={repaint.basis.join(" · ")}><span className="cursor-help underline decoration-dotted">{repaint.years} yrs</span></Tooltip>
+          ) : <NotRecorded />}
+        </Cell>
+        <Cell label="Repaint due">{repaint?.dueDate ? dateLong(repaint.dueDate) : <NotRecorded text={repaint?.unresolved ? "Not calculated" : "Not recorded"} />}</Cell>
       </div>
 
       {app.touchUps.length > 0 && (
@@ -444,7 +458,9 @@ function ApplicationCard({ app, latest, seeCosts, canCorrect, canLog, onCorrect,
         {seeCosts && (
           <span className="flex items-center gap-2 text-slate-600">
             <Badge tone="gray" icon={<Lock className="h-3 w-3" />}>Staff-only</Badge>
-            Hours {app.actualHours === undefined ? <NotRecorded /> : app.actualHours} · Gallons {app.actualGallons === undefined ? <NotRecorded /> : app.actualGallons}
+            {estHours !== undefined && <>Est. hours {Math.round(estHours * 10) / 10} · </>}
+            Actual hours {app.actualHours === undefined ? <NotRecorded /> : app.actualHours} · Gallons {app.actualGallons === undefined ? <NotRecorded /> : app.actualGallons}
+            {surface?.areaSqft ? ` · ${surface.areaSqft} sq ft` : ""}
           </span>
         )}
       </div>
