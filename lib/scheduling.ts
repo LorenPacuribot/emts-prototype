@@ -1,6 +1,6 @@
 import type { Job, TeamMember } from './types';
 import {
-  addDays, dayRange, daysInclusive, entryDays, memberDayHours, parseKey, weekDays, workingJobDays, workingShiftDays,
+  addDays, dayRange, daysInclusive, entryDays, memberDayHours, parseKey, shiftWindow, weekDays, workingJobDays, workingShiftDays,
 } from '@/components/scheduling/schedule-utils';
 
 export function assignedHours(job: Job, memberId: string, day: string): number {
@@ -78,7 +78,8 @@ export function scheduleConflicts(candidate: Job, jobs: Job[], team: TeamMember[
       // Each shift (and the job's own hours) must fit its daily window.
       for (const scope of [...new Set(entries.map((c) => c.shiftId ?? ''))]) {
         const shift = scope ? candidate.shifts?.find((s) => s.id === scope) : undefined;
-        const window = shift ? clock(shift.endTime) - clock(shift.startTime) : jobWindow;
+        const daily = shift && shiftWindow(shift, day);
+        const window = daily ? clock(daily.endTime) - clock(daily.startTime) : jobWindow;
         const inScope = memberDayHours({ ...candidate, crew: entries.filter((c) => (c.shiftId ?? '') === scope) }, memberId, day);
         if (inScope > window + 0.00001) out.push({ memberId, day, kind: 'window', message: `${name}: ${day} has ${Math.max(0, window).toFixed(2)} hours in the ${shift ? `"${shift.name || 'Unnamed'}" shift` : 'daily'} window; ${inScope.toFixed(2)} requested.` });
       }
@@ -107,6 +108,10 @@ export function scheduleError(candidate: Job, jobs: Job[], team: TeamMember[]): 
     const label = `Shift "${shift.name || 'Unnamed'}"`;
     if (!isDay(shift.startDate) || !isDay(shift.endDate) || shift.endDate < shift.startDate) return `${label}: choose valid dates.`;
     if (!(clock(shift.endTime) - clock(shift.startTime) > 0)) return `${label}: the end time must be after the start time.`;
+    for (const day of workingShiftDays(candidate, shift)) {
+      const daily = shiftWindow(shift, day);
+      if (!(clock(daily.endTime) - clock(daily.startTime) > 0)) return `${label}: ${day} must end after its start time.`;
+    }
     if (shift.startDate < candidate.startDate || shift.endDate > end) return `${label} falls outside the job dates.`;
   }
   const days = workingJobDays(candidate);
@@ -135,7 +140,7 @@ export function moveJob(job: Job, offset: number, from?: string): Job {
     endDate: addDays(job.endDate ?? job.startDate!, offset),
     crew: job.crew.map((c) => ({ ...c, date: c.date && shift(c.date) })),
     breaks: job.breaks.map((b) => ({ ...b, startDate: shift(b.startDate), endDate: shift(b.endDate) })),
-    shifts: job.shifts?.map((s) => ({ ...s, startDate: shift(s.startDate), endDate: addDays(s.endDate, keep(s.endDate) ? 0 : offset) })),
+    shifts: job.shifts?.map((s) => ({ ...s, startDate: shift(s.startDate), endDate: addDays(s.endDate, keep(s.endDate) ? 0 : offset), dailyHours: s.dailyHours && Object.fromEntries(Object.entries(s.dailyHours).map(([d, v]) => [shift(d), v])) })),
   };
 }
 

@@ -118,6 +118,7 @@ export function jobDays(j: Job): string[] {
 
 /** Days the crew actually works: job days minus any break/pause periods. */
 export function workingJobDays(j: Job): string[] {
+  if (j.shifts?.length) return [...new Set(j.shifts.flatMap((s) => workingShiftDays(j, s)))].sort();
   const off = new Set(j.breaks.flatMap((b) => dayRange(b.startDate, b.endDate)));
   return jobDays(j).filter((d) => !off.has(d));
 }
@@ -125,8 +126,15 @@ export function workingJobDays(j: Job): string[] {
 /** Days a shift (portion) covers, minus the job's break periods. */
 export function workingShiftDays(j: Job, shift: JobShift): string[] {
   const off = new Set(j.breaks.flatMap((b) => dayRange(b.startDate, b.endDate)));
-  return dayRange(shift.startDate, shift.endDate).filter((d) => !off.has(d));
+  if (!shift.startDate || !shift.endDate || shift.endDate < shift.startDate || daysInclusive(shift.startDate, shift.endDate) > 3660) return [];
+  return dayRange(shift.startDate, shift.endDate).filter((d) => !off.has(d) && shift.dailyHours?.[d] !== null);
 }
+
+export const shiftWindow = (shift: JobShift, day: string) => shift.dailyHours?.[day] ?? { startTime: shift.startTime, endTime: shift.endTime };
+export const windowHours = (start: string, end: string) => {
+  const clock = (v: string) => /^([01]\d|2[0-3]):[0-5]\d$/.test(v) ? Number(v.slice(0, 2)) + Number(v.slice(3)) / 60 : NaN;
+  return clock(end) - clock(start);
+};
 
 /** The days one crew entry's hours are spread over: its shift's days, else the job's. */
 export function entryDays(j: Job, c: CrewAssignment): string[] {

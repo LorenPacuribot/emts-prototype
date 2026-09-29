@@ -219,6 +219,7 @@ export interface WorkOrderShift {
   startTime: string;
   endTime: string;
   memberIds: ID[];
+  dailyHours?: Record<string, { startTime: string; endTime: string } | null>;
 }
 
 export interface WorkOrder {

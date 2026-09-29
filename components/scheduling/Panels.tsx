@@ -23,7 +23,7 @@ import { useJobActions } from '@/components/jobs/useJobActions';
 import { useCollection, useCurrentUser, useLookups } from '@/lib/store';
 import type { Job } from '@/lib/types';
 import { cn, fullName, longDate } from '@/lib/utils';
-import { addDays, daysInclusive, fmtDay, fmtSpan, fmtTime, workingJobDays } from './schedule-utils';
+import { addDays, daysInclusive, fmtDay, fmtSpan, fmtTime, workingJobDays, workingShiftDays, shiftWindow } from './schedule-utils';
 import { planReschedule, planSpecificDates } from '@/lib/scheduling';
 
 const PRIORITIES = ['Low', 'Normal', 'High', 'Urgent'] as const;
@@ -94,12 +94,12 @@ export function JobDetailsPanel({
               <Row icon={Users} label="Crew">
                 {job.crew.length ? (
                   <div className="flex flex-col gap-1.5">
-                    {job.crew.map((c) => {
+                    {job.crew.filter((c, i, all) => all.findIndex((x) => x.memberId === c.memberId) === i).map((c) => {
                       const m = look.member(c.memberId);
                       return (
                         <div key={c.memberId} className="flex items-center gap-2">
                           <Avatar name={fullName(m)} color={m?.color} size="sm" />
-                          <div><div className="text-sm font-medium text-gray-700">{fullName(m)}</div><div className="text-[11px] font-normal text-gray-400">{c.role} · {c.hours}h</div></div>
+                          <div><div className="text-sm font-medium text-gray-700">{fullName(m)}</div><div className="text-[11px] font-normal text-gray-400">{c.role} · {Math.round(job.crew.filter((entry) => entry.memberId === c.memberId).reduce((n, entry) => n + entry.hours, 0) * 10) / 10}h</div></div>
                         </div>
                       );
                     })}
@@ -110,7 +110,7 @@ export function JobDetailsPanel({
               <Row icon={Calendar} label="End date">{job.startDate ? fmtDay(job.endDate ?? job.startDate, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }) : <NotScheduled />}</Row>
               <Row icon={Clock} label="Duration">{job.startDate ? `${days.length} working day${days.length === 1 ? '' : 's'}` : <span className="font-normal text-gray-400">—</span>}</Row>
               <Row icon={Clock} label="Daily hours">
-                {job.startDate ? (job.startTime ? `${fmtTime(job.startTime)} – ${fmtTime(job.endTime)}` : <span className="font-normal text-gray-400">Time not set</span>) : <NotScheduled />}
+                {job.startDate && job.shifts?.length ? <div className="space-y-2">{job.shifts.flatMap((shift) => workingShiftDays(job, shift).map((day) => { const w = shiftWindow(shift, day); return <div key={shift.id + day} className="flex justify-between gap-2 text-xs"><span className="text-gray-500">{fmtDay(day, { weekday: 'short', month: 'short', day: 'numeric' })}</span><span>{fmtTime(w.startTime)} – {fmtTime(w.endTime)}</span></div>; }))}</div> : job.startDate ? (job.startTime ? `${fmtTime(job.startTime)} – ${fmtTime(job.endTime)}` : <span className="font-normal text-gray-400">Time not set</span>) : <NotScheduled />}
               </Row>
               {job.breaks.length > 0 && (
                 <Row icon={Calendar} label="Pauses">
@@ -151,8 +151,7 @@ export function JobDetailsPanel({
         </div>
 
         <div className="space-y-2 border-t border-gray-100 p-5">
-          <Button className="w-full" onClick={onReschedule}>{job.startDate ? 'Reschedule Job' : 'Schedule Job'}</Button>
-          <Button variant="secondary" className="w-full" onClick={onManageCrew}>Manage crew</Button>
+          <Button className="w-full" onClick={onReschedule}>{job.startDate ? 'View shifts' : 'Schedule Job'}</Button>
           {job.startDate && <Button variant="danger" className="w-full" onClick={onCancel}>Cancel schedule</Button>}
           <Link href={`/jobs/${job.id}`} className="flex h-10 w-full items-center justify-center rounded-lg text-sm font-semibold text-primary-600 hover:underline">
             View full details <ChevronRight className="ml-1 h-4 w-4" />

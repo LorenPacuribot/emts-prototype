@@ -620,6 +620,7 @@ const jobs: Entity<Job> = {
           const wo = d.workOrders.find((w) => w.jobId === id);
           if (!wo) return;
           const empIds = ids.map((m) => d.employees?.find((e) => e.userId === m)?.id ?? m);
+          if (r.shifts?.length) return;
           if (wo.shifts[0]) wo.shifts[0].memberIds = empIds;
           else if (empIds.length) {
             const start = r.startDate ?? M.dayOf(new Date().toISOString())!;
@@ -645,7 +646,7 @@ const jobs: Entity<Job> = {
           const wo = d.workOrders.find((w) => w.jobId === id);
           if (!wo) return;
           const empOf = (m: string) => d.employees?.find((e) => e.userId === m)?.id ?? m;
-          wo.shifts = shifts.map((s) => ({ id: s.id, name: s.name, startDate: s.startDate, endDate: s.endDate, startTime: s.startTime, endTime: s.endTime, memberIds: s.memberIds.map(empOf) }));
+          wo.shifts = shifts.map((s) => ({ ...s, memberIds: s.memberIds.map(empOf) }));
         });
       },
     },
@@ -654,11 +655,11 @@ const jobs: Entity<Job> = {
       readP: (p, id) => M.jobSchedule(p, byId(p.jobs, id)!),
       readR: (r) => ({ startDate: r.startDate, endDate: r.endDate, startTime: r.startTime, endTime: r.endTime }),
       writeR: (v) => v as Partial<Job>,
-      writeP: (v, id) => {
+      writeP: (v, id, r) => {
         const x = v as { startDate?: string; endDate?: string; startTime?: string; endTime?: string };
         const p = getDb();
         const wo = p.workOrders.find((w) => w.jobId === id);
-        if (wo && x.startDate && x.endDate) act(scheduleWorkOrder, wo.id, { startDate: x.startDate, endDate: x.endDate, startTime: x.startTime, endTime: x.endTime });
+        if (wo && x.startDate && x.endDate) act(scheduleWorkOrder, wo.id, { startDate: x.startDate, endDate: x.endDate, startTime: x.startTime, endTime: x.endTime, preserveShiftTimes: !!r.shifts?.length });
         else if (wo && !x.startDate && wo.status === 'SCHEDULED') act(markUnscheduled, wo.id);
         else if (!wo) pWrite((d) => { const j = byId(d.jobs, id); if (j) { j.scheduleStart = x.startDate ? iso(x.startDate, 8) : undefined; j.scheduleEnd = x.endDate ? iso(x.endDate, 17) : undefined; } });
       },

@@ -83,7 +83,7 @@ export function setWorkOrderStatus(db: Database, actor: User, woId: string, to: 
   return ok();
 }
 
-export function scheduleWorkOrder(db: Database, actor: User, woId: string, input: { startDate: string; endDate: string; startTime?: string; endTime?: string }) {
+export function scheduleWorkOrder(db: Database, actor: User, woId: string, input: { startDate: string; endDate: string; startTime?: string; endTime?: string; preserveShiftTimes?: boolean }) {
   if (!can(actor, "workOrder.manageSchedule")) return denied(db, actor, MODULE, "schedule a work order", whoCan("workOrder.manageSchedule"));
   const wo = byId(db.workOrders, woId);
   if (!wo) return fail("Work order not found.");
@@ -101,7 +101,8 @@ export function scheduleWorkOrder(db: Database, actor: User, woId: string, input
   const shifts = wo.shifts.map((s) => ({ ...s,
     startDate: addDays(s.startDate, offset),
     endDate: s.startDate === oldStart && s.endDate === oldEnd ? input.endDate : addDays(s.endDate, offset),
-    startTime: input.startTime ?? s.startTime, endTime: input.endTime ?? s.endTime,
+    startTime: input.preserveShiftTimes ? s.startTime : input.startTime ?? s.startTime, endTime: input.preserveShiftTimes ? s.endTime : input.endTime ?? s.endTime,
+    dailyHours: s.dailyHours && Object.fromEntries(Object.entries(s.dailyHours).map(([day, hours]) => [addDays(day, offset), hours])),
   }));
   if (shifts.some((s) => s.endDate > input.endDate || s.startDate < input.startDate || s.endDate < s.startDate)) return fail('The job dates must contain all assigned shifts.');
   const capacityError = shiftCapacityError(db, woId, shifts);

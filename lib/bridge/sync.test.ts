@@ -160,7 +160,10 @@ describe('schedule bridge', () => {
       j.endDate = '2030-03-05';
       j.startTime = '07:00';
       j.endTime = '15:00';
-      j.shifts = [{ id: 'sh_test', name: 'Walls', startDate: day, endDate: '2030-03-05', startTime: '07:00', endTime: '15:00', memberIds: [member.id] }];
+      j.shifts = [
+        { id: 'sh_test', name: 'Walls', startDate: day, endDate: '2030-03-05', startTime: '07:00', endTime: '15:00', memberIds: [member.id], dailyHours: { [day]: { startTime: '07:00', endTime: '14:00' } } },
+        { id: 'sh_second', name: 'Inspection', startDate: '2030-03-05', endDate: '2030-03-05', startTime: '12:00', endTime: '16:00', memberIds: [] },
+      ];
       j.crew = [{ memberId: member.id, role: 'Painter', hours: 6, date: day, shiftId: 'sh_test' }];
       j.status = 'Scheduled';
     });
@@ -168,7 +171,9 @@ describe('schedule bridge', () => {
     replica = applyOps(replica, ops);
     const w = getDb().workOrders.find((x) => x.id === wo.id)!;
     expect(w.status).toBe('SCHEDULED');
-    expect(w.shifts.map((s) => s.id)).toEqual(['sh_test']);
+    expect(w.shifts.map((s) => s.id)).toEqual(['sh_test', 'sh_second']);
+    expect(w.shifts[1]).toMatchObject({ startTime: '12:00', endTime: '16:00', memberIds: [] });
+    expect(w.shifts[0]!.dailyHours?.[day]).toEqual({ startTime: '07:00', endTime: '14:00' });
     const job = replica.collections.jobs.find((x) => x.id === wo.jobId)!;
     // Nothing was rolled back on the replica side.
     expect(job).toMatchObject({ startDate: day, endDate: '2030-03-05', status: 'Scheduled' });

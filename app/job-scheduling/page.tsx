@@ -62,10 +62,8 @@ export default function JobSchedulingPage() {
   const handleDrop = (jobId: string, day: string) => {
     const j = get(jobId);
     if (!j || j.status === 'Completed') return;
-    const len = j.startDate ? daysInclusive(j.startDate, j.endDate ?? j.startDate) : defaultDurationDays(j);
     if (j.startDate === day) return;
-    if (!actions.setSchedule(j.id, { startDate: day, endDate: addDays(day, len - 1), startTime: j.startTime ?? '08:00', endTime: j.endTime ?? '16:30' })) return;
-    toast(`${j.jobNumber} ${j.startDate ? 'moved' : 'scheduled'} to ${shortDate(day)}`);
+    setScheduleJob({ id: j.id, start: day });
   };
 
   const selected = selectedId ? get(selectedId) ?? null : null;
@@ -94,7 +92,7 @@ export default function JobSchedulingPage() {
       <div className="mb-8 flex flex-col justify-between gap-6 md:flex-row md:items-end">
         <div>
           <h1 className="mb-4 font-heading text-3xl font-black tracking-tight text-gray-900 md:text-4xl">Job Scheduling</h1>
-          <p className="text-lg text-gray-500 md:text-xl">Schedule won jobs onto a calendar and manage crew assignments.</p>
+          <p className="text-lg text-gray-500 md:text-xl">Manage staff availability and crew assignments.</p>
         </div>
         <div className={cn(track, 'w-full md:w-auto')}>
           {(['job', 'crew'] as const).map((v) => (
@@ -144,7 +142,7 @@ export default function JobSchedulingPage() {
       <JobDetailsPanel
         job={selected}
         onClose={() => setSelectedId(null)}
-        onReschedule={() => selected && setScheduleJob({ id: selected.id })}
+        onReschedule={() => { if (selected) { setScheduleJob({ id: selected.id }); setSelectedId(null); } }}
         onManageCrew={() => selected && setCrewJobId(selected.id)}
         onCancel={() => selected && setCancelId(selected.id)}
       />

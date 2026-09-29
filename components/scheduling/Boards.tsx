@@ -26,6 +26,7 @@ import {
   type ScheduleRange,
 } from './schedule-utils';
 import { CrewActualChip, CrewActualLegend } from './CrewActualHours';
+import { calendarSegments } from './shift-draft';
 
 export const JOB_DND = 'application/x-emts-job';
 const isJobDrag = (e: DragEvent) => Array.from(e.dataTransfer.types).includes(JOB_DND);
@@ -106,7 +107,7 @@ function DayHeader({ day, extra }: { day: string; extra?: React.ReactNode }) {
 
 /* ---------- Job bar ---------- */
 
-function JobBar({ job, color, days, onSelect, compact }: { job: Job; color: string; days: number; onSelect: (id: string) => void; compact?: boolean }) {
+function JobBar({ job, color, days, onSelect, compact }: { job: Job & { shiftLabel?: string }; color: string; days: number; onSelect: (id: string) => void; compact?: boolean }) {
   const drag = canDrag(job);
   return (
     <div
@@ -128,7 +129,7 @@ function JobBar({ job, color, days, onSelect, compact }: { job: Job; color: stri
         {job.scheduleProtected && <Lock className="h-3 w-3 shrink-0" aria-label="Protected" />}
         <span className="truncate">{job.title} <span className="font-medium text-white/80">({job.jobNumber})</span></span>
       </span>
-      {!compact && job.startTime && <span className="truncate pr-6 text-[10px] font-semibold opacity-80">{fmtTimeShort(job.startTime)} – {fmtTimeShort(job.endTime)}</span>}
+      {!compact && job.startTime && <span className="truncate pr-6 text-[10px] font-semibold opacity-80">{job.shiftLabel && <>{job.shiftLabel} · </>}{fmtTimeShort(job.startTime)} – {fmtTimeShort(job.endTime)}</span>}
     </div>
   );
 }
@@ -153,7 +154,7 @@ interface BoardProps {
 const ROW = 56;
 
 export function JobBoard({ jobs, dayKeys, colorOf, onSelect, onDrop }: BoardProps & { dayKeys: string[] }) {
-  const lanes = buildLanes(jobs, dayKeys, jobRange, jobName);
+  const lanes = buildLanes(calendarSegments(jobs), dayKeys, jobRange, jobName);
   const tracks = lanes.reduce((m, l) => Math.max(m, l.row + 1), 0);
   const cols = dayKeys.length;
   const { dragging, setDragging, hover, setHover } = useDragState();
@@ -181,7 +182,7 @@ export function JobBoard({ jobs, dayKeys, colorOf, onSelect, onDrop }: BoardProp
               <div className="flex h-full items-center justify-center text-sm text-gray-400">No jobs scheduled in this period. Drag an unscheduled job onto a day.</div>
             )}
             {lanes.map(({ item: j, startCol, span, row }) => (
-              <div key={j.id} className="absolute px-1.5" style={{ left: `${(startCol / cols) * 100}%`, width: `${(span / cols) * 100}%`, top: row * ROW + 6, height: ROW - 12 }}>
+              <div key={j.segmentId} className="absolute px-1.5" style={{ left: `${(startCol / cols) * 100}%`, width: `${(span / cols) * 100}%`, top: row * ROW + 6, height: ROW - 12 }}>
                 <JobBar job={j} color={colorOf(j)} days={workingJobDays(j).length} onSelect={onSelect} />
               </div>
             ))}
@@ -207,7 +208,7 @@ export function MonthBoard({ jobs, weeks, month, colorOf, onSelect, onDrop }: Bo
         ))}
       </div>
       {weeks.map((week, wi) => {
-        const lanes = buildLanes(jobs, week, jobRange, jobName);
+        const lanes = buildLanes(calendarSegments(jobs), week, jobRange, jobName);
         const tracks = lanes.reduce((m, l) => Math.max(m, l.row + 1), 0);
         return (
           <div key={wi} className="relative border-b border-gray-100 last:border-b-0" style={{ minHeight: DATE_BAND + Math.max(2, tracks) * BAR + 6 }}>
@@ -232,7 +233,7 @@ export function MonthBoard({ jobs, weeks, month, colorOf, onSelect, onDrop }: Bo
             <div className={cn('absolute inset-x-0', dragging && 'pointer-events-none')} style={{ top: DATE_BAND }}>
               {lanes.map(({ item: j, startCol, span, row }) => (
                 <button
-                  key={j.id}
+                  key={j.segmentId}
                   type="button"
                   draggable={canDrag(j)}
                   onDragStart={(e) => { e.dataTransfer.setData(JOB_DND, j.id); setDragging(true); }}
@@ -285,7 +286,7 @@ export function CrewBoard({ jobs, crew, dayKeys, availability, onSelect, onDrop 
         {crew.length === 0 && <div className="col-span-full p-8 text-center text-sm text-gray-400">No crew members. Mark team members as crew in Settings.</div>}
 
         {crew.map((m) => {
-          const mine = jobs.filter((j) => j.crew.some((c) => c.memberId === m.id));
+          const mine = calendarSegments(jobs).filter((j) => j.crew.some((c) => c.memberId === m.id));
           const lanes = buildLanes(mine, dayKeys, jobRange, jobName);
           const tracks = Math.max(1, lanes.reduce((x, l) => Math.max(x, l.row + 1), 0));
           const h = tracks * ROW;
@@ -322,7 +323,7 @@ export function CrewBoard({ jobs, crew, dayKeys, availability, onSelect, onDrop 
                 </div>
                 <div className={cn('absolute inset-0', dragging && 'pointer-events-none')}>
                   {lanes.map(({ item: j, startCol, span, row }) => (
-                    <div key={j.id} className="absolute px-1" style={{ left: `${(startCol / cols) * 100}%`, width: `${(span / cols) * 100}%`, top: row * ROW + 6, height: ROW - 18 }}>
+                    <div key={j.segmentId} className="absolute px-1" style={{ left: `${(startCol / cols) * 100}%`, width: `${(span / cols) * 100}%`, top: row * ROW + 6, height: ROW - 18 }}>
                       <JobBar job={j} color={m.color} days={workingJobDays(j).length} onSelect={onSelect} compact />
                     </div>
                   ))}

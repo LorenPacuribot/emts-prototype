@@ -312,6 +312,8 @@ export interface JobShift {
   startTime: string;
   endTime: string;
   memberIds: ID[];
+  /** Per-day overrides; null excludes a day from this shift. */
+  dailyHours?: Record<string, { startTime: string; endTime: string } | null>;
 }
 
 export interface JobBreak {
