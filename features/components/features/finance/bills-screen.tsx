@@ -42,7 +42,7 @@ function Bills() {
     <>
       <PageHeader title="Bills & Matching" subtitle="What was billed, against what was ordered and received. Card settlements pay bills — they are never a second expense." />
       <div className="space-y-3" data-tour="bill-matching">
-        {bills.length === 0 && <EmptyState icon={<FileCheck2 />} title="No supplier bills yet" />}
+        {bills.length === 0 && <EmptyState icon={<FileCheck2 />} title="No supplier bills yet" body="Supplier bills show here to be matched against their purchase order and the quantities received." />}
         {bills.map((b) => {
           const po = b.poId ? byId(db.purchaseOrders, b.poId) : undefined;
           const credits = db.financeRecords.filter((r) => r.creditOfRecordId === b.id);

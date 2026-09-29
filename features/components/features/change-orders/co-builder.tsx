@@ -29,6 +29,7 @@ import { Badge, Banner, Button, ConfirmDialog, Drawer, EmptyState, Field, IdChip
 import { DownstreamBadge, EmergencyBadge, Section, StatusBadge, TypeBadge } from "./shared";
 import { DecisionModal, EmergencyModal, LineModal, NoteModal, SendModal, SplitModal, VerifyRecipientModal } from "./co-modals";
 import { CustomerLinkModal, PresentationModal } from "./co-document";
+import { usText } from "@/features/lib/display-text";
 
 const DS_ICON: Record<DownstreamKey, React.ReactNode> = {
   work_order: <Wrench className="h-4 w-4" />,
@@ -540,7 +541,7 @@ function BuilderBody({ co, onOpenCo }: { co: ChangeOrder; onOpenCo: (id: string)
             {history.map((a) => (
               <div key={a.id} className="border-l-2 border-line pl-3 text-xs">
                 <div className="text-xxs font-bold uppercase text-gray-500">{dateTime(a.at)} · {byId(db.users, a.userId)?.name}</div>
-                <div className={a.blocked ? "text-red-700" : "text-gray-700"}>{a.message}</div>
+                <div className={a.blocked ? "text-red-700" : "text-gray-700"}>{usText(a.message)}</div>
               </div>
             ))}
           </div>

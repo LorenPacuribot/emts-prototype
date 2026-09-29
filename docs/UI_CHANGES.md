@@ -80,6 +80,19 @@ What Phase 1 kept on purpose:
 | Focus rings | A base style gives every keyboard-focused link, button, field, tab, disclosure and focusable element a 2px primary outline, unless it draws its own ring. Controls that turned the outline off with nothing in its place now have a ring: the job progress steps, the Support FAQ questions, the estimate line state chip and the area dimension inputs. Menu items keep their highlighted background as the focus style. | A4 | `app/globals.css`, `components/jobs/JobDetailCards.tsx`, `components/support/SupportParts.tsx`, `components/estimates/AreaBlock.tsx` |
 | Clickable cards and rows | New `pressable()` helper: a clickable div or card becomes `role="button"`, and a clickable row stays a row. Both can be reached with Tab and opened with Enter or Space. Keys pressed inside a nested button or field are left alone. It is applied to the leads board cards and list rows (both apps), the Reports Activity and Interaction rows, scope-of-work rows and estimate lines while painting a color, the Create Estimate lead and customer picks, the estimate info blocks, library cards, the shared `Card` when it has `onClick`, and presentation sections and image slots. This closes the Phase 4 item about raw clickable rows. | A5 | `lib/a11y.ts` (new) and the 12 files that use it |
 
+### Phase 7: Remaining items (C2, C4, H8, H9, M7, tour)
+
+The prompt allows UI text in the off-limits files when no test asserts it. This phase uses that allowance. Only message text changed. Permission keys, ids, types, stored values, comparisons and every calculation are unchanged.
+
+| Screen / area | What changed | Rule | Files |
+| --- | --- | --- | --- |
+| Messages from the business rules | 104 literal pieces of message text (errors, blocked reasons, activity-log lines, task titles, labels) now use US spelling: color, labor, canceled, authorized. "Rule 1" and "Rule 2" are gone from four messages; for example "Complete the Rule 1 check for the colour change" is now "Complete the color change check (what changes and what is already tinted or ordered)". A TypeScript-parser script changed only the literal text of sentence-like strings, never the `${…}` parts, keys, types, `===` comparisons, `case` labels, array members or module constants. The Supplier Orders status label "Cancelled" is now "Canceled" (the stored status is still `cancelled`). | C4, H9 | 19 files under `features/lib/rules/**` and `features/lib/store/actions/**` |
+| Stored text shown on screen | New `usText()` shows US spelling for text that comes from stored data or from strings the tests pin: activity-log module names and messages (including seed records such as the "Colour Card" module), correction field names, repaint basis lines, material blocked reasons, dashboard tasks and both toast renderers. The stored value never changes. | H9 | `features/lib/display-text.ts` (new), `components/ui/toast.tsx`, `features/components/ui/misc.tsx`, and the change-orders, color-card, contacts, reports, properties, service, materials and dashboard screens |
+| Palette leftovers | The "Sold" lead stage and the Google Business chip use `green-*` instead of `emerald-*`, and the TikTok chip uses `gray-*` instead of `slate-*`. These are class strings only. | C2, S1 | `features/lib/rules/lead-pipeline.ts`, `features/lib/rules/marketing-social.ts` |
+| Live-app list and report tables | The phone card layout and the pinned first column from Phase 5 now also cover 18 hand-built tables: the live Leads table, the feature leads list, Reports (Activity, Interactions, the three table tabs, both goal tables), the dashboard's pending-sales widget, the four Reports page tables, the crew-hours grid, invoice payments, the paint library and rate versions. A labeler mounted once in the root layout fills in each cell's column name for any table inside an `.rtable` wrapper, and re-runs when the page changes. Editable grids (estimate builder, template editor, scope and color grids) and printed documents keep their columns on purpose. | H8 | `components/ui/ResponsiveTableLabels.tsx` (new), `app/layout.tsx` and the 12 files with those tables |
+| Empty states | 27 empty lists that only said "No … found" now say what fills them or what to try. Examples: "Every estimate starts from a lead. Estimates made from this customer's leads show here." and "A job counts once its whole-job actuals are verified and it has a single surface and product combination, within the last 18 months." Each line was checked against the code behind the list. | M7, F2 | 21 feature screens (contacts, finance, invoices, leads, marketing, procurement, properties, records, reports, service, work orders, closeout, materials) |
+| Product tour: Estimate from history | The two stops pointed at a warning strip and a surface picker that only appear inside the "New Estimate from History" modal, and the tour pauses while a dialog is open, so neither could ever be highlighted. The stops now point at the Paint History section and the "New Estimate from History" button, which are on the page the tour opens. The try-it text names the modal's real button ("Next: lead", not "Continue to builder"). Every tour target now exists. | Tour, N4 | `features/components/tour/tour-steps.ts` |
+
 ## Moved, not removed
 
 | Action | Was | Now |
@@ -104,25 +117,25 @@ Nothing was recalculated. Each question needs a developer or the client to decid
 
 Phase 1:
 
-- `features/lib/rules/lead-pipeline.ts` (`emerald-*` for the "Sold" stage) and `features/lib/rules/marketing-social.ts` (`emerald-*` on the Google Business chip, `slate-*` on the TikTok chip) still use those palettes. Both files are off limits (business rules). A developer should move these colour strings into a UI mapping, or approve editing them.
+- ~~`lead-pipeline.ts` and `marketing-social.ts` still use emerald and slate.~~ Fixed in Phase 7.
 - `features/components/features/properties/qr-print.tsx` keeps its `text-[6.5pt]` to `text-[12pt]` sizes. They set the physical size of the printed QR sticker, so they are print measurements, not screen type.
 - `components/settings/SettingsSidebar.tsx` keeps `lg:text-[0.95rem]` (about 15px, above the minimum). It is the live Settings sidebar, which N3 in Phase 2 uses as the model, so it was left for that phase.
 - Tabs and filter chip styles (H4 and S5) are left for Phase 4.
 
 Phase 3:
 
-- Text written by the business rules is unchanged, because those files are off limits. Activity-log and toast messages from `features/lib/store/actions/**` and `features/lib/rules/**` still say "colour" and "Labour", and sometimes "Rule N" (for example the change-rule reasons and the "Colour" correction field). Stored values such as the job status `'Cancelled'` are shown as stored. A developer should map these to display labels, or approve editing them.
+- ~~Text written by the business rules still says "colour", "Labour" and "Rule N".~~ Fixed in Phase 7, with these exceptions. Two strings stay as they are because tests assert them: "Colour card lifespan N yrs" (repaint basis) and "Product line missing on the colour card" (blocked reason). Both show on screen in US spelling through `usText()`. Stored values (the "Colour Card" activity module, the "Colour" correction field, the job status `'Cancelled'`) are kept as stored, and are shown in US spelling where `usText()` is applied. Screens that show them without `usText()` still show the stored spelling. Identifiers such as `colourId` and permission keys such as `labour.enter` are code, not text, and are unchanged.
 - "Jobs To Do" stays as it is. It is the live app's report and dashboard label, and "To-Do" is a compound noun.
 
 Phase 4:
 
 - ~~Raw `<tr onClick>` rows outside the shared `TR` keep their mouse-only behavior.~~ Fixed in Phase 6 (A5).
 - The feature prototype's own estimate screen (`features/components/features/estimates/details/project-toolbar.tsx`) isn't routed in the app, so its title was left as it is.
-- Two product-tour stops point at targets that don't exist, before and after this pass: `surface-selector` and `warning-strip` in `features/components/tour/tour-steps.ts`. A developer should add the `data-tour` attributes or drop the stops.
+- ~~Two product-tour stops point at targets that don't exist.~~ Fixed in Phase 7.
 
 Phase 5:
 
-- The card layout covers the shared feature `Table`. Tables built by hand in the live app (`components/**`, for example the leads list, estimates list and reports tables) were not changed. Moving them to the shared `Table` would give them the card layout too.
+- ~~Tables built by hand in the live app were not changed.~~ The list and report tables were done in Phase 7. Editable grids (estimate builder, template editor, surface rates, scope and color grids, the permissions matrix, the calendar) and printed documents (invoice, proposal, work order print, order and quote documents) keep their columns and scroll sideways, because a card layout would break editing across a row or the printed page.
 
 Phase 6:
 
@@ -130,4 +143,11 @@ Phase 6:
 - Leads board cards and the shared `Card` can hold their own buttons (call, email, archive) inside a `role="button"`. Screen readers handle this, but a cleaner build would make the card title the link and keep the other buttons beside it.
 - The scans for icon-only buttons and clickable elements look at elements written directly in the page. Buttons built through a spread of props, or icons chosen by a condition, may have been missed. An automated check (for example axe in the browser) would catch the rest.
 - `lib/constants.ts` keeps `text-gray-400` for the "Void" status, where it is paired with a line-through as a deliberately faded style.
+Phase 7:
+
+- The numbers in "Data questions" are still unchanged, and they need a decision from the client.
+- Empty states in the live app's own screens (`app/**`, `components/**`) already carry a message and were not reviewed one by one.
+
+Overall:
+
 - No screenshots are attached. Checks were by code review, typecheck, tests and build, not by a browser pass at 375, 768 and 1280px. A person should do that pass before sign-off.

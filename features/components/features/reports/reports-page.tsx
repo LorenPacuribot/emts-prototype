@@ -21,6 +21,7 @@ import { ReportsFrame, REPORT_TABS, type ReportTabKey } from "./reports-frame";
 import { JobPerformanceScreen } from "./job-performance-screen";
 import { EstimatingFeedbackScreen } from "./estimating-feedback-screen";
 import { FinanceReportsBody } from "@/features/components/features/finance/reports-screen";
+import { usText } from "@/features/lib/display-text";
 
 export function ReportsPage() {
   const param = useParam("tab") as ReportTabKey | undefined;
@@ -49,7 +50,7 @@ function Card({ title, children, onExport }: { title: string; children: React.Re
         <h3 className="font-heading text-lg font-bold text-gray-900">{title}</h3>
         {onExport && <Button size="sm" onClick={onExport}><Download className="h-4 w-4" /> Export</Button>}
       </div>
-      <div className="overflow-x-auto">{children}</div>
+      <div className="rtable overflow-x-auto">{children}</div>
     </div>
   );
 }
@@ -156,7 +157,7 @@ function ActivityLog() {
       <table className="mt-2 w-full min-w-[720px] text-left">
         <thead className="border-b border-gray-100"><tr>{["When", "Area", "What", "User"].map((h) => <th key={h} className={th}>{h}</th>)}</tr></thead>
         <tbody className="divide-y divide-gray-100">
-          {rows.map((a) => <tr key={a.id}><td className={cn(td, "whitespace-nowrap")}>{dateTime(a.at)}</td><td className={td}>{a.module}</td><td className={cn(td, a.blocked && "text-red-700")}>{a.message}</td><td className={td}>{sourceName(db, a)}</td></tr>)}
+          {rows.map((a) => <tr key={a.id}><td className={cn(td, "whitespace-nowrap")}>{dateTime(a.at)}</td><td className={td}>{usText(a.module)}</td><td className={cn(td, a.blocked && "text-red-700")}>{usText(a.message)}</td><td className={td}>{sourceName(db, a)}</td></tr>)}
         </tbody>
       </table>
     </Card>

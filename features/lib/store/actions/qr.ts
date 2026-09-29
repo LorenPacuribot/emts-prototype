@@ -182,7 +182,7 @@ export function reissueAfterVerification(db: Database, actor: User, propertyId: 
     `address ${claims.addressMatches ? "confirmed" : "not confirmed"}`,
     claims.contractName ? `contract name "${claims.contractName}"` : "",
     claims.jobYear ? `job year "${claims.jobYear}"` : "",
-    claims.colourOrRoom ? `colour/room "${claims.colourOrRoom}"` : "",
+    claims.colourOrRoom ? `color/room "${claims.colourOrRoom}"` : "",
   ].filter(Boolean).join("; ");
 
   const current = activeLinkFor(db, propertyId, period.id);

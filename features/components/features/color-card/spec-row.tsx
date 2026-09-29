@@ -13,6 +13,7 @@ import { SPEC_STATE } from "@/features/lib/status";
 import { dateTime } from "@/features/lib/format";
 import { toast } from "@/features/lib/toast";
 import { Badge, MicroLabel, Modal, RowMenu, Tooltip } from "@/features/components/ui";
+import { usText } from "@/features/lib/display-text";
 
 export function SpecRow({ spec, readOnly, canLock, onEdit, onSend, onRemove, onHistory }: {
   spec: SpecLine;
@@ -135,7 +136,7 @@ export function SpecHistoryModal({ spec, onClose }: { spec?: SpecLine; onClose: 
           {entries.map((a) => (
             <div key={a.id} className="mt-2 border-l-2 border-line pl-3 text-xs">
               <div className="text-xxs font-bold uppercase text-gray-500">{dateTime(a.at)}</div>
-              <div className={a.blocked ? "text-red-700" : "text-gray-700"}>{a.message}</div>
+              <div className={a.blocked ? "text-red-700" : "text-gray-700"}>{usText(a.message)}</div>
             </div>
           ))}
         </div>

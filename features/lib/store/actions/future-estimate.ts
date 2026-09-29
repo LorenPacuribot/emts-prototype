@@ -598,7 +598,7 @@ export function proposeReplacement(db: Database, actor: User, repId: string, lin
   if (!next) return fail("Choose a replacement product.", "catalogId");
   if (next.product === line.product) return fail("Choose a different product from the current one.", "catalogId");
   if (next.discontinued) return fail(`${next.product} is also discontinued.`, "catalogId");
-  if (!draft.colourNumber.trim()) return fail("Colour number is required.", "colourNumber");
+  if (!draft.colourNumber.trim()) return fail("Color number is required.", "colourNumber");
   if (!draft.sheen) return fail("Sheen is required.", "sheen");
   if (draft.isDirectSuccessor && next.successorOf !== catalogFor(db, line.product)?.id) {
     return fail(`${next.product} is not a manufacturer-published direct successor of ${line.product}.`, "isDirectSuccessor");
@@ -754,7 +754,7 @@ export function createReorder(db: Database, actor: User, propertyId: string, dra
   const property = byId(db.properties, propertyId);
   if (!property) return fail("Property not found.");
   const app = byId(db.applications, draft.applicationId);
-  if (!app || app.propertyId !== propertyId) return fail("Choose a colour record from this property's history.", "applicationId");
+  if (!app || app.propertyId !== propertyId) return fail("Choose a color record from this property's history.", "applicationId");
   const current = currentOwnership(property);
   if (historyAccess({ completedAt: app.completedAt, currentStart: current.start, consent: current.predecessorConsent }) === "hidden") {
     return fail("That record belongs to a previous owner's period and can't be shared without seller consent.", "applicationId");
@@ -762,7 +762,7 @@ export function createReorder(db: Database, actor: User, propertyId: string, dra
   const existing = pendingReorderFor(db, propertyId, app.id);
   if (existing) {
     log(db, actor, TUR, `Repeat Estimate: Property ${propertyId} – Existing open Reorder ${existing.id} linked instead of creating a duplicate`);
-    return fail(`Reorder ${existing.id} for this colour is already pending. Open it instead of creating a duplicate purchase.`);
+    return fail(`Reorder ${existing.id} for this color is already pending. Open it instead of creating a duplicate purchase.`);
   }
   const cat = catalogFor(db, app.product);
   if (!cat) return fail(`${app.product} is not in the paint library, so pack sizes are unknown. Call the store and add it first.`, "applicationId");
@@ -861,13 +861,13 @@ export function recordStockCheck(db: Database, actor: User, id: string, d: Stock
     r!.supply = "new_order";
     r!.stockCheck = undefined;
     r!.customerCansNote = undefined;
-    log(db, actor, TUR, `Touch-up Reorder: ${r!.id} will be filled by a new order (tinted from the colour record) by ${actor.name}`);
+    log(db, actor, TUR, `Touch-up Reorder: ${r!.id} will be filled by a new order (tinted from the color record) by ${actor.name}`);
     return ok<{ result: string; reasons: string[] }>({ result: "Usable", reasons: [] });
   }
   if (d.supply === "company_stock" && !byId(db.shelfStock, d.stockId)) return fail("Choose the shelf stock item that was checked.", "stockId");
   if (d.supply === "customer_cans" && !d.customerCansNote?.trim()) return fail("Describe the customer's cans (how many, where kept).", "customerCansNote");
   if (!d.brand.trim()) return fail("Brand read from the can is required.", "brand");
-  if (!d.code.trim()) return fail("Colour code read from the can is required.", "code");
+  if (!d.code.trim()) return fail("Color code read from the can is required.", "code");
   if (!d.sheen.trim()) return fail("Sheen read from the can is required.", "sheen");
   const res = stockCheckResult({
     tintDate: d.tintDate,
@@ -973,7 +973,7 @@ export function recordRefund(db: Database, actor: User, id: string) {
   const t = now();
   r!.refundRecordedAt = t;
   r!.refundRecordedBy = actor.id;
-  log(db, actor, TUR, `Touch-up Reorder: ${r!.id} cancelled or unfillable. Refund to original method recorded by ${actor.name} on ${t.slice(0, 10)}, due by ${r!.refundDueAt.slice(0, 10)}`);
+  log(db, actor, TUR, `Touch-up Reorder: ${r!.id} canceled or unfillable. Refund to original method recorded by ${actor.name} on ${t.slice(0, 10)}, due by ${r!.refundDueAt.slice(0, 10)}`);
   return ok();
 }
 

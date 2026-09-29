@@ -61,7 +61,7 @@ function Posts() {
       />
       <div className="mb-4 overflow-x-auto"><PillTabs value={filter} onChange={setFilter} options={FILTERS} /></div>
       <Card className="p-4">
-        {list.length === 0 ? <EmptyState title="No posts here" /> : (
+        {list.length === 0 ? <EmptyState title="No posts here" body="Pick another view above, or write a post in Compose." /> : (
           <Table>
             <THead><tr><TH>Post</TH><TH>Template</TH><TH>Platforms</TH><TH>State</TH><TH>Owner approval</TH><TH>When</TH></tr></THead>
             <tbody>

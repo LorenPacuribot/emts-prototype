@@ -85,7 +85,7 @@ export function PaintCatalogSection() {
           </Button>
         )}
       </div>
-      <div className="overflow-x-auto">
+      <div className="rtable overflow-x-auto">
         <table className="w-full min-w-[760px]">
           <thead>
             <tr className="border-b border-gray-100 text-left text-xxs font-bold uppercase tracking-wider text-gray-500">

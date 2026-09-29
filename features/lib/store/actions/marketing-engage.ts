@@ -116,7 +116,7 @@ export function sandboxInboxBatch(nowIso: string): Omit<SocialMessage, "id" | "s
   const stamp = day(nowIso).replace(/-/g, "");
   return [
     { platform: "instagram", kind: "dm", externalId: `IG-DM-${stamp}-1`, threadId: `IG-T-${stamp}-1`, author: { name: "Priya Anand", handle: "@priya.at.home", phone: "(469) 555-0128" }, text: "Hi! Saw your fall reel. Could I get a quote for painting two bedrooms and a hallway?", at: at(1) },
-    { platform: "facebook", kind: "comment", externalId: `FB-C-${stamp}-1`, postId: "POST-8", externalPostRef: "SBX-FB-POST-8", author: { name: "Marcus Webb" }, text: "Love the olive. Is that an exterior colour too?", at: at(3) },
+    { platform: "facebook", kind: "comment", externalId: `FB-C-${stamp}-1`, postId: "POST-8", externalPostRef: "SBX-FB-POST-8", author: { name: "Marcus Webb" }, text: "Love the olive. Is that an exterior color too?", at: at(3) },
   ];
 }
 

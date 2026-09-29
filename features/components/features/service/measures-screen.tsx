@@ -120,7 +120,7 @@ function Measures() {
 
       <Drawer open={!!drill} onOpenChange={(v) => !v && setDrill(undefined)} title={drill ? `${LABELS[drill.key]} · ${monthLabel(drill.month)}` : ""} subtitle={`${items.length} record${items.length === 1 ? "" : "s"}`}>
         {items.length === 0 ? (
-          <EmptyState title="Nothing in this month" />
+          <EmptyState title="Nothing in this month" body="Nothing counted toward this measure in this month." />
         ) : (
           <Table>
             <THead><tr><TH>Date</TH><TH>Record</TH><TH>Property</TH>{drill?.key === "dollars" && <TH className="text-right">Amount</TH>}</tr></THead>

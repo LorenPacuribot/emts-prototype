@@ -131,7 +131,7 @@ export function isQuoteExpired(validUntilIso: string | undefined, nowIso: string
 /** Current settings (Settings > Labor Config / Financial Settings). Always current, never historical. */
 export const CURRENT_BASIS = {
   wageRate: 48,
-  wageSource: "Settings > Labor Config (estimating labour rate)",
+  wageSource: "Settings > Labor Config (estimating labor rate)",
   markupPct: 45,
   markupSource: "Settings > Goals & Profit",
   taxRatePct: 8.25,
@@ -359,7 +359,7 @@ export function stockCheckResult(i: StockCheckInput): { result: "Usable" | "Rema
     if (ageMonths > STOCK_MAX_AGE_MONTHS) reasons.push(`Tint date ${ageMonths} months old (over 2 years)`);
   }
   if (!i.brandMatches) reasons.push("Brand does not match the record");
-  if (!i.codeMatches) reasons.push("Colour code does not match the record");
+  if (!i.codeMatches) reasons.push("Color code does not match the record");
   if (!i.sheenMatches) reasons.push("Sheen does not match the record");
   return { result: reasons.length ? "Rematch required" : "Usable", reasons, ageMonths };
 }

@@ -129,7 +129,7 @@ export function markUnscheduled(db: Database, actor: User, woId: string) {
   if (!can(actor, "workOrder.manageSchedule")) return denied(db, actor, MODULE, "unschedule a work order", whoCan("workOrder.manageSchedule"));
   const wo = byId(db.workOrders, woId);
   if (!wo) return fail("Work order not found.");
-  if (byId(db.jobs, wo.jobId)?.scheduleProtected) return fail('Unprotect the schedule before cancelling it.');
+  if (byId(db.jobs, wo.jobId)?.scheduleProtected) return fail('Unprotect the schedule before canceling it.');
   if (wo.status !== "SCHEDULED") return fail(`Only available when status is Scheduled (current: ${WO_STATUS_LABEL[wo.status]})`);
   wo.startDate = undefined;
   wo.endDate = undefined;

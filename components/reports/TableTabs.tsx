@@ -76,7 +76,7 @@ export function EstimatesLogTab({ year, range, setRange }: { year: number; range
           <MultiSelect label="Status" value={statuses} onChange={setStatuses} groups={ESTIMATE_STATUS_GROUPS} />
         </div>
       </div>
-      <div className="overflow-x-auto">
+      <div className="rtable overflow-x-auto">
         <table className="w-full border-collapse text-left">
           <thead>
             <tr className={theadRow}>
@@ -155,7 +155,7 @@ export function JobsSoldTab({ year, range, setRange }: { year: number; range: Da
         </div>
         <ExportButton onClick={exportCsv} />
       </div>
-      <div className="overflow-x-auto">
+      <div className="rtable overflow-x-auto">
         <table className="w-full border-collapse text-left">
           <thead>
             <tr className={theadRow}>
@@ -229,7 +229,7 @@ export function JobsToDoTab({ year, range, setRange }: { year: number; range: Da
         </div>
         <ExportButton onClick={exportCsv} />
       </div>
-      <div className="overflow-x-auto">
+      <div className="rtable overflow-x-auto">
         <table className="w-full border-collapse text-left">
           <thead>
             <tr className="border-b border-gray-200 bg-white text-xs font-bold uppercase tracking-wider text-gray-500">

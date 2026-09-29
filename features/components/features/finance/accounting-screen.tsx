@@ -133,7 +133,7 @@ function Accounting() {
       />
 
       <Card className="p-4" data-tour="finance-records">
-        {rows.length === 0 ? <EmptyState icon={<Landmark />} title="No records in this view" /> : (
+        {rows.length === 0 ? <EmptyState icon={<Landmark />} title="No records in this view" body="Pick another view above to see other records." /> : (
           <Table>
             <THead><tr><TH>Type</TH><TH>Reference</TH><TH>Party</TH><TH className="text-right">Amount</TH><TH>Date</TH><TH>Job / code</TH><TH>Exchange</TH><TH>Flags</TH></tr></THead>
             <tbody>

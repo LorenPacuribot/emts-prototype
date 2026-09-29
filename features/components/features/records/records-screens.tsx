@@ -34,7 +34,7 @@ export function LeadsScreen() {
       <PageHeader title="Lead Management" subtitle="Every enquiry, from first contact to sold." />
       <div className="mb-5"><SearchBox value={q} onChange={setQ} placeholder="Search leads..." /></div>
       <div className="space-y-3">
-        {leads.length === 0 && <EmptyState title="No leads match" />}
+        {leads.length === 0 && <EmptyState title="No leads match" body="Clear the search or filter to see every lead." />}
         {leads.map((l) => {
           const c = byId(db.customers, l.customerId);
           const p = byId(db.properties, l.propertyId);

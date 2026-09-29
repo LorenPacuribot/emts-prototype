@@ -49,7 +49,7 @@ function Reimbursements() {
         actions={can(user, "reimburse.submit") && <Button variant="primary" onClick={() => setCreating(true)}><Plus className="h-4 w-4" /> Submit claim</Button>}
       />
       <div className="space-y-3" data-tour="reimbursement-list">
-        {claims.length === 0 && <EmptyState icon={<ReceiptText />} title="No claims" />}
+        {claims.length === 0 && <EmptyState icon={<ReceiptText />} title="No claims" body="Expense claims show here for approval." />}
         {claims.map((c) => {
           const emp = byId(db.employees, c.employeeId);
           const steps = reimbursementPath(db, c.employeeId);

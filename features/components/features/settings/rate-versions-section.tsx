@@ -43,7 +43,7 @@ export function RateVersionsSection() {
           ; every approval adds a new version and the previous one is kept.
         </p>
       </div>
-      <div className="overflow-x-auto">
+      <div className="rtable overflow-x-auto">
         <table className="w-full min-w-[720px]">
           <thead>
             <tr className="border-b border-gray-100 text-left text-xxs font-bold uppercase tracking-wider text-gray-500">

@@ -98,7 +98,7 @@ export function CloseoutPanel({ job }: { job: Job }) {
       <Card className="p-5" data-tour="closeout-checklist">
         <CardLabel icon={<ClipboardCheck />}>Closeout checklist</CardLabel>
         <div className="mt-4 space-y-3">
-          {rows.length === 0 && <EmptyState icon={<ClipboardCheck />} title="No surfaces in this job's scope" />}
+          {rows.length === 0 && <EmptyState icon={<ClipboardCheck />} title="No surfaces in this job's scope" body="Closeout lists each surface in the job's scope, so there is nothing to confirm yet." />}
           {rows.map((r) => (
             <RowCard
               key={r.surfaceId}

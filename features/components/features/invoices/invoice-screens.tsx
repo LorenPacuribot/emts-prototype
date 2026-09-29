@@ -88,7 +88,7 @@ export function InvoicesListScreen() {
         </div>
         {showQbo && <div className="mb-3 flex items-center gap-2 text-xs text-gray-500">QuickBooks column <NewBadge feature={33} /> <ConfirmBadge /></div>}
         <div className="space-y-3">
-          {list.length === 0 && <EmptyState title="No invoices found" />}
+          {list.length === 0 && <EmptyState title="No invoices found" body="If a search or filter is on, clear it to see every invoice." />}
           {list.map((i) => {
             const job = byId(db.jobs, i.jobId);
             return (
@@ -189,7 +189,7 @@ export function InvoiceDetailsScreen() {
           {(inv.payments ?? []).length > 0 && (
             <div className="mt-8 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
               <h3 className="mb-4 flex items-center gap-2 font-heading text-lg font-bold"><CreditCard className="h-5 w-5 text-primary-600" /> Payment History</h3>
-              <div className="overflow-x-auto">
+              <div className="rtable overflow-x-auto">
                 <table className="w-full min-w-[520px] text-left text-sm">
                   <thead className="border-b border-gray-100"><tr>{["Date", "Type", "Method", "Status", "Amount"].map((h) => <th key={h} className={cn("px-3 py-2 text-xs font-bold uppercase tracking-wider text-gray-500", h === "Amount" && "text-right")}>{h}</th>)}</tr></thead>
                   <tbody className="divide-y divide-gray-100">{inv.payments!.map((p) => <tr key={p.id}><td className="px-3 py-2">{dateTime(p.at)}</td><td className="px-3 py-2">Charge</td><td className="px-3 py-2 capitalize">{p.method.replace("_", " ")}{p.reference && ` · ${p.reference}`}</td><td className="px-3 py-2"><StatusPill tone="green">Approved</StatusPill></td><td className="px-3 py-2 text-right font-bold">{money(p.amount, { cents: true })}</td></tr>)}</tbody>

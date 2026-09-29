@@ -75,7 +75,7 @@ export function WorkOrdersListScreen() {
           </Select>
         </div>
         <div className="space-y-3">
-          {list.length === 0 && <EmptyState title="No work orders found in this category." />}
+          {list.length === 0 && <EmptyState title="No work orders found in this category." body="Pick another category above to see other work orders." />}
           {list.map((w) => {
             const job = byId(db.jobs, w.jobId)!;
             const lead = w.shifts[0]?.memberIds[0] ? byId(db.employees, w.shifts[0].memberIds[0])?.name : byId(db.users, job.crewLeadId)?.name;

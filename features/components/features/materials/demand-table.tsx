@@ -16,6 +16,7 @@ import { Badge, Banner, Button, Field, Input, KV, Modal, Swatch, Table, TD, TH, 
 import { cn } from "@/features/lib/cn";
 import { procurementPerms } from "@/features/components/features/procurement/shared";
 import { useErr } from "@/features/components/features/procurement/order-modals";
+import { usText } from "@/features/lib/display-text";
 
 const g2 = (n: number) => n.toFixed(2);
 
@@ -92,7 +93,7 @@ export function DemandTable({ lines, snapshot, stale, readOnly }: { lines: Deman
                   {perms.seePrices && <TD className="text-right tabular-nums">{blocked || !l.catalog ? "—" : money(packsCost(l.packs.packs, l.catalog.cost))}</TD>}
                   <TD>
                     {blocked ? (
-                      <Tooltip content={l.blocked.join(" · ")}>
+                      <Tooltip content={usText(l.blocked.join(" · "))}>
                         <span className="inline-flex cursor-help items-center gap-1 whitespace-nowrap font-semibold text-red-600"><CircleSlash className="h-3.5 w-3.5" /> Blocked</span>
                       </Tooltip>
                     ) : l.pendingAdjustment ? (
@@ -135,7 +136,7 @@ export function DemandTable({ lines, snapshot, stale, readOnly }: { lines: Deman
                         {!blocked && <span>Packs: {l.packs.packs.map((p) => `${p.count} × ${PACK_LABEL[p.size]}`).join(" + ")} = {l.packs.totalGal} gal, leftover {l.packs.excessGal.toFixed(3)} gal</span>}
                       </div>
                       {l.adjustment && <div className="mt-1 text-xs text-purple-700">Adjustment {l.adjustment.id}: {l.adjustment.baselineGal.toFixed(3)} → {l.adjustment.proposedGal.toFixed(3)} gal ({(l.adjustment.pct * 100).toFixed(1)}%). “{l.adjustment.note}”</div>}
-                      {blocked && <Banner tone="danger" className="mt-2" title="Blocked from ordering">{l.blocked.map((b) => <div key={b}>{b}</div>)}</Banner>}
+                      {blocked && <Banner tone="danger" className="mt-2" title="Blocked from ordering">{l.blocked.map((b) => <div key={b}>{usText(b)}</div>)}</Banner>}
                     </td>
                   </tr>
                 )}

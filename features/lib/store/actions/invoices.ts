@@ -23,7 +23,7 @@ const MODULE = "Invoices";
 export function reconcileInvoicePayments(db: Database, actor: User, invoiceId: string, proposed: NonNullable<Invoice['payments']>, reason: string) {
   if (!can(actor, 'payment.process')) return denied(db, actor, MODULE, 'correct payments', whoCan('payment.process'));
   const inv = byId(db.invoices, invoiceId);
-  if (!inv || inv.status === 'void') return fail('Invoice is missing or cancelled.');
+  if (!inv || inv.status === 'void') return fail('Invoice is missing or canceled.');
   if (!reason.trim()) return fail('Enter a reason for the payment correction.');
   const ids = new Set<string>();
   for (const payment of proposed) {
@@ -103,7 +103,7 @@ export function recordInvoicePayment(db: Database, actor: User, invoiceId: strin
   if (!can(actor, "payment.process")) return denied(db, actor, MODULE, "record a payment", whoCan("payment.process"));
   const inv = byId(db.invoices, invoiceId);
   if (!inv) return fail("Invoice not found.");
-  if (inv.status === "void") return fail("This invoice is cancelled.");
+  if (inv.status === "void") return fail("This invoice is canceled.");
   const balance = invoiceBalance(inv);
   const amount = roundMoney(input.amount);
   if (!Number.isFinite(input.amount) || !(amount > 0)) return fail("Enter a payment of at least $0.01.", "amount");

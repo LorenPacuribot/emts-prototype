@@ -405,7 +405,7 @@ function Recurring() {
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_380px] [&>*]:min-w-0">
         <Card className="p-4">
           <div className="mb-2 text-xxs font-bold uppercase tracking-[0.12em] text-gray-500">Upcoming</div>
-          {occ.length === 0 ? <EmptyState icon={<Repeat />} title="Nothing due in the next 60 days" /> : (
+          {occ.length === 0 ? <EmptyState icon={<Repeat />} title="Nothing due in the next 60 days" body="Payments from active recurring expenses show here as they come due." /> : (
             <div className="divide-y divide-line">
               {occ.map((o) => {
                 const r = byId(recs, o.recurringId);
@@ -429,7 +429,7 @@ function Recurring() {
           )}
         </Card>
         <div className="space-y-3">
-          {recs.length === 0 && <EmptyState icon={<Repeat />} title="No recurring expenses yet" />}
+          {recs.length === 0 && <EmptyState icon={<Repeat />} title="No recurring expenses yet" body="Add rent, insurance or subscriptions as recurring expenses, and each payment shows under Upcoming as it comes due." />}
           {recs.map((r) => (
             <Card key={r.id} className={`p-4 ${r.active ? "" : "opacity-60"}`}>
               <div className="flex items-start justify-between gap-2">

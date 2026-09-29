@@ -190,7 +190,7 @@ function Notes({ leadId }: { leadId: string }) {
           <div className="mt-2 flex justify-end"><Button variant="primary" onClick={add} disabled={!text.trim()}>Add Note</Button></div>
         </div>
       )}
-      {notes.length === 0 ? <EmptyState title="No notes yet" /> : (
+      {notes.length === 0 ? <EmptyState title="No notes yet" body="Use Add Note to record calls, visits and anything the next person should know." /> : (
         <div className="space-y-4">
           {notes.map((n) => (
             <div key={n.id} className="rounded-xl bg-gray-50 p-4">

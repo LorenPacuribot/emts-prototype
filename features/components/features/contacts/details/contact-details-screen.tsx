@@ -31,6 +31,7 @@ import { CreateEstimateModal } from "@/features/components/features/estimates/li
 import { NewEstimateFromHistoryModal } from "@/features/components/features/future-estimate/new-estimate-from-history-modal";
 import { PaintHistoryTab } from "./paint-history-tab";
 import { contactLocations, LEAD_STAGE } from "./contact-shared";
+import { usText } from "@/features/lib/display-text";
 
 type TabKey = "leads" | "estimates" | "invoices" | "jobs" | "conversations" | "notes" | "paint-history";
 const TAB_KEYS: TabKey[] = ["leads", "estimates", "invoices", "jobs", "conversations", "notes", "paint-history"];
@@ -170,7 +171,7 @@ function LeadsTab({ customerId }: { customerId: string }) {
   return (
     <div>
       <SortSelect value={sort} onChange={setSort} withAmount={false} />
-      {leads.length === 0 && <EmptyState title="No leads found for this customer." />}
+      {leads.length === 0 && <EmptyState title="No leads found for this customer." body="Leads for this customer show here as soon as one is added." />}
       <div className="space-y-3">
         {leads.map((l) => {
           const p = byId(db.properties, l.propertyId);
@@ -203,7 +204,7 @@ function EstimatesTab({ customerId }: { customerId: string }) {
   return (
     <div>
       <SortSelect value={sort} onChange={setSort} />
-      {list.length === 0 && <EmptyState title="No estimates found for this customer." />}
+      {list.length === 0 && <EmptyState title="No estimates found for this customer." body="Every estimate starts from a lead. Estimates made from this customer's leads show here." />}
       <div className="space-y-3">
         {list.map((e) => (
           <AppLink key={e.id} href={estimateHref(e.id)} className="flex items-center justify-between gap-3 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm hover:shadow-md">
@@ -229,7 +230,7 @@ function InvoicesTab({ customerId }: { customerId: string }) {
   return (
     <div>
       <SortSelect value={sort} onChange={setSort} />
-      {list.length === 0 && <EmptyState title="No invoices found for this customer." />}
+      {list.length === 0 && <EmptyState title="No invoices found for this customer." body="Invoices raised on this customer's jobs show here." />}
       <div className="space-y-3">
         {list.map((i) => (
           <AppLink key={i.id} href={invoiceHref(i.id)} className="flex items-center justify-between gap-3 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm hover:shadow-md">
@@ -260,7 +261,7 @@ function JobHistoryTab({ customerId }: { customerId: string }) {
   return (
     <div>
       <SortSelect value={sort} onChange={setSort} />
-      {list.length === 0 && <EmptyState title="No job history found for this customer." />}
+      {list.length === 0 && <EmptyState title="No job history found for this customer." body="A job is created when one of this customer's estimates is accepted. Imported paint records are under Paint History." />}
       <div className="space-y-3">
         {list.map((j) => {
           const p = byId(db.properties, j.propertyId);
@@ -321,7 +322,7 @@ function ActivityTab({ customer }: { customer: Customer }) {
       <LiveCard>
         <CardTitle icon={<History />}>Activity Log</CardTitle>
         {entries.length === 0 ? <p className="text-sm text-gray-500">No activity yet.</p> : (
-          <div className="space-y-2">{entries.map((a) => <div key={a.id} className="border-l-2 border-gray-200 pl-3 text-sm"><div className="text-xs font-bold uppercase text-gray-500">{dateTime(a.at)}</div><div className={a.blocked ? "text-red-700" : "text-gray-700"}>{a.message}</div></div>)}</div>
+          <div className="space-y-2">{entries.map((a) => <div key={a.id} className="border-l-2 border-gray-200 pl-3 text-sm"><div className="text-xs font-bold uppercase text-gray-500">{dateTime(a.at)}</div><div className={a.blocked ? "text-red-700" : "text-gray-700"}>{usText(a.message)}</div></div>)}</div>
         )}
       </LiveCard>
     </div>

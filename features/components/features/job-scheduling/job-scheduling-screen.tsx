@@ -88,7 +88,7 @@ export function JobSchedulingScreen() {
         </div>
 
         {view === "crew" ? (
-          <div className="overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm" data-tour="crew-hours">
+          <div className="rtable overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm" data-tour="crew-hours">
             <div className="flex items-center gap-2 border-b border-gray-100 px-4 py-3 text-xs text-gray-500">
               <span className="font-bold uppercase tracking-widest text-gray-500">Hours</span>
               <span className="ml-auto inline-flex items-center gap-1.5">Clocked / approved hours per day <NewBadge feature={22} /></span>

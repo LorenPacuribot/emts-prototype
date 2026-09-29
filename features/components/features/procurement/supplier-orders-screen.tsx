@@ -309,7 +309,7 @@ function ReceiptsView({ onOpen }: { onOpen: (id: string) => void }) {
       <Card className="p-4">
         <CardLabel icon={<PackageCheck />} right={<Button size="sm" onClick={exportReport}><Download className="h-3.5 w-3.5" /> Ordered vs received (CSV)</Button>}>Receipts</CardLabel>
         <div className="mt-4">
-          {receipts.length === 0 ? <EmptyState icon={<PackageCheck />} title="No receipts recorded yet." /> : (
+          {receipts.length === 0 ? <EmptyState icon={<PackageCheck />} title="No receipts recorded yet." body="Receipts show here when goods are picked up or delivered against an order." /> : (
             <Table>
               <THead>
                 <tr><TH>Receipt</TH><TH>PO · line</TH><TH>Job</TH><TH className="text-right">Qty / ordered</TH><TH>Over-receipt</TH><TH>Status</TH><TH>By</TH></tr>
@@ -358,7 +358,7 @@ function RequestsView({ requests, onOpen }: { requests: OrderRequest[]; onOpen: 
       <CardLabel icon={<Inbox />}>Submission requests from estimators</CardLabel>
       <p className="mt-1 text-xs text-gray-500">Estimators approve demand and request submission. The office manager or owner generates the priced order.</p>
       <div className="mt-4 space-y-3">
-        {requests.length === 0 && <EmptyState icon={<Inbox />} title="No requests." />}
+        {requests.length === 0 && <EmptyState icon={<Inbox />} title="No requests." body="Material requests for a job show here, ready to turn into a supplier order." />}
         {requests.map((r) => {
           const need = r.limit.needs;
           const canGenerate = perms.generate && (need !== "owner" || user.role === "owner");

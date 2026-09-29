@@ -91,7 +91,7 @@ export function SalesGoalTab({ year, range, setRange }: { year: number; range: D
               </button>
             </div>
           </div>
-          <div className="overflow-x-auto">
+          <div className="rtable overflow-x-auto">
             <table className="w-full border-collapse text-left text-sm">
               <thead>
                 <tr className="border-b border-gray-50 bg-gray-50/50 text-xs font-bold uppercase tracking-wider text-gray-500">
@@ -255,7 +255,7 @@ export function StatsTab({ year }: { year: number }) {
           <ExportButton onClick={exportCsv}>Report</ExportButton>
         </div>
 
-        <div className="overflow-x-auto pb-2">
+        <div className="rtable overflow-x-auto pb-2">
           <table className="w-full border-collapse text-left text-sm">
             <thead>
               <tr className="border-b border-gray-200 bg-white">

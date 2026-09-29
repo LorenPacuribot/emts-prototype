@@ -210,11 +210,11 @@ export function removeScopeSurface(db: Database, actor: User, estimateId: string
  * lines, so the surface joins the colour's first specification.
  */
 export function assignSurfaceColour(db: Database, actor: User, estimateId: string, surfaceId: string, colourId: string) {
-  const g = guardScope(db, actor, estimateId, "assign a colour");
+  const g = guardScope(db, actor, estimateId, "assign a color");
   if (g.error) return g.error;
   if (!g.job.surfaceIds.includes(surfaceId)) return fail("Line item not found.");
   const target = db.specs.find((s) => s.jobId === g.job.id && s.colourId === colourId && s.state !== "superseded");
-  if (!target) return fail("This colour has no specification yet. Edit the colour and choose a product and sheen first.");
+  if (!target) return fail("This color has no specification yet. Edit the color and choose a product and sheen first.");
   for (const spec of db.specs.filter((x) => x.jobId === g.job.id && x.id !== target.id)) spec.surfaceIds = spec.surfaceIds.filter((id) => id !== surfaceId);
   if (!target.surfaceIds.includes(surfaceId)) target.surfaceIds.push(surfaceId);
   target.updatedAt = now();
@@ -462,7 +462,7 @@ function accept(db: Database, actor: User, est: Estimate, job: Job, opts: { trig
       sentAt: est.sentAt ?? t, sentBy: est.estimatorId ?? actor.id, status: "approved", signer: opts.signer, approvedAt: t,
       senderAddress: byId(db.customers, est.customerId)?.email,
     });
-    log(db, actor, "Colour Card", `Approval = Colour Card: Job ${job.id} v${job.cardVersion} – Specifications ${approvable.map((s) => s.id).join(", ")} approved by ${opts.signer} with estimate ${est.id}`);
+    log(db, actor, "Colour Card", `Approval = Color Card: Job ${job.id} v${job.cardVersion} – Specifications ${approvable.map((s) => s.id).join(", ")} approved by ${opts.signer} with estimate ${est.id}`);
   }
 
   const lead = byId(db.leads, est.leadId);

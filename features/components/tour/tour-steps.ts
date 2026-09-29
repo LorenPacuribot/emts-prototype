@@ -412,15 +412,15 @@ export const TOUR: TourStop[] = [
     role: "office_manager",
     steps: [
       {
-        target: "warning-strip",
+        target: "paint-history-tab",
         title: "Check before quoting",
-        body: "This property already has a touch-up reorder waiting to be filled. The builder warns you and links to it, so a competing record can't be created without you knowing.",
+        body: "Every surface painted at this address, with its color, product and date. When the address already has an open repaint estimate or a touch-up reorder waiting to be filled, the builder warns you and links to it, so a competing record can't be created without you knowing.",
       },
       {
-        target: "surface-selector",
+        target: "new-estimate-from-history",
         title: "You choose the surfaces",
         body: "Nothing is preselected, and there's no 'select all latest'. Removed surfaces are shown but can't be picked. Each copied line keeps its source job and application.",
-        tryIt: "Tick a couple of surfaces and press Continue to builder.",
+        tryIt: "Press New Estimate from History, tick a couple of surfaces and press Next: lead.",
       },
     ],
   },

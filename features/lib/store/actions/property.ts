@@ -308,7 +308,7 @@ export function correctApplication(db: Database, actor: User, applicationId: str
   switch (input.field) {
     case "Colour": {
       const c = input.colour;
-      if (!c || !c.name.trim() || !c.number.trim() || !c.manufacturer.trim()) return fail("Enter the manufacturer, colour name and number.", "colour");
+      if (!c || !c.name.trim() || !c.number.trim() || !c.manufacturer.trim()) return fail("Enter the manufacturer, color name and number.", "colour");
       oldValue = `${app.manufacturer} ${app.colourName} ${app.colourNumber}`;
       newValue = `${c.manufacturer.trim()} ${c.name.trim()} ${c.number.trim()}`;
       if (oldValue === newValue) return fail("The new value is the same as the current one.", "colour");
@@ -507,7 +507,7 @@ export function logReportedWork(db: Database, actor: User, propertyId: string, d
   const s = byId(db.surfaces, d.surfaceId);
   if (!s || s.propertyId !== propertyId) return fail("Choose a surface at this property.", "surfaceId");
   if (!d.source.trim()) return fail("Record the source, for example \"Homeowner phone call, 12 May\".", "source");
-  if (!d.colourName.trim()) return fail("Colour name is required. Use \"Unknown\" if the customer doesn't know.", "colourName");
+  if (!d.colourName.trim()) return fail("Color name is required. Use \"Unknown\" if the customer doesn't know.", "colourName");
   if (!d.coats || d.coats < 1 || !Number.isInteger(d.coats)) return fail("Coats must be a whole number of one or more.", "coats");
   if (d.completedAt && d.completedAt > now()) return fail("The date can't be in the future.", "completedAt");
   const app: Application = {

@@ -67,7 +67,7 @@ function LeadList({ leads }: { leads: Lead[] }) {
     <Card className="p-4" data-tour="marketing-leads">
       <CardLabel icon={<Globe />}>Website leads</CardLabel>
       <div className="mt-3">
-        {leads.length === 0 ? <EmptyState title="No website leads" /> : (
+        {leads.length === 0 ? <EmptyState title="No website leads" body="Requests sent from the website form show here for review before they become leads." /> : (
           <Table>
             <THead><tr><TH>Lead</TH><TH>Phone</TH><TH>Email</TH><TH>Town</TH><TH>Message</TH><TH>Created</TH><TH>Last activity</TH><TH>Match</TH></tr></THead>
             <tbody>

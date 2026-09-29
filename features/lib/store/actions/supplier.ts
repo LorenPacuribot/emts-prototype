@@ -40,7 +40,7 @@ export const LINE_STATUS_LABEL: Record<LineStatus, string> = {
   picked_up: "Fulfilled (picked up / delivered)",
   partially_filled: "Partially filled",
   problem: "Problem",
-  cancelled: "Cancelled",
+  cancelled: "Canceled",
 };
 
 const METHOD_LABEL = { print: "Print", email: "Email", phone: "Phone", electronic: "Electronic (API/EDI)" } as const;
@@ -651,7 +651,7 @@ export function requestCancellation(db: Database, actor: User, poId: string, lin
   const line = po?.lines.find((l) => l.id === lineId);
   if (!po || !line) return fail("Order line not found.");
   const open = line.gallons - line.receivedGal - line.cancelledGal;
-  if (!(qty > 0) || qty > open + 1e-9) return fail(`Enter up to ${open.toFixed(2)} gal (ordered, not received, not cancelled).`, "qty");
+  if (!(qty > 0) || qty > open + 1e-9) return fail(`Enter up to ${open.toFixed(2)} gal (ordered, not received, not canceled).`, "qty");
   po.cancellations = [...(po.cancellations ?? []), { id: nextFreeId(po.cancellations ?? [], "CX-"), lineId, qtyGal: qty, requestedBy: actor.id, requestedAt: now(), kind: "cancel_request" }];
   po.events.push({ at: now(), by: actor.id, text: `Cancellation of ${qty} gal on line ${lineId} requested. Nothing changes until the branch confirms.` });
   log(db, actor, MODULE, `Order ${po.id} line ${lineId} cancellation of ${qty} gal requested by ${actor.name} (not confirmed — no quantity released)`);

@@ -191,7 +191,7 @@ export function confirmShelf(db: Database, actor: User, input: { stockId: string
   if (!stock || !spec || !colour) return fail("Stock or specification not found.");
   if (stock.reservedJobId && stock.reservedJobId !== input.jobId) return fail(`This stock is reserved to ${stock.reservedJobId}. It can't be used here.`);
   if (stock.reservedJobId === input.jobId) return fail("This stock is already confirmed and reserved to this job.");
-  if (!shelfMatches(stock, { product: spec.product, colourNumber: colour.number, sheen: spec.sheen })) return fail("Product, colour and sheen must all match the line.");
+  if (!shelfMatches(stock, { product: spec.product, colourNumber: colour.number, sheen: spec.sheen })) return fail("Product, color and sheen must all match the line.");
   if (!stock.sealed) return fail("Only sealed containers can be confirmed.");
   if (shelfAgeDays(stock, now()) >= SHELF_MAX_AGE_DAYS) return fail("Stock two years or older can't be confirmed without a rematch.");
   if (!input.checkerId) return fail("Choose who physically checked the container.", "checker");
@@ -290,7 +290,7 @@ function buildOrder(db: Database, draft: OrderDraft): Built | { error: string; f
     const state = lineState(db, job.id, l.specId, line.needGal);
     if (!(l.gallons > 0)) return { error: `${l.specId}: enter a quantity above zero.` };
     if (l.gallons > state.orderableNow + 1e-9) {
-      return { error: state.orderableNow === 0 && state.sentUnacknowledged > 0 ? `${l.specId}: Already ordered, awaiting acknowledgment.` : `${l.specId}: only ${state.orderableNow.toFixed(2)} gal is orderable now (Rule 2).` };
+      return { error: state.orderableNow === 0 && state.sentUnacknowledged > 0 ? `${l.specId}: Already ordered, awaiting acknowledgment.` : `${l.specId}: only ${state.orderableNow.toFixed(2)} gal is orderable now.` };
     }
     const packs = packContainers(l.gallons, line.catalog!.available, { strategy: db.procurementSettings?.packingStrategy, cost: line.catalog!.cost });
     value += packsCost(packs.packs, line.catalog!.cost);

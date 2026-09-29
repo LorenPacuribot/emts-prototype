@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { AlertTriangle, CheckCircle2, Info, OctagonAlert, X } from "lucide-react";
 import { cn } from "@/features/lib/cn";
 import { useToasts } from "@/features/lib/toast";
+import { usText } from "@/features/lib/display-text";
 
 /**
  * One component for tabs and filters, two looks (H4, S5):
@@ -125,8 +126,8 @@ export function Toaster() {
             <Info className="mt-0.5 h-4 w-4 shrink-0 text-brand" />
           )}
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold text-ink">{t.title}</p>
-            {t.body && <p className="mt-0.5 text-xs text-gray-500">{t.body}</p>}
+            <p className="text-sm font-semibold text-ink">{usText(t.title)}</p>
+            {t.body && <p className="mt-0.5 text-xs text-gray-500">{usText(t.body)}</p>}
           </div>
           <button onClick={() => dismiss(t.id)} className="text-gray-300 hover:text-gray-600" aria-label="Dismiss">
             <X className="h-3.5 w-3.5" />

@@ -98,7 +98,7 @@ export function ActivityLogTab({ range, setRange }: { range: DateRange; setRange
         </div>
       </div>
 
-      <div className="overflow-x-auto">
+      <div className="rtable overflow-x-auto">
         <table className="w-full border-collapse text-left">
           <thead>
             <tr className="border-b border-gray-200 bg-white text-xs font-bold uppercase tracking-wider text-gray-500">

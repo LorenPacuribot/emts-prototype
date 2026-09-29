@@ -257,13 +257,13 @@ function performDownstream(db: Database, actor: User, co: ChangeOrder, key: Down
       const specs = db.specs.filter((s) => s.jobId === job.id && s.state !== "superseded");
       const paintLines = co.lines.filter((l) => (l.sqft ?? 0) > 0);
       const unmatched = paintLines.filter((l) => l.kind === "add" && !specs.some((s) => lineMatchesSpec(db, l, s))).length;
-      return `Paint demand revised for ${sqftSummary(co)}${unmatched ? `; ${unmatched} line${unmatched === 1 ? " has" : "s have"} no matching colour on the card — add it before ordering` : ""} — Materials tab`;
+      return `Paint demand revised for ${sqftSummary(co)}${unmatched ? `; ${unmatched} line${unmatched === 1 ? " has" : "s have"} no matching color on the card — add it before ordering` : ""} — Materials tab`;
     }
     case "scheduler": {
       const hours = roundHalfUp(co.lines.reduce((a, l) => a + lineLabourHours(db, l), 0), 2);
-      const change = hours ? `required hours ${hours > 0 ? "+" : ""}${hours} h` : "no labour hours on the lines";
+      const change = hours ? `required hours ${hours > 0 ? "+" : ""}${hours} h` : "no labor hours on the lines";
       const taskId = nextId(db, "task", "T-");
-      db.tasks.unshift({ id: taskId, title: `Scheduler: review labour for ${co.id} on ${job.id} (${change}). Crews are not rescheduled automatically.`, done: false, createdAt: now() });
+      db.tasks.unshift({ id: taskId, title: `Scheduler: review labor for ${co.id} on ${job.id} (${change}). Crews are not rescheduled automatically.`, done: false, createdAt: now() });
       return `${change[0]!.toUpperCase()}${change.slice(1)}; task ${taskId} for the scheduler`;
     }
     case "billing": {
@@ -382,19 +382,19 @@ export function createChangeOrder(db: Database, actor: User, jobId: string, inpu
   }
   let colourLine: ChangeOrderLine | undefined;
   if (input.type === "no_cost_colour_change") {
-    if (!input.colourCheck) return fail("Complete the Rule 1 check for the colour change.", "specId");
-    if (!input.colourCheck.specId) return fail("Choose the specification whose colour changes.", "specId");
-    if (!input.colourCheck.toColourName.trim() || !input.colourCheck.toColourNumber.trim()) return fail("Enter the new colour name and number.", "toColour");
+    if (!input.colourCheck) return fail("Complete the color change check (what changes and what is already tinted or ordered).", "specId");
+    if (!input.colourCheck.specId) return fail("Choose the specification whose color changes.", "specId");
+    if (!input.colourCheck.toColourName.trim() || !input.colourCheck.toColourNumber.trim()) return fail("Enter the new color name and number.", "toColour");
     const decision = classifyColourCheck(db, jobId, input.colourCheck);
     if (decision?.kind === "colour_reapproval") {
-      return fail("This change qualifies for a Colour Re-approval under Rule 1. Record it as a Colour Re-approval instead — a change never gets both a re-approval and a change order.", "type");
+      return fail("This change qualifies for a Color Re-approval. Record it as a Color Re-approval instead — a change never gets both a re-approval and a change order.", "type");
     }
     const spec = byId(db.specs, input.colourCheck.specId)!;
     const from = byId(db.colours, spec.colourId);
     colourLine = {
       id: "L1",
       kind: "add",
-      description: `Colour change on ${spec.id}: ${from?.name ?? ""} ${from?.number ?? ""} → ${input.colourCheck.toColourName} ${input.colourCheck.toColourNumber}${input.colourCheck.sheenChanges ? `, sheen → ${input.colourCheck.newSheen ?? "changed"}` : ""} (no cost)`,
+      description: `Color change on ${spec.id}: ${from?.name ?? ""} ${from?.number ?? ""} → ${input.colourCheck.toColourName} ${input.colourCheck.toColourNumber}${input.colourCheck.sheenChanges ? `, sheen → ${input.colourCheck.newSheen ?? "changed"}` : ""} (no cost)`,
       sqft: spec.surfaceIds.reduce((a, s) => a + (byId(db.surfaces, s)?.areaSqft ?? 0), 0),
       cost: 0,
       product: spec.product,
@@ -428,14 +428,14 @@ export function createChangeOrder(db: Database, actor: User, jobId: string, inpu
 export function createColourReapproval(db: Database, actor: User, jobId: string, input: ColourCheckInput) {
   const job = byId(db.jobs, jobId);
   if (!job) return fail("Job not found.");
-  if (!can(actor, "co.build")) return denied(db, actor, MODULE, "record a Colour Re-approval", whoCan("co.build"));
+  if (!can(actor, "co.build")) return denied(db, actor, MODULE, "record a Color Re-approval", whoCan("co.build"));
   if (!job.contractSigned) return fail("This job has not been sold. Amend the estimate instead.");
-  if (!input.specId) return fail("Choose the specification whose colour changes.", "specId");
-  if (!input.toColourName.trim() || !input.toColourNumber.trim()) return fail("Enter the new colour name and number.", "toColour");
+  if (!input.specId) return fail("Choose the specification whose color changes.", "specId");
+  if (!input.toColourName.trim() || !input.toColourNumber.trim()) return fail("Enter the new color name and number.", "toColour");
   const decision = classifyColourCheck(db, jobId, input);
   if (!decision) return fail("Specification not found.");
   if (decision.kind !== "colour_reapproval") {
-    return fail(`Colour Re-approval not allowed. ${decision.kind === "no_change" ? "Nothing changes." : decision.reason} Raise a priced change order instead.`);
+    return fail(`Color Re-approval not allowed. ${decision.kind === "no_change" ? "Nothing changes." : decision.reason} Raise a priced change order instead.`);
   }
   const spec = byId(db.specs, input.specId)!;
   const from = byId(db.colours, spec.colourId);
@@ -444,7 +444,7 @@ export function createColourReapproval(db: Database, actor: User, jobId: string,
     id,
     jobId,
     type: "no_cost_colour_change",
-    title: `Colour Re-approval: ${from?.name ?? ""} → ${input.toColourName}`,
+    title: `Color Re-approval: ${from?.name ?? ""} → ${input.toColourName}`,
     status: "draft",
     lines: [],
     markupPct: job.markupPct,
@@ -457,7 +457,7 @@ export function createColourReapproval(db: Database, actor: User, jobId: string,
     colourChange: { specId: spec.id, fromColour: `${from?.name ?? ""} ${from?.number ?? ""}`.trim(), toColour: `${input.toColourName.trim()} ${input.toColourNumber.trim()}`, sheen: spec.sheen },
     downstream: { work_order: "not_started", materials: "not_started", scheduler: "not_started", billing: "not_started" },
   });
-  log(db, actor, MODULE, `Colour Re-approval ${id} recorded on job ${jobId} for ${spec.id}: ${from?.name ?? ""} → ${input.toColourName.trim()} by ${actor.name}. No change order raised (Rule 1).`);
+  log(db, actor, MODULE, `Color Re-approval ${id} recorded on job ${jobId} for ${spec.id}: ${from?.name ?? ""} → ${input.toColourName.trim()} by ${actor.name}. No change order raised (Rule 1).`);
   return ok(id);
 }
 
@@ -497,10 +497,10 @@ export function saveLine(db: Database, actor: User, coId: string, draft: LineDra
   if (!draft.description.trim()) return fail("Describe the scope being added or removed.", "description");
   if (draft.sqft !== undefined && (Number.isNaN(draft.sqft) || draft.sqft < 0)) return fail("Measurement must be zero or more.", "sqft");
   const bad = (v?: number) => v !== undefined && (!Number.isFinite(v) || v < 0);
-  if (bad(draft.laborHours)) return fail("Labour hours must be zero or more.", "laborHours");
-  if (bad(draft.laborRate)) return fail("Labour rate must be zero or more.", "laborRate");
+  if (bad(draft.laborHours)) return fail("Labor hours must be zero or more.", "laborHours");
+  if (bad(draft.laborRate)) return fail("Labor rate must be zero or more.", "laborRate");
   if (bad(draft.materialCost)) return fail("Material cost must be zero or more.", "materialCost");
-  if ((draft.laborHours ?? 0) > 0 && draft.laborRate === undefined) return fail("Enter the labour rate for these hours.", "laborRate");
+  if ((draft.laborHours ?? 0) > 0 && draft.laborRate === undefined) return fail("Enter the labor rate for these hours.", "laborRate");
   // A breakdown, when given, is the source of the cost.
   const broken = draft.laborHours !== undefined || draft.materialCost !== undefined;
   const cost = broken ? (draft.laborHours ?? 0) * (draft.laborRate ?? 0) + (draft.materialCost ?? 0) : draft.cost;
@@ -650,8 +650,8 @@ export function verifyRecipient(db: Database, actor: User, coId: string, who: { 
   if (!who.name.trim()) return fail("Choose who will approve.", "name");
   if (!/^\S+@\S+\.\S+$/.test(who.address.trim())) return fail("Enter the email address or portal login the link goes to.", "address");
   if (!isAuthorisedSigner(customer, who.name)) {
-    log(db, actor, MODULE, `Blocked: ${who.name.trim()} is not an authorised signer on ${customer?.name}'s account (${co.id}).`, true);
-    return fail(`${who.name.trim()} is not an authorised signer on ${customer?.name}'s account. A property manager must already be listed as authorised on the account before their approval can be accepted.`, "name");
+    log(db, actor, MODULE, `Blocked: ${who.name.trim()} is not an authorized signer on ${customer?.name}'s account (${co.id}).`, true);
+    return fail(`${who.name.trim()} is not an authorized signer on ${customer?.name}'s account. A property manager must already be listed as authorized on the account before their approval can be accepted.`, "name");
   }
   if (customer && !customer.contactVerified && who.name.trim().toLowerCase() === customer.name.toLowerCase()) {
     return fail(`${customer.name}'s contact details are not verified on the customer record. Verify them first.`, "address");
@@ -779,8 +779,8 @@ function applyApproval(db: Database, actor: User, co: ChangeOrder, input: Approv
   const customer = byId(db.customers, job.customerId);
   if (!input.signer.trim()) return fail("Enter who signed.", "signer");
   if (!isAuthorisedSigner(customer, input.signer)) {
-    log(db, actor, MODULE, `Blocked: approval of ${co.id} by ${input.signer.trim()} not recorded — not an authorised signer on ${customer?.name}'s account.`, true);
-    return fail(`Approval not recorded. ${input.signer.trim()} is not an authorised signer on ${customer?.name}'s account. The account must list them as authorised before their approval is accepted.`, "signer");
+    log(db, actor, MODULE, `Blocked: approval of ${co.id} by ${input.signer.trim()} not recorded — not an authorized signer on ${customer?.name}'s account.`, true);
+    return fail(`Approval not recorded. ${input.signer.trim()} is not an authorized signer on ${customer?.name}'s account. The account must list them as authorized before their approval is accepted.`, "signer");
   }
   if ((input.channel as string) === "verbal") return fail("Verbal approval is never accepted outside the emergency path.", "channel");
   if (!input.evidenceRef.trim()) return fail("Record the evidence: the portal signature ID or the email reply reference.", "evidenceRef");
@@ -927,8 +927,8 @@ export function raiseEmergency(db: Database, actor: User, coId: string, input: E
   const authoriser = byId(db.users, input.authoriserId);
   const missing = missingEmergencyEvidence({ ...input, authoriser: authoriser?.id }, now());
   if (missing.length) return fail(`Missing same-day evidence: ${missing.join(", ")}.`, missing[0]);
-  if (!authoriser || !(authoriser.role === "owner" || authoriser.role === "office_manager")) return fail("Emergency work is authorised by the business owner, or the office manager if the owner is unreachable.", "authoriser");
-  if (authoriser.role === "office_manager" && !input.ownerUnreachable) return fail("The office manager authorises only when the owner is unreachable. Tick “Owner unreachable” or choose the owner.", "authoriser");
+  if (!authoriser || !(authoriser.role === "owner" || authoriser.role === "office_manager")) return fail("Emergency work is authorized by the business owner, or the office manager if the owner is unreachable.", "authoriser");
+  if (authoriser.role === "office_manager" && !input.ownerUnreachable) return fail("The office manager authorizes only when the owner is unreachable. Tick “Owner unreachable” or choose the owner.", "authoriser");
   const due = addWorkingDays(input.verbalAt, 2);
   co!.emergency = {
     authoriser: authoriser.id,
@@ -946,7 +946,7 @@ export function raiseEmergency(db: Database, actor: User, coId: string, input: E
   co!.signer = customer?.name;
   co!.decidedAt = input.verbalAt;
   co!.evidence = { version: coVersion(co!), signer: customer?.name ?? "Customer", channel: "verbal", ref: input.customerMessageRef.trim(), at: input.verbalAt, recordedBy: actor.id };
-  log(db, actor, MODULE, `Change Order ${co!.id} – Emergency work ${money(p.total)} verbally authorised by ${authoriser.name} at ${dateTime(input.verbalAt)}. Written confirmation due ${dateLong(`${due}T12:00:00`)}`);
+  log(db, actor, MODULE, `Change Order ${co!.id} – Emergency work ${money(p.total)} verbally authorized by ${authoriser.name} at ${dateTime(input.verbalAt)}. Written confirmation due ${dateLong(`${due}T12:00:00`)}`);
   return ok();
 }
 

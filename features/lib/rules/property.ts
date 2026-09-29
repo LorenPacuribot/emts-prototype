@@ -22,7 +22,7 @@ export const BUSINESS = {
 export type CloseoutField = "colour" | "sheen" | "coats" | "completedAt";
 
 export const CLOSEOUT_FIELD_LABEL: Record<CloseoutField, string> = {
-  colour: "manufacturer and colour",
+  colour: "manufacturer and color",
   sheen: "sheen",
   coats: "coats",
   completedAt: "completion date",
@@ -242,7 +242,7 @@ export function verifyCaller(claims: CallerClaims, facts: CallerFacts) {
   if (claims.contractName && facts.ownerNames.some((n) => norm(n) === norm(claims.contractName!))) matched.push("contract name");
   const year = Number(claims.jobYear?.match(/\d{4}/)?.[0]);
   if (year && facts.jobYears.some((y) => Math.abs(y - year) <= 1)) matched.push("approximate job year");
-  if (claims.colourOrRoom && facts.coloursAndRooms.some((c) => norm(c).includes(norm(claims.colourOrRoom!)) && norm(claims.colourOrRoom!).length >= 3)) matched.push("colour or room");
+  if (claims.colourOrRoom && facts.coloursAndRooms.some((c) => norm(c).includes(norm(claims.colourOrRoom!)) && norm(claims.colourOrRoom!).length >= 3)) matched.push("color or room");
   const passed = claims.addressMatches && matched.length >= 2;
   return { passed, matched };
 }

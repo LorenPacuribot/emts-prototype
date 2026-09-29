@@ -115,7 +115,7 @@ export function LeadsTable({
       </div>
 
       <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-        <div className="overflow-x-auto">
+        <div className="rtable overflow-x-auto">
           {rows.length === 0 ? (
             <div className="py-12 text-center italic text-gray-500">No leads found.</div>
           ) : (

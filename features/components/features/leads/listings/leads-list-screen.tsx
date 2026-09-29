@@ -243,9 +243,9 @@ function LeadsTable({ leads }: { leads: Lead[] }) {
   const nav = useNav();
   const th = "px-4 py-3 text-left text-xs font-extrabold uppercase tracking-wider text-gray-500";
   const td = "px-4 py-3 text-sm text-gray-700";
-  if (leads.length === 0) return <EmptyState title="No leads found" />;
+  if (leads.length === 0) return <EmptyState title="No leads found" body="If a search or filter is on, clear it to see every lead." />;
   return (
-    <div className="overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm">
+    <div className="rtable overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm">
       <table className="w-full min-w-[980px]">
         <thead className="border-b border-gray-100 bg-gray-50/60"><tr>{["Lead #", "Lead Name", "Status", "Estimate", "Contact", "Location", "Source", "Created"].map((h) => <th key={h} className={th}>{h}</th>)}</tr></thead>
         <tbody className="divide-y divide-gray-100">

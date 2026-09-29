@@ -32,6 +32,7 @@ import { SurfaceTree } from "./surface-tree";
 import { AddSurfaceModal, AddressModal, CorrectionModal, RemoveSurfaceModal, ReportedWorkModal, TouchUpModal } from "./history-modals";
 import { PropertyRecordModal, type RecordVariant } from "./record-print";
 import { Cell, colourText, isFirstPeriod, NotRecorded, periodLabel, VerificationBadge } from "./property-shared";
+import { usText } from "@/features/lib/display-text";
 
 
 function pdsLink(product: string) {
@@ -275,7 +276,7 @@ export function PaintHistoryPanel({ property }: { property: Property }) {
                   <button key={i} onClick={() => setSelected(g.app.surfaceId)} className="flex w-full items-start gap-3 rounded-lg border border-line px-3 py-2 text-left text-xs hover:bg-gray-50">
                     <Badge tone={g.state === "Unknown" ? "amber" : "gray"}>{g.state}</Badge>
                     <div className="min-w-0 flex-1">
-                      <div className="font-semibold text-ink">{g.field} · {surfaceLabel(db, g.app.surfaceId)}</div>
+                      <div className="font-semibold text-ink">{usText(g.field)} · {surfaceLabel(db, g.app.surfaceId)}</div>
                       <div className="text-gray-500">
                         {g.app.id}
                         {g.approvedBy ? ` · Exception approved by ${byId(db.users, g.approvedBy)?.name}` : g.state === "Unknown" ? " · No owner exception on file" : ""}
@@ -304,7 +305,7 @@ export function PaintHistoryPanel({ property }: { property: Property }) {
                     return (
                       <div key={c.id} className="rounded-lg border border-line px-3 py-2.5 text-xs">
                         <div className="flex flex-wrap items-center gap-2">
-                          <span className="font-semibold text-ink">{c.field}</span>
+                          <span className="font-semibold text-ink">{usText(c.field)}</span>
                           <IdChip>{c.applicationId}</IdChip>
                           <span className="text-xs text-gray-500">{a ? surfaceLabel(db, a.surfaceId) : ""}</span>
                         </div>
@@ -431,7 +432,7 @@ function ApplicationCard({ app, latest, seeCosts, canCorrect, canLog, onCorrect,
         <Cell label="Preparation">{app.prepQuality === "good" ? "Good" : app.prepQuality === "poor" ? "Poor" : <NotRecorded />}</Cell>
         <Cell label="Expected life">
           {repaint?.years !== undefined ? (
-            <Tooltip content={repaint.basis.join(" · ")}><span className="cursor-help underline decoration-dotted">{repaint.years} yrs</span></Tooltip>
+            <Tooltip content={usText(repaint.basis.join(" · "))}><span className="cursor-help underline decoration-dotted">{repaint.years} yrs</span></Tooltip>
           ) : <NotRecorded />}
         </Cell>
         <Cell label="Repaint due">{repaint?.dueDate ? dateLong(repaint.dueDate) : <NotRecorded text={repaint?.unresolved ? "Not calculated" : "Not recorded"} />}</Cell>

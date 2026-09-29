@@ -25,6 +25,7 @@ import {
 } from "@/features/components/ui";
 import { ServiceFrame } from "./service-frame";
 import { ExtensionModal } from "./alert-modals";
+import { usText } from "@/features/lib/display-text";
 
 export function LifespanLibraryScreen() {
   return (
@@ -166,7 +167,7 @@ function Library() {
                     </TD>
                     <TD>{s.years} yrs</TD>
                     <TD><Badge tone={stale ? "gray" : "blue"}>v{s.ruleVersion}</Badge></TD>
-                    <TD className="max-w-[320px] whitespace-normal text-xs text-gray-500">{s.basis.join(" · ")}</TD>
+                    <TD className="max-w-[320px] whitespace-normal text-xs text-gray-500">{usText(s.basis.join(" · "))}</TD>
                     <TD>
                       {can(user, "alerts.proposeExtension") && !s.extension?.status?.match(/pending|approved/) && (
                         <Button size="sm" variant="ghost" onClick={() => setExtFor(s)}><Sparkles className="h-3.5 w-3.5" /> Extend</Button>

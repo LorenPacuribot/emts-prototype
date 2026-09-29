@@ -3,6 +3,7 @@ import './globals.css';
 import { Providers } from './providers';
 import { Sidebar, MobileSidebar } from '@/components/Sidebar';
 import { AppFrame } from '@/components/auth/AuthGate';
+import { ResponsiveTableLabels } from '@/components/ui/ResponsiveTableLabels';
 
 export const metadata: Metadata = {
   title: 'Estimate Master - Precision Tools',
@@ -24,6 +25,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           >
             {children}
           </AppFrame>
+          <ResponsiveTableLabels />
         </Providers>
       </body>
     </html>

@@ -7,6 +7,7 @@
 import React, { createContext, useCallback, useContext, useState } from 'react';
 import { CheckCircle2, Info, XCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { usText } from '@/features/lib/display-text';
 
 type Variant = 'success' | 'error' | 'info';
 interface ToastItem { id: number; message: string; variant: Variant }
@@ -38,7 +39,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
             {t.variant === 'success' && <CheckCircle2 className="h-4 w-4" />}
             {t.variant === 'error' && <XCircle className="h-4 w-4" />}
             {t.variant === 'info' && <Info className="h-4 w-4" />}
-            {t.message}
+            {usText(t.message)}
           </div>
         ))}
       </div>

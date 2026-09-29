@@ -37,6 +37,7 @@ import { Button, Checkbox, Drawer, Input, NewBadge, Select } from "@/features/co
 import { ChangeOrderExceptionsPanel } from "@/features/components/features/change-orders/exceptions-panel";
 import { JOB_STATUS_DISPLAY } from "@/features/components/features/jobs/details/job-details-screen";
 import { LEAD_STAGE } from "@/features/components/features/contacts/details/contact-shared";
+import { usText } from "@/features/lib/display-text";
 
 /** Live tasks widget: POST /tasks, PATCH /tasks/:id { isCompleted }. */
 function addTask(db: Database, _actor: User, title: string) {
@@ -194,7 +195,7 @@ export function DashboardScreen() {
               </form>
               <div className="mt-3 max-h-[240px] space-y-2 overflow-y-auto">
                 {db.tasks.length === 0 && <p className="text-xs text-gray-500">No tasks yet. Add one above!</p>}
-                {db.tasks.map((t) => <div key={t.id} className="rounded-lg border border-gray-100 p-2"><Checkbox checked={t.done} onCheckedChange={() => act(toggleTask, t.id)} label={<span className={cn("text-sm", t.done && "text-gray-500 line-through")}>{t.title}</span>} /></div>)}
+                {db.tasks.map((t) => <div key={t.id} className="rounded-lg border border-gray-100 p-2"><Checkbox checked={t.done} onCheckedChange={() => act(toggleTask, t.id)} label={<span className={cn("text-sm", t.done && "text-gray-500 line-through")}>{usText(t.title)}</span>} /></div>)}
               </div>
             </div>
             {can(user, "time.approve") && (

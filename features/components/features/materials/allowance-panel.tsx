@@ -35,7 +35,7 @@ export function ConsumablesPanel({ job }: { job: Job }) {
             <div className="flex justify-between border-b border-dashed border-line pb-1.5"><span>Exterior {num(c.exteriorSqft)} sq ft × $25 / 1,000 <span className="text-gray-500">(measured, not coat-adjusted)</span></span><span className="tabular-nums">{money(c.exteriorPerThousand)}</span></div>
           </>
         )}
-        {c.rooms.length === 0 && !c.hasExterior && <EmptyState title="No rooms or elevations in scope." />}
+        {c.rooms.length === 0 && !c.hasExterior && <EmptyState title="No rooms or elevations in scope." body="Add rooms or elevations to the estimate scope, and their allowances show here." />}
         <div className="flex justify-between pt-1 font-bold text-ink"><span>Total allowance</span><span className="tabular-nums">{money(c.total)}</span></div>
       </div>
     </Card>

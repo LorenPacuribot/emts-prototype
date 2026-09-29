@@ -22,6 +22,7 @@ import { Badge, Banner, Button, Drawer, Field, IdChip, KV, Modal, Swatch, Textar
 import { colourText } from "@/features/components/features/properties/property-shared";
 import { ExtensionModal, OutcomeModal, QualifyModal, ReopenModal, SnoozeModal } from "./alert-modals";
 import { NoticeBadge, Section } from "./shared";
+import { usText } from "@/features/lib/display-text";
 
 export function AlertDrawer({ alertId, onClose }: { alertId?: string; onClose: () => void }) {
   const db = useDb((d) => d);
@@ -137,7 +138,7 @@ export function AlertDrawer({ alertId, onClose }: { alertId?: string; onClose: (
                   </div>
                   <ol className="mt-2 flex flex-wrap gap-1.5">
                     {s.basis.map((b, i) => (
-                      <li key={i} className="rounded-md border border-line bg-white px-2 py-0.5 text-xs text-gray-600">{i + 1}. {b}</li>
+                      <li key={i} className="rounded-md border border-line bg-white px-2 py-0.5 text-xs text-gray-600">{i + 1}. {usText(b)}</li>
                     ))}
                     <li className="rounded-md bg-gray-200/70 px-2 py-0.5 text-xs font-semibold text-gray-600">Rule v{s.ruleVersion}</li>
                   </ol>

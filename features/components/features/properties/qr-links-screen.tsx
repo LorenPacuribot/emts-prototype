@@ -160,7 +160,7 @@ export function QrLinksPanel({ property }: { property: Property }) {
           <Card className="p-5" data-tour="qr-history">
             <CardLabel icon={<History />}>Link history</CardLabel>
             <div className="mt-3 space-y-2">
-              {history.length === 0 && <EmptyState title="No previous links" />}
+              {history.length === 0 && <EmptyState title="No previous links" body="Revoked links are listed here with the date and reason." />}
               {history.map((l) => {
                 const per = property.ownership.find((o) => o.id === l.ownershipPeriodId);
                 return (
@@ -433,7 +433,7 @@ function TouchUpPanel({ property }: { property: Property }) {
       <CardLabel icon={<PaintBucket />}>Touch-up requests</CardLabel>
       <p className="mt-1 text-xs text-gray-500">Submitted from the customer page. The customer received the automatic acknowledgment; nothing was approved or promised.</p>
       <div className="mt-3 space-y-2">
-        {reqs.length === 0 && <EmptyState icon={<PaintBucket />} title="No touch-up requests" />}
+        {reqs.length === 0 && <EmptyState icon={<PaintBucket />} title="No touch-up requests" body="Requests sent from this property's public paint record show here." />}
         {reqs.map((r) => (
           <div key={r.id} className="flex flex-col gap-2 rounded-lg border border-line px-3 py-2.5 text-xs sm:flex-row sm:items-start">
             <div className="min-w-0 flex-1">

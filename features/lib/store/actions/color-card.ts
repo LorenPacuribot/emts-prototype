@@ -48,13 +48,13 @@ export interface ColourDraft {
 }
 
 export function addColour(db: Database, actor: User, jobId: string, draft: ColourDraft, expectedVersion?: number) {
-  const blocked = guardEdit(db, actor, jobId, "add a colour");
+  const blocked = guardEdit(db, actor, jobId, "add a color");
   if (blocked) return blocked;
   if (!draft.manufacturer.trim()) return fail("Manufacturer is required.", "manufacturer");
-  if (!draft.name.trim()) return fail("Colour name is required.", "name");
-  if (!draft.number.trim()) return fail("Colour number is required.", "number");
+  if (!draft.name.trim()) return fail("Color name is required.", "name");
+  if (!draft.number.trim()) return fail("Color number is required.", "number");
   const count = db.colours.filter((c) => c.jobId === jobId).length;
-  if (count >= 25) return fail("A card supports up to 25 colours.");
+  if (count >= 25) return fail("A card supports up to 25 colors.");
   const conflict = checkVersion(db, jobId, expectedVersion);
   if (conflict) return conflict;
 
@@ -72,28 +72,28 @@ export function addColour(db: Database, actor: User, jobId: string, draft: Colou
     createdBy: actor.id,
   };
   db.colours.push(colour);
-  log(db, actor, MODULE, `Colour Card: Job ${jobId} – Colour "${colour.name} ${colour.number}" (${colour.manufacturer}) added by ${actor.name}`);
+  log(db, actor, MODULE, `Color Card: Job ${jobId} – Color "${colour.name} ${colour.number}" (${colour.manufacturer}) added by ${actor.name}`);
   return ok(colour.id);
 }
 
 export function updateColour(db: Database, actor: User, colourId: string, draft: ColourDraft, expectedVersion?: number) {
   const colour = byId(db.colours, colourId);
-  if (!colour) return fail("Colour not found.");
-  const blocked = guardEdit(db, actor, colour.jobId, "edit a colour");
+  if (!colour) return fail("Color not found.");
+  const blocked = guardEdit(db, actor, colour.jobId, "edit a color");
   if (blocked) return blocked;
   if (!draft.manufacturer.trim()) return fail("Manufacturer is required.", "manufacturer");
-  if (!draft.name.trim()) return fail("Colour name is required.", "name");
-  if (!draft.number.trim()) return fail("Colour number is required.", "number");
+  if (!draft.name.trim()) return fail("Color name is required.", "name");
+  if (!draft.number.trim()) return fail("Color number is required.", "number");
   const approved = db.specs.some((s) => s.colourId === colourId && s.state === "approved");
   if (approved && draft.number !== colour.number) {
-    return fail("This colour has approved specifications. Change the colour through the specification editor so Rule 1 can decide the document needed.");
+    return fail("This color has approved specifications. Change the color through the specification editor, so the app can decide which document is needed.");
   }
   const conflict = checkVersion(db, colour.jobId, expectedVersion);
   if (conflict) return conflict;
   const changes = (["manufacturer", "name", "number", "tintFormula", "sampleRef"] as const).filter((k) => (colour[k] ?? "") !== (draft[k] ?? ""));
   Object.assign(colour, { ...draft, tintFormula: draft.tintFormula || undefined, sampleRef: draft.sampleRef || undefined });
   for (const k of changes) {
-    log(db, actor, MODULE, `Colour Card: Job ${colour.jobId} – ${k} on "${colour.name}" changed by ${actor.name}`);
+    log(db, actor, MODULE, `Color Card: Job ${colour.jobId} – ${k} on "${colour.name}" changed by ${actor.name}`);
   }
   // Marking as custom match puts its specs into Pending sample.
   if (draft.customMatch) {
@@ -105,12 +105,12 @@ export function updateColour(db: Database, actor: User, colourId: string, draft:
 
 export function removeColour(db: Database, actor: User, colourId: string) {
   const colour = byId(db.colours, colourId);
-  if (!colour) return fail("Colour not found.");
-  const blocked = guardEdit(db, actor, colour.jobId, "remove a colour");
+  if (!colour) return fail("Color not found.");
+  const blocked = guardEdit(db, actor, colour.jobId, "remove a color");
   if (blocked) return blocked;
-  if (db.specs.some((s) => s.colourId === colourId)) return fail("Remove this colour's specifications first.");
+  if (db.specs.some((s) => s.colourId === colourId)) return fail("Remove this color's specifications first.");
   db.colours = db.colours.filter((c) => c.id !== colourId);
-  log(db, actor, MODULE, `Colour Card: Job ${colour.jobId} – Colour "${colour.name}" removed by ${actor.name}`);
+  log(db, actor, MODULE, `Color Card: Job ${colour.jobId} – Color "${colour.name}" removed by ${actor.name}`);
   return ok();
 }
 
@@ -164,7 +164,7 @@ export function saveSpec(db: Database, actor: User, input: { jobId: string; colo
   if (blocked) return blocked;
   const job = byId(db.jobs, jobId)!;
   const colour = byId(db.colours, colourId);
-  if (!colour) return fail("Colour not found.");
+  if (!colour) return fail("Color not found.");
   if (draft.coats !== undefined && (!Number.isInteger(draft.coats) || draft.coats < 1)) return fail("Coats must be a whole number of one or more.", "coats");
   const surfacesOnCard = new Set(db.specs.filter((s) => s.jobId === jobId).flatMap((s) => s.surfaceIds));
   if (surfacesOnCard.size + draft.surfaceIds.length > 200) return fail("A card supports approximately 200 surfaces.");
@@ -223,7 +223,7 @@ export function saveSpec(db: Database, actor: User, input: { jobId: string; colo
       db,
       actor,
       MODULE,
-      `Colour Card: Job ${jobId} – Specification added under "${colour.name}": sheen ${spec.sheen ?? "—"}, ${spec.coats ?? "—"} coats, surfaces ${spec.surfaceIds.map((s) => surfaceLabel(db, s)).join(", ") || "none"}, by ${actor.name}`,
+      `Color Card: Job ${jobId} – Specification added under "${colour.name}": sheen ${spec.sheen ?? "—"}, ${spec.coats ?? "—"} coats, surfaces ${spec.surfaceIds.map((s) => surfaceLabel(db, s)).join(", ") || "none"}, by ${actor.name}`,
     );
     return ok(spec.id);
   }
@@ -233,10 +233,10 @@ export function saveSpec(db: Database, actor: User, input: { jobId: string; colo
   for (const f of fields) {
     const oldV = String(existing[f as keyof SpecLine] ?? "");
     const newV = String(draft[f] ?? "");
-    if (oldV !== newV) log(db, actor, MODULE, `Colour Card: Job ${jobId} – ${f} on "${colour.name}" changed from "${oldV || "—"}" to "${newV || "—"}" by ${actor.name}.`);
+    if (oldV !== newV) log(db, actor, MODULE, `Color Card: Job ${jobId} – ${f} on "${colour.name}" changed from "${oldV || "—"}" to "${newV || "—"}" by ${actor.name}.`);
   }
   if (draft.lifespanYears !== defaultLife) {
-    log(db, actor, MODULE, `Colour Card: Job ${jobId} – Lifespan on "${colour.name}" changed from ${defaultLife} to ${draft.lifespanYears} by ${actor.name}. Reason: ${draft.lifespanReason || "owner change"}`);
+    log(db, actor, MODULE, `Color Card: Job ${jobId} – Lifespan on "${colour.name}" changed from ${defaultLife} to ${draft.lifespanYears} by ${actor.name}. Reason: ${draft.lifespanReason || "owner change"}`);
   }
   const wasApproved = existing.state === "approved";
   Object.assign(existing, {
@@ -261,11 +261,11 @@ export function saveSpec(db: Database, actor: User, input: { jobId: string; colo
         jobId,
         specId: existing.id,
         poId: po.id,
-        message: `Approved selection "${colour.name}" changed. Order ${po.id} and the work order are flagged. The order was not cancelled.`,
+        message: `Approved selection "${colour.name}" changed. Order ${po.id} and the work order are flagged. The order was not canceled.`,
         responsibleUserId: actor.id,
         createdAt: t,
       });
-      log(db, actor, MODULE, `Colour Card: Job ${jobId} – Changed selection flagged order ${po.id} and work order. Buyer ${userName(db, "U-OFFICE")} and crew lead ${userName(db, job.crewLeadId)} notified. Responsible caller: ${actor.name}`);
+      log(db, actor, MODULE, `Color Card: Job ${jobId} – Changed selection flagged order ${po.id} and work order. Buyer ${userName(db, "U-OFFICE")} and crew lead ${userName(db, job.crewLeadId)} notified. Responsible caller: ${actor.name}`);
     }
   }
   return ok(existing.id);
@@ -280,7 +280,7 @@ export function duplicateSpec(db: Database, actor: User, specId: string) {
   const copy: SpecLine = { ...spec, id: nextId(db, "spec", "SPEC-"), surfaceIds: [], state: "draft", approvedVersion: undefined, referencedBy: [], lifespanLocked: false, createdAt: t, updatedAt: t };
   db.specs.push(copy);
   byId(db.jobs, spec.jobId)!.cardRowVersion += 1;
-  log(db, actor, MODULE, `Colour Card: Job ${spec.jobId} – Specification ${spec.id} duplicated as ${copy.id} by ${actor.name}`);
+  log(db, actor, MODULE, `Color Card: Job ${spec.jobId} – Specification ${spec.id} duplicated as ${copy.id} by ${actor.name}`);
   return ok(copy.id);
 }
 
@@ -302,7 +302,7 @@ export function removeSpec(db: Database, actor: User, specId: string, resolution
   db.specs = db.specs.filter((s) => s.id !== specId);
   byId(db.jobs, spec.jobId)!.cardRowVersion += 1;
   const target = resolution?.kind === "reassign" ? resolution.targetSpecId : resolution?.kind === "unresolved" ? "Unresolved" : "—";
-  log(db, actor, MODULE, `Colour Card: Job ${spec.jobId} – Specification ${specId} removed by ${actor.name}. Reassigned to: ${target}`);
+  log(db, actor, MODULE, `Color Card: Job ${spec.jobId} – Specification ${specId} removed by ${actor.name}. Reassigned to: ${target}`);
   return ok();
 }
 
@@ -310,7 +310,7 @@ export function removeSpec(db: Database, actor: User, specId: string, resolution
 
 export function addSampleRound(db: Database, actor: User, colourId: string, input: { date: string; deliveredBy: string; note?: string }) {
   const colour = byId(db.colours, colourId);
-  if (!colour) return fail("Colour not found.");
+  if (!colour) return fail("Color not found.");
   const blocked = guardEdit(db, actor, colour.jobId, "record a sample round");
   if (blocked) return blocked;
   if (!input.date) return fail("Sample date is required.", "date");
@@ -320,7 +320,7 @@ export function addSampleRound(db: Database, actor: User, colourId: string, inpu
   const round = db.sampleRounds.filter((r) => r.colourId === colourId).length + 1;
   db.sampleRounds.push({ id: nextId(db, "sample", "SR-"), colourId, round, date: input.date, deliveredBy: input.deliveredBy, note: input.note });
   db.specs.filter((s) => s.colourId === colourId && s.state === "draft").forEach((s) => (s.state = "pending_sample"));
-  log(db, actor, MODULE, `Sample = Colour Card: Job ${colour.jobId} – Custom sample "Round ${round}" recorded ${input.date.slice(0, 10)}, delivered by ${userName(db, input.deliveredBy)}`);
+  log(db, actor, MODULE, `Sample = Color Card: Job ${colour.jobId} – Custom sample "Round ${round}" recorded ${input.date.slice(0, 10)}, delivered by ${userName(db, input.deliveredBy)}`);
   return ok();
 }
 
@@ -336,14 +336,14 @@ export function recordSampleOutcome(db: Database, actor: User, roundId: string, 
   if (outcome === "accepted") {
     db.specs.filter((s) => s.colourId === colour.id && s.state === "pending_sample").forEach((s) => (s.state = "draft"));
   }
-  log(db, actor, MODULE, `Sample = Colour Card: Job ${colour.jobId} – Custom sample round ${round.round} outcome ${outcome}, recorded by ${actor.name}`);
+  log(db, actor, MODULE, `Sample = Color Card: Job ${colour.jobId} – Custom sample round ${round.round} outcome ${outcome}, recorded by ${actor.name}`);
   return ok();
 }
 
 /* ----------------------------- Approval -------------------------- */
 
 export function sendForApproval(db: Database, actor: User, jobId: string, specIds: string[], channel: ApprovalChannel) {
-  const blocked = guardEdit(db, actor, jobId, "send colours for approval");
+  const blocked = guardEdit(db, actor, jobId, "send colors for approval");
   if (blocked) return blocked;
   if (specIds.length === 0) return fail("Select at least one specification.");
   for (const id of specIds) {
@@ -356,7 +356,7 @@ export function sendForApproval(db: Database, actor: User, jobId: string, specId
   const job = byId(db.jobs, jobId)!;
   db.colourApprovals.push({ id: nextId(db, "approval", "CA-"), jobId, cardVersion: job.cardVersion, specIds, channel, sentAt: now(), sentBy: actor.id, status: "sent" });
   specIds.forEach((id) => (byId(db.specs, id)!.state = "sent"));
-  log(db, actor, MODULE, `Colour Card: Job ${jobId} v${job.cardVersion} – Specifications ${specIds.join(", ")} sent for approval via ${channel} by ${actor.name}`);
+  log(db, actor, MODULE, `Color Card: Job ${jobId} v${job.cardVersion} – Specifications ${specIds.join(", ")} sent for approval via ${channel} by ${actor.name}`);
   return ok();
 }
 
@@ -390,7 +390,7 @@ export function recordCustomerApproval(db: Database, actor: User, approvalId: st
     approval.specIds = approval.specIds.filter((id) => !input.approvedSpecIds.includes(id));
     db.colourApprovals.push({ ...approval, id: nextId(db, "approval", "CA-"), specIds: input.approvedSpecIds, status: "approved", signer: input.signer, approvedAt: t, senderAddress: input.senderAddress });
   }
-  log(db, actor, MODULE, `Approval = Colour Card: Job ${job.id} v${job.cardVersion} – Specifications ${input.approvedSpecIds.join(", ")} approved by ${input.signer} via ${approval.channel} at ${new Date(t).toLocaleString()}. Sender: ${input.senderAddress}`);
+  log(db, actor, MODULE, `Approval = Color Card: Job ${job.id} v${job.cardVersion} – Specifications ${input.approvedSpecIds.join(", ")} approved by ${input.signer} via ${approval.channel} at ${new Date(t).toLocaleString()}. Sender: ${input.senderAddress}`);
   return ok();
 }
 
@@ -410,7 +410,7 @@ export function createNewVersion(db: Database, actor: User, jobId: string) {
   job.cardVersion += 1;
   job.cardRowVersion += 1;
   db.specs.filter((s) => s.jobId === jobId && (s.state === "approved" || s.state === "sent")).forEach((s) => (s.state = "draft"));
-  log(db, actor, MODULE, `Colour Card: Job ${jobId} – Version ${job.cardVersion} created by ${actor.name}. Previous signatures stay with v${job.cardVersion - 1}.`);
+  log(db, actor, MODULE, `Color Card: Job ${jobId} – Version ${job.cardVersion} created by ${actor.name}. Previous signatures stay with v${job.cardVersion - 1}.`);
   return ok(job.cardVersion);
 }
 
@@ -421,7 +421,7 @@ export function confirmStoreCall(db: Database, actor: User, flagId: string) {
     return fail(`Only ${userName(db, flag.responsibleUserId)} (who made the change) or the office can confirm the store call.`);
   }
   flag.storeCallConfirmedAt = now();
-  log(db, actor, MODULE, `Follow-up = Colour Card: Job ${flag.jobId} – Store call confirmation recorded by ${actor.name} at ${new Date().toLocaleString()}`);
+  log(db, actor, MODULE, `Follow-up = Color Card: Job ${flag.jobId} – Store call confirmation recorded by ${actor.name} at ${new Date().toLocaleString()}`);
   return ok();
 }
 
@@ -431,7 +431,7 @@ export function toggleLifespanLock(db: Database, actor: User, specId: string) {
   if (!spec) return fail("Specification not found.");
   if (!can(actor, "colourCard.lockLifespan")) return denied(db, actor, MODULE, "lock a lifespan override", "the Business Owner");
   spec.lifespanLocked = !spec.lifespanLocked;
-  log(db, actor, MODULE, `Colour Card: Job ${spec.jobId} – Lifespan on ${spec.id} ${spec.lifespanLocked ? "locked" : "unlocked"} by ${actor.name}`);
+  log(db, actor, MODULE, `Color Card: Job ${spec.jobId} – Lifespan on ${spec.id} ${spec.lifespanLocked ? "locked" : "unlocked"} by ${actor.name}`);
   return ok();
 }
 
@@ -474,6 +474,6 @@ export function createChangeOrderFromSpec(db: Database, actor: User, specId: str
     recipientVerified: false,
     downstream: { work_order: "not_started", materials: "not_started", scheduler: "not_started", billing: "not_started" },
   });
-  log(db, actor, MODULE, `Colour Card: Job ${job.id} – Change order ${id} drafted from ${spec.id}. ${reason}`);
+  log(db, actor, MODULE, `Color Card: Job ${job.id} – Change order ${id} drafted from ${spec.id}. ${reason}`);
   return ok(id);
 }

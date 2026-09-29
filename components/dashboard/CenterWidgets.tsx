@@ -26,7 +26,7 @@ export function PendingSalesWidget({ rows, pipelineValue }: { rows: DashboardDat
           <span className="text-2xl font-black tracking-tight text-primary-600 md:text-3xl">{plainMoney(pipelineValue)}</span>
         </div>
       </div>
-      <div className="custom-scrollbar min-h-0 flex-1 overflow-auto rounded-xl border border-gray-100">
+      <div className="rtable custom-scrollbar min-h-0 flex-1 overflow-auto rounded-xl border border-gray-100">
         <table className="w-full min-w-[420px] text-left">
           <thead className="sticky top-0 z-10 bg-gray-50 text-xxs font-black uppercase tracking-widest text-gray-500">
             <tr>

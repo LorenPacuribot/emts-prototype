@@ -105,7 +105,7 @@ export function updatePost(db: Database, actor: User, id: string, input: PostInp
   if (!can(actor, "marketing.post")) return denied(db, actor, MODULE, "edit a post", whoCan("marketing.post"));
   const post = byId(db.marketingPosts, id);
   if (!post) return fail("Post not found.");
-  if (post.state === "published" || post.state === "partially_failed" || post.state === "cancelled") return fail("Published and cancelled posts can't be edited.");
+  if (post.state === "published" || post.state === "partially_failed" || post.state === "cancelled") return fail("Published and canceled posts can't be edited.");
   const err = validateInput(db, input);
   if (err) return fail(err, "copy");
   const wasApproved = approvalCurrent(post);
@@ -294,9 +294,9 @@ export function retryFailed(db: Database, actor: User, id: string) {
 export function cancelPost(db: Database, actor: User, id: string) {
   if (!can(actor, "marketing.post")) return denied(db, actor, MODULE, "cancel a post", whoCan("marketing.post"));
   const post = byId(db.marketingPosts, id);
-  if (!post || ["published", "partially_failed", "cancelled"].includes(post.state)) return fail("This post can't be cancelled.");
+  if (!post || ["published", "partially_failed", "cancelled"].includes(post.state)) return fail("This post can't be canceled.");
   post.state = "cancelled";
-  log(db, actor, MODULE, `Marketing: Post ${id} cancelled by ${actor.name}. History kept.`);
+  log(db, actor, MODULE, `Marketing: Post ${id} canceled by ${actor.name}. History kept.`);
   return ok();
 }
 

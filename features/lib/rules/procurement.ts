@@ -164,10 +164,10 @@ export function specDemand(db: Database, spec: SpecLine): DemandLine {
   const needGal = adjustment ? roundHalfUp(adjustment.proposedGal, 3) : calculatedNeedGal;
 
   // Ordering blocks (18 System Validations, 18.5).
-  if (spec.state !== "approved") blocked.push(spec.state === "pending_sample" ? "Colour unresolved — custom sample not accepted" : "Scope not approved by the customer");
+  if (spec.state !== "approved") blocked.push(spec.state === "pending_sample" ? "Color unresolved — custom sample not accepted" : "Scope not approved by the customer");
   if (!spec.productLine) blocked.push("Product line missing on the colour card");
-  if (!spec.product) blocked.push("Specific product missing on the colour card");
-  if (!spec.tintBase) blocked.push("Tint base missing on the colour card");
+  if (!spec.product) blocked.push("Specific product missing on the color card");
+  if (!spec.tintBase) blocked.push("Tint base missing on the color card");
   if (spec.product && !catalog) blocked.push(`"${spec.product}" is not in the product library`);
   if (parts.length === 0) blocked.push("No surfaces assigned");
   if (coats < 1) blocked.push("Coats missing");
@@ -596,13 +596,13 @@ export function replacementDecision(opts: {
   });
   const pct = opts.approvedCostPerGal > 0 ? (opts.after.costPerGal - opts.approvedCostPerGal) / opts.approvedCostPerGal : 0;
   if (structural.kind === "change_order" || structural.kind === "colour_reapproval") {
-    return { decision: "change_order", pct, reason: structural.kind === "change_order" ? structural.reason : "Colour change on an ordered line needs a priced change order." };
+    return { decision: "change_order", pct, reason: structural.kind === "change_order" ? structural.reason : "Color change on an ordered line needs a priced change order." };
   }
   const reasons: string[] = [];
   if (pct > REPLACEMENT_LINE_PCT + 1e-9) reasons.push(`line price up ${(pct * 100).toFixed(1)}% over the approved PO price (limit 10%)`);
   if (opts.orderTotalDelta > REPLACEMENT_ORDER_TOTAL + 1e-9) reasons.push(`order total up $${opts.orderTotalDelta.toFixed(2)} (limit $200)`);
   if (reasons.length) return { decision: "owner", pct, reason: `Owner approval required: ${reasons.join("; ")}.` };
-  return { decision: "office_manager", pct, reason: "Same brand, line, colour and sheen within the thresholds. The office manager approves alone; no customer document." };
+  return { decision: "office_manager", pct, reason: "Same brand, line, color and sheen within the thresholds. The office manager approves alone; no customer document." };
 }
 
 /* ------------------------------------------------------------------ */

@@ -53,7 +53,7 @@ export function classifyChange(before: Selection, after: Selection, ctx: ChangeC
   if (colourChanged && !brandChanged && !lineChanged && !sheenChanged && !ctx.priceChanges && !ctx.tintedOrOrdered) {
     return {
       kind: "colour_reapproval",
-      reason: "Colour-only change with no price change and nothing tinted or ordered. A separately numbered Colour Re-approval record is enough.",
+      reason: "Color-only change with no price change and nothing tinted or ordered. A separately numbered Color Re-approval record is enough.",
     };
   }
 

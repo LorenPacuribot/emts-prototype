@@ -63,7 +63,7 @@ export function entryFlags(db: Database, entry: TimeEntry): EntryFlag[] {
   if (entry.unattested) flags.push({ key: "unattested", label: "Unattested", tone: "amber" });
   if (entry.dispute?.status === "open") flags.push({ key: "dispute", label: entry.dispute.routedTo === "owner" ? "Disputed — owner" : "Disputed", tone: "red" });
   if (segs.some((s) => s.source === "offline")) flags.push({ key: "offline", label: "Offline punch", tone: "blue" });
-  if (emp?.type === "subcontractor") flags.push({ key: "subcontractor", label: "Subcontractor — zero labour cost", tone: "gray" });
+  if (emp?.type === "subcontractor") flags.push({ key: "subcontractor", label: "Subcontractor — zero labor cost", tone: "gray" });
   return flags;
 }
 
@@ -536,11 +536,11 @@ export function purgeGpsData(db: Database, actor: User) {
 /* ------------------------- Rule 3 labour cost ------------------------ */
 
 export function enterLabourCost(db: Database, actor: User, employeeId: string, weekStart: string, amount: number, burdenPct: number) {
-  if (!can(actor, "labour.enter")) return denied(db, actor, "Job Costing", "enter labour cost totals", whoCan("labour.enter"));
+  if (!can(actor, "labour.enter")) return denied(db, actor, "Job Costing", "enter labor cost totals", whoCan("labour.enter"));
   const emp = byId(db.employees, employeeId);
   if (!emp) return fail("Employee not found.", "employee");
-  if (!carriesLabourCost(emp)) return fail("Subcontractor hours carry zero labour cost. Their invoice supplies the cost.");
-  if (!(amount > 0)) return fail("Enter the approved labour cost total from the Gusto run.", "amount");
+  if (!carriesLabourCost(emp)) return fail("Subcontractor hours carry zero labor cost. Their invoice supplies the cost.");
+  if (!(amount > 0)) return fail("Enter the approved labor cost total from the Gusto run.", "amount");
   if (burdenPct < 0 || burdenPct > 100 || Number.isNaN(burdenPct)) return fail("Burden must be between 0 and 100 percent.", "burden");
   const minutes = approvedJobMinutes(db, employeeId, weekStart);
   if (!minutes.length) return fail(`${emp.name} has no approved hours in that week to allocate against.`);
@@ -549,7 +549,7 @@ export function enterLabourCost(db: Database, actor: User, employeeId: string, w
   const record = { employeeId, weekStart, amount: roundMoney(amount), burdenPct, enteredBy: actor.id, enteredAt: now(), source: "entered" as const, allocations: split.rows };
   if (existing) Object.assign(existing, record);
   else db.labourCosts.push({ id: nextId(db, "lct", "LCT-"), ...record });
-  log(db, actor, "Job Costing", `Job Costing: Period ${weekStart}–${addDaysToDay(weekStart, 6)} – Approved labour cost total entered for ${emp.name} by ${actor.name}. Burden: ${burdenPct}%`);
+  log(db, actor, "Job Costing", `Job Costing: Period ${weekStart}–${addDaysToDay(weekStart, 6)} – Approved labor cost total entered for ${emp.name} by ${actor.name}. Burden: ${burdenPct}%`);
   return ok();
 }
 
@@ -564,9 +564,9 @@ export function setBurden(db: Database, actor: User, pct: number) {
 }
 
 export function recordReconciliation(db: Database, actor: User, month: string, note: string) {
-  if (!can(actor, "labour.reconcile")) return denied(db, actor, "Job Costing", "record the monthly labour check", whoCan("labour.reconcile"));
+  if (!can(actor, "labour.reconcile")) return denied(db, actor, "Job Costing", "record the monthly labor check", whoCan("labour.reconcile"));
   const totals = db.labourCosts.filter((l) => l.weekStart.slice(0, 7) === month);
-  if (!totals.length) return fail("No labour cost totals have been entered for that month.");
+  if (!totals.length) return fail("No labor cost totals have been entered for that month.");
   const r = reconcileLabour(totals);
   db.payrollSettings.reconciliations.unshift({ month, by: actor.id, at: now(), ok: r.ok, note: note.trim() || (r.ok ? "Allocated equals entered." : "Mismatch found.") });
   log(db, actor, "Job Costing", `Job Costing: Monthly check for ${month} by ${actor.name}. Allocated ${r.allocated.toFixed(2)} against entered ${r.entered.toFixed(2)} — ${r.ok ? "matches" : "does not match"}.`);

@@ -64,7 +64,7 @@ function Queue() {
         ]}
       />
       <Card className="p-4" data-tour="transfer-queue">
-        {rows.length === 0 ? <EmptyState icon={<ArrowLeftRight />} title="Nothing in this view" /> : (
+        {rows.length === 0 ? <EmptyState icon={<ArrowLeftRight />} title="Nothing in this view" body="Pick another view above to see other items." /> : (
           <Table>
             <THead><tr><TH>Item</TH><TH>Record</TH><TH className="text-right">Amount</TH><TH>Job / code</TH><TH>Status</TH><TH>Attempts</TH><TH /></tr></THead>
             <tbody>

@@ -214,7 +214,7 @@ export function missingEmergencyEvidence(e: EmergencyEvidence, nowIso: string): 
   if (!e.findings.trim()) missing.push("findings");
   if (!e.authoriser) missing.push("authoriser");
   if (!e.customerMessageRef.trim()) missing.push("customer text or email");
-  if (e.verbalAt && isoLocal(e.verbalAt) !== isoLocal(nowIso)) missing.push("same-day capture (the verbal authorisation must be today)");
+  if (e.verbalAt && isoLocal(e.verbalAt) !== isoLocal(nowIso)) missing.push("same-day capture (the verbal authorization must be today)");
   return missing;
 }
 

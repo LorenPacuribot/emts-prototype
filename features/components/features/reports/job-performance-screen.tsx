@@ -29,6 +29,7 @@ import { userName } from "@/features/lib/store/helpers";
 import { PanelHeader as PageHeader } from "@/features/components/features/contacts/details/panel-header";
 import { Badge, Banner, Button, Card, CardLabel, Drawer, EmptyState, Field, Input, KV, Modal, PillTabs, Select, Stat, StatStrip, Table, TD, TH, THead, TR, Textarea } from "@/features/components/ui";
 import { ReportsFrame } from "./reports-frame";
+import { usText } from "@/features/lib/display-text";
 
 const DIMENSIONS: { value: PerformanceDimension; label: string }[] = [
   { value: "job", label: "Job" }, { value: "estimator", label: "Estimator" }, { value: "crew_lead", label: "Crew lead" }, { value: "kind", label: "Interior vs exterior" },
@@ -377,7 +378,7 @@ function Snapshots({ onOpen }: { onOpen: (id: string) => void }) {
       <CardLabel icon={<FileText />} right={can(user, "perf.issue") && <Button size="sm" onClick={() => { const r = act(runWeeklyIssue); if (r.ok) toast.success(`Weekly summary ${r.value} issued`, "Sent to the owner, office manager and estimating manager."); }}><CalendarClock className="h-3.5 w-3.5" /> Run Monday 7 a.m. issue</Button>}>Issued snapshots</CardLabel>
       <p className="mt-1 text-xs text-gray-500">Issued reports are immutable. A correction is reissued as a new snapshot; the old one is kept seven years.</p>
       <div className="mt-3 space-y-2">
-        {db.performanceSnapshots.length === 0 && <EmptyState title="No snapshots yet" />}
+        {db.performanceSnapshots.length === 0 && <EmptyState title="No snapshots yet" body="Snapshots are saved weekly, or when someone issues one from this page." />}
         {db.performanceSnapshots.map((s) => (
           <div key={s.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-line px-3 py-2 text-xs">
             <div>
@@ -412,7 +413,7 @@ function Corrections() {
           return (
             <div key={c.id} className="rounded-lg border border-line px-3 py-2 text-xs">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <span><strong>{c.id}</strong> · {c.jobId} · {c.field}: {c.oldValue} → {c.newValue}</span>
+                <span><strong>{c.id}</strong> · {c.jobId} · {usText(c.field)}: {c.oldValue} → {c.newValue}</span>
                 {c.status === "applied" ? <Badge tone="green">Applied</Badge> : canApprove ? <Button size="sm" variant="primary" onClick={() => act(approveCorrection, c.id).ok && toast.success("Approved")}>Approve</Button> : <Badge tone="amber">Waiting for {c.requires.filter((r) => !c.approvals.some((a) => a.role === r)).map((r) => (r === "owner" ? "owner" : "office manager")).join(" and ")}</Badge>}
               </div>
               <div className="text-gray-500">{c.code} — {c.note} · approved so far by {c.approvals.map((a) => userName(db, a.by)).join(", ")}</div>

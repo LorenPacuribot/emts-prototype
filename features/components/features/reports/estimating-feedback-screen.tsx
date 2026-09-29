@@ -214,7 +214,7 @@ function Evidence({ s, view, setView }: { s: Suggestion; view: "pooled" | "media
       {prominent && <Banner tone="danger" className="mt-3">The deviation is above 20 percent. Check every included job before deciding.</Banner>}
       <p className="mt-2 text-xs text-gray-500">Consumed gallons include spills. Preparation, travel, setup and rework hours are captured but excluded from the application rate.</p>
       <div className="mt-3">
-        {s.pool.eligible.length === 0 ? <EmptyState title="No eligible jobs" /> : (
+        {s.pool.eligible.length === 0 ? <EmptyState title="No eligible jobs" body="A job counts once its whole-job actuals are verified and it has a single surface and product combination, within the last 18 months." /> : (
           <Table>
             <THead>
               <tr>

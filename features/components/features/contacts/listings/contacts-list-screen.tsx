@@ -48,7 +48,7 @@ export function ContactsListScreen() {
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
           <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search by name, email, or phone..." className="h-11 pl-9" />
         </div>
-        {list.length === 0 && <EmptyState title="No contacts found" />}
+        {list.length === 0 && <EmptyState title="No contacts found" body="If a search or filter is on, clear it to see every contact." />}
         <div className="space-y-3">
           {list.map((c) => {
             const job = active.find((j) => j.customerId === c.id);
