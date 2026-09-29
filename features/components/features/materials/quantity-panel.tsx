@@ -43,7 +43,7 @@ export function QuantityPanel({ lines }: { lines: DemandLine[] }) {
                   <TR key={l.specId}>
                     <TD className="max-w-[220px] whitespace-normal">
                       <div className="font-semibold text-ink">{l.colourName}</div>
-                      <div className="text-xs text-gray-400">{l.specId} · {s.orders.length} order line{s.orders.length === 1 ? "" : "s"}</div>
+                      <div className="text-xs text-gray-500">{l.specId} · {s.orders.length} order line{s.orders.length === 1 ? "" : "s"}</div>
                       {held && <Badge tone="blue" className="mt-1 whitespace-normal">Already ordered, awaiting acknowledgment.</Badge>}
                       {s.unfilled > 0 && <Badge tone="amber" className="mt-1 whitespace-normal">Partially filled: {f(s.received)} received · {f(s.unfilled)} unfilled</Badge>}
                       {s.requestedCancellations > 0 && <div className="mt-1 text-xs text-gray-500">{f(s.requestedCancellations)} gal cancellation requested — not confirmed, no change</div>}
@@ -54,7 +54,7 @@ export function QuantityPanel({ lines }: { lines: DemandLine[] }) {
                     <TD className="text-right tabular-nums">{f(s.acknowledged)}{(s.confirmedCancellations > 0 || s.confirmedReturns > 0) && <div className="text-xs text-gray-500">{f(s.netAcknowledged)} after {f(s.confirmedCancellations)} canceled and {f(s.confirmedReturns)} returned</div>}</TD>
                     <TD className="text-right tabular-nums">{f(s.received)}</TD>
                     <TD className="text-right font-semibold tabular-nums text-ink">{f(s.outstanding)}</TD>
-                    <TD className={`text-right font-bold tabular-nums ${s.orderableNow > 0 ? "text-brand" : "text-gray-400"}`}>{f(s.orderableNow)}</TD>
+                    <TD className={`text-right font-bold tabular-nums ${s.orderableNow > 0 ? "text-brand" : "text-gray-500"}`}>{f(s.orderableNow)}</TD>
                   </TR>
                 );
               })}

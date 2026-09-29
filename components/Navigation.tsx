@@ -39,7 +39,7 @@ export function AppHeader({ title, breadcrumbs = [], backHref }: { title: string
         <button onClick={() => setOpen(true)} className="-ml-2 rounded-lg p-2 text-gray-500 hover:bg-gray-100 lg:hidden" aria-label="Open menu">
           <Menu className="h-6 w-6" />
         </button>
-        <div className="flex items-center gap-2 text-gray-400">
+        <div className="flex items-center gap-2 text-gray-500">
           <button
             type="button"
             onClick={() => (hasHistory ? router.back() : backHref && router.push(backHref))}

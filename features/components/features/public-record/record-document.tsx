@@ -26,7 +26,7 @@ export function RecordHeader({ record, subtitle }: { record: Pick<CustomerRecord
         </div>
       </div>
       <div className="sm:text-right">
-        <div className="text-xxs font-bold uppercase tracking-[0.14em] text-gray-400">{subtitle ?? "Property paint record"}</div>
+        <div className="text-xxs font-bold uppercase tracking-[0.14em] text-gray-500">{subtitle ?? "Property paint record"}</div>
         <h1 className="font-display text-xl font-bold leading-tight text-ink">{record.address}</h1>
         <div className="text-sm text-gray-600">{record.cityLine}</div>
       </div>
@@ -96,12 +96,12 @@ export function RecordBody({ record, printMode, onTouchUp }: { record: CustomerR
                           Earlier applications ({s.earlier.length})
                         </button>
                       )}
-                      {printMode && <div className="text-xs font-bold uppercase tracking-wider text-gray-400">Earlier applications</div>}
+                      {printMode && <div className="text-xs font-bold uppercase tracking-wider text-gray-500">Earlier applications</div>}
                       {isOpen && (
                         <div className="mt-2 space-y-3">
                           {s.earlier.map((e) => (
                             <div key={e.id} className="rounded-lg bg-gray-50 p-2.5">
-                              {e.predecessor && <div className="mb-1 text-xxs font-bold uppercase tracking-wider text-gray-400">Before your ownership</div>}
+                              {e.predecessor && <div className="mb-1 text-xxs font-bold uppercase tracking-wider text-gray-500">Before your ownership</div>}
                               <ApplicationFacts a={e} compact />
                             </div>
                           ))}
@@ -131,7 +131,7 @@ export function RecordBody({ record, printMode, onTouchUp }: { record: CustomerR
           <div className="flex gap-3 overflow-x-auto pb-1">
             {record.photos.map((p) => (
               <figure key={p.id} className="w-44 shrink-0">
-                <div className="flex h-28 items-center justify-center rounded-xl border border-line bg-gradient-to-br from-gray-100 to-gray-200 text-gray-400" role="img" aria-label={p.caption}>
+                <div className="flex h-28 items-center justify-center rounded-xl border border-line bg-gradient-to-br from-gray-100 to-gray-200 text-gray-500" role="img" aria-label={p.caption}>
                   <ImageIcon className="h-7 w-7" />
                 </div>
                 <figcaption className="mt-1 text-xs leading-snug text-gray-600">{p.caption}</figcaption>

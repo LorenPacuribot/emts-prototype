@@ -153,5 +153,5 @@ export function readImageFile(file: File, maxMb: number): Promise<{ url?: string
 
 /** Big bold page title block used by pages that do not fit SettingsPage's layout. */
 export function SmallLabel({ children, className }: { children: React.ReactNode; className?: string }) {
-  return <div className={cn('text-xxs font-bold uppercase tracking-widest text-gray-400', className)}>{children}</div>;
+  return <div className={cn('text-xxs font-bold uppercase tracking-widest text-gray-500', className)}>{children}</div>;
 }

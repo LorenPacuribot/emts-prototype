@@ -121,11 +121,11 @@ export default function InvoiceDetailPage() {
       {/* Payment history */}
       <div className="mx-auto mt-6 max-w-[8.5in] overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
         <div className="flex items-center justify-between border-b border-gray-100 bg-gray-50/50 px-8 py-6">
-          <h4 className="flex items-center gap-2 text-lg font-bold text-gray-900"><CreditCard className="h-5 w-5 text-gray-400" /> Payment History</h4>
+          <h4 className="flex items-center gap-2 text-lg font-bold text-gray-900"><CreditCard className="h-5 w-5 text-gray-500" /> Payment History</h4>
           <span className="text-sm text-gray-500">Paid {usd(t.paid)} of {usd(t.total)}</span>
         </div>
         {invoice.payments.length === 0 ? (
-          <p className="px-8 py-8 text-center text-sm text-gray-400">No payments recorded yet.</p>
+          <p className="px-8 py-8 text-center text-sm text-gray-500">No payments recorded yet.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[640px] text-left text-sm">
@@ -141,13 +141,13 @@ export default function InvoiceDetailPage() {
                   <tr key={p.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 font-medium text-gray-900">{shortDate(p.date)}</td>
                     <td className="px-6 py-4 text-gray-600">Charge</td>
-                    <td className="px-6 py-4 text-gray-600">{methodLabel(p.method)}{p.cardLast4 && <span className="ml-1 text-xs text-gray-400">••••{p.cardLast4}</span>}</td>
+                    <td className="px-6 py-4 text-gray-600">{methodLabel(p.method)}{p.cardLast4 && <span className="ml-1 text-xs text-gray-500">••••{p.cardLast4}</span>}</td>
                     <td className="px-6 py-4"><span className="rounded-full border border-green-200 bg-green-50 px-2 py-0.5 text-xs font-bold text-green-700">Approved</span></td>
                     <td className="px-6 py-4 text-right font-bold text-green-700">{usd(p.amount)}</td>
                     <td className="px-6 py-4 font-mono text-xs text-gray-600">{p.reference || '—'}</td>
                     <td className="px-6 py-4 text-xs text-gray-500">{p.note || '—'}</td>
                     <td className="px-6 py-4 text-right">
-                      <button onClick={() => setPaymentToDelete(p.id)} className="rounded-lg p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-600" title="Delete payment" aria-label="Delete payment">
+                      <button onClick={() => setPaymentToDelete(p.id)} className="rounded-lg p-1.5 text-gray-500 hover:bg-red-50 hover:text-red-600" title="Delete payment" aria-label="Delete payment">
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </td>
@@ -163,16 +163,16 @@ export default function InvoiceDetailPage() {
 
       {/* History timeline */}
       <div className="mx-auto mt-6 max-w-[8.5in] rounded-lg border border-gray-200 bg-white p-8 shadow-sm">
-        <h4 className="mb-5 flex items-center gap-2 text-lg font-bold text-gray-900"><History className="h-5 w-5 text-gray-400" /> Activity</h4>
+        <h4 className="mb-5 flex items-center gap-2 text-lg font-bold text-gray-900"><History className="h-5 w-5 text-gray-500" /> Activity</h4>
         {invoice.history.length === 0 ? (
-          <p className="text-sm text-gray-400">No activity yet.</p>
+          <p className="text-sm text-gray-500">No activity yet.</p>
         ) : (
           <ol className="relative space-y-5 border-l border-gray-200 pl-6">
             {[...invoice.history].reverse().map((h, i) => (
               <li key={i} className="relative">
                 <span className="absolute -left-[31px] top-1 h-3 w-3 rounded-full border-2 border-white bg-primary-500 ring-1 ring-primary-200" />
                 <div className="text-sm font-semibold text-gray-800">{h.text}</div>
-                <div className="text-xs text-gray-400">{longDate(h.date)}</div>
+                <div className="text-xs text-gray-500">{longDate(h.date)}</div>
               </li>
             ))}
           </ol>

@@ -119,10 +119,10 @@ export default function InvoicesPage() {
             trigger={
               <button className={cn(filterBtn, status !== 'All' ? 'border-primary-200 bg-primary-50 text-primary-700' : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300')}>
                 <span className="flex items-center gap-2">
-                  <Filter className="h-4 w-4 text-gray-400" />
+                  <Filter className="h-4 w-4 text-gray-500" />
                   {status === 'All' ? 'All' : INVOICE_STATUS_LABEL[status]}
                 </span>
-                <ChevronDown className="h-3 w-3 text-gray-400" />
+                <ChevronDown className="h-3 w-3 text-gray-500" />
               </button>
             }
           />
@@ -134,10 +134,10 @@ export default function InvoicesPage() {
             trigger={
               <button className={cn(filterBtn, sort !== 'newest' ? 'border-primary-200 bg-primary-50 text-primary-700' : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300')}>
                 <span className="flex items-center gap-2">
-                  <SortIcon className={cn('h-4 w-4', sort !== 'newest' ? 'text-primary-500' : 'text-gray-400')} />
+                  <SortIcon className={cn('h-4 w-4', sort !== 'newest' ? 'text-primary-500' : 'text-gray-500')} />
                   {sortOpt.label}
                 </span>
-                <ChevronDown className="h-4 w-4 text-gray-400" />
+                <ChevronDown className="h-4 w-4 text-gray-500" />
               </button>
             }
           />

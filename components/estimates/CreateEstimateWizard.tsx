@@ -27,6 +27,7 @@ import { useCollection, useCurrentUser, useDb, useLogActivity, useNextNumber, us
 import { estimateTotals, round2 } from '@/lib/calculations';
 import { cn, fullName, uid } from '@/lib/utils';
 import { addDays, areaFromTemplate } from './estimate-utils';
+import { pressable } from '@/lib/a11y';
 
 type Step = 'client' | 'type' | 'template' | 'details';
 type ClientPick = { kind: 'lead'; lead: Lead } | { kind: 'customer'; customer: Customer };
@@ -116,17 +117,17 @@ function ClientStep({ onPick }: { onPick: (p: ClientPick) => void }) {
             <p className="py-6 text-center text-sm text-gray-500">{q ? `No leads found matching "${q}".` : 'No open leads are ready for an estimate yet.'}</p>
           ) : (
             leads.map((l) => (
-              <div key={l.id} className={card} onClick={() => onPick({ kind: 'lead', lead: l })}>
+              <div {...pressable()} key={l.id} className={card} onClick={() => onPick({ kind: 'lead', lead: l })}>
                 <div className="mb-2 flex flex-wrap items-center gap-2">
                   <h4 className="text-lg font-bold text-gray-900 group-hover:text-primary-700">{fullName(l)}</h4>
                   <span className="rounded-full border border-blue-100 bg-blue-50 px-2 py-0.5 text-xxs font-bold uppercase text-blue-700">{l.leadNumber}</span>
                   <span className="rounded-full border border-gray-200 bg-gray-50 px-2 py-0.5 text-xxs font-bold uppercase text-gray-500">{l.status}</span>
                 </div>
                 <div className="space-y-1.5 text-sm text-gray-600">
-                  <div className="flex items-center gap-2"><MapPin className="h-3.5 w-3.5 shrink-0 text-gray-400" /><span className="truncate">{addressOf(l)}</span></div>
+                  <div className="flex items-center gap-2"><MapPin className="h-3.5 w-3.5 shrink-0 text-gray-500" /><span className="truncate">{addressOf(l)}</span></div>
                   <div className="flex flex-wrap justify-between gap-4">
-                    {l.email && <div className="flex items-center gap-2"><Mail className="h-3.5 w-3.5 text-gray-400" />{l.email}</div>}
-                    {l.phone && <div className="flex items-center gap-2"><Phone className="h-3.5 w-3.5 text-gray-400" />{l.phone}</div>}
+                    {l.email && <div className="flex items-center gap-2"><Mail className="h-3.5 w-3.5 text-gray-500" />{l.email}</div>}
+                    {l.phone && <div className="flex items-center gap-2"><Phone className="h-3.5 w-3.5 text-gray-500" />{l.phone}</div>}
                   </div>
                 </div>
               </div>
@@ -141,17 +142,17 @@ function ClientStep({ onPick }: { onPick: (p: ClientPick) => void }) {
             <p className="py-6 text-center text-sm text-gray-500">No contacts found matching &quot;{q}&quot;.</p>
           ) : (
             contacts.map((c) => (
-              <div key={c.id} className={card} onClick={() => onPick({ kind: 'customer', customer: c })}>
+              <div {...pressable()} key={c.id} className={card} onClick={() => onPick({ kind: 'customer', customer: c })}>
                 <div className="mb-2 flex flex-wrap items-center gap-2">
                   <h4 className="text-lg font-bold text-gray-900 group-hover:text-primary-700">{fullName(c)}</h4>
                   {c.companyName && <span className="text-sm text-gray-500">{c.companyName}</span>}
                   <span className="rounded-full border border-purple-100 bg-purple-50 px-2 py-0.5 text-xxs font-bold uppercase text-purple-700">{c.type}</span>
                 </div>
                 <div className="space-y-1.5 text-sm text-gray-600">
-                  <div className="flex items-center gap-2"><MapPin className="h-3.5 w-3.5 shrink-0 text-gray-400" /><span className="truncate">{addressOf(c)}</span></div>
+                  <div className="flex items-center gap-2"><MapPin className="h-3.5 w-3.5 shrink-0 text-gray-500" /><span className="truncate">{addressOf(c)}</span></div>
                   <div className="flex flex-wrap justify-between gap-4">
-                    {c.email && <div className="flex items-center gap-2"><Mail className="h-3.5 w-3.5 text-gray-400" />{c.email}</div>}
-                    {c.phone && <div className="flex items-center gap-2"><Phone className="h-3.5 w-3.5 text-gray-400" />{c.phone}</div>}
+                    {c.email && <div className="flex items-center gap-2"><Mail className="h-3.5 w-3.5 text-gray-500" />{c.email}</div>}
+                    {c.phone && <div className="flex items-center gap-2"><Phone className="h-3.5 w-3.5 text-gray-500" />{c.phone}</div>}
                   </div>
                 </div>
               </div>
@@ -378,7 +379,7 @@ export function CreateEstimateWizard({
     <div className="mb-4 flex items-center gap-3 rounded-xl border border-gray-100 bg-gray-50 p-3">
       <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 shadow-sm"><Icon className="h-5 w-5" /></div>
       <div className="flex-1">
-        <div className="text-xs font-bold uppercase tracking-wider text-gray-400">{label}</div>
+        <div className="text-xs font-bold uppercase tracking-wider text-gray-500">{label}</div>
         <div className="font-bold text-gray-900">{value}</div>
       </div>
       {onChange && <button type="button" onClick={onChange} className="text-xs font-bold text-primary-600 hover:underline">Change</button>}
@@ -455,7 +456,7 @@ export function CreateEstimateWizard({
                     sel ? 'border-primary-500 bg-primary-50' : 'border-gray-200 bg-white hover:border-primary-300 hover:shadow-md',
                   )}
                 >
-                  <div className={cn('flex h-10 w-10 items-center justify-center rounded-full', sel ? 'bg-primary-200 text-primary-700' : 'bg-gray-100 text-gray-400 group-hover:bg-primary-50 group-hover:text-primary-600')}>
+                  <div className={cn('flex h-10 w-10 items-center justify-center rounded-full', sel ? 'bg-primary-200 text-primary-700' : 'bg-gray-100 text-gray-500 group-hover:bg-primary-50 group-hover:text-primary-600')}>
                     <LayoutTemplate className="h-5 w-5" />
                   </div>
                   <div>

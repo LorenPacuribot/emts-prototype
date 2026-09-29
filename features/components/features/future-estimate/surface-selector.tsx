@@ -68,7 +68,7 @@ export function SurfaceSelector({ db, property, selected, onChange, lockedSurfac
               aria-expanded={isOpen}
               className="flex w-full items-center gap-3 bg-white px-3 py-3 text-left hover:bg-gray-50 sm:px-4"
             >
-              {isOpen ? <ChevronDown className="h-4 w-4 text-gray-400" /> : <ChevronRight className="h-4 w-4 text-gray-400" />}
+              {isOpen ? <ChevronDown className="h-4 w-4 text-gray-500" /> : <ChevronRight className="h-4 w-4 text-gray-500" />}
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="font-display text-sm font-bold text-ink">{g.label}</span>
@@ -130,10 +130,10 @@ function SurfaceRow({ item, checked, reason, onToggle }: { item: HistoryItem; ch
       <div className="grid min-w-0 flex-1 grid-cols-2 gap-x-4 gap-y-1 text-xs sm:grid-cols-[1.4fr_1.4fr_1.6fr_0.8fr_0.5fr_1fr]">
         <div className={cn("col-span-2 font-semibold text-ink sm:col-span-1", removed && "line-through")}>
           {surface?.name ?? app.surfaceId}
-          <span className="ml-1 font-normal text-gray-400">{surface?.areaSqft ?? "—"} sq ft</span>
+          <span className="ml-1 font-normal text-gray-500">{surface?.areaSqft ?? "—"} sq ft</span>
         </div>
         <div className="text-gray-700">
-          {app.colourName} <span className="text-gray-400">{app.colourNumber}</span>
+          {app.colourName} <span className="text-gray-500">{app.colourNumber}</span>
         </div>
         <div className="text-gray-600">{app.product}</div>
         <div className="text-gray-600">{app.sheen}</div>
@@ -144,7 +144,7 @@ function SurfaceRow({ item, checked, reason, onToggle }: { item: HistoryItem; ch
           {app.verification === "unverified" && <UnverifiedBadge note={app.source} />}
           {item.access === "spec_only" && <Badge tone="purple" icon={<Lock className="h-3 w-3" />}>Specification only</Badge>}
           {removed && <Badge tone="gray">Removed {surface?.removedAt ? dateLong(surface.removedAt) : ""}</Badge>}
-          {reason && !removed && !checked && <span className="text-xs italic text-gray-400">{reason}</span>}
+          {reason && !removed && !checked && <span className="text-xs italic text-gray-500">{reason}</span>}
         </div>
       </div>
     </div>

@@ -29,7 +29,7 @@ function Item({ item, pathname }: { item: RailItem; pathname: string }) {
         {item.label}
         {item.isNew && <NewBadge feature={item.feature} />}
       </span>
-      {item.isNew && <span className="absolute left-[46px] top-2.5 h-2 w-2 rounded-full bg-emerald-500 ring-2 ring-white transition-opacity group-hover/side:opacity-0" />}
+      {item.isNew && <span className="absolute left-[46px] top-2.5 h-2 w-2 rounded-full bg-emerald-500 ring-2 ring-white transition-opacity group-hover/side:opacity-0" aria-hidden />}
     </AppLink>
   );
 }

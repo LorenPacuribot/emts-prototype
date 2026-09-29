@@ -204,7 +204,7 @@ export function MemberFormModal({
               </span>
               <input type="file" accept="image/*" className="hidden" onChange={onPhoto} />
             </label>
-            <span className="text-xs font-medium text-gray-400">Upload Profile Picture</span>
+            <span className="text-xs font-medium text-gray-500">Upload Profile Picture</span>
             {photoError && <span className="mt-1 text-xs text-red-600">{photoError}</span>}
           </div>
 
@@ -266,7 +266,7 @@ export function MemberFormModal({
               })}
             </div>
             {state.roleId && (
-              <div className="mt-3 flex items-center gap-2 text-xs text-gray-400">
+              <div className="mt-3 flex items-center gap-2 text-xs text-gray-500">
                 <Info className="h-3.5 w-3.5 shrink-0" />
                 <span>Permissions are managed in Settings → Roles & Permissions</span>
               </div>
@@ -317,7 +317,7 @@ export function MemberFormModal({
                 <div className="grid flex-1 grid-cols-2 gap-2">
                   {(['start', 'end'] as const).map((k) => (
                     <div key={k} className="relative">
-                      <Clock className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-400" />
+                      <Clock className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-500" />
                       <input
                         type="time"
                         aria-label={`${DAY_NAMES[i]} ${k} time`}

@@ -38,24 +38,24 @@ export function ProposalDocument({ estimate: e, className, onSettings }: {
       <div className="relative p-8 pb-8 md:p-12">
         <div className="mb-8 text-center md:mb-10">
           <h2 className="mb-2 font-heading text-3xl font-extrabold tracking-tight text-gray-900 md:text-5xl">{e.estimateType} Estimate</h2>
-          <p className="text-sm font-medium text-gray-400 md:text-lg">Detailed Proposal &amp; Scope of Work</p>
+          <p className="text-sm font-medium text-gray-500 md:text-lg">Detailed Proposal &amp; Scope of Work</p>
         </div>
         <div className="flex flex-col items-center justify-between gap-8 lg:flex-row print:flex-row">
           <CompanyBlock bp={bp} />
           <div className="flex flex-col items-center lg:items-end print:items-end">
-            <div className="mb-2 text-xs font-bold uppercase tracking-widest text-gray-400">Estimator</div>
+            <div className="mb-2 text-xs font-bold uppercase tracking-widest text-gray-500">Estimator</div>
             {d.estimator ? (
               <div className="rounded-2xl border border-gray-200 bg-white px-5 py-2 text-right shadow-sm">
                 <div className="font-bold text-gray-900">{fullName(d.estimator)}</div>
                 <div className="text-sm text-gray-500">{d.estimator.phone || d.estimator.email}</div>
               </div>
             ) : (
-              <div className="text-sm font-medium italic text-gray-400">Not assigned</div>
+              <div className="text-sm font-medium italic text-gray-500">Not assigned</div>
             )}
           </div>
         </div>
         <div className="mt-4 flex items-center gap-2">
-          <span className="text-xs font-bold uppercase tracking-widest text-gray-400">Est #</span>
+          <span className="text-xs font-bold uppercase tracking-widest text-gray-500">Est #</span>
           <span className="font-mono text-sm font-bold text-gray-600">{e.estimateNumber}</span>
         </div>
       </div>
@@ -88,13 +88,13 @@ export function ProposalDocument({ estimate: e, className, onSettings }: {
         <div className="px-8 pb-10 md:px-12">
           {e.notes && (
             <div className="rounded-xl border border-gray-100 bg-gray-50 p-5">
-              <div className="mb-2 text-xs font-bold uppercase tracking-widest text-gray-400">Notes</div>
+              <div className="mb-2 text-xs font-bold uppercase tracking-widest text-gray-500">Notes</div>
               <p className="whitespace-pre-wrap text-sm text-gray-700">{e.notes}</p>
             </div>
           )}
           {e.depositTerms && (
             <div className="mt-6 rounded-xl border border-gray-100 p-5">
-              <div className="mb-2 text-xs font-bold uppercase tracking-widest text-gray-400">Deposit &amp; Payment Schedule</div>
+              <div className="mb-2 text-xs font-bold uppercase tracking-widest text-gray-500">Deposit &amp; Payment Schedule</div>
               <p className="whitespace-pre-wrap text-sm text-gray-700">{e.depositTerms}</p>
             </div>
           )}
@@ -114,7 +114,7 @@ export function ProposalDocument({ estimate: e, className, onSettings }: {
           {show('signature') && (
             <div className="mt-12 grid grid-cols-2 gap-12 border-t border-gray-200 pt-8">
               <div>
-                <h4 className="mb-2 text-xs font-bold uppercase tracking-widest text-gray-400">Contractor</h4>
+                <h4 className="mb-2 text-xs font-bold uppercase tracking-widest text-gray-500">Contractor</h4>
                 <div className="mt-8 border-b border-gray-300" />
                 <div className="mt-2 flex justify-between text-xs">
                   <span className="font-bold text-gray-900">{d.estimator ? fullName(d.estimator) : bp.companyName}</span>
@@ -122,7 +122,7 @@ export function ProposalDocument({ estimate: e, className, onSettings }: {
                 </div>
               </div>
               <div>
-                <h4 className="mb-2 text-xs font-bold uppercase tracking-widest text-gray-400">Acceptance</h4>
+                <h4 className="mb-2 text-xs font-bold uppercase tracking-widest text-gray-500">Acceptance</h4>
                 {e.signature ? (
                   <div>
                     <div className="mt-4 font-[cursive] text-3xl italic text-gray-800">{e.signature.name}</div>
@@ -135,7 +135,7 @@ export function ProposalDocument({ estimate: e, className, onSettings }: {
                 ) : (
                   <div className="mt-8">
                     <div className="mb-2 border-b border-gray-300" />
-                    <div className="flex justify-between text-xs uppercase text-gray-400"><span>Signature</span><span>Date</span></div>
+                    <div className="flex justify-between text-xs uppercase text-gray-500"><span>Signature</span><span>Date</span></div>
                   </div>
                 )}
               </div>

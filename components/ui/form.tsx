@@ -53,7 +53,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
   const hasValue = rest.value !== undefined && rest.value !== '' && rest.value !== null;
   return (
     <div className="relative">
-      {leftIcon && <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">{leftIcon}</span>}
+      {leftIcon && <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">{leftIcon}</span>}
       <input
         ref={ref}
         className={cn(
@@ -67,11 +67,11 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
         {...rest}
       />
       {onClear && hasValue && !rest.disabled && (
-        <button type="button" onClick={onClear} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700" aria-label="Clear">
+        <button type="button" onClick={onClear} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700" aria-label="Clear">
           <X className="w-4 h-4" />
         </button>
       )}
-      {suffix && !onClear && <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">{suffix}</span>}
+      {suffix && !onClear && <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-500">{suffix}</span>}
     </div>
   );
 });
@@ -95,7 +95,7 @@ export function NativeSelect({ className, children, ...rest }: React.SelectHTMLA
       <select className={cn(inputBase, 'border-gray-200 appearance-none pr-8', className)} {...rest}>
         {children}
       </select>
-      <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+      <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
     </div>
   );
 }
@@ -135,7 +135,7 @@ export function Select({
           <RSelect.Value placeholder={placeholder} />
         </span>
         <RSelect.Icon>
-          <ChevronDown className="w-4 h-4 text-gray-400" />
+          <ChevronDown className="w-4 h-4 text-gray-500" />
         </RSelect.Icon>
       </RSelect.Trigger>
       <RSelect.Portal>

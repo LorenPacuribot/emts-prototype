@@ -158,13 +158,13 @@ export function Feedback() {
             <tbody>
               {shown.map((s) => (
                 <TR key={s.rate.id} className={`cursor-pointer ${current?.rate.id === s.rate.id ? "bg-brand-soft" : ""}`} onClick={() => select(s.rate.id)}>
-                  <TD className="max-w-[240px] whitespace-normal font-semibold text-ink">{s.pool.label}<div className="text-xs font-normal text-gray-400">{s.rate.id}</div></TD>
+                  <TD className="max-w-[240px] whitespace-normal font-semibold text-ink">{s.pool.label}<div className="text-xs font-normal text-gray-500">{s.rate.id}</div></TD>
                   <TD>{kindLabel(s.rate)}</TD>
-                  <TD className="text-right tabular-nums">{s.status === "disabled" ? "—" : s.rate.value ? rateText(s.rate, s.rate.value) : <span className="text-gray-400">None on file</span>}</TD>
+                  <TD className="text-right tabular-nums">{s.status === "disabled" ? "—" : s.rate.value ? rateText(s.rate, s.rate.value) : <span className="text-gray-500">None on file</span>}</TD>
                   <TD className="text-right tabular-nums">{s.status === "insufficient" || s.status === "disabled" ? "—" : rateText(s.rate, s.observed)}</TD>
-                  <TD className="text-right tabular-nums">{s.status === "insufficient" || s.status === "disabled" ? "—" : s.deviation === null ? <span className="text-gray-400">Not applicable</span> : pct(s.deviation)}</TD>
+                  <TD className="text-right tabular-nums">{s.status === "insufficient" || s.status === "disabled" ? "—" : s.deviation === null ? <span className="text-gray-500">Not applicable</span> : pct(s.deviation)}</TD>
                   <TD className="text-right tabular-nums">{s.pool.eligible.length} of {MIN_JOBS}</TD>
-                  <TD>{s.status === "insufficient" || s.status === "disabled" ? "—" : s.flag === "prominent" ? <Badge tone="red">Above 20%</Badge> : s.flag === "flagged" ? <Badge tone="amber">Above 15%</Badge> : <span className="text-xs text-gray-400">Within 15%</span>}</TD>
+                  <TD>{s.status === "insufficient" || s.status === "disabled" ? "—" : s.flag === "prominent" ? <Badge tone="red">Above 20%</Badge> : s.flag === "flagged" ? <Badge tone="amber">Above 15%</Badge> : <span className="text-xs text-gray-500">Within 15%</span>}</TD>
                   <TD><Badge tone={STATUS[s.status].tone}>{STATUS[s.status].label}</Badge></TD>
                 </TR>
               ))}
@@ -225,11 +225,11 @@ function Evidence({ s, view, setView }: { s: Suggestion; view: "pooled" | "media
             <tbody>
               {s.pool.eligible.map(({ job, combo: c }) => (
                 <TR key={job.id}>
-                  <TD className="whitespace-nowrap font-semibold text-ink">{job.id}<div className="text-xs font-normal text-gray-400">{dateLong(job.completedAt)}</div></TD>
+                  <TD className="whitespace-nowrap font-semibold text-ink">{job.id}<div className="text-xs font-normal text-gray-500">{dateLong(job.completedAt)}</div></TD>
                   <TD className="text-right tabular-nums">{c.measuredSqft.toLocaleString()}</TD>
                   <TD className="text-right tabular-nums">{c.applicationHours.toFixed(1)}</TD>
-                  <TD className="text-right tabular-nums text-gray-400" title="Prep, travel, setup, rework — excluded">{(c.prepHours + c.travelHours + c.setupHours + c.reworkHours).toFixed(1)}</TD>
-                  <TD className="text-right tabular-nums">{c.consumedGal.toFixed(2)}{c.spillsGal > 0 && <div className="text-xs text-gray-400">incl. {c.spillsGal.toFixed(2)} spilt</div>}</TD>
+                  <TD className="text-right tabular-nums text-gray-500" title="Prep, travel, setup, rework — excluded">{(c.prepHours + c.travelHours + c.setupHours + c.reworkHours).toFixed(1)}</TD>
+                  <TD className="text-right tabular-nums">{c.consumedGal.toFixed(2)}{c.spillsGal > 0 && <div className="text-xs text-gray-500">incl. {c.spillsGal.toFixed(2)} spilt</div>}</TD>
                   <TD className="text-right tabular-nums">{Math.round(c.wasteAllowance * 100)}%</TD>
                   <TD className="text-right tabular-nums">{c.coats}</TD>
                   <TD className="text-right tabular-nums">{(c.measuredSqft * c.coats).toLocaleString()}</TD>
@@ -241,7 +241,7 @@ function Evidence({ s, view, setView }: { s: Suggestion; view: "pooled" | "media
                 <TD>Totals · {s.pool.eligible.length} jobs</TD>
                 <TD className="text-right tabular-nums">{s.totals.sqft.toLocaleString()}</TD>
                 <TD className="text-right tabular-nums">{s.totals.hours.toFixed(1)}</TD>
-                <TD /><TD className="text-right tabular-nums">{s.totals.wasteAdjustedGal.toFixed(2)}<div className="text-xs font-normal text-gray-400">waste-adjusted</div></TD><TD /><TD />
+                <TD /><TD className="text-right tabular-nums">{s.totals.wasteAdjustedGal.toFixed(2)}<div className="text-xs font-normal text-gray-500">waste-adjusted</div></TD><TD /><TD />
                 <TD className="text-right tabular-nums">{s.totals.coatSqft.toLocaleString()}</TD>
                 <TD className="text-right tabular-nums">{prod && view === "median" ? `${s.median?.toFixed(1)} median` : s.observed.toFixed(1)}</TD>
                 {can(user, "feedback.exclude") && <TD />}
@@ -301,7 +301,7 @@ function Exclusions({ s }: { s: Suggestion }) {
       <CardLabel>Exclusions and ineligible jobs</CardLabel>
       <p className="mt-1 text-xs text-gray-500">Every job left out, and why. Mixed jobs stay ineligible — no per-surface allocation is invented.</p>
       <div className="mt-3 space-y-2">
-        {history.length === 0 && s.pool.ineligible.length === 0 && <p className="text-xs italic text-gray-400">Nothing excluded.</p>}
+        {history.length === 0 && s.pool.ineligible.length === 0 && <p className="text-xs italic text-gray-500">Nothing excluded.</p>}
         {history.map((e) => (
           <div key={e.id} className="rounded-lg border border-line px-3 py-2 text-xs">
             <div className="flex flex-wrap items-center justify-between gap-2">
@@ -350,7 +350,7 @@ function Preview({ s }: { s: Suggestion }) {
               <TR className="bg-gray-50 font-semibold"><TD>Total</TD><TD /><TD /><TD /><TD className="text-right tabular-nums">{total("after") - total("before") > 0 ? "+" : ""}{money(total("after") - total("before"))}</TD></TR>
             </tbody>
           </Table>
-          <p className="text-xs text-gray-400">Prototype constants: blended labor {money(PREVIEW_WAGE_PER_HOUR)}/h, material {money(PREVIEW_PRICE_PER_GAL)}/gal, historical markup {Math.round(PREVIEW_MARKUP * 100)}%.</p>
+          <p className="text-xs text-gray-500">Prototype constants: blended labor {money(PREVIEW_WAGE_PER_HOUR)}/h, material {money(PREVIEW_PRICE_PER_GAL)}/gal, historical markup {Math.round(PREVIEW_MARKUP * 100)}%.</p>
         </div>
       )}
     </Card>
@@ -471,7 +471,7 @@ function Reviews() {
       <CardLabel icon={<CalendarClock />} right={<Button size="sm" onClick={() => { const r = act(runReviewCheck); if (r.ok) toast.success(r.value ? `${r.value} overdue review${r.value === 1 ? "" : "s"} escalated` : "Nothing new to escalate", r.value ? `Escalated to ${owner?.name}.` : undefined); }}>Run daily review check</Button>}>Day-90 reviews and day-120 escalations</CardLabel>
       <p className="mt-1 text-xs text-gray-500">The estimating manager reviews every approved change at day 90. A review still outstanding at day 120 escalates to the business owner.</p>
       <div className="mt-3 space-y-2">
-        {list.length === 0 && <p className="text-xs italic text-gray-400">No approved changes yet.</p>}
+        {list.length === 0 && <p className="text-xs italic text-gray-500">No approved changes yet.</p>}
         {list.map((r) => (
           <div key={r.rate.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-line px-3 py-2 text-xs">
             <div>

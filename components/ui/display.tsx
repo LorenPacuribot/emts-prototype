@@ -12,6 +12,7 @@ import * as RTabs from '@radix-ui/react-tabs';
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, FileText, Inbox, Search, Users } from 'lucide-react';
 import { cn, dateTile, initials } from '@/lib/utils';
 import { NativeSelect } from './form';
+import { pressable } from '@/lib/a11y';
 
 /* ---------- Badge ---------- */
 
@@ -53,7 +54,7 @@ export function RefChip({ href, kind = 'doc', children }: { href?: string; kind?
 
 export function Card({ children, className, onClick }: { children: React.ReactNode; className?: string; onClick?: () => void }) {
   return (
-    <div onClick={onClick} className={cn('rounded-2xl border border-gray-200 bg-white shadow-sm', onClick && 'cursor-pointer hover:border-primary-300 hover:shadow-md transition', className)}>
+    <div {...pressable(onClick)} onClick={onClick} className={cn('rounded-2xl border border-gray-200 bg-white shadow-sm', onClick && 'cursor-pointer hover:border-primary-300 hover:shadow-md transition', className)}>
       {children}
     </div>
   );
@@ -108,7 +109,7 @@ export function PageHeader({ title, subtitle, actions, className }: { title: str
 export function SearchInput({ value, onChange, placeholder = 'Search…', className }: { value: string; onChange: (v: string) => void; placeholder?: string; className?: string }) {
   return (
     <div className={cn('relative w-full md:w-80', className)}>
-      <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+      <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
       <input
         value={value}
         onChange={(e) => onChange(e.target.value)}
@@ -124,7 +125,7 @@ export function SearchInput({ value, onChange, placeholder = 'Search…', classN
 export function EmptyState({ icon, title, message, action, className }: { icon?: React.ReactNode; title?: string; message: string; action?: React.ReactNode; className?: string }) {
   return (
     <div className={cn('flex flex-col items-center justify-center rounded-2xl border border-dashed border-gray-200 bg-white px-6 py-12 text-center', className)}>
-      <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-gray-50 text-gray-400 [&>svg]:h-6 [&>svg]:w-6">{icon ?? <Inbox />}</div>
+      <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-gray-50 text-gray-500 [&>svg]:h-6 [&>svg]:w-6">{icon ?? <Inbox />}</div>
       {title && <h3 className="font-heading text-base font-bold text-gray-900">{title}</h3>}
       <p className="mt-1 max-w-sm text-sm text-gray-500">{message}</p>
       {action && <div className="mt-4">{action}</div>}
@@ -168,7 +169,7 @@ export function usePagination<T>(items: T[], initialSize = 10) {
 export function Pagination({
   page, totalPages, onPage, pageSize, onPageSize, shown, total,
 }: { page: number; totalPages: number; onPage: (p: number) => void; pageSize: number; onPageSize: (n: number) => void; shown: number; total: number }) {
-  const btn = 'flex h-7 w-7 items-center justify-center rounded-md border border-gray-200 bg-white text-gray-400 hover:text-gray-700 disabled:opacity-40';
+  const btn = 'flex h-7 w-7 items-center justify-center rounded-md border border-gray-200 bg-white text-gray-500 hover:text-gray-700 disabled:opacity-40';
   return (
     <div className="mt-6 flex flex-col items-center justify-between gap-3 md:flex-row">
       <p className="text-sm text-gray-600">Showing {shown} out of {total} results</p>
@@ -207,7 +208,7 @@ export function DateTile({ iso, compact }: { iso: string; compact?: boolean }) {
     <div className={cn('flex shrink-0 flex-col items-center justify-center rounded-lg border border-gray-200 bg-gray-50', compact ? 'h-10 w-10' : 'h-12 w-11')}>
       <span className="text-xxs font-bold uppercase text-gray-500">{t.month}</span>
       <span className="font-heading text-sm font-extrabold leading-none text-gray-900">{t.day}</span>
-      {!compact && <span className="text-xs text-gray-400">{t.year}</span>}
+      {!compact && <span className="text-xs text-gray-500">{t.year}</span>}
     </div>
   );
 }

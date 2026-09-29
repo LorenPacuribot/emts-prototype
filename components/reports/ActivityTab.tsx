@@ -17,6 +17,7 @@ import { useToast } from '@/components/ui/toast';
 import { ACTIVITY_ENTITY_OPTIONS, ACTIVITY_TYPE_COLOR, activityRow, downloadCsv, inDateRange, type DateRange } from './data';
 import { DateRangeInputs, ExportButton, MultiSelect, ReportCard, TD, TH } from './shared';
 import { InteractionPanel } from './InteractionPanel';
+import { pressable } from '@/lib/a11y';
 
 type Row = ReturnType<typeof activityRow>;
 
@@ -83,7 +84,7 @@ export function ActivityLogTab({ range, setRange }: { range: DateRange; setRange
         </div>
         <div className="flex flex-col gap-3 lg:flex-row lg:flex-wrap lg:items-end">
           <div className="relative w-full lg:w-80">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -107,7 +108,7 @@ export function ActivityLogTab({ range, setRange }: { range: DateRange; setRange
           </thead>
           <tbody className="divide-y divide-gray-100">
             {p.pageItems.map((r) => (
-              <tr key={r.id} onClick={() => setSelected(r)} className="cursor-pointer transition-colors hover:bg-gray-50/80">
+              <tr {...pressable(true, { row: true })} key={r.id} onClick={() => setSelected(r)} className="cursor-pointer transition-colors hover:bg-gray-50/80">
                 <td className={cn(TD, 'font-medium text-gray-900')}>{dateTime(r.date)}</td>
                 <td className={TD}>
                   <span className={cn('inline-flex items-center rounded border px-2 py-0.5 text-xs font-medium', ACTIVITY_TYPE_COLOR[r.type] ?? ACTIVITY_TYPE_COLOR.Updated)}>{r.type}</span>
@@ -123,7 +124,7 @@ export function ActivityLogTab({ range, setRange }: { range: DateRange; setRange
             ))}
             {rows.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-6 py-12 text-center italic text-gray-400">No activity found for this filter.</td>
+                <td colSpan={6} className="px-6 py-12 text-center italic text-gray-500">No activity found for this filter.</td>
               </tr>
             )}
           </tbody>
@@ -160,7 +161,7 @@ export function ActivityLogTab({ range, setRange }: { range: DateRange; setRange
             <div className="border-t border-gray-100" />
             <div>
               <h5 className="mb-3 text-xs font-bold uppercase tracking-wider text-gray-500">Details</h5>
-              <p className="text-sm italic text-gray-400">No additional details.</p>
+              <p className="text-sm italic text-gray-500">No additional details.</p>
             </div>
             <div className="flex justify-end gap-2 border-t border-gray-100 pt-4">
               {selected.entity && selected.entityId && (

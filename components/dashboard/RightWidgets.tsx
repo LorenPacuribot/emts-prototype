@@ -28,7 +28,7 @@ export function EstimateStatusWidget({ data }: { data: DashboardData['estimateSt
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <span className="text-3xl font-black leading-none text-gray-900">{data.total}</span>
-          <span className="mt-1 text-xxs font-black uppercase tracking-widest text-gray-400">Total</span>
+          <span className="mt-1 text-xxs font-black uppercase tracking-widest text-gray-500">Total</span>
         </div>
       </div>
       <div className="w-full space-y-3 border-t border-gray-50 pt-4">
@@ -37,7 +37,7 @@ export function EstimateStatusWidget({ data }: { data: DashboardData['estimateSt
           <span className="font-black text-gray-900">{data.openCount}</span>
         </div>
         <div className="flex items-center justify-between">
-          <span className="text-xxs font-bold uppercase tracking-widest text-gray-400">Total Value</span>
+          <span className="text-xxs font-bold uppercase tracking-widest text-gray-500">Total Value</span>
           <span className="text-base font-black text-primary-600">{kMoney(data.totalValue)}</span>
         </div>
       </div>
@@ -60,8 +60,8 @@ export function MonthlyGoalWidget({ data }: { data: DashboardData['goal'] }) {
             </div>
             {data.target > 0 && (
               <div className="lg:text-right">
-                <div className="text-xl font-black text-gray-400 lg:text-3xl">{kMoney(data.target)}</div>
-                <span className="text-xxs font-black uppercase tracking-widest text-gray-400 lg:text-xxs">Target</span>
+                <div className="text-xl font-black text-gray-500 lg:text-3xl">{kMoney(data.target)}</div>
+                <span className="text-xxs font-black uppercase tracking-widest text-gray-500 lg:text-xxs">Target</span>
               </div>
             )}
           </div>
@@ -89,7 +89,7 @@ export function MonthlyGoalWidget({ data }: { data: DashboardData['goal'] }) {
               >
                 <div className="mr-2 min-w-0 flex-1">
                   <span className="block truncate text-xs font-bold text-gray-700">{deal.customerName}</span>
-                  <span className="text-xs font-bold text-gray-400">{deal.estimateNumber}</span>
+                  <span className="text-xs font-bold text-gray-500">{deal.estimateNumber}</span>
                 </div>
                 <span className="shrink-0 text-xs font-black text-indigo-600">{plainMoney(deal.amount)}</span>
               </Link>
@@ -121,7 +121,7 @@ export function ActiveJobsWidget({ jobs }: { jobs: DashboardData['activeJobs'] }
                   <span className={cn('text-xxs font-black uppercase tracking-widest', JOB_STATUS_TEXT[job.status])}>{job.status}</span>
                   <span className="truncate text-sm font-bold text-gray-900">{job.customerName}</span>
                 </div>
-                <div className="flex items-center gap-1 whitespace-nowrap pl-4 text-xs font-bold text-gray-400 transition-colors group-hover:text-primary-600">
+                <div className="flex items-center gap-1 whitespace-nowrap pl-4 text-xs font-bold text-gray-500 transition-colors group-hover:text-primary-600">
                   {job.startDate ? shortDate(job.startDate) : 'TBD'}
                   <ChevronRight className="h-3.5 w-3.5" />
                 </div>

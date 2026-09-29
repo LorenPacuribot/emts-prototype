@@ -66,7 +66,7 @@ export function PaintLibraryView() {
               <div className="min-w-0 flex-1">
                 <div className="mb-0.5 truncate text-xxs font-bold uppercase tracking-widest text-gray-500">{lookups.brand(p.brandId)?.name ?? 'Unknown brand'}</div>
                 <h3 className="break-words font-heading text-base font-bold leading-tight text-gray-900">{p.name}</h3>
-                <span className="mt-1 inline-block rounded border border-gray-100 bg-gray-50 px-1.5 py-0.5 text-xs font-bold text-gray-400">{p.category}</span>
+                <span className="mt-1 inline-block rounded border border-gray-100 bg-gray-50 px-1.5 py-0.5 text-xs font-bold text-gray-500">{p.category}</span>
                 {!p.isActive && <span className="ml-1 inline-block rounded border border-gray-200 bg-gray-100 px-1.5 py-0.5 text-xs font-bold text-gray-500">Inactive</span>}
               </div>
               <div className="-mr-1 flex shrink-0 items-center">
@@ -226,7 +226,7 @@ function PaintModal({
             icon={<Droplets />}
             right={
               <span className="flex items-center gap-2">
-                <Wand2 className={cn('h-3 w-3', multOn ? 'text-indigo-600' : 'text-gray-400')} />
+                <Wand2 className={cn('h-3 w-3', multOn ? 'text-indigo-600' : 'text-gray-500')} />
                 <span className="text-xs font-medium text-gray-600">Multipliers</span>
                 <Switch checked={multOn} onChange={setMultOn} label="Use multipliers" />
               </span>
@@ -289,12 +289,12 @@ function PaintModal({
                 <span className="h-6 w-6 shrink-0 rounded-md border border-gray-200" style={{ backgroundColor: c.hex }} />
                 <span className="flex-1 text-sm font-semibold text-gray-800">{c.name}</span>
                 <span className="text-xs text-gray-500">{c.code}</span>
-                <button type="button" className="rounded p-1 text-gray-400 hover:bg-red-50 hover:text-red-600" aria-label={`Remove ${c.name}`} onClick={() => set('colors', (form.colors ?? []).filter((_, j) => j !== i))}>
+                <button type="button" className="rounded p-1 text-gray-500 hover:bg-red-50 hover:text-red-600" aria-label={`Remove ${c.name}`} onClick={() => set('colors', (form.colors ?? []).filter((_, j) => j !== i))}>
                   <Trash2 className="h-4 w-4" />
                 </button>
               </div>
             ))}
-            {(form.colors ?? []).length === 0 && <p className="text-xs italic text-gray-400">No colors added yet.</p>}
+            {(form.colors ?? []).length === 0 && <p className="text-xs italic text-gray-500">No colors added yet.</p>}
             <div className="flex items-center gap-2">
               <input type="color" value={newColor.hex} onChange={(e) => setNewColor({ ...newColor, hex: e.target.value })} className="h-10 w-10 shrink-0 cursor-pointer rounded-lg border border-gray-200 bg-white p-1" aria-label="Color swatch" />
               <div className="flex-1"><Input value={newColor.name} onChange={(e) => setNewColor({ ...newColor, name: e.target.value })} placeholder="Color name" onKeyDown={(e) => e.key === 'Enter' && addColor()} /></div>

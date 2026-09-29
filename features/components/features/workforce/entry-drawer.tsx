@@ -105,7 +105,7 @@ export function EntryDrawer({ entryId, onClose }: { entryId?: string; onClose: (
             {segs.map((s) => (
               <TR key={s.id} className={s.supersededAt ? "opacity-50" : ""}>
                 <TD className="font-semibold">{s.id}{s.supersededAt && <div className="text-xs font-normal text-red-600">Superseded — 0 hours</div>}</TD>
-                <TD>{s.jobId ?? <span className="text-gray-400">Overhead</span>}<div className="text-xs text-gray-400">{ACTIVITY_LABEL[s.activity]}</div>{punchTagLabel(db, s) && <div className="text-xs font-medium text-gray-500">{punchTagLabel(db, s)}</div>}</TD>
+                <TD>{s.jobId ?? <span className="text-gray-500">Overhead</span>}<div className="text-xs text-gray-500">{ACTIVITY_LABEL[s.activity]}</div>{punchTagLabel(db, s) && <div className="text-xs font-medium text-gray-500">{punchTagLabel(db, s)}</div>}</TD>
                 <TD className="tabular-nums">{timeLabel(s.start)}</TD>
                 <TD className="tabular-nums">{s.end ? timeLabel(s.end) : <Badge tone="green">Clocked in</Badge>}</TD>
                 <TD className="tabular-nums">{s.end ? hm(elapsedMinutes(s.start, s.end)) : "—"}</TD>
@@ -151,7 +151,7 @@ export function EntryDrawer({ entryId, onClose }: { entryId?: string; onClose: (
           <p className="mt-2 text-xs text-gray-500">
             Split in proportion to recorded minutes.{totals.residualTo ? ` The residual minute went to ${totals.residualTo} (most hours; ties go to the lowest job number).` : ""} Travel is charged to the second job; training and rained-out time is overhead.
           </p>
-          {!payrollDetail && <p className="mt-1 text-xs text-gray-400">Regular and overtime classification is shown to the office manager and owner.</p>}
+          {!payrollDetail && <p className="mt-1 text-xs text-gray-500">Regular and overtime classification is shown to the office manager and owner.</p>}
         </div>
       </div>
 
@@ -226,7 +226,7 @@ export function EntryDrawer({ entryId, onClose }: { entryId?: string; onClose: (
           {entry.attestedAt && <li>Attested by the employee {dateTime(entry.attestedAt)}</li>}
           {entry.unattested && <li className="text-amber-700">Submitted by the crew lead without the employee's attestation.</li>}
           {[...entry.history].reverse().map((h, i) => <li key={i}>{dateTime(h.at)} — {userName(db, h.by)}: {h.text}</li>)}
-          {!entry.history.length && !entry.attestedAt && <li className="italic text-gray-400">No history yet.</li>}
+          {!entry.history.length && !entry.attestedAt && <li className="italic text-gray-500">No history yet.</li>}
         </ul>
       </div>
 

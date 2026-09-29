@@ -68,7 +68,7 @@ export function EmptyState({ icon, title, body, action, className }: { icon?: Re
     <div className={cn("flex flex-col items-center justify-center rounded-2xl border border-dashed border-gray-200 px-6 py-10 text-center", className)}>
       {icon && <div className="mb-3 text-gray-300 [&>svg]:h-8 [&>svg]:w-8">{icon}</div>}
       <p className="text-sm font-semibold text-gray-600">{title}</p>
-      {body && <p className="mt-1 max-w-sm text-xs italic text-gray-400">{body}</p>}
+      {body && <p className="mt-1 max-w-sm text-xs italic text-gray-500">{body}</p>}
       {action && <div className="mt-4">{action}</div>}
     </div>
   );

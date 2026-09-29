@@ -92,7 +92,7 @@ export function AlertDrawer({ alertId, onClose }: { alertId?: string; onClose: (
             items={[
               ["Owner (customer)", owner?.name ?? "—"],
               ["Earliest due", date(alert.earliestDue)],
-              ["Grouping window end", <span key="w">{date(alert.windowEnd)} <span className="text-xs font-normal text-gray-400">(earliest due + 12 months, fixed)</span></span>],
+              ["Grouping window end", <span key="w">{date(alert.windowEnd)} <span className="text-xs font-normal text-gray-500">(earliest due + 12 months, fixed)</span></span>],
               ["Advance notice basis", <NoticeBadge key="n" basis={alert.noticeBasis} />],
               ["Created", `${dateTime(alert.createdAt)} · ${esc.age} days old${alert.runId ? ` · by ${alert.runId}` : ""}`],
               ["Escalation clock", esc.running ? (esc.escalated ? "Fired — routed to the business owner" : `${esc.daysLeft} days left of 14`) : "Stopped (outcome recorded)"],
@@ -205,7 +205,7 @@ export function AlertDrawer({ alertId, onClose }: { alertId?: string; onClose: (
             <ul className="space-y-2">
               {[...(alert.history ?? [])].reverse().map((h, i) => (
                 <li key={i} className="border-l-2 border-line pl-3 text-xs">
-                  <div className="text-xxs font-bold uppercase text-gray-400">{dateTime(h.at)} · {byId(db.users, h.by)?.name}</div>
+                  <div className="text-xxs font-bold uppercase text-gray-500">{dateTime(h.at)} · {byId(db.users, h.by)?.name}</div>
                   <div className="text-gray-700">{h.text}</div>
                 </li>
               ))}

@@ -117,7 +117,7 @@ export function FollowUpDrawer({ fuId, onClose }: { fuId?: string; onClose: () =
           <ul className="divide-y divide-line rounded-lg border border-line">
             {alerts.flatMap((a) => a.surfaces.map((x) => ({ a, x }))).sort((p, q) => p.x.dueDate.localeCompare(q.x.dueDate)).map(({ a, x }) => (
               <li key={x.applicationId} className="flex flex-wrap items-center justify-between gap-2 px-3 py-2 text-xs">
-                <span><span className="font-semibold text-ink">{surfaceLabel(db, x.surfaceId)}</span> <span className="text-gray-400">· {x.surfaceId}{a.id !== fu.alertId ? ` · linked from ${a.id}` : ""}</span></span>
+                <span><span className="font-semibold text-ink">{surfaceLabel(db, x.surfaceId)}</span> <span className="text-gray-500">· {x.surfaceId}{a.id !== fu.alertId ? ` · linked from ${a.id}` : ""}</span></span>
                 <span className="font-semibold">Due {date(x.dueDate)}</span>
               </li>
             ))}
@@ -176,13 +176,13 @@ export function FollowUpDrawer({ fuId, onClose }: { fuId?: string; onClose: () =
                     {a.actualAt ? (
                       <span className="flex items-center gap-1.5">{m && <Badge tone={m.tone}>{m.label}</Badge>}<span className="text-gray-500">{dateTime(a.actualAt)} · {a.channel ?? "call"}</span></span>
                     ) : (
-                      <span className="text-gray-400">Not made yet</span>
+                      <span className="text-gray-500">Not made yet</span>
                     )}
                   </div>
                   {a.actualAt && (
                     <div className="mt-1.5 text-gray-600">
-                      {a.contactName} — {a.note} <span className="text-gray-400">· by {byId(db.users, a.by)?.name} · next action {date(a.nextActionDate)}</span>
-                      {!isConversation(a.outcome) && <span className="ml-1 text-xs italic text-gray-400">(attempt only, not a conversation)</span>}
+                      {a.contactName} — {a.note} <span className="text-gray-500">· by {byId(db.users, a.by)?.name} · next action {date(a.nextActionDate)}</span>
+                      {!isConversation(a.outcome) && <span className="ml-1 text-xs italic text-gray-500">(attempt only, not a conversation)</span>}
                     </div>
                   )}
                 </div>
@@ -206,7 +206,7 @@ export function FollowUpDrawer({ fuId, onClose }: { fuId?: string; onClose: () =
                   </div>
                   <div className="mt-1 text-gray-600">{c.state === "not_started" ? "Not started" : `Day ${c.days} of ${c.limit}`}{c.escalated ? " · escalated" : ""}</div>
                   <div className="text-xs text-gray-500">Source {c.source ? date(c.source) : "—"} · to {c.escalatesTo}</div>
-                  {c.stoppedNote && <div className="text-xs text-gray-400">{c.stoppedNote}</div>}
+                  {c.stoppedNote && <div className="text-xs text-gray-500">{c.stoppedNote}</div>}
                 </div>
               );
             })}
@@ -261,7 +261,7 @@ export function FollowUpDrawer({ fuId, onClose }: { fuId?: string; onClose: () =
           <ul className="space-y-2">
             {[...fu.history].reverse().map((h, i) => (
               <li key={i} className="border-l-2 border-line pl-3 text-xs">
-                <div className="text-xxs font-bold uppercase text-gray-400">{dateTime(h.at)} · {byId(db.users, h.by)?.name}</div>
+                <div className="text-xxs font-bold uppercase text-gray-500">{dateTime(h.at)} · {byId(db.users, h.by)?.name}</div>
                 <div className="text-gray-700">{FOLLOWUP_STATUS[h.status]?.label ?? titleCase(h.status)}{h.note ? ` — ${h.note}` : ""}</div>
               </li>
             ))}

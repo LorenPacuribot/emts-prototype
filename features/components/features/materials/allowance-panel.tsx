@@ -25,14 +25,14 @@ export function ConsumablesPanel({ job }: { job: Job }) {
       <div className="mt-3 space-y-1.5 text-xs">
         {c.rooms.map((r) => (
           <div key={r.id} className="flex justify-between border-b border-dashed border-line pb-1.5">
-            <span>{r.name} <span className="text-gray-400">· {r.neverPainted ? "new construction" : "interior repaint"}</span></span>
+            <span>{r.name} <span className="text-gray-500">· {r.neverPainted ? "new construction" : "interior repaint"}</span></span>
             <span className="tabular-nums">{money(r.amount)}</span>
           </div>
         ))}
         {c.hasExterior && (
           <>
             <div className="flex justify-between border-b border-dashed border-line pb-1.5"><span>Exterior job base</span><span className="tabular-nums">{money(c.exteriorBase)}</span></div>
-            <div className="flex justify-between border-b border-dashed border-line pb-1.5"><span>Exterior {num(c.exteriorSqft)} sq ft × $25 / 1,000 <span className="text-gray-400">(measured, not coat-adjusted)</span></span><span className="tabular-nums">{money(c.exteriorPerThousand)}</span></div>
+            <div className="flex justify-between border-b border-dashed border-line pb-1.5"><span>Exterior {num(c.exteriorSqft)} sq ft × $25 / 1,000 <span className="text-gray-500">(measured, not coat-adjusted)</span></span><span className="tabular-nums">{money(c.exteriorPerThousand)}</span></div>
           </>
         )}
         {c.rooms.length === 0 && !c.hasExterior && <EmptyState title="No rooms or elevations in scope." />}

@@ -267,7 +267,7 @@ function StockPanel({ r, editable }: { r: TouchUpReorder; editable: boolean }) {
                 <option value="">Choose…</option>
                 {matching.map((s) => <option key={s.id} value={s.id}>{s.id} · {s.product} {s.colourName} {s.sheen} · {s.containerSize} · tinted {dateLong(s.tintDate)}</option>)}
               </Select>
-              {matching.length === 0 && <p className="text-xs italic text-gray-400">No unreserved shelf stock in this color.</p>}
+              {matching.length === 0 && <p className="text-xs italic text-gray-500">No unreserved shelf stock in this color.</p>}
             </Field>
           )}
           {supply === "customer_cans" && (

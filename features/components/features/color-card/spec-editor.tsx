@@ -190,15 +190,15 @@ export function SpecEditor({ open, onOpenChange, jobId, colourId, spec }: {
             <ol className="space-y-1.5">
               {draft.coatSequence.map((step, i) => (
                 <li key={`${step}-${i}`} className="flex items-center gap-2 rounded-lg border border-line bg-gray-50 px-3 py-1.5 text-xs">
-                  <span className="w-5 text-xs font-bold text-gray-400">{i + 1}.</span>
+                  <span className="w-5 text-xs font-bold text-gray-500">{i + 1}.</span>
                   <span className="flex-1 font-medium">{step}</span>
-                  <button aria-label="Move up" disabled={i === 0} onClick={() => set("coatSequence", swap(draft.coatSequence, i, i - 1))} className="text-gray-400 hover:text-ink disabled:opacity-30">
+                  <button aria-label="Move up" disabled={i === 0} onClick={() => set("coatSequence", swap(draft.coatSequence, i, i - 1))} className="text-gray-500 hover:text-ink disabled:opacity-30">
                     <ArrowUp className="h-3.5 w-3.5" />
                   </button>
-                  <button aria-label="Move down" disabled={i === draft.coatSequence.length - 1} onClick={() => set("coatSequence", swap(draft.coatSequence, i, i + 1))} className="text-gray-400 hover:text-ink disabled:opacity-30">
+                  <button aria-label="Move down" disabled={i === draft.coatSequence.length - 1} onClick={() => set("coatSequence", swap(draft.coatSequence, i, i + 1))} className="text-gray-500 hover:text-ink disabled:opacity-30">
                     <ArrowDown className="h-3.5 w-3.5" />
                   </button>
-                  <button aria-label={`Remove ${step}`} onClick={() => set("coatSequence", draft.coatSequence.filter((_, j) => j !== i))} className="text-gray-400 hover:text-red-600">
+                  <button aria-label={`Remove ${step}`} onClick={() => set("coatSequence", draft.coatSequence.filter((_, j) => j !== i))} className="text-gray-500 hover:text-red-600">
                     <X className="h-3.5 w-3.5" />
                   </button>
                 </li>
@@ -227,7 +227,7 @@ export function SpecEditor({ open, onOpenChange, jobId, colourId, spec }: {
               return (
                 <div key={areaId} className="rounded-xl border border-line p-3">
                   <div className="mb-2 text-xs font-bold text-ink">
-                    {area?.name} <span className="font-normal text-gray-400">· {labelRoomType(area?.roomType ?? "")}</span>
+                    {area?.name} <span className="font-normal text-gray-500">· {labelRoomType(area?.roomType ?? "")}</span>
                   </div>
                   <div className="space-y-1.5">
                     {list.map((s) => {
@@ -239,7 +239,7 @@ export function SpecEditor({ open, onOpenChange, jobId, colourId, spec }: {
                             onCheckedChange={(v) => set("surfaceIds", v ? [...draft.surfaceIds, s.id] : draft.surfaceIds.filter((x) => x !== s.id))}
                             label={
                               <span>
-                                {s.name} <span className="text-gray-400">({s.areaSqft} sq ft)</span>
+                                {s.name} <span className="text-gray-500">({s.areaSqft} sq ft)</span>
                                 {other && <span className="ml-1 text-xs text-amber-600">also on {other.id}</span>}
                               </span>
                             }
@@ -268,7 +268,7 @@ export function SpecEditor({ open, onOpenChange, jobId, colourId, spec }: {
           >
             {lifespanLocked ? (
               <Tooltip content="Locked by owner override">
-                <div className="flex h-10 items-center gap-2 rounded-lg border border-line bg-gray-50 px-3 text-sm text-gray-400">
+                <div className="flex h-10 items-center gap-2 rounded-lg border border-line bg-gray-50 px-3 text-sm text-gray-500">
                   <Lock className="h-3.5 w-3.5" /> {draft.lifespanYears} yrs
                 </div>
               </Tooltip>
@@ -333,7 +333,7 @@ export function SpecEditor({ open, onOpenChange, jobId, colourId, spec }: {
           </div>
         </div>
         {!spec && (
-          <p className="flex items-center gap-1 text-xs text-gray-400">
+          <p className="flex items-center gap-1 text-xs text-gray-500">
             <Plus className="h-3 w-3" /> Each specification is a separate line. Adding one never overwrites another under the same color.
           </p>
         )}

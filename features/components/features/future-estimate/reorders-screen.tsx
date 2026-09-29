@@ -109,7 +109,7 @@ export function ReordersPanel({ property }: { property: Property }) {
                   return (
                     <TR key={r.id} className="cursor-pointer" onClick={() => setOpenId(r.id)}>
                       <TD><button className="font-semibold text-brand hover:underline">{r.id}</button></TD>
-                      <TD><span className="flex items-center gap-2">{app && <Swatch hex={app.hex} size="sm" />}{app?.colourName} {app?.colourNumber}<span className="text-gray-400">{app?.sheen}</span></span></TD>
+                      <TD><span className="flex items-center gap-2">{app && <Swatch hex={app.hex} size="sm" />}{app?.colourName} {app?.colourNumber}<span className="text-gray-500">{app?.sheen}</span></span></TD>
                       <TD>{formatPacks(r.packs)}</TD>
                       <TD>{r.payment === "prepaid_cleared" ? <Badge tone="green">Prepaid</Badge> : r.payment === "on_account" ? <Badge tone="indigo">On account</Badge> : <Badge tone="red">Unpaid</Badge>}</TD>
                       <TD className="text-xs">{r.supply === "company_stock" ? "Company stock" : r.supply === "customer_cans" ? "Customer's cans" : "New order"}{r.stockCheck && !r.stockCheck.ok && <Badge tone="red" className="ml-1">Rematch</Badge>}</TD>

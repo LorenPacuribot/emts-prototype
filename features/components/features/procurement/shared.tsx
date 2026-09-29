@@ -44,7 +44,7 @@ export function minutesLabel(m: number): string {
 export function AckClockChip({ po, nowIso }: { po: PurchaseOrder; nowIso: string }) {
   if (po.ackAt) return <span className="inline-flex items-center gap-1 text-xs font-semibold text-green-700"><CheckCircle2 className="h-3.5 w-3.5" /> Acknowledged</span>;
   const since = po.resentAt ?? po.sentAt;
-  if (po.status !== "sent" || !since) return <span className="text-gray-400">—</span>;
+  if (po.status !== "sent" || !since) return <span className="text-gray-500">—</span>;
   const c = ackClock(since, nowIso);
   return c.overdue ? (
     <span className="inline-flex items-center gap-1 whitespace-nowrap text-xs font-bold text-red-600"><AlertTriangle className="h-3.5 w-3.5" /> Overdue</span>
@@ -76,7 +76,7 @@ export function ReceivedBar({ po }: { po: PurchaseOrder }) {
 export function Cell({ label, children, className }: { label: string; children: ReactNode; className?: string }) {
   return (
     <div className={className}>
-      <div className="text-xxs font-bold uppercase tracking-[0.12em] text-gray-400">{label}</div>
+      <div className="text-xxs font-bold uppercase tracking-[0.12em] text-gray-500">{label}</div>
       <div className="mt-0.5 text-xs text-gray-700">{children}</div>
     </div>
   );

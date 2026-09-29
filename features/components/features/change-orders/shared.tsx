@@ -75,7 +75,7 @@ export function billingStateLabel(co: ChangeOrder, canPrice: boolean): ReactNode
   if (st === "failed") return <Badge tone="red">Billing failed</Badge>;
   if (co.billing) return <span className="text-xs">{BILLING_LABEL[co.billing.mode].split(" (")[0]}{co.billing.docId ? ` · ${co.billing.docId}` : ""}{canPrice && co.billing.mode !== "none" ? ` · ${money(co.billing.amount)}` : ""}</span>;
   if (co.emergency && !co.emergency.writtenConfirmedAt && co.status === "approved") return <Badge tone="amber">Deferred</Badge>;
-  return <span className="text-gray-400">—</span>;
+  return <span className="text-gray-500">—</span>;
 }
 
 export function coHref(db: Database, co: ChangeOrder) {

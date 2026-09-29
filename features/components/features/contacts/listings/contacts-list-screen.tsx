@@ -40,12 +40,12 @@ export function ContactsListScreen() {
             <div key={s.label} className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
               <div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-gray-500 [&>svg]:h-4 [&>svg]:w-4">{s.icon} {s.label}</div>
               <div className="font-heading text-3xl font-black text-gray-900">{s.value}</div>
-              <div className="text-xs text-gray-400">{s.sub}</div>
+              <div className="text-xs text-gray-500">{s.sub}</div>
             </div>
           ))}
         </div>
         <div className="relative mb-5">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
           <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search by name, email, or phone..." className="h-11 pl-9" />
         </div>
         {list.length === 0 && <EmptyState title="No contacts found" />}
@@ -64,12 +64,12 @@ export function ContactsListScreen() {
                   </div>
                 </div>
                 <div className="md:w-44">
-                  <div className="mb-1 text-xxs font-bold uppercase tracking-wider text-gray-400">Status</div>
+                  <div className="mb-1 text-xxs font-bold uppercase tracking-wider text-gray-500">Status</div>
                   {status ? <StatusPill tone={status.tone}>{status.label}</StatusPill> : <StatusPill tone="gray">No Active Jobs</StatusPill>}
                 </div>
                 <div className="space-y-1 text-sm text-gray-600 md:w-64">
-                  {c.phone && <div className="flex items-center gap-2"><Phone className="h-3.5 w-3.5 text-gray-400" /> {c.phone}</div>}
-                  {c.email && <div className="flex items-center gap-2 truncate"><Mail className="h-3.5 w-3.5 text-gray-400" /> {c.email}</div>}
+                  {c.phone && <div className="flex items-center gap-2"><Phone className="h-3.5 w-3.5 text-gray-500" /> {c.phone}</div>}
+                  {c.email && <div className="flex items-center gap-2 truncate"><Mail className="h-3.5 w-3.5 text-gray-500" /> {c.email}</div>}
                 </div>
               </AppLink>
             );

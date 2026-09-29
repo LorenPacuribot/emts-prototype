@@ -78,7 +78,7 @@ export function LineGrid({ rep, readOnly, onPropose, onAddSurfaces }: { rep: Rep
                 </TD>
                 <TD className="min-w-32">
                   <NumInput value={line.sqft} disabled={readOnly} step={1} ariaLabel={`Measurement for ${surface?.name}`} onCommit={(v) => v !== undefined && patch(line, { sqft: v })} />
-                  <div className="mt-0.5 text-xs text-gray-400">
+                  <div className="mt-0.5 text-xs text-gray-500">
                     sq ft{surface && surface.areaSqft !== line.sqft ? ` · recorded ${num(surface.areaSqft)}` : " · as recorded"}
                   </div>
                 </TD>
@@ -87,7 +87,7 @@ export function LineGrid({ rep, readOnly, onPropose, onAddSurfaces }: { rep: Rep
                     <Swatch hex={line.hex} size="sm" />
                     <span>{line.colourLabel}</span>
                   </div>
-                  {line.tintFormula && <div className="mt-0.5 text-xs text-gray-400">Tint {line.tintFormula} (store review)</div>}
+                  {line.tintFormula && <div className="mt-0.5 text-xs text-gray-500">Tint {line.tintFormula} (store review)</div>}
                 </TD>
                 <TD className="min-w-48">
                   <div>{line.product}</div>
@@ -119,7 +119,7 @@ export function LineGrid({ rep, readOnly, onPropose, onAddSurfaces }: { rep: Rep
                       </span>
                     </Tooltip>
                   ) : (
-                    <span className="text-xs italic text-gray-400">Not recorded</span>
+                    <span className="text-xs italic text-gray-500">Not recorded</span>
                   )}
                 </TD>
                 <TD className="min-w-28">
@@ -156,7 +156,7 @@ export function LineGrid({ rep, readOnly, onPropose, onAddSurfaces }: { rep: Rep
                           const res = act(setLineReconfirmed, rep.id, line.id, v);
                           if (res.ok && v) toast.success("Line reconfirmed", `${area?.name} ${surface?.name}`);
                         }}
-                        label={<span className={cn("text-xs font-semibold", line.reconfirmed ? "text-green-700" : "text-gray-400")}>{line.reconfirmed ? "Yes" : "No"}</span>}
+                        label={<span className={cn("text-xs font-semibold", line.reconfirmed ? "text-green-700" : "text-gray-500")}>{line.reconfirmed ? "Yes" : "No"}</span>}
                       />
                     </span>
                   </Tooltip>

@@ -186,13 +186,13 @@ export function SurfaceRatesView() {
                             <span className="rounded-md border border-gray-200 bg-gray-100 px-2 py-0.5 text-xs font-bold text-gray-600">{UNIT_LABELS[r.unit] ?? r.unit}</span>
                           </td>
                           <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                            {r.rateCoat1 || 0} <span className="text-xs text-gray-400">/hr</span>
+                            {r.rateCoat1 || 0} <span className="text-xs text-gray-500">/hr</span>
                           </td>
                           <td className="px-6 py-4 text-sm text-gray-700" title="A blank coat uses the nearest earlier coat's rate">
                             {[r.rateCoat2, r.rateCoat3, r.rateCoat4].map((v, i) => (
                               <span key={i}>
                                 {i > 0 && <span className="text-gray-300"> / </span>}
-                                {v ? v : <span className="text-xs italic text-gray-400">= coat {coatRateSource([r.rateCoat1, r.rateCoat2, r.rateCoat3, r.rateCoat4], i + 2)}</span>}
+                                {v ? v : <span className="text-xs italic text-gray-500">= coat {coatRateSource([r.rateCoat1, r.rateCoat2, r.rateCoat3, r.rateCoat4], i + 2)}</span>}
                               </span>
                             ))}
                           </td>
@@ -203,7 +203,7 @@ export function SurfaceRatesView() {
                       ))}
                       {list.length === 0 && (
                         <tr>
-                          <td colSpan={5} className="px-6 py-8 text-center text-sm italic text-gray-400">No surface rates found in this group.</td>
+                          <td colSpan={5} className="px-6 py-8 text-center text-sm italic text-gray-500">No surface rates found in this group.</td>
                         </tr>
                       )}
                     </tbody>
@@ -400,8 +400,8 @@ function SurfaceRateModal({
                 </div>
               )}
               <div className="flex items-center gap-2">
-              <Wand2 className={cn('h-3 w-3', multOn ? 'text-indigo-600' : 'text-gray-400')} />
-              <span className={cn('text-xxs font-bold uppercase tracking-wider', multOn ? 'text-indigo-600' : 'text-gray-400')}>Multiplier</span>
+              <Wand2 className={cn('h-3 w-3', multOn ? 'text-indigo-600' : 'text-gray-500')} />
+              <span className={cn('text-xxs font-bold uppercase tracking-wider', multOn ? 'text-indigo-600' : 'text-gray-500')}>Multiplier</span>
               <Switch
                 checked={multOn}
                 label="Use multipliers"

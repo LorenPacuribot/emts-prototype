@@ -68,7 +68,17 @@ What Phase 1 kept on purpose:
 | Screen / area | What changed | Rule | Files |
 | --- | --- | --- | --- |
 | Every feature table (the shared `Table`) | Below 768px each row becomes a stacked card. The first cell is the card title, and every other cell shows its column header as a small label ("Status", "Due", …). The labels are copied from the table's own header row after each render, so no table had to change. Full-width (`colSpan`) cells and empty cells are handled. At 768px and up the table keeps its columns; the first column stays pinned while the rest scroll sideways, the scrollbar is thin, and a soft shadow on the right edge shows there is more to scroll. | H8 | `app/globals.css` (`.rtable`), `features/components/ui/table.tsx` |
-| Mobile clock | The "Device (simulated)" card ("No signal", "Location permission denied") is no longer the first thing on the crew's screen. It is a collapsed "Demo controls" panel at the bottom, styled like the other demo controls (dashed amber, flask icon, "Demo" tag), and it opens by itself while either toggle is on. When location is denied, the "Location is off…" note still shows at the top of the screen. | M5, H1 | `features/components/features/workforce/clock-screen.tsx` |
+| Mobile clock (demo toggles) | The "Device (simulated)" card ("No signal", "Location permission denied") is no longer the first thing on the crew's screen. It is a collapsed "Demo controls" panel at the bottom, styled like the other demo controls (dashed amber, flask icon, "Demo" tag), and it opens by itself while either toggle is on. When location is denied, the "Location is off…" note still shows at the top of the screen. | M5, H1 | `features/components/features/workforce/clock-screen.tsx` |
+
+### Phase 6: Accessibility (A1–A5)
+
+| Screen / area | What changed | Rule | Files |
+| --- | --- | --- | --- |
+| Gray text everywhere | Plain `text-gray-400` (about 2.5:1 on white, below the 4.5:1 minimum) is now `text-gray-500` (about 4.8:1): 953 uses in 224 files, including table headers, captions, hints, dates and icons. Variant forms (`placeholder:`, `hover:`, `disabled:`, `group-hover:`) were not changed. Text on dark panels, where gray-400 is the lighter and more readable choice, was skipped: the demo bar, the "Payroll Budget" card, the Subscription "custom integrations" panel and the presentation empty state. | A1 | `app/**`, `components/**`, `features/components/**` |
+| Status shown by color alone | Marketing calendar posts show their state as text ("Draft", "Awaiting owner approval"…) beside the platform chips, not only as a colored dot. The job panel's stage dot has a tooltip and is hidden from screen readers, because the panel's Status row already says it in words. The collapsed nav rail's NEW dot and the calendar's "now" dot are marked decorative (the NEW badge and the time grid carry the meaning). | A2 | `features/components/features/marketing/calendar-screen.tsx`, `components/scheduling/Panels.tsx`, `features/components/layout/icon-rail.tsx`, `components/calendar/CalendarViews.tsx` |
+| Icon-only buttons | Every icon-only button or link found has an `aria-label` (21 added, taken from its tooltip). The phone and email icons on lead cards and rows are labeled "Call" and "Email" (their tooltip still shows the number or address). The reimbursement and mileage reject buttons, which had no name at all, are labeled and have a "Reject" tooltip. | A3 | `app/contacts/[id]/page.tsx`, `app/presentations/[id]/page.tsx`, `app/work-orders/[id]/page.tsx`, `components/leads/LeadCard.tsx`, `components/leads/LeadFormModal.tsx`, `components/settings/config/RolesPermissionsView.tsx`, `features/components/features/finance/reimbursements-screen.tsx`, `leads/listings/leads-list-screen.tsx`, `workforce/mileage-screen.tsx` |
+| Focus rings | A base style gives every keyboard-focused link, button, field, tab, disclosure and focusable element a 2px primary outline, unless it draws its own ring. Controls that turned the outline off with nothing in its place now have a ring: the job progress steps, the Support FAQ questions, the estimate line state chip and the area dimension inputs. Menu items keep their highlighted background as the focus style. | A4 | `app/globals.css`, `components/jobs/JobDetailCards.tsx`, `components/support/SupportParts.tsx`, `components/estimates/AreaBlock.tsx` |
+| Clickable cards and rows | New `pressable()` helper: a clickable div or card becomes `role="button"`, and a clickable row stays a row. Both can be reached with Tab and opened with Enter or Space. Keys pressed inside a nested button or field are left alone. It is applied to the leads board cards and list rows (both apps), the Reports Activity and Interaction rows, scope-of-work rows and estimate lines while painting a color, the Create Estimate lead and customer picks, the estimate info blocks, library cards, the shared `Card` when it has `onClick`, and presentation sections and image slots. This closes the Phase 4 item about raw clickable rows. | A5 | `lib/a11y.ts` (new) and the 12 files that use it |
 
 ## Moved, not removed
 
@@ -106,10 +116,18 @@ Phase 3:
 
 Phase 4:
 
-- Raw `<tr onClick>` rows outside the shared `TR` (the leads list table, scope of work, and the live Reports Activity and Interaction tables) keep their mouse-only behavior. They should move to the `TR` component or get the same keyboard handling.
+- ~~Raw `<tr onClick>` rows outside the shared `TR` keep their mouse-only behavior.~~ Fixed in Phase 6 (A5).
 - The feature prototype's own estimate screen (`features/components/features/estimates/details/project-toolbar.tsx`) isn't routed in the app, so its title was left as it is.
 - Two product-tour stops point at targets that don't exist, before and after this pass: `surface-selector` and `warning-strip` in `features/components/tour/tour-steps.ts`. A developer should add the `data-tour` attributes or drop the stops.
 
 Phase 5:
 
 - The card layout covers the shared feature `Table`. Tables built by hand in the live app (`components/**`, for example the leads list, estimates list and reports tables) were not changed. Moving them to the shared `Table` would give them the card layout too.
+
+Phase 6:
+
+- Calendar time slots and day cells (click an empty slot to schedule) stay mouse-only. Making each one a tab stop would add more than 100 stops per week view. The "Schedule Estimate" button on the same page does the same job from the keyboard.
+- Leads board cards and the shared `Card` can hold their own buttons (call, email, archive) inside a `role="button"`. Screen readers handle this, but a cleaner build would make the card title the link and keep the other buttons beside it.
+- The scans for icon-only buttons and clickable elements look at elements written directly in the page. Buttons built through a spread of props, or icons chosen by a condition, may have been missed. An automated check (for example axe in the browser) would catch the rest.
+- `lib/constants.ts` keeps `text-gray-400` for the "Void" status, where it is paired with a line-through as a deliberately faded style.
+- No screenshots are attached. Checks were by code review, typecheck, tests and build, not by a browser pass at 375, 768 and 1280px. A person should do that pass before sign-off.

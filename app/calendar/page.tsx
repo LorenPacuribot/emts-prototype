@@ -183,7 +183,7 @@ function CalendarPageInner() {
           <span className="text-sm font-bold text-gray-900">{pickerDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</span>
           <button className="rounded p-1 hover:bg-gray-100" onClick={() => setPickerDate(new Date(y, m + 1, 1))} aria-label="Next month"><ChevronRight className="h-4 w-4" /></button>
         </div>
-        <div className="mb-1 grid grid-cols-7 text-center text-xxs font-bold uppercase text-gray-400">
+        <div className="mb-1 grid grid-cols-7 text-center text-xxs font-bold uppercase text-gray-500">
           {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, i) => <span key={i}>{d}</span>)}
         </div>
         <div className="grid grid-cols-7 gap-1">
@@ -231,14 +231,14 @@ function CalendarPageInner() {
               className="flex h-12 w-full min-w-[200px] items-center justify-between gap-2 rounded-xl border border-gray-200 bg-white px-4 text-sm font-bold text-gray-700 shadow-sm hover:border-gray-300 md:w-auto"
             >
               <span className="flex items-center gap-2 truncate">
-                <Filter className="h-5 w-5 shrink-0 text-gray-400" /> <span className="truncate">Filter: {filterLabel}</span>
+                <Filter className="h-5 w-5 shrink-0 text-gray-500" /> <span className="truncate">Filter: {filterLabel}</span>
               </span>
-              <ChevronDown className={cn('h-4 w-4 shrink-0 text-gray-400 transition-transform', filterOpen && 'rotate-180')} />
+              <ChevronDown className={cn('h-4 w-4 shrink-0 text-gray-500 transition-transform', filterOpen && 'rotate-180')} />
             </button>
             {filterOpen && (
               <div className="absolute right-0 top-full z-50 mt-2 w-64 overflow-hidden rounded-xl border border-gray-100 bg-white p-2 shadow-xl">
                 <div className="mb-1 flex items-center justify-between border-b border-gray-100 px-2 py-1">
-                  <span className="text-xs font-bold uppercase text-gray-400">Select Staff</span>
+                  <span className="text-xs font-bold uppercase text-gray-500">Select Staff</span>
                   <button onClick={() => setSelectedStaff(staff.map((s) => s.id))} className="text-xs font-bold text-primary-600 hover:text-primary-700">Select All</button>
                 </div>
                 <div className="custom-scrollbar max-h-60 overflow-y-auto">
@@ -262,7 +262,7 @@ function CalendarPageInner() {
                 {tab === 'Sales' && (
                   <>
                     <div className="mb-1 mt-2 border-b border-t border-gray-100 px-2 py-1">
-                      <span className="text-xs font-bold uppercase text-gray-400">Event Types</span>
+                      <span className="text-xs font-bold uppercase text-gray-500">Event Types</span>
                     </div>
                     {EVENT_TYPES.map((t) => {
                       const on = selectedTypes.includes(t);
@@ -310,7 +310,7 @@ function CalendarPageInner() {
                   className="group flex items-center gap-2 rounded-lg px-2 py-1 hover:bg-gray-50"
                 >
                   <h2 className="whitespace-nowrap font-heading text-xl font-bold text-gray-900 group-hover:text-primary-600 md:text-2xl">{headerLabel()}</h2>
-                  <ChevronDown className={cn('h-5 w-5 text-gray-400 transition-transform group-hover:text-primary-600', pickerOpen && 'rotate-180')} />
+                  <ChevronDown className={cn('h-5 w-5 text-gray-500 transition-transform group-hover:text-primary-600', pickerOpen && 'rotate-180')} />
                 </button>
                 {pickerOpen && renderPicker()}
               </div>
@@ -347,7 +347,7 @@ function CalendarPageInner() {
           <div className="flex h-96 w-full shrink-0 flex-col overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm lg:h-auto lg:w-80">
             <div className="flex shrink-0 items-center justify-between border-b border-gray-100 bg-gray-50/50 p-5">
               <h3 className="font-heading text-lg font-bold text-gray-900">{tab === 'Sales' ? 'Upcoming Appointments' : 'Upcoming Work Orders'}</h3>
-              <button onClick={() => setSidebar(false)} className="rounded-md p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600" aria-label="Hide Sidebar" title="Hide Sidebar">
+              <button onClick={() => setSidebar(false)} className="rounded-md p-1 text-gray-500 hover:bg-gray-100 hover:text-gray-600" aria-label="Hide Sidebar" title="Hide Sidebar">
                 <PanelRight className="h-5 w-5" />
               </button>
             </div>
@@ -372,7 +372,7 @@ function CalendarPageInner() {
                       {it.startTime && <> &bull; {time12(it.startTime)}</>}
                     </div>
                     {member && (
-                      <div className="flex items-center gap-2 text-xs text-gray-400">
+                      <div className="flex items-center gap-2 text-xs text-gray-500">
                         <User className="h-3.5 w-3.5" /> {fullName(member)}
                         {it.assignees.length > 1 && ` +${it.assignees.length - 1}`}
                       </div>
@@ -381,7 +381,7 @@ function CalendarPageInner() {
                 );
               })}
               {upcoming.length === 0 && (
-                <div className="py-10 text-center text-sm italic text-gray-400">
+                <div className="py-10 text-center text-sm italic text-gray-500">
                   {tab === 'Sales' ? 'No upcoming appointments.' : 'No upcoming work orders.'}
                 </div>
               )}

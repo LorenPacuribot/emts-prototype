@@ -118,7 +118,7 @@ function PublicEstimate() {
               </div>
             </div>
             <div className="text-right text-sm">
-              <div className="text-xxs font-bold uppercase tracking-widest text-gray-400">Estimator</div>
+              <div className="text-xxs font-bold uppercase tracking-widest text-gray-500">Estimator</div>
               <div className="font-semibold">{byId(db.users, estimate.estimatorId)?.name ?? "Not assigned"}</div>
               <div className="mt-1 font-mono text-xs text-gray-500">#{estimate.id}</div>
             </div>
@@ -143,13 +143,13 @@ function PublicEstimate() {
 
           {estimate.signatureName && estimate.status === "ACCEPTED" && (
             <div className="mt-8 rounded-xl border border-gray-200 p-4">
-              <div className="text-xxs font-bold uppercase tracking-widest text-gray-400">Acceptance</div>
+              <div className="text-xxs font-bold uppercase tracking-widest text-gray-500">Acceptance</div>
               <div className="mt-2 font-heading text-xl italic text-gray-800">{estimate.signatureName}</div>
-              <div className="mt-1 grid grid-cols-2 border-t border-gray-200 pt-1 text-xs text-gray-400"><span>Signature</span><span className="text-right">Date: {dateLong(estimate.acceptedAt)}</span></div>
+              <div className="mt-1 grid grid-cols-2 border-t border-gray-200 pt-1 text-xs text-gray-500"><span>Signature</span><span className="text-right">Date: {dateLong(estimate.acceptedAt)}</span></div>
             </div>
           )}
           <div className="mt-8 border-t border-gray-200 pt-4 text-xs text-gray-500">
-            <div className="font-bold uppercase tracking-widest text-gray-400">Terms &amp; Conditions</div>
+            <div className="font-bold uppercase tracking-widest text-gray-500">Terms &amp; Conditions</div>
             <p className="mt-1">Work is guaranteed for two years against peeling and flaking. Color changes after signing may need a change order.</p>
           </div>
         </div>
@@ -185,7 +185,7 @@ function PublicEstimate() {
 function Info({ label, lines }: { label: string; lines: string[] }) {
   return (
     <div>
-      <div className="text-xxs font-bold uppercase tracking-widest text-gray-400">{label}</div>
+      <div className="text-xxs font-bold uppercase tracking-widest text-gray-500">{label}</div>
       {lines.filter(Boolean).map((l, i) => <div key={i} className={i === 0 ? "font-semibold text-gray-900" : "text-sm text-gray-500"}>{l}</div>)}
     </div>
   );

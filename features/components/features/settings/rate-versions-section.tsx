@@ -95,7 +95,7 @@ export function RateVersionsSection() {
             <div key={v.version} className="rounded-xl border border-gray-200 p-3 text-sm">
               <div className="flex flex-wrap justify-between gap-2">
                 <b>v{v.version} · {versionsFor && rateText(versionsFor, v.value)}</b>
-                <span className="text-xs text-gray-400">{dateTime(v.at)}</span>
+                <span className="text-xs text-gray-500">{dateTime(v.at)}</span>
               </div>
               <div className="text-xs text-gray-500">
                 {v.kind} by {db.users.find((u) => u.id === v.by)?.name ?? "—"}

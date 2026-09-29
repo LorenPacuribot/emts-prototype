@@ -56,6 +56,13 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @layer base {
+  /* A4: every keyboard-focusable control shows a focus ring, even when it has no focus style of its own.
+     Components that draw their own ring (focus-visible:ring-*) or turn the outline off keep their style. */
+  :where(a[href], button, summary, select, input, textarea, [role="button"], [role="tab"], [role="link"], [tabindex]:not([tabindex="-1"])):focus-visible {
+    outline: 2px solid var(--color-primary-500);
+    outline-offset: 2px;
+  }
+
   html,
   body {
     @apply bg-gray-50 text-gray-900 font-sans antialiased;

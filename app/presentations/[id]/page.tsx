@@ -124,7 +124,7 @@ export default function PresentationBuilderPage() {
           {s.type !== 'cover' && i > 1 && <button className={cn(btn, 'text-red-500 hover:text-red-600')} onClick={() => moveSection(s.id, -1)} title="Move up" aria-label="Move up"><ArrowUp className="h-4 w-4" /></button>}
           {s.type !== 'cover' && !last && <button className={cn(btn, 'text-red-500 hover:text-red-600')} onClick={() => moveSection(s.id, 1)} title="Move down" aria-label="Move down"><ArrowDown className="h-4 w-4" /></button>}
           {s.type !== 'cover' && s.type !== 'estimate' && (
-            <button className={cn(btn, 'text-red-600 hover:bg-red-50 hover:text-red-600')} onClick={() => removeSection(s.id)} title="Delete section"><Trash2 className="h-4 w-4" /></button>
+            <button aria-label="Delete section" className={cn(btn, 'text-red-600 hover:bg-red-50 hover:text-red-600')} onClick={() => removeSection(s.id)} title="Delete section"><Trash2 className="h-4 w-4" /></button>
           )}
         </div>
       );
@@ -176,7 +176,7 @@ export default function PresentationBuilderPage() {
               key={d}
               onClick={() => setDevice(d)}
               title={d === 'desktop' ? 'Desktop View' : 'Mobile View'}
-              className={cn('rounded-md p-1.5 px-3', device === d ? 'bg-white text-primary-600 shadow-sm' : 'text-gray-400 hover:text-gray-600')}
+              className={cn('rounded-md p-1.5 px-3', device === d ? 'bg-white text-primary-600 shadow-sm' : 'text-gray-500 hover:text-gray-600')}
             >
               {d === 'desktop' ? <Monitor className="h-4 w-4" /> : <Smartphone className="h-4 w-4" />}
             </button>

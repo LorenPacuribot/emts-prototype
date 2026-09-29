@@ -73,7 +73,7 @@ export function ScheduleToolbar({
     <div className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
       <button type="button" onClick={() => onStep(-1)} aria-label="Previous" className={arrow}><ChevronLeft className="h-6 w-6" /></button>
       <div className="flex-1 text-center">
-        <span className="mb-1 block text-xs font-bold uppercase tracking-widest text-gray-400">{eyebrow}</span>
+        <span className="mb-1 block text-xs font-bold uppercase tracking-widest text-gray-500">{eyebrow}</span>
         <h3 className="text-xl font-bold text-gray-900">{label}</h3>
       </div>
       <button type="button" onClick={() => onStep(1)} aria-label="Next" className={arrow}><ChevronRight className="h-6 w-6" /></button>
@@ -96,7 +96,7 @@ function DayHeader({ day, extra }: { day: string; extra?: React.ReactNode }) {
   const isToday = day === todayKey();
   return (
     <div className="p-3 text-center">
-      <div className={cn('text-xxs font-bold uppercase tracking-wide', isToday ? 'text-primary-600' : 'text-gray-400')}>{fmtDay(day, { weekday: 'short' })}</div>
+      <div className={cn('text-xxs font-bold uppercase tracking-wide', isToday ? 'text-primary-600' : 'text-gray-500')}>{fmtDay(day, { weekday: 'short' })}</div>
       <div className={cn('mx-auto flex h-8 w-8 items-center justify-center rounded-full text-lg font-black', isToday ? 'bg-primary-600 text-white' : 'text-gray-900')}>
         {fmtDay(day, { day: 'numeric' })}
       </div>
@@ -179,7 +179,7 @@ export function JobBoard({ jobs, dayKeys, colorOf, onSelect, onDrop }: BoardProp
           </div>
           <div className={cn('absolute inset-0', dragging && 'pointer-events-none')}>
             {lanes.length === 0 && (
-              <div className="flex h-full items-center justify-center text-sm text-gray-400">No jobs scheduled in this period. Drag an unscheduled job onto a day.</div>
+              <div className="flex h-full items-center justify-center text-sm text-gray-500">No jobs scheduled in this period. Drag an unscheduled job onto a day.</div>
             )}
             {lanes.map(({ item: j, startCol, span, row }) => (
               <div key={j.segmentId} className="absolute px-1.5" style={{ left: `${(startCol / cols) * 100}%`, width: `${(span / cols) * 100}%`, top: row * ROW + 6, height: ROW - 12 }}>
@@ -204,7 +204,7 @@ export function MonthBoard({ jobs, weeks, month, colorOf, onSelect, onDrop }: Bo
     <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm" onDragEnter={(e) => isJobDrag(e) && setDragging(true)}>
       <div className="grid grid-cols-7 border-b border-gray-100">
         {(weeks[0] ?? []).map((k) => (
-          <div key={k} className="border-l border-gray-100 p-2 text-center text-xxs font-black uppercase tracking-widest text-gray-400 first:border-l-0">{fmtDay(k, { weekday: 'short' })}</div>
+          <div key={k} className="border-l border-gray-100 p-2 text-center text-xxs font-black uppercase tracking-widest text-gray-500 first:border-l-0">{fmtDay(k, { weekday: 'short' })}</div>
         ))}
       </div>
       {weeks.map((week, wi) => {
@@ -263,7 +263,7 @@ function LoadCell({ member, jobs, dayKeys }: { member: TeamMember; jobs: Job[]; 
     <div className="mt-1.5">
       <div className="flex items-baseline justify-between text-xs">
         <span className={cn('font-bold tabular-nums', tone.text)}>{used} / {cap}h</span>
-        <span className={used > cap ? 'font-bold text-red-500' : 'text-gray-400'}>{used > cap ? `${round1(used - cap)}h over` : `${round1(cap - used)}h free`}</span>
+        <span className={used > cap ? 'font-bold text-red-500' : 'text-gray-500'}>{used > cap ? `${round1(used - cap)}h over` : `${round1(cap - used)}h free`}</span>
       </div>
       <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-gray-100">
         <div className={cn('h-full rounded-full', tone.bar)} style={{ width: `${cap ? Math.min(100, (used / cap) * 100) : 0}%` }} />
@@ -280,10 +280,10 @@ export function CrewBoard({ jobs, crew, dayKeys, availability, onSelect, onDrop 
   return (
     <div className="overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm" onDragEnter={(e) => isJobDrag(e) && setDragging(true)}>
       <div className="grid" style={{ gridTemplateColumns: template, minWidth: 220 + cols * 110 }}>
-        <div className="border-b border-r border-gray-100 px-4 py-3 text-xs font-bold uppercase tracking-widest text-gray-400">Crew</div>
+        <div className="border-b border-r border-gray-100 px-4 py-3 text-xs font-bold uppercase tracking-widest text-gray-500">Crew</div>
         {dayKeys.map((d) => <div key={d} className="border-b border-l border-gray-100"><DayHeader day={d} /></div>)}
 
-        {crew.length === 0 && <div className="col-span-full p-8 text-center text-sm text-gray-400">No crew members. Mark team members as crew in Settings.</div>}
+        {crew.length === 0 && <div className="col-span-full p-8 text-center text-sm text-gray-500">No crew members. Mark team members as crew in Settings.</div>}
 
         {crew.map((m) => {
           const mine = calendarSegments(jobs).filter((j) => j.crew.some((c) => c.memberId === m.id));
@@ -297,7 +297,7 @@ export function CrewBoard({ jobs, crew, dayKeys, availability, onSelect, onDrop 
                   <Avatar name={fullName(m)} color={m.color} size="sm" />
                   <div className="min-w-0">
                     <div className="truncate text-sm font-bold text-gray-800">{fullName(m)}</div>
-                    <div className="truncate text-xs text-gray-400">{m.role}</div>
+                    <div className="truncate text-xs text-gray-500">{m.role}</div>
                   </div>
                 </div>
                 {availability && <LoadCell member={m} jobs={jobs} dayKeys={dayKeys} />}
@@ -348,11 +348,11 @@ export function CrewHoursGrid({ jobs, crew, dayKeys, onSelect }: { jobs: Job[]; 
       <table className="w-full min-w-[900px] border-collapse text-sm">
         <thead>
           <tr className="bg-gray-50">
-            <th className="border-b border-gray-200 px-5 py-3 text-left text-xs font-bold uppercase tracking-widest text-gray-400">Member</th>
-            <th className="w-48 border-b border-r border-gray-200 px-5 py-3 text-left text-xs font-bold uppercase tracking-widest text-gray-400">Capacity</th>
+            <th className="border-b border-gray-200 px-5 py-3 text-left text-xs font-bold uppercase tracking-widest text-gray-500">Member</th>
+            <th className="w-48 border-b border-r border-gray-200 px-5 py-3 text-left text-xs font-bold uppercase tracking-widest text-gray-500">Capacity</th>
             {dayKeys.map((d, i) => (
               <th key={d} className="border-b border-gray-200 font-normal">
-                <DayHeader day={d} extra={<div className="text-xs font-bold text-gray-400">{dayTotals[i]}h</div>} />
+                <DayHeader day={d} extra={<div className="text-xs font-bold text-gray-500">{dayTotals[i]}h</div>} />
               </th>
             ))}
           </tr>
@@ -363,7 +363,7 @@ export function CrewHoursGrid({ jobs, crew, dayKeys, onSelect }: { jobs: Job[]; 
               <td className="px-5 py-4">
                 <div className="flex items-center gap-3">
                   <Avatar name={fullName(m)} color={m.color} size="sm" />
-                  <div><div className="font-bold text-gray-900">{fullName(m)}</div><div className="text-xs text-gray-400">{m.role}</div></div>
+                  <div><div className="font-bold text-gray-900">{fullName(m)}</div><div className="text-xs text-gray-500">{m.role}</div></div>
                 </div>
               </td>
               <td className="border-r border-gray-100 px-5 py-4"><LoadCell member={m} jobs={jobs} dayKeys={dayKeys} /></td>
@@ -399,7 +399,7 @@ export function CrewHoursGrid({ jobs, crew, dayKeys, onSelect }: { jobs: Job[]; 
 export function UnscheduledPanel({ jobs, customerName, onSelect }: { jobs: Job[]; customerName: (j: Job) => string; onSelect: (id: string) => void }) {
   return (
     <div className="mt-6 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-      <h3 className="mb-4 text-xs font-bold uppercase tracking-widest text-gray-400">Unscheduled Jobs</h3>
+      <h3 className="mb-4 text-xs font-bold uppercase tracking-widest text-gray-500">Unscheduled Jobs</h3>
       {jobs.length === 0 ? (
         <p className="flex items-center gap-2 text-sm font-medium text-green-600"><CheckCircle2 className="h-4 w-4" /> All jobs are scheduled.</p>
       ) : (
@@ -420,12 +420,12 @@ export function UnscheduledPanel({ jobs, customerName, onSelect }: { jobs: Job[]
               <div className="flex items-start gap-2">
                 <div className="min-w-0 flex-1">
                   <div className="truncate text-sm font-bold text-gray-900">{j.title}</div>
-                  <div className="truncate text-xs text-gray-400">{j.jobNumber} · {customerName(j)}</div>
+                  <div className="truncate text-xs text-gray-500">{j.jobNumber} · {customerName(j)}</div>
                 </div>
                 <GripVertical className="h-4 w-4 shrink-0 text-gray-300 group-hover:text-gray-400" />
               </div>
               {j.estimatedHours > 0 && (
-                <div className="mt-2 flex items-center gap-1 text-xs text-gray-400"><Clock className="h-3.5 w-3.5" /> {j.estimatedHours.toFixed(1)}h est.</div>
+                <div className="mt-2 flex items-center gap-1 text-xs text-gray-500"><Clock className="h-3.5 w-3.5" /> {j.estimatedHours.toFixed(1)}h est.</div>
               )}
             </div>
           ))}

@@ -104,7 +104,7 @@ export default function JobDetailPage() {
           <div className="space-y-3">
             <div className="flex flex-wrap items-center gap-3">
               <JobStatusBadge status={job.status} />
-              <span className="font-mono text-xs font-bold uppercase tracking-wider text-gray-400">{job.jobNumber}</span>
+              <span className="font-mono text-xs font-bold uppercase tracking-wider text-gray-500">{job.jobNumber}</span>
               {est && <RefChip href={`/estimates/${est.id}`}>{est.estimateNumber}</RefChip>}
               {lead && <RefChip kind="lead" href={`/leads/${lead.id}`}>{lead.leadNumber}</RefChip>}
             </div>

@@ -45,7 +45,7 @@ export function Modal({
                 <Dialog.Description className="sr-only">{typeof title === 'string' ? title : 'Dialog'}</Dialog.Description>
               )}
             </div>
-            <Dialog.Close className="rounded-full p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-700" aria-label="Close">
+            <Dialog.Close className="rounded-full p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700" aria-label="Close">
               <X className="h-5 w-5" />
             </Dialog.Close>
           </div>

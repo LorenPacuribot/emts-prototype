@@ -33,8 +33,8 @@ export interface SidebarProps {
   onSelect: (id: string) => void;
 }
 
-const heading = 'text-xxs font-black uppercase tracking-widest text-gray-400';
-const hint = 'text-xs font-medium italic leading-relaxed text-gray-400';
+const heading = 'text-xxs font-black uppercase tracking-widest text-gray-500';
+const hint = 'text-xs font-medium italic leading-relaxed text-gray-500';
 
 export function BuilderSidebar(props: SidebarProps) {
   const [tab, setTab] = useState<Tab>('Blocks');
@@ -47,7 +47,7 @@ export function BuilderSidebar(props: SidebarProps) {
             onClick={() => setTab(t)}
             className={cn(
               'relative border-b border-gray-100 py-3 text-xxs font-black uppercase tracking-widest transition-all lg:border-r',
-              tab === t ? 'bg-white text-primary-700' : 'bg-gray-50/50 text-gray-400 hover:text-gray-600',
+              tab === t ? 'bg-white text-primary-700' : 'bg-gray-50/50 text-gray-500 hover:text-gray-600',
             )}
           >
             {t}
@@ -93,7 +93,7 @@ function BlocksTab({ addSection }: SidebarProps) {
               onClick={() => setCollapsed((c) => (c.includes(type) ? c.filter((x) => x !== type) : [...c, type]))}
               className="flex w-full items-center justify-between rounded-lg px-2 py-3 hover:bg-gray-50"
             >
-              <span className="flex items-center gap-2 text-xs font-bold text-gray-700"><Icon className="h-4 w-4 text-gray-400" />{m.label}</span>
+              <span className="flex items-center gap-2 text-xs font-bold text-gray-700"><Icon className="h-4 w-4 text-gray-500" />{m.label}</span>
               {isCollapsed ? <ChevronRight className="h-4 w-4 text-gray-300" /> : <ChevronDown className="h-4 w-4 text-gray-300" />}
             </button>
             {!isCollapsed && (
@@ -147,8 +147,8 @@ function SectionsTab({ p, updateSection, moveSection, removeSection, selectedId,
           <div key={s.id} className={cn('rounded-xl border bg-white', open ? 'border-primary-300 shadow-sm' : 'border-gray-200')}>
             <div className="flex items-center gap-2 px-3 py-2.5">
               <button onClick={() => onSelect(open ? '' : s.id)} className="flex min-w-0 flex-1 items-center gap-2 text-left">
-                <Icon className="h-4 w-4 shrink-0 text-gray-400" />
-                <span className={cn('truncate text-xs font-bold', s.enabled ? 'text-gray-800' : 'text-gray-400 line-through')}>{s.title || m.label}</span>
+                <Icon className="h-4 w-4 shrink-0 text-gray-500" />
+                <span className={cn('truncate text-xs font-bold', s.enabled ? 'text-gray-800' : 'text-gray-500 line-through')}>{s.title || m.label}</span>
               </button>
               <IconBtn label={s.enabled ? 'Hide section' : 'Show section'} onClick={() => updateSection(s.id, { enabled: !s.enabled })}>
                 {s.enabled ? <Eye className="h-3.5 w-3.5" /> : <EyeOff className="h-3.5 w-3.5" />}
@@ -196,7 +196,7 @@ function IconBtn({ children, onClick, label, disabled, danger, arrow }: { childr
       className={cn(
         'rounded-md p-1 disabled:opacity-25',
         // The move arrows are red, as in the live builder.
-        arrow ? 'text-red-500 hover:bg-red-50 hover:text-red-600' : 'text-gray-400',
+        arrow ? 'text-red-500 hover:bg-red-50 hover:text-red-600' : 'text-gray-500',
         !arrow && (danger ? 'hover:bg-red-50 hover:text-red-600' : 'hover:bg-gray-100 hover:text-gray-700'),
       )}
     >
@@ -255,8 +255,8 @@ function BrandingTab({ p, change }: SidebarProps) {
             className={cn('flex aspect-square flex-col items-center justify-center rounded-lg border-2 bg-white', custom ? 'scale-110 border-gray-900' : 'border-gray-200')}
             title="Other Color"
           >
-            <Plus className="h-3.5 w-3.5 text-gray-400" />
-            <span className="text-xxs font-black uppercase leading-none text-gray-400">Other</span>
+            <Plus className="h-3.5 w-3.5 text-gray-500" />
+            <span className="text-xxs font-black uppercase leading-none text-gray-500">Other</span>
           </button>
         </div>
         {custom && (
@@ -375,7 +375,7 @@ function LinksTab({ p, change, kind }: SidebarProps & { kind: 'header' | 'footer
         ))}
         <button
           onClick={() => set([...links, { label: 'New Link', targetId: '' }])}
-          className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-200 py-3 text-xs font-bold text-gray-400 hover:border-primary-300 hover:text-primary-600"
+          className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-200 py-3 text-xs font-bold text-gray-500 hover:border-primary-300 hover:text-primary-600"
         >
           <Plus className="h-4 w-4" /> Add Link
         </button>

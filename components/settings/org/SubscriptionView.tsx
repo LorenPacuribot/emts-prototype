@@ -123,7 +123,7 @@ export function SubscriptionView() {
         <div className="flex items-center gap-4 rounded-2xl border border-gray-200 bg-white p-3 shadow-sm">
           <div className="flex h-8 w-12 items-center justify-center rounded-md bg-[#1a1f71] text-xs font-black italic text-white">{pm.brand.toUpperCase().slice(0, 4)}</div>
           <div>
-            <div className="mb-1 text-xxs font-bold uppercase leading-none tracking-widest text-gray-400">Current Method</div>
+            <div className="mb-1 text-xxs font-bold uppercase leading-none tracking-widest text-gray-500">Current Method</div>
             <div className="text-sm font-bold leading-none text-gray-900">{pm.brand} •••• {pm.last4}</div>
           </div>
           <button type="button" onClick={() => setPayOpen(true)} className="ml-2 text-sm font-bold text-primary-600 hover:underline">Update</button>
@@ -134,7 +134,7 @@ export function SubscriptionView() {
         {/* Current plan */}
         <div className="flex items-start justify-between gap-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
           <div>
-            <div className="text-xxs font-bold uppercase tracking-widest text-gray-400">Current Plan</div>
+            <div className="text-xxs font-bold uppercase tracking-widest text-gray-500">Current Plan</div>
             <div className="mt-1 font-heading text-base font-bold text-gray-900">
               {sub.planName} — ${sub.price}/mo {cancelled && <Badge className="ml-2 border-red-200 bg-red-50 text-red-700">Canceled</Badge>}
             </div>
@@ -151,7 +151,7 @@ export function SubscriptionView() {
         {/* Usage */}
         <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
           <div className="mb-5 flex flex-wrap items-baseline justify-between gap-3">
-            <h3 className="text-xxs font-bold uppercase tracking-widest text-gray-400">Usage This Billing Cycle</h3>
+            <h3 className="text-xxs font-bold uppercase tracking-widest text-gray-500">Usage This Billing Cycle</h3>
             <span className="text-xs text-gray-500">{longDate(toISODate(cycleStart))} – {longDate(sub.renewsAt)}</span>
           </div>
           <div className="grid grid-cols-1 gap-x-8 gap-y-5 md:grid-cols-2">
@@ -160,8 +160,8 @@ export function SubscriptionView() {
               return (
                 <div key={label}>
                   <div className="mb-2 flex items-center justify-between">
-                    <span className="flex items-center gap-2 text-xs font-medium text-gray-700"><Icon className="h-3.5 w-3.5 text-gray-400" />{label}</span>
-                    <span className="text-xs font-bold text-gray-900">{used}<span className="text-gray-400"> / {max === -1 ? 'Unlimited' : max}</span></span>
+                    <span className="flex items-center gap-2 text-xs font-medium text-gray-700"><Icon className="h-3.5 w-3.5 text-gray-500" />{label}</span>
+                    <span className="text-xs font-bold text-gray-900">{used}<span className="text-gray-500"> / {max === -1 ? 'Unlimited' : max}</span></span>
                   </div>
                   <div className="h-1.5 overflow-hidden rounded-full bg-gray-100">
                     {max === -1 ? <div className="h-full w-full rounded-full bg-gray-200" /> : <div className={cn('h-full rounded-full', pct > 80 ? 'bg-red-500' : 'bg-primary-500')} style={{ width: `${pct}%` }} />}
@@ -183,13 +183,13 @@ export function SubscriptionView() {
                 <h3 className="font-heading text-lg font-bold text-gray-900">{p.name}</h3>
                 <div className="mb-3 flex items-baseline gap-1">
                   <span className="text-2xl font-black text-gray-900">${p.price}</span>
-                  <span className="text-xs font-bold text-gray-400">/mo</span>
+                  <span className="text-xs font-bold text-gray-500">/mo</span>
                 </div>
                 <p className="min-h-[40px] text-xs leading-relaxed text-gray-500">{p.description}</p>
                 <div className="mb-8 mt-5 flex-1 space-y-3">
                   {p.features.map((f) => (
                     <div key={f} className="flex items-center gap-3">
-                      <span className={cn('flex h-4 w-4 shrink-0 items-center justify-center rounded-full', isCurrent ? 'bg-primary-100 text-primary-600' : 'bg-gray-100 text-gray-400')}><Check className="h-2.5 w-2.5" /></span>
+                      <span className={cn('flex h-4 w-4 shrink-0 items-center justify-center rounded-full', isCurrent ? 'bg-primary-100 text-primary-600' : 'bg-gray-100 text-gray-500')}><Check className="h-2.5 w-2.5" /></span>
                       <span className="text-xxs font-medium uppercase text-gray-600">{f}</span>
                     </div>
                   ))}
@@ -215,20 +215,20 @@ export function SubscriptionView() {
               const h = headline(a);
               return (
                 <div key={a.key} className={cn('group flex items-center gap-5 rounded-3xl border bg-white p-5 shadow-sm transition-all', has ? 'border-green-200' : 'border-gray-200 hover:border-primary-300')}>
-                  <div className={cn('flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl shadow-inner', has ? 'bg-green-50 text-green-600' : 'bg-gray-50 text-gray-400 group-hover:bg-primary-50 group-hover:text-primary-600')}>
+                  <div className={cn('flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl shadow-inner', has ? 'bg-green-50 text-green-600' : 'bg-gray-50 text-gray-500 group-hover:bg-primary-50 group-hover:text-primary-600')}>
                     <Icon className="h-6 w-6" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="mb-1 flex items-start justify-between gap-2">
                       <h4 className="font-bold text-gray-900 group-hover:text-primary-700">{a.name}</h4>
-                      <div className="whitespace-nowrap font-black text-primary-600">{dollars(a.prices[h]!)}<span className="ml-0.5 text-xs font-bold text-gray-400">{CADENCE_SUFFIX[h]}</span></div>
+                      <div className="whitespace-nowrap font-black text-primary-600">{dollars(a.prices[h]!)}<span className="ml-0.5 text-xs font-bold text-gray-500">{CADENCE_SUFFIX[h]}</span></div>
                     </div>
                     <p className="mb-3 line-clamp-2 text-xs leading-relaxed text-gray-500">{a.description}</p>
                     {!has && (
                       <div className="mb-3 grid grid-cols-3 gap-1.5">
                         {(['MONTHLY', 'YEARLY', 'LIFETIME'] as Cadence[]).map((c) => (
                           <div key={c} className={cn('rounded-lg border px-2 py-1 text-center', a.prices[c] ? 'border-gray-200 bg-white' : 'border-dashed border-gray-200 opacity-50')}>
-                            <div className="text-xxs font-bold uppercase tracking-wider text-gray-400">{CADENCE_LABEL[c]}</div>
+                            <div className="text-xxs font-bold uppercase tracking-wider text-gray-500">{CADENCE_LABEL[c]}</div>
                             <div className="text-xs font-black text-gray-900">{a.prices[c] ? dollars(a.prices[c]!) : '—'}</div>
                           </div>
                         ))}
@@ -251,11 +251,11 @@ export function SubscriptionView() {
         {/* Billing history */}
         <div className="pt-8">
           <div className="mb-6 flex items-center gap-4 border-b border-gray-100 pb-4">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50 text-gray-400"><Clock className="h-5 w-5" /></div>
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-50 text-gray-500"><Clock className="h-5 w-5" /></div>
             <h3 className="font-heading text-xl font-bold text-gray-900">Billing History</h3>
           </div>
           {sub.billingHistory.length === 0 ? (
-            <div className="rounded-3xl border border-gray-200 bg-white p-8 text-center text-sm text-gray-400">No billing transactions yet.</div>
+            <div className="rounded-3xl border border-gray-200 bg-white p-8 text-center text-sm text-gray-500">No billing transactions yet.</div>
           ) : (
             <div className="overflow-x-auto rounded-3xl border border-gray-200 bg-white shadow-sm">
               <table className="w-full text-left text-xs">
@@ -270,7 +270,7 @@ export function SubscriptionView() {
                     return (
                       <tr key={t.id} className="hover:bg-gray-50/50">
                         <td className="whitespace-nowrap px-4 py-3.5 font-medium text-gray-900">{new Date(t.date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })}</td>
-                        <td className="whitespace-nowrap px-4 py-3.5 font-mono text-xs text-gray-400">{t.invoiceNumber ?? '—'}</td>
+                        <td className="whitespace-nowrap px-4 py-3.5 font-mono text-xs text-gray-500">{t.invoiceNumber ?? '—'}</td>
                         <td className="px-4 py-3.5 text-gray-600">{t.description}</td>
                         <td className="px-4 py-3.5">
                           <span className="flex items-center gap-1.5 text-xs font-bold text-gray-500">

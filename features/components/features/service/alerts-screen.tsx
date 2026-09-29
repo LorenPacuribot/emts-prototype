@@ -171,7 +171,7 @@ function AlertsQueue() {
                     <TD>{a.surfaces.length}</TD>
                     <TD><NoticeBadge basis={a.noticeBasis} /></TD>
                     <TD>{esc.age} d</TD>
-                    <TD>{st.state === "resolved" ? <span className="text-xs text-gray-400">—</span> : <EscalationBadge escalated={st.escalated} age={esc.age} daysLeft={esc.running ? esc.daysLeft : undefined} />}</TD>
+                    <TD>{st.state === "resolved" ? <span className="text-xs text-gray-500">—</span> : <EscalationBadge escalated={st.escalated} age={esc.age} daysLeft={esc.running ? esc.daysLeft : undefined} />}</TD>
                     <TD>{byId(db.users, a.ownerId ?? (st.escalated ? "U-OWNER" : "U-OFFICE"))?.name}</TD>
                     <TD>
                       <div className="flex flex-wrap gap-1">
@@ -196,7 +196,7 @@ function AlertsQueue() {
         <CardLabel icon={<CircleSlash />}>Data gaps — no completion date</CardLabel>
         <p className="mt-1 text-xs text-gray-500">These surfaces cannot be scheduled. No expected date is ever invented for them.</p>
         {gaps.length === 0 ? (
-          <p className="mt-3 text-xs italic text-gray-400">Every painted surface has a completion date.</p>
+          <p className="mt-3 text-xs italic text-gray-500">Every painted surface has a completion date.</p>
         ) : (
           <ul className="mt-3 space-y-2">
             {gaps.map(({ s, src }) => (
@@ -298,7 +298,7 @@ function BacklogPanel({ rows, onOpen }: { rows: import("@/features/types").Repai
                   <TD className="font-semibold text-ink">{date(a.earliestDue)}</TD>
                   <TD>{Math.max(0, Math.floor((new Date(t).getTime() - new Date(a.earliestDue).getTime()) / 86_400_000))} d</TD>
                   <TD>{a.surfaces.length}</TD>
-                  <TD>{dup ? <Badge tone="amber">Open {dup.id} — will skip</Badge> : <span className="text-xs text-gray-400">None</span>}</TD>
+                  <TD>{dup ? <Badge tone="amber">Open {dup.id} — will skip</Badge> : <span className="text-xs text-gray-500">None</span>}</TD>
                   <TD><SuppressionBadge s={st.suppression} /></TD>
                 </TR>
               ))}

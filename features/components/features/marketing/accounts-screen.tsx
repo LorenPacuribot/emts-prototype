@@ -58,7 +58,7 @@ function Accounts() {
               ]} />
               {a.status !== "connected" && <Banner tone="danger" className="mt-3">Affected scheduled posts are flagged: {affected.map((p) => p.id).join(", ") || "none"}. They fail on this platform until access is renewed.</Banner>}
               <div className="mt-3">
-                <div className="text-xxs font-bold uppercase tracking-wide text-gray-400">Administrator access</div>
+                <div className="text-xxs font-bold uppercase tracking-wide text-gray-500">Administrator access</div>
                 <div className="mt-1 space-y-1">
                   {a.access.map((u) => (
                     <div key={u} className="flex items-center justify-between gap-2 text-xs">

@@ -48,18 +48,18 @@ export function ClientScheduleSection({ wo, job, onEditSchedule }: { wo: WorkOrd
             <div className="text-sm text-gray-500">{customer.email}</div>
             <div className="text-sm text-gray-500">{customer.phone}</div>
           </AppLink>
-        ) : <span className="text-sm text-gray-400">No client assigned</span>}
+        ) : <span className="text-sm text-gray-500">No client assigned</span>}
       </div>
       <div>
         <div className="mb-2 flex items-center gap-2">
           <LiveLabel>Schedule</LiveLabel>
           {can(user, "workOrder.manageSchedule") && wo.status !== "PENDING_DEPOSIT" && wo.status !== "COMPLETED" && (
-            <button onClick={onEditSchedule} className="text-gray-400 hover:text-primary-600" aria-label="Edit Schedule"><Pencil className="h-3.5 w-3.5" /></button>
+            <button onClick={onEditSchedule} className="text-gray-500 hover:text-primary-600" aria-label="Edit Schedule"><Pencil className="h-3.5 w-3.5" /></button>
           )}
         </div>
         <div className="grid grid-cols-2 gap-3 text-sm">
-          <div><div className="text-xs text-gray-400">Start Date</div><div className="font-semibold text-gray-900">{wo.startDate ? date(wo.startDate) : "TBD"}</div></div>
-          <div><div className="text-xs text-gray-400">End Date</div><div className="font-semibold text-gray-900">{wo.endDate ? date(wo.endDate) : "TBD"}</div></div>
+          <div><div className="text-xs text-gray-500">Start Date</div><div className="font-semibold text-gray-900">{wo.startDate ? date(wo.startDate) : "TBD"}</div></div>
+          <div><div className="text-xs text-gray-500">End Date</div><div className="font-semibold text-gray-900">{wo.endDate ? date(wo.endDate) : "TBD"}</div></div>
         </div>
       </div>
     </div>
@@ -98,14 +98,14 @@ export function LocationCard({ wo, job }: { wo: WorkOrder; job: Job }) {
   const [notes, setNotes] = useState(wo.accessNotes ?? "");
   return (
     <LiveCard>
-      <CardTitle icon={<MapPin />} right={can(user, "workOrder.addNotes") && <button onClick={() => setEditing(true)} className="text-gray-400 hover:text-primary-600" aria-label="Edit Location"><Pencil className="h-4 w-4" /></button>}>Job Location</CardTitle>
+      <CardTitle icon={<MapPin />} right={can(user, "workOrder.addNotes") && <button onClick={() => setEditing(true)} className="text-gray-500 hover:text-primary-600" aria-label="Edit Location"><Pencil className="h-4 w-4" /></button>}>Job Location</CardTitle>
       <div className="font-semibold text-gray-900">{p?.address ?? "No address set"}</div>
       <div className="text-sm text-gray-500">{p && `${p.city}, ${p.state} ${p.zip}`}</div>
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
         <div className="rounded-xl border border-gray-100 bg-gray-50 p-3"><LiveLabel>Gate / Access Code</LiveLabel><div className="mt-1 font-mono text-sm font-bold text-gray-800">{wo.gateCode || "—"}</div></div>
         <div className="rounded-xl border border-gray-100 bg-gray-50 p-3"><LiveLabel>Access Notes</LiveLabel><div className="mt-1 text-sm text-gray-700">{wo.accessNotes || "—"}</div></div>
       </div>
-      <div className="mt-4 flex h-28 items-center justify-center rounded-xl border border-gray-100 bg-[repeating-linear-gradient(45deg,#f3f4f6,#f3f4f6_10px,#f9fafb_10px,#f9fafb_20px)] text-xs text-gray-400">Map (Google Maps in the live app)</div>
+      <div className="mt-4 flex h-28 items-center justify-center rounded-xl border border-gray-100 bg-[repeating-linear-gradient(45deg,#f3f4f6,#f3f4f6_10px,#f9fafb_10px,#f9fafb_20px)] text-xs text-gray-500">Map (Google Maps in the live app)</div>
       <Modal open={editing} onOpenChange={setEditing} size="sm" title="Edit Job Location"
         footer={<><Button onClick={() => setEditing(false)}>Cancel</Button><Button variant="primary" onClick={() => { act(updateSiteInstructions, wo.id, { gateCode: gate, accessNotes: notes }).ok && toast.success("Location updated"); setEditing(false); }}>Save Changes</Button></>}>
         <div className="space-y-3">
@@ -140,7 +140,7 @@ export function CrewCard({ wo }: { wo: WorkOrder }) {
                 {canManage && <button onClick={() => setRemoving(s.id)} className="text-gray-300 hover:text-red-600" aria-label="Delete Shift"><X className="h-4 w-4" /></button>}
               </div>
               <div className="mt-2 flex flex-wrap gap-1.5">
-                {s.memberIds.length === 0 && <span className="text-xs text-gray-400">No members assigned</span>}
+                {s.memberIds.length === 0 && <span className="text-xs text-gray-500">No members assigned</span>}
                 {s.memberIds.map((id) => {
                   const e = byId(db.employees, id);
                   return <span key={id} className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-white py-0.5 pl-0.5 pr-2 text-xs font-semibold text-gray-700"><span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary-100 text-xs font-bold text-primary-700">{e?.name[0]}</span>{e?.name.split(" ")[0]}</span>;
@@ -216,8 +216,8 @@ export function InstructionsSection({ wo }: { wo: WorkOrder }) {
       {wo.existingConditions && <LiveCard><CardTitle icon={<FileText />}>Existing Conditions</CardTitle><p className="text-sm text-gray-700">{wo.existingConditions}</p></LiveCard>}
       {([["Company Responsibilities", wo.companyResponsibilities], ["Customer Responsibilities", wo.customerResponsibilities]] as const).map(([t, list], i) => (
         <LiveCard key={t}>
-          <CardTitle icon={<ClipboardList />} right={i === 0 && can(user, "workOrder.addNotes") && <button onClick={() => setEditing(true)} className="text-gray-400 hover:text-primary-600" aria-label="Edit Site Instructions"><Pencil className="h-4 w-4" /></button>}>{t}</CardTitle>
-          {list.length ? <ul className="list-disc space-y-1 pl-5 text-sm text-gray-700">{list.map((x) => <li key={x}>{x}</li>)}</ul> : <p className="text-sm text-gray-400">--</p>}
+          <CardTitle icon={<ClipboardList />} right={i === 0 && can(user, "workOrder.addNotes") && <button onClick={() => setEditing(true)} className="text-gray-500 hover:text-primary-600" aria-label="Edit Site Instructions"><Pencil className="h-4 w-4" /></button>}>{t}</CardTitle>
+          {list.length ? <ul className="list-disc space-y-1 pl-5 text-sm text-gray-700">{list.map((x) => <li key={x}>{x}</li>)}</ul> : <p className="text-sm text-gray-500">--</p>}
         </LiveCard>
       ))}
       <Modal open={editing} onOpenChange={setEditing} title="Edit Site Instructions" size="lg"
@@ -247,7 +247,7 @@ export function WoPaintColorCard({ job }: { job: Job }) {
   return (
     <LiveCard id="section-paint-card">
       <CardTitle icon={<Paintbrush />} right={<div className="text-right"><LiveLabel>Total Paint to Buy</LiveLabel><div className="flex items-center justify-end gap-1 text-lg font-black text-blue-600"><Droplet className="h-4 w-4" /> {total.toFixed(1)} gal</div></div>}>Paint Color Card</CardTitle>
-      {colours.length === 0 ? <p className="text-sm text-gray-400">No paint assigned.</p> : (
+      {colours.length === 0 ? <p className="text-sm text-gray-500">No paint assigned.</p> : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {colours.map((c, i) => {
             const cl = lines.filter((l) => l.spec.colourId === c.id);
@@ -265,7 +265,7 @@ export function WoPaintColorCard({ job }: { job: Job }) {
                     <div className="min-w-0">
                       <div className="flex items-center gap-1.5 text-sm font-bold text-gray-900"><Swatch hex={c.hex} size="sm" /> {c.name}</div>
                       <div className="text-xs text-gray-500">{cl[0]?.spec.product ?? "—"}</div>
-                      <div className="text-xxs font-bold uppercase tracking-widest text-gray-400">{cl.map((l) => l.spec.sheen).filter(Boolean).join(" / ") || "—"}</div>
+                      <div className="text-xxs font-bold uppercase tracking-widest text-gray-500">{cl.map((l) => l.spec.sheen).filter(Boolean).join(" / ") || "—"}</div>
                     </div>
                   </div>
                   <div className="text-right"><LiveLabel>Gallons</LiveLabel><div className="text-lg font-black text-gray-900">{gallons.toFixed(1)}</div></div>
@@ -321,7 +321,7 @@ export function JobDetailsSection({ wo, job }: { wo: WorkOrder; job: Job }) {
   return (
     <LiveCard>
       <div className="mb-5 flex items-center justify-between"><h2 className="font-heading text-xl font-bold text-gray-900">Job Details</h2><span className="text-sm text-gray-500">{surfaces.length} Total Surfaces</span></div>
-      {areas.length === 0 && <p className="text-sm text-gray-400">No areas or surfaces found.</p>}
+      {areas.length === 0 && <p className="text-sm text-gray-500">No areas or surfaces found.</p>}
       <div className="space-y-5">
         {areas.map((a) => {
           const rows = surfaces.filter((s) => s.areaId === a.id);
@@ -331,7 +331,7 @@ export function JobDetailsSection({ wo, job }: { wo: WorkOrder; job: Job }) {
             <div key={a.id} className="overflow-hidden rounded-xl border border-gray-200">
               <div className="flex items-center justify-between bg-gray-50 px-4 py-3">
                 <span className="font-bold text-gray-900">{a.name}</span>
-                <span className="flex gap-4 text-xs"><span><span className="font-bold uppercase tracking-widest text-gray-400">Total Hours</span> <b className="text-gray-900">{est.toFixed(2)}</b></span><span><span className="font-bold uppercase tracking-widest text-gray-400">Rendered</span> <b className="text-primary-700">{ren.toFixed(2)}</b></span></span>
+                <span className="flex gap-4 text-xs"><span><span className="font-bold uppercase tracking-widest text-gray-500">Total Hours</span> <b className="text-gray-900">{est.toFixed(2)}</b></span><span><span className="font-bold uppercase tracking-widest text-gray-500">Rendered</span> <b className="text-primary-700">{ren.toFixed(2)}</b></span></span>
               </div>
               <div className="divide-y divide-gray-100">
                 {rows.map((s) => {
@@ -348,11 +348,11 @@ export function JobDetailsSection({ wo, job }: { wo: WorkOrder; job: Job }) {
                       </div>
                       <div className="md:col-span-3">
                         <LiveLabel className="mb-1">Preparation</LiveLabel>
-                        <div className="flex flex-wrap gap-1">{Object.entries(prep).map(([k, v]) => <span key={k} className={cn("inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-xs font-bold", v ? "bg-green-50 text-green-700" : "bg-gray-100 text-gray-400")}>{v ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}{k}</span>)}</div>
+                        <div className="flex flex-wrap gap-1">{Object.entries(prep).map(([k, v]) => <span key={k} className={cn("inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-xs font-bold", v ? "bg-green-50 text-green-700" : "bg-gray-100 text-gray-500")}>{v ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}{k}</span>)}</div>
                       </div>
                       <div className="md:col-span-3">
                         <LiveLabel className="mb-1">Paint</LiveLabel>
-                        {colour ? <div className="text-xs text-gray-700"><b>#{n}</b> {colour.name} · {spec?.product} · {spec?.sheen}</div> : <span className="text-xs text-gray-400">None assigned</span>}
+                        {colour ? <div className="text-xs text-gray-700"><b>#{n}</b> {colour.name} · {spec?.product} · {spec?.sheen}</div> : <span className="text-xs text-gray-500">None assigned</span>}
                       </div>
                       <div className="flex items-center gap-3 md:col-span-2 md:justify-end">
                         <div className="text-right"><LiveLabel>Total Hrs</LiveLabel><div className="text-sm font-bold">{jobSurfaceHours(db, job.id, s).toFixed(2)}</div></div>
@@ -433,7 +433,7 @@ export function TimeLogSection({ wo, job }: { wo: WorkOrder; job: Job }) {
               </div>
               {editing !== e.id && can(user, "workOrder.logTime") && (
                 <Tooltip content={state === "approved" || state === "locked" || state === "paid" ? `Locked: the day is ${TIME_STATE_LABEL[state].toLowerCase()}` : "Edit"}>
-                  <button disabled={state === "approved" || state === "locked" || state === "paid"} onClick={() => { setEditing(e.id); setH(String(e.renderedHours)); setN(e.notes ?? ""); }} className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 disabled:opacity-30" aria-label="Edit entry"><Pencil className="h-4 w-4" /></button>
+                  <button disabled={state === "approved" || state === "locked" || state === "paid"} onClick={() => { setEditing(e.id); setH(String(e.renderedHours)); setN(e.notes ?? ""); }} className="rounded-lg p-1.5 text-gray-500 hover:bg-gray-100 disabled:opacity-30" aria-label="Edit entry"><Pencil className="h-4 w-4" /></button>
                 </Tooltip>
               )}
             </div>
@@ -483,7 +483,7 @@ export function CrewClockCard({ wo, job }: { wo: WorkOrder; job: Job }) {
     <LiveCard isNew data-tour="wo-crew-clock">
       <CardTitle icon={<Timer />} badge={<NewBadge feature={22} />}>Crew Clock</CardTitle>
       <p className="-mt-3 mb-4 text-sm text-gray-500">Clock the crew in and out on this job. Punches go to Time for the office to approve; only approved hours count for payroll and job cost.</p>
-      {crew.length === 0 ? <p className="text-sm text-gray-400">Assign crew to a shift first.</p> : (
+      {crew.length === 0 ? <p className="text-sm text-gray-500">Assign crew to a shift first.</p> : (
         <div className="grid gap-2 sm:grid-cols-2">
           {crew.map((e) => {
             const open = openSegment(db.timeSegments, e.id);
@@ -544,10 +544,10 @@ export function FieldNotesSection({ wo, extraAttachmentAction }: { wo: WorkOrder
       <LiveLabel className="mb-1">Project Log</LiveLabel>
       <CardTitle icon={<MessageSquare />}>Field Notes &amp; Feed</CardTitle>
       <div className="space-y-3">
-        {wo.fieldNotes.length === 0 && <p className="text-sm text-gray-400">No detailed notes logged yet.</p>}
+        {wo.fieldNotes.length === 0 && <p className="text-sm text-gray-500">No detailed notes logged yet.</p>}
         {wo.fieldNotes.map((n) => (
           <div key={n.id} className="rounded-xl border border-gray-100 bg-gray-50 p-3">
-            <div className="text-xs text-gray-400"><b className="text-gray-700">{byId(db.users, n.authorId)?.name}</b> · {dateTime(n.createdAt)}</div>
+            <div className="text-xs text-gray-500"><b className="text-gray-700">{byId(db.users, n.authorId)?.name}</b> · {dateTime(n.createdAt)}</div>
             <div className="mt-1 text-sm text-gray-800">{n.content}</div>
           </div>
         ))}
@@ -565,11 +565,11 @@ export function FieldNotesSection({ wo, extraAttachmentAction }: { wo: WorkOrder
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
           {wo.attachments.map((a) => (
             <div key={a.id} className="overflow-hidden rounded-xl border border-gray-200 bg-white">
-              <div className="flex h-24 items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 text-gray-400">{a.fileType.startsWith("image") ? <ImagePlus className="h-6 w-6" /> : <FileText className="h-6 w-6" />}</div>
+              <div className="flex h-24 items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 text-gray-500">{a.fileType.startsWith("image") ? <ImagePlus className="h-6 w-6" /> : <FileText className="h-6 w-6" />}</div>
               <div className="p-2">
                 <div className="truncate text-xs font-semibold text-gray-800" title={a.caption ? `${a.caption} (${a.fileName})` : a.fileName}>{a.caption ?? a.fileName}</div>
                 {a.surfaceId && <div className="truncate text-xs font-medium text-primary-700" title={surfaceLabel(db, a.surfaceId)}>{surfaceLabel(db, a.surfaceId)}</div>}
-                <div className="text-xs text-gray-400">{date(a.createdAt)}</div>
+                <div className="text-xs text-gray-500">{date(a.createdAt)}</div>
                 {extraAttachmentAction?.(a.id)}
               </div>
             </div>

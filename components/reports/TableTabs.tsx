@@ -64,7 +64,7 @@ export function EstimatesLogTab({ year, range, setRange }: { year: number; range
         </div>
         <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
           <div className="relative w-full sm:w-72">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -120,7 +120,7 @@ export function EstimatesLogTab({ year, range, setRange }: { year: number; range
             ))}
             {rows.length === 0 && (
               <tr>
-                <td colSpan={11} className="px-6 py-12 text-center italic text-gray-400">No estimates found for this period.</td>
+                <td colSpan={11} className="px-6 py-12 text-center italic text-gray-500">No estimates found for this period.</td>
               </tr>
             )}
           </tbody>
@@ -194,7 +194,7 @@ export function JobsSoldTab({ year, range, setRange }: { year: number; range: Da
             ))}
             {rows.length === 0 && (
               <tr>
-                <td colSpan={9} className="px-6 py-12 text-center italic text-gray-400">No sold jobs found for this period.</td>
+                <td colSpan={9} className="px-6 py-12 text-center italic text-gray-500">No sold jobs found for this period.</td>
               </tr>
             )}
           </tbody>
@@ -232,7 +232,7 @@ export function JobsToDoTab({ year, range, setRange }: { year: number; range: Da
       <div className="overflow-x-auto">
         <table className="w-full border-collapse text-left">
           <thead>
-            <tr className="border-b border-gray-200 bg-white text-xs font-bold uppercase tracking-wider text-gray-400">
+            <tr className="border-b border-gray-200 bg-white text-xs font-bold uppercase tracking-wider text-gray-500">
               <th className="w-32 px-6 py-3">Job #</th><th className="px-6 py-3">Customer</th><th className="px-6 py-3 text-right">Contract</th>
               <th className="px-6 py-3 text-center">Budget Hrs</th><th className="px-6 py-3 text-center">Used</th><th className="px-6 py-3 text-center">Remaining</th>
             </tr>
@@ -243,7 +243,7 @@ export function JobsToDoTab({ year, range, setRange }: { year: number; range: Da
                 <td className="px-6 py-4 font-mono text-xs font-bold text-gray-500 group-hover:text-primary-600"><Link href={`/jobs/${r.id}`}>{r.jobNumber}</Link></td>
                 <td className="px-6 py-4">
                   <div className="font-bold text-gray-900">{r.customer}</div>
-                  <div className="text-xs text-gray-400">{[r.source, r.status].filter(Boolean).join(' · ')}</div>
+                  <div className="text-xs text-gray-500">{[r.source, r.status].filter(Boolean).join(' · ')}</div>
                 </td>
                 <td className="px-6 py-4 text-right font-medium text-gray-900">{money0(r.contract)}</td>
                 <td className="px-6 py-4 text-center">
@@ -262,7 +262,7 @@ export function JobsToDoTab({ year, range, setRange }: { year: number; range: Da
             ))}
             {rows.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-6 py-8 text-center italic text-gray-400">No production jobs found for this period.</td>
+                <td colSpan={6} className="px-6 py-8 text-center italic text-gray-500">No production jobs found for this period.</td>
               </tr>
             )}
           </tbody>

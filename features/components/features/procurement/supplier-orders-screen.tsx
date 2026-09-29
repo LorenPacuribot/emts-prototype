@@ -175,11 +175,11 @@ function Board() {
                       <TD className="font-semibold text-ink">{p.id}</TD>
                       <TD className="max-w-[170px] whitespace-normal">
                         <div className="leading-snug text-ink">{job?.name}</div>
-                        <div className="text-xs text-gray-400">{p.jobId} · {p.phase}</div>
+                        <div className="text-xs text-gray-500">{p.jobId} · {p.phase}</div>
                       </TD>
-                      <TD>{b?.name}<div className="text-xs text-gray-400">Store {b?.storeNumber || "—"}</div></TD>
+                      <TD>{b?.name}<div className="text-xs text-gray-500">Store {b?.storeNumber || "—"}</div></TD>
                       <TD><PoStatusBadge po={p} /></TD>
-                      <TD className="whitespace-nowrap">{p.sentAt ? <>{dateTime(p.resentAt ?? p.sentAt)}<div className="text-xs text-gray-400">{p.sendMethod}{p.resentAt ? " · resent" : ""}</div></> : <span className="text-gray-400">Not sent</span>}</TD>
+                      <TD className="whitespace-nowrap">{p.sentAt ? <>{dateTime(p.resentAt ?? p.sentAt)}<div className="text-xs text-gray-500">{p.sendMethod}{p.resentAt ? " · resent" : ""}</div></> : <span className="text-gray-500">Not sent</span>}</TD>
                       <TD><AckClockChip po={p} nowIso={nowIso} /></TD>
                       <TD><ReceivedBar po={p} /></TD>
                       <TD>
@@ -327,7 +327,7 @@ function ReceiptsView({ onOpen }: { onOpen: (id: string) => void }) {
                         perms.approveOver ? <Button size="sm" variant="primary" onClick={() => act(approveReceipt, r.id).ok && toast.success("Over-receipt approved")}>Approve</Button> : <Badge tone="amber">Awaiting office manager</Badge>
                       ) : <Badge tone="green">{r.status === "approved" ? "Approved" : "Recorded"}</Badge>}
                     </TD>
-                    <TD>{userName(db, r.by)}<div className="text-xs text-gray-400">{dateTime(r.at)}</div></TD>
+                    <TD>{userName(db, r.by)}<div className="text-xs text-gray-500">{dateTime(r.at)}</div></TD>
                   </TR>
                 ))}
               </tbody>

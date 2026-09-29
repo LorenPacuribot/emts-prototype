@@ -96,7 +96,7 @@ export default function EstimateHistoryPage() {
             </div>
             {rows.length === 0 ? (
               <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-gray-300 bg-white py-20">
-                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-50 text-gray-400"><History className="h-8 w-8" /></div>
+                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-50 text-gray-500"><History className="h-8 w-8" /></div>
                 <h3 className="text-lg font-bold text-gray-900">No history yet</h3>
                 <p className="text-gray-500">Changes to this estimate will show up here.</p>
               </div>
@@ -119,14 +119,14 @@ export default function EstimateHistoryPage() {
                             <span className="rounded border border-gray-200 bg-gray-50 px-2 py-0.5 text-xs font-bold text-gray-500">v{v.version}</span>
                             <EstimateStatusBadge status={v.status} />
                           </div>
-                          <span className="whitespace-nowrap text-xs text-gray-400">
+                          <span className="whitespace-nowrap text-xs text-gray-500">
                             {new Date(v.date).toLocaleString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}
                           </span>
                         </div>
                         <div className="mt-1.5 flex flex-wrap items-center justify-between gap-4">
                           <p className="text-xs text-gray-500">{v.changedBy}</p>
                           <p className="text-sm font-bold text-gray-900">
-                            {changed && <span className="mr-1.5 font-medium text-gray-400 line-through">{money(prev.total)}</span>}
+                            {changed && <span className="mr-1.5 font-medium text-gray-500 line-through">{money(prev.total)}</span>}
                             {money(v.total)}
                           </p>
                         </div>
@@ -156,7 +156,7 @@ function CoEventCard({ ev }: { ev: CoEvent }) {
             {ev.coId && <span className="rounded-md bg-blue-50 px-1.5 py-0.5 font-mono text-xs font-bold text-blue-700">{ev.coId}</span>}
             {!!ev.amendment && <span className="rounded-md border border-amber-200 bg-amber-50 px-2 py-0.5 text-xs font-bold text-amber-700">Amendment #{ev.amendment}</span>}
           </div>
-          <span className="whitespace-nowrap text-xs text-gray-400">
+          <span className="whitespace-nowrap text-xs text-gray-500">
             {new Date(ev.date).toLocaleString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}
           </span>
         </div>

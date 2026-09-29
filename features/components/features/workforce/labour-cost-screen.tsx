@@ -82,9 +82,9 @@ function Labour() {
                     const mins = approvedJobMinutes(db, e.id, week).reduce((a, m) => a + m.minutes, 0);
                     return (
                       <TR key={e.id}>
-                        <TD className="font-semibold">{e.name}<div className="text-xs font-normal text-gray-400">{e.type === "salaried" ? "Salaried — period cost" : "Hourly"}</div></TD>
+                        <TD className="font-semibold">{e.name}<div className="text-xs font-normal text-gray-500">{e.type === "salaried" ? "Salaried — period cost" : "Hourly"}</div></TD>
                         <TD className="text-right tabular-nums">{hm(mins)}</TD>
-                        <TD className="text-right tabular-nums">{t ? money(t.amount) : <span className="text-gray-400">Not entered</span>}</TD>
+                        <TD className="text-right tabular-nums">{t ? money(t.amount) : <span className="text-gray-500">Not entered</span>}</TD>
                         <TD className="text-right tabular-nums">{t ? `${t.burdenPct}%` : "—"}</TD>
                         <TD className="text-right tabular-nums font-semibold">{t ? money(burdenedTotal(t.amount, t.burdenPct)) : "—"}</TD>
                         <TD>
@@ -108,7 +108,7 @@ function Labour() {
         <Card className="p-4">
           <CardLabel icon={<Scale />}>Allocated job cost · week of {dayLabel(week, false)}</CardLabel>
           <div className="mt-3">
-            {jobRows.size === 0 ? <p className="text-xs italic text-gray-400">No totals entered for this week yet.</p> : (
+            {jobRows.size === 0 ? <p className="text-xs italic text-gray-500">No totals entered for this week yet.</p> : (
               <Table>
                 <THead><tr><TH>Job</TH><TH className="text-right">Approved hours</TH><TH className="text-right">Labor cost</TH></tr></THead>
                 <tbody>

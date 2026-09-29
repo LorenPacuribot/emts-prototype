@@ -48,9 +48,9 @@ export function PricingPanel({ rep, property, readOnly }: { rep: RepeatEstimate;
       <div className="mt-3 space-y-3">
         <KV
           items={[
-            ["Wage rate", <span key="w">${CURRENT_BASIS.wageRate}/hr <span className="block text-xs font-normal text-gray-400">{CURRENT_BASIS.wageSource}</span></span>],
-            ["Markup", <span key="m">{CURRENT_BASIS.markupPct}% <span className="block text-xs font-normal text-gray-400">{CURRENT_BASIS.markupSource}</span></span>],
-            ["Tax rate", <span key="t">{CURRENT_BASIS.taxRatePct}% <span className="block text-xs font-normal text-gray-400">{CURRENT_BASIS.taxSource}</span></span>],
+            ["Wage rate", <span key="w">${CURRENT_BASIS.wageRate}/hr <span className="block text-xs font-normal text-gray-500">{CURRENT_BASIS.wageSource}</span></span>],
+            ["Markup", <span key="m">{CURRENT_BASIS.markupPct}% <span className="block text-xs font-normal text-gray-500">{CURRENT_BASIS.markupSource}</span></span>],
+            ["Tax rate", <span key="t">{CURRENT_BASIS.taxRatePct}% <span className="block text-xs font-normal text-gray-500">{CURRENT_BASIS.taxSource}</span></span>],
           ]}
         />
         <div className="rounded-xl border border-line p-3">
@@ -88,9 +88,9 @@ export function PricingPanel({ rep, property, readOnly }: { rep: RepeatEstimate;
                 </span>
               </li>
             ))}
-            {products.length === 0 && <li className="italic text-gray-400">No lines yet.</li>}
+            {products.length === 0 && <li className="italic text-gray-500">No lines yet.</li>}
           </ul>
-          {!seePrices && <p className="mt-1 text-xs text-gray-400">Cost per gallon is visible to the Owner and Office Manager.</p>}
+          {!seePrices && <p className="mt-1 text-xs text-gray-500">Cost per gallon is visible to the Owner and Office Manager.</p>}
         </div>
 
         {discounts.map((j) => (

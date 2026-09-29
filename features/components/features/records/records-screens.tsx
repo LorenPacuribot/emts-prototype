@@ -17,7 +17,7 @@ import { jobHref } from "@/features/lib/hrefs";
 function SearchBox({ value, onChange, placeholder }: { value: string; onChange: (v: string) => void; placeholder: string }) {
   return (
     <div className="relative xl:w-[336px]">
-      <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+      <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
       <Input placeholder={placeholder} value={value} onChange={(e) => onChange(e.target.value)} className="h-9 pl-10" aria-label={placeholder} />
     </div>
   );

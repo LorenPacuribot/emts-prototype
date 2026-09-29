@@ -197,7 +197,7 @@ export function PaintColors({ job, editable, paintColourId, onPaint }: {
                   <tr className={paintColourId === r.colour.id ? "bg-green-50/60" : "hover:bg-gray-50/50"}>
                     <td className="px-4 py-4 lg:px-6">
                       <div className="flex items-center gap-2">
-                        <button onClick={() => setExpanded({ ...expanded, [r.colour.id]: !open })} className="rounded p-0.5 text-gray-400 hover:bg-gray-100" aria-expanded={open} aria-label={open ? "Hide specifications" : "Show specifications"}>
+                        <button onClick={() => setExpanded({ ...expanded, [r.colour.id]: !open })} className="rounded p-0.5 text-gray-500 hover:bg-gray-100" aria-expanded={open} aria-label={open ? "Hide specifications" : "Show specifications"}>
                           {open ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                         </button>
                         <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-100 font-mono text-sm font-bold text-gray-700">{r.number}</span>
@@ -214,7 +214,7 @@ export function PaintColors({ job, editable, paintColourId, onPaint }: {
                     </td>
                     <td className="px-4 py-4 text-sm text-gray-700 lg:px-6">{r.colour.manufacturer || "None"}</td>
                     <td className="px-4 py-4 text-sm text-gray-700 lg:px-6">
-                      {r.specs.length > 1 ? <span className="font-semibold">{r.specs.length} specifications</span> : first?.product ?? <span className="text-gray-400">Select Product</span>}
+                      {r.specs.length > 1 ? <span className="font-semibold">{r.specs.length} specifications</span> : first?.product ?? <span className="text-gray-500">Select Product</span>}
                     </td>
                     <td className="px-4 py-4 text-sm text-gray-700 lg:px-6">{r.specs.length > 1 ? "Varies" : first?.sheen ?? "-"}</td>
                     <td className="px-4 py-4 lg:px-6">
@@ -227,7 +227,7 @@ export function PaintColors({ job, editable, paintColourId, onPaint }: {
                     </td>
                     <td className="px-4 py-4 lg:px-6">
                       <div className="flex flex-wrap gap-1">
-                        {r.states.length === 0 && <span className="text-xs italic text-gray-400">No specification</span>}
+                        {r.states.length === 0 && <span className="text-xs italic text-gray-500">No specification</span>}
                         {r.states.map((s) => (
                           <Badge key={s} tone={SPEC_STATE[s].tone}>{SPEC_STATE[s].label}</Badge>
                         ))}
@@ -277,13 +277,13 @@ export function PaintColors({ job, editable, paintColourId, onPaint }: {
               <div className="flex items-center gap-3">
                 <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-100 font-mono text-sm font-bold">{r.number}</span>
                 <div>
-                  <div className="text-xxs font-bold uppercase tracking-widest text-gray-400">Job Color</div>
+                  <div className="text-xxs font-bold uppercase tracking-widest text-gray-500">Job Color</div>
                   <div className="flex items-center gap-2 text-sm font-bold text-gray-900"><Swatch hex={r.colour.hex} size="sm" /> {r.colour.name}</div>
                   <div className="text-xs text-gray-500">{r.colour.manufacturer} · {r.specs[0]?.product ?? "Select Product"}</div>
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-xxs font-bold uppercase tracking-widest text-gray-400">Est. Gallons</div>
+                <div className="text-xxs font-bold uppercase tracking-widest text-gray-500">Est. Gallons</div>
                 <div className="text-sm font-bold text-blue-600">{r.gallons.toFixed(1)}</div>
               </div>
             </div>
@@ -316,7 +316,7 @@ export function PaintColors({ job, editable, paintColourId, onPaint }: {
       )}
 
       <div className="mt-6" data-tour="approval-panel">
-        <div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-gray-400">
+        <div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-gray-500">
           Color approval <NewBadge feature={3} />
         </div>
         <ApprovalPanel jobId={job.id} />
@@ -361,7 +361,7 @@ export function PaintColors({ job, editable, paintColourId, onPaint }: {
 
 function SurfaceChips({ ids }: { ids: string[] }) {
   const db = useDb((d) => d);
-  if (ids.length === 0) return <span className="text-xs italic text-gray-400">No surfaces</span>;
+  if (ids.length === 0) return <span className="text-xs italic text-gray-500">No surfaces</span>;
   return (
     <div className="flex min-w-[260px] max-w-sm flex-wrap gap-1">
       {ids.slice(0, 3).map((id) => (
@@ -400,7 +400,7 @@ function SpecList({ colour, specs, readOnly, canLock, showSample, onAdd, onEdit,
           </Button>
         )}
       </div>
-      {specs.length === 0 && <p className="text-xs italic text-gray-400">No specifications yet. A color with no specification can&apos;t be approved.</p>}
+      {specs.length === 0 && <p className="text-xs italic text-gray-500">No specifications yet. A color with no specification can&apos;t be approved.</p>}
       {specs.map((spec) => (
         <SpecRow key={spec.id} spec={spec} readOnly={readOnly} canLock={canLock} onEdit={() => onEdit(spec)} onSend={() => onSend(spec)} onRemove={() => onRemove(spec)} onHistory={() => onHistory(spec)} />
       ))}

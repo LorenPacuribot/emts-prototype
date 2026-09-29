@@ -33,8 +33,8 @@ export function PaintHistoryHost({ customerId }: { customerId: string }) {
     return (
       <div className="flex min-h-[300px] w-full flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-gray-200 bg-white py-12 text-center">
         <MapPin className="h-6 w-6 text-gray-300" />
-        <p className="italic text-gray-400">No paint history recorded for this contact yet.</p>
-        <p className="text-xs text-gray-400">Paint history is kept per service location once a job is closed out.</p>
+        <p className="italic text-gray-500">No paint history recorded for this contact yet.</p>
+        <p className="text-xs text-gray-500">Paint history is kept per service location once a job is closed out.</p>
       </div>
     );
   }

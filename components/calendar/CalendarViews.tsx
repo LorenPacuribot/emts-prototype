@@ -57,7 +57,7 @@ export function MonthView({ items, staffIndex, onOpen, onCreate, current, onShow
     <div className="flex flex-1 flex-col overflow-auto border-b border-gray-200 bg-gray-50">
       <div className="grid min-w-[700px] shrink-0 grid-cols-7 border-b border-gray-200 bg-gray-50">
         {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((d) => (
-          <div key={d} className="py-2 text-center text-xs font-bold uppercase tracking-wider text-gray-400">{d}</div>
+          <div key={d} className="py-2 text-center text-xs font-bold uppercase tracking-wider text-gray-500">{d}</div>
         ))}
       </div>
       <div className="grid min-w-[700px] flex-1 grid-cols-7 gap-px bg-gray-200">
@@ -132,7 +132,7 @@ export function TimeGridView({ items, staffIndex, onOpen, onCreate, days }: View
         <div className={cn('grid flex-1 divide-x divide-gray-100', gridCols, cols > 1 && 'min-w-[700px]')}>
           {days.map((d) => (
             <div key={dayKey(d)} className={cn('py-3 text-center', sameDay(d, today) && 'bg-blue-50/50')}>
-              <div className={cn('text-xxs font-bold uppercase tracking-wider', sameDay(d, today) ? 'text-primary-600' : 'text-gray-400')}>
+              <div className={cn('text-xxs font-bold uppercase tracking-wider', sameDay(d, today) ? 'text-primary-600' : 'text-gray-500')}>
                 {d.toLocaleDateString('en-US', { weekday: 'short' })}
               </div>
               <div className={cn('text-lg font-bold', sameDay(d, today) ? 'text-primary-600' : 'text-gray-900')}>{d.getDate()}</div>
@@ -144,7 +144,7 @@ export function TimeGridView({ items, staffIndex, onOpen, onCreate, days }: View
       {/* All-day row: production jobs */}
       {hasAllDay && (
         <div className="flex shrink-0 border-b border-gray-200 pr-2">
-          <div className="flex w-16 shrink-0 items-center justify-end pr-2 text-xxs font-bold uppercase text-gray-400">All day</div>
+          <div className="flex w-16 shrink-0 items-center justify-end pr-2 text-xxs font-bold uppercase text-gray-500">All day</div>
           <div className={cn('grid flex-1 divide-x divide-gray-100', gridCols, cols > 1 && 'min-w-[700px]')}>
             {days.map((d) => (
               <div key={dayKey(d)} className="p-1">
@@ -161,7 +161,7 @@ export function TimeGridView({ items, staffIndex, onOpen, onCreate, days }: View
           <div className="w-16 shrink-0">
             {Array.from({ length: 24 }, (_, h) => (
               <div key={h} className="relative border-b border-transparent" style={{ height: HOUR_HEIGHT }}>
-                <span className="absolute -top-2 right-2 text-xs font-bold text-gray-400">{h > 0 ? hourLabel(h) : ''}</span>
+                <span className="absolute -top-2 right-2 text-xs font-bold text-gray-500">{h > 0 ? hourLabel(h) : ''}</span>
               </div>
             ))}
           </div>
@@ -205,7 +205,7 @@ export function TimeGridView({ items, staffIndex, onOpen, onCreate, days }: View
                   })}
                   {sameDay(d, today) && (
                     <div className="pointer-events-none absolute left-0 right-0 z-20 flex items-center" style={{ top: (nowMinutes / 60) * HOUR_HEIGHT }}>
-                      <div className="-ml-1 h-2 w-2 rounded-full bg-red-500" />
+                      <div className="-ml-1 h-2 w-2 rounded-full bg-red-500" aria-hidden />
                       <div className="h-px flex-1 bg-red-500" />
                     </div>
                   )}
@@ -234,10 +234,10 @@ export function DispatchView({ items, staffIndex, onOpen, onCreate, days, staff 
       <table className="w-full border-collapse text-left">
         <thead className="sticky top-0 z-10 bg-gray-50">
           <tr>
-            <th className="sticky left-0 z-20 min-w-[180px] border-b border-r border-gray-200 bg-gray-50 px-4 py-3 text-xs font-bold uppercase tracking-wider text-gray-400">Employee</th>
+            <th className="sticky left-0 z-20 min-w-[180px] border-b border-r border-gray-200 bg-gray-50 px-4 py-3 text-xs font-bold uppercase tracking-wider text-gray-500">Employee</th>
             {days.map((d) => (
               <th key={dayKey(d)} className={cn('border-b border-r border-gray-100 px-3 py-2 text-center', colWidth, sameDay(d, today) && 'bg-blue-50/60')}>
-                <div className="text-xxs font-bold uppercase tracking-wider text-gray-400">{d.toLocaleDateString('en-US', { weekday: 'short' })}</div>
+                <div className="text-xxs font-bold uppercase tracking-wider text-gray-500">{d.toLocaleDateString('en-US', { weekday: 'short' })}</div>
                 <div className="text-sm font-bold text-gray-900">{d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>
                 {sameDay(d, today) && <div className="mt-1 text-xs text-primary-600">Today</div>}
               </th>
@@ -252,7 +252,7 @@ export function DispatchView({ items, staffIndex, onOpen, onCreate, days, staff 
                   {row.id !== '_none' && <span className={cn('h-2.5 w-2.5 rounded-full', PERSON_SWATCHES[(staffIndex[row.id] ?? 0) % PERSON_SWATCHES.length])} />}
                   <div>
                     <div className="text-sm font-bold text-gray-900">{row.name}</div>
-                    {row.role && <div className="text-xs text-gray-400">{row.role}</div>}
+                    {row.role && <div className="text-xs text-gray-500">{row.role}</div>}
                   </div>
                 </div>
               </td>
@@ -274,7 +274,7 @@ export function DispatchView({ items, staffIndex, onOpen, onCreate, days, staff 
           ))}
           {rows.length === 0 && (
             <tr>
-              <td colSpan={days.length + 1} className="px-6 py-12 text-center text-sm italic text-gray-400">No staff selected.</td>
+              <td colSpan={days.length + 1} className="px-6 py-12 text-center text-sm italic text-gray-500">No staff selected.</td>
             </tr>
           )}
         </tbody>

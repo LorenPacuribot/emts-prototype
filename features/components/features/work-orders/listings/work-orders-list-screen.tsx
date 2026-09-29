@@ -61,13 +61,13 @@ export function WorkOrdersListScreen() {
             <div key={s.label} className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
               <div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-gray-500 [&>svg]:h-4 [&>svg]:w-4 [&>svg]:text-gray-400">{s.icon} {s.label}</div>
               <div className="font-heading text-3xl font-black text-gray-900">{s.value}</div>
-              <div className="text-xs text-gray-400">{s.sub}</div>
+              <div className="text-xs text-gray-500">{s.sub}</div>
             </div>
           ))}
         </div>
         <div className="mb-5 flex flex-col gap-3 md:flex-row">
           <div className="relative flex-1">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
             <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search work orders..." className="h-11 pl-9" />
           </div>
           <Select value={filter} onChange={(e) => setFilter(e.target.value as Filter)} className="h-11 md:w-56" aria-label="Status">
@@ -85,22 +85,22 @@ export function WorkOrdersListScreen() {
                   <div className="min-w-0 flex-1">
                     <div className="mb-1 flex flex-wrap items-center gap-3">
                       <StatusPill tone={WO_STATUS_TONE[w.status]} className="text-xs">{WO_STATUS_LABEL[w.status]}</StatusPill>
-                      <span className="font-mono text-xs font-bold text-gray-400">{w.id}</span>
+                      <span className="font-mono text-xs font-bold text-gray-500">{w.id}</span>
                       {job.estimateId && <NumberChip className="text-xs">EST {job.estimateId}</NumberChip>}
                     </div>
                     <h3 className="mb-1 text-lg font-bold text-gray-900 group-hover:text-primary-700">{job.name}</h3>
                     <div className="flex items-center gap-2 text-sm text-gray-500"><User className="h-3.5 w-3.5" /> {byId(db.customers, job.customerId)?.name}</div>
                   </div>
                   <div className="min-w-0 flex-1 space-y-1.5 border-gray-100 lg:border-x lg:px-6">
-                    <div className="flex items-center gap-2 text-sm text-gray-600"><MapPin className="h-3.5 w-3.5 text-gray-400" /><span className="truncate">{propertyAddress(byId(db.properties, job.propertyId))}</span></div>
-                    <div className="flex items-center gap-2 text-sm text-gray-600"><Calendar className="h-3.5 w-3.5 text-gray-400" /> Start: {w.startDate ? date(w.startDate) : "TBD"}</div>
+                    <div className="flex items-center gap-2 text-sm text-gray-600"><MapPin className="h-3.5 w-3.5 text-gray-500" /><span className="truncate">{propertyAddress(byId(db.properties, job.propertyId))}</span></div>
+                    <div className="flex items-center gap-2 text-sm text-gray-600"><Calendar className="h-3.5 w-3.5 text-gray-500" /> Start: {w.startDate ? date(w.startDate) : "TBD"}</div>
                   </div>
                   <div className="lg:w-48">
-                    <div className="mb-1.5 text-xxs font-bold uppercase tracking-wider text-gray-400">Crew Lead</div>
+                    <div className="mb-1.5 text-xxs font-bold uppercase tracking-wider text-gray-500">Crew Lead</div>
                     <div className="text-sm font-bold text-gray-700">{lead ?? "Unassigned"}</div>
                   </div>
                   <div className="flex items-center justify-between gap-4 lg:justify-end">
-                    <div className="text-right"><div className="text-xxs font-bold uppercase tracking-wider text-gray-400">Total Hours</div><div className="text-base font-black text-gray-900">{hours(w.jobId).toFixed(2)}</div></div>
+                    <div className="text-right"><div className="text-xxs font-bold uppercase tracking-wider text-gray-500">Total Hours</div><div className="text-base font-black text-gray-900">{hours(w.jobId).toFixed(2)}</div></div>
                     <span className="inline-flex h-8 items-center rounded-lg border border-gray-200 bg-white px-3 text-xs font-bold text-gray-600 shadow-sm">View</span>
                   </div>
                 </div>

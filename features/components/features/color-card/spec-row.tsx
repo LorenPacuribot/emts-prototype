@@ -46,7 +46,7 @@ export function SpecRow({ spec, readOnly, canLock, onEdit, onSend, onRemove, onH
               {spec.lifespanYears} yrs
               {spec.lifespanLocked && (
                 <Tooltip content="Locked by owner override">
-                  <Lock className="h-3 w-3 text-gray-400" />
+                  <Lock className="h-3 w-3 text-gray-500" />
                 </Tooltip>
               )}
             </span>
@@ -95,7 +95,7 @@ export function SpecRow({ spec, readOnly, canLock, onEdit, onSend, onRemove, onH
 function Cell({ label, children, className }: { label: string; children: React.ReactNode; className?: string }) {
   return (
     <div className={className}>
-      <div className="text-xxs font-bold uppercase tracking-[0.12em] text-gray-400">{label}</div>
+      <div className="text-xxs font-bold uppercase tracking-[0.12em] text-gray-500">{label}</div>
       <div className="mt-0.5 text-gray-700">{children}</div>
     </div>
   );
@@ -131,10 +131,10 @@ export function SpecHistoryModal({ spec, onClose }: { spec?: SpecLine; onClose: 
         )}
         <div>
           <MicroLabel>Activity</MicroLabel>
-          {entries.length === 0 && <p className="mt-1 text-xs italic text-gray-400">No recorded changes.</p>}
+          {entries.length === 0 && <p className="mt-1 text-xs italic text-gray-500">No recorded changes.</p>}
           {entries.map((a) => (
             <div key={a.id} className="mt-2 border-l-2 border-line pl-3 text-xs">
-              <div className="text-xxs font-bold uppercase text-gray-400">{dateTime(a.at)}</div>
+              <div className="text-xxs font-bold uppercase text-gray-500">{dateTime(a.at)}</div>
               <div className={a.blocked ? "text-red-700" : "text-gray-700"}>{a.message}</div>
             </div>
           ))}

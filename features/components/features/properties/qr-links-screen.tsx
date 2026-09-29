@@ -142,8 +142,8 @@ export function QrLinksPanel({ property }: { property: Property }) {
             <CardLabel icon={<BadgeCheck />}>Customer contact</CardLabel>
             <div className="mt-3 text-sm font-semibold text-ink">{owner?.name ?? "—"}</div>
             <div className="mt-1 space-y-0.5 text-xs text-gray-600">
-              <div className="flex items-center gap-1.5"><Mail className="h-3.5 w-3.5 text-gray-400" /> {owner?.email ?? <span className="italic text-gray-400">No email — printed card and posted PDF</span>}</div>
-              <div className="flex items-center gap-1.5"><MessageSquare className="h-3.5 w-3.5 text-gray-400" /> {owner?.phone ?? <span className="italic text-gray-400">No phone</span>}</div>
+              <div className="flex items-center gap-1.5"><Mail className="h-3.5 w-3.5 text-gray-500" /> {owner?.email ?? <span className="italic text-gray-500">No email — printed card and posted PDF</span>}</div>
+              <div className="flex items-center gap-1.5"><MessageSquare className="h-3.5 w-3.5 text-gray-500" /> {owner?.phone ?? <span className="italic text-gray-500">No phone</span>}</div>
             </div>
             <div className="mt-3">{owner?.contactVerified ? <Badge tone="green">Verified by {byId(db.users, owner.contactVerifiedBy)?.name ?? "the office"}</Badge> : <Badge tone="amber">Not verified — the link can&apos;t be sent yet</Badge>}</div>
             <div className="mt-3 flex flex-wrap gap-2">
@@ -387,7 +387,7 @@ function PhotoPanel({ property }: { property: Property }) {
           const shared = photoShareable(p);
           return (
             <div key={p.id} className="rounded-xl border border-line p-3">
-              <div className="flex h-24 items-center justify-center rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 text-gray-400" role="img" aria-label={p.caption}><ImageIcon className="h-6 w-6" /></div>
+              <div className="flex h-24 items-center justify-center rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 text-gray-500" role="img" aria-label={p.caption}><ImageIcon className="h-6 w-6" /></div>
               <div className="mt-2 flex flex-wrap items-center gap-1.5"><IdChip>{p.id}</IdChip>{p.identifying && <Badge tone="red">{p.identifyingReason ?? "Identifying"}</Badge>}</div>
               <div className="mt-1 text-xs font-medium text-ink">{p.caption}</div>
               <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
@@ -445,7 +445,7 @@ function TouchUpPanel({ property }: { property: Property }) {
               </div>
               <div className="mt-1 text-gray-600">{r.surfaceId ? surfaceLabel(db, r.surfaceId) : "No surface chosen"}{r.colourLabel ? ` · ${r.colourLabel}` : ""}</div>
               {r.note && <div className="mt-0.5 italic text-gray-500">&ldquo;{r.note}&rdquo;</div>}
-              <div className="mt-0.5 text-xs text-gray-400">{dateTime(r.createdAt)} · via link {r.linkRef.slice(0, 6)}…</div>
+              <div className="mt-0.5 text-xs text-gray-500">{dateTime(r.createdAt)} · via link {r.linkRef.slice(0, 6)}…</div>
             </div>
             <Select
               aria-label={`Status of ${r.id}`}

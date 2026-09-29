@@ -96,14 +96,14 @@ export default function LeadDetailPage() {
                 {isArchived && <span className="rounded-full border border-gray-200 bg-gray-100 px-2.5 py-1 text-xs font-bold uppercase text-gray-500">Archived</span>}
               </div>
               <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
-                <span className="flex items-center gap-1"><MapPin className="h-4 w-4 text-gray-400" />{lead.city ? `${lead.city}, ${lead.state}` : 'No Location'}</span>
+                <span className="flex items-center gap-1"><MapPin className="h-4 w-4 text-gray-500" />{lead.city ? `${lead.city}, ${lead.state}` : 'No Location'}</span>
                 <LeadSourceChip
                   lead={lead}
                   className="rounded-full uppercase tracking-wider"
                   fallback={<span className="rounded-full border border-gray-200 bg-gray-100 px-2 py-0.5 text-xxs font-bold uppercase tracking-wider text-gray-600">{lead.leadSource || 'Website'}</span>}
                 />
-                <span className="text-gray-400">Created: {shortDate(lead.date)}</span>
-                <span className="text-xs font-semibold text-gray-400">{lead.leadNumber}</span>
+                <span className="text-gray-500">Created: {shortDate(lead.date)}</span>
+                <span className="text-xs font-semibold text-gray-500">{lead.leadNumber}</span>
                 {lead.appointment && (
                   <Link href="/calendar" className="flex items-center gap-1.5 rounded-md border border-primary-100 bg-primary-50 px-2 py-1 text-xs font-medium text-primary-700 hover:bg-primary-100">
                     <Calendar className="h-3.5 w-3.5" />
@@ -144,7 +144,7 @@ export default function LeadDetailPage() {
               items={menuItems}
               trigger={
                 <button type="button" aria-label="More actions" className="flex h-12 w-12 items-center justify-center rounded-xl border border-gray-200 bg-white shadow-sm hover:border-gray-300">
-                  <MoreVertical className="h-5 w-5 text-gray-400" />
+                  <MoreVertical className="h-5 w-5 text-gray-500" />
                 </button>
               }
             />
@@ -211,7 +211,7 @@ function InfoTile({ icon, iconCls, label, value }: { icon: React.ReactNode; icon
     <div className="flex items-center gap-4 rounded-xl bg-gray-50 p-4">
       <div className={cn('flex h-10 w-10 shrink-0 items-center justify-center rounded-full [&>svg]:h-5 [&>svg]:w-5', iconCls)}>{icon}</div>
       <div className="min-w-0">
-        <div className="mb-0.5 text-xxs font-bold uppercase tracking-widest text-gray-400">{label}</div>
+        <div className="mb-0.5 text-xxs font-bold uppercase tracking-widest text-gray-500">{label}</div>
         <div className="truncate text-base font-bold text-gray-900">{value}</div>
       </div>
     </div>
@@ -280,7 +280,7 @@ function JobLocationCard({ lead }: { lead: Lead }) {
       </div>
       {customer && (customer.serviceLocations?.length ?? 0) > 0 && (
         <div className="mb-4 space-y-2">
-          <div className="text-xs font-bold uppercase tracking-wider text-gray-400">Other service locations</div>
+          <div className="text-xs font-bold uppercase tracking-wider text-gray-500">Other service locations</div>
           {customer.serviceLocations!.map((l) => (
             <div key={l.id} className="rounded-lg border border-gray-100 bg-white px-3 py-2 text-sm">
               <div className="font-semibold text-gray-800">{[l.street, l.unit].filter(Boolean).join(' ')}</div>

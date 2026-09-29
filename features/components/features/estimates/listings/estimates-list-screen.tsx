@@ -78,14 +78,14 @@ export function EstimatesListScreen() {
             <div key={s.label} className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
               <div className="flex items-center gap-2 text-xxs font-bold uppercase tracking-widest text-gray-500 [&>svg]:h-4 [&>svg]:w-4 [&>svg]:text-gray-400">{s.icon} {s.label}</div>
               <div className="mt-2 font-heading text-2xl font-black text-gray-900">{s.value}</div>
-              <div className="text-xs text-gray-400">{s.sub}</div>
+              <div className="text-xs text-gray-500">{s.sub}</div>
             </div>
           ))}
         </div>
 
         <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-center">
           <div className="relative flex-1">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
             <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search estimates..." className="h-11 pl-9" />
           </div>
           <Select value={filter} onChange={(e) => setFilter(e.target.value as Filter)} className="h-11 md:w-56" aria-label="Status">
@@ -108,7 +108,7 @@ export function EstimatesListScreen() {
                     <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-lg border border-gray-100 bg-gray-50">
                       <span className="text-xxs font-bold uppercase leading-none text-gray-500">{d.toLocaleString(undefined, { month: "short" })}</span>
                       <span className="my-0.5 text-xl font-black leading-none text-gray-900">{d.getDate()}</span>
-                      <span className="text-xs font-medium leading-none text-gray-400">{d.getFullYear()}</span>
+                      <span className="text-xs font-medium leading-none text-gray-500">{d.getFullYear()}</span>
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
@@ -130,15 +130,15 @@ export function EstimatesListScreen() {
                   </div>
                   <div className="flex items-center justify-between gap-6 md:justify-end md:gap-8">
                     <div className="flex w-32 flex-col gap-1">
-                      <span className="text-xxs font-bold uppercase tracking-wider text-gray-400">Status</span>
+                      <span className="text-xxs font-bold uppercase tracking-wider text-gray-500">Status</span>
                       <StatusPill tone={ESTIMATE_STATUS_TONE[e.status]} className="w-fit">{ICON[e.status]}{ESTIMATE_STATUS_LABEL[e.status]}</StatusPill>
                     </div>
                     <div className="hidden w-28 flex-col gap-1 lg:flex">
-                      <span className="text-xxs font-bold uppercase tracking-wider text-gray-400">Type</span>
+                      <span className="text-xxs font-bold uppercase tracking-wider text-gray-500">Type</span>
                       <span className="truncate text-sm font-bold text-gray-700">{typeName(db.jobs.find((j) => j.id === e.jobId)?.jobType)}</span>
                     </div>
                     <div className="flex min-w-28 flex-col items-end gap-1 text-right">
-                      <span className="text-xxs font-bold uppercase tracking-wider text-gray-400">Total Value</span>
+                      <span className="text-xxs font-bold uppercase tracking-wider text-gray-500">Total Value</span>
                       <span className="text-sm font-black text-gray-900">{money(e.total, { cents: true })}</span>
                     </div>
                     <span className={cn("hidden h-8 items-center rounded-lg border border-gray-200 bg-white px-3 text-xs font-bold text-gray-600 shadow-sm md:inline-flex")}>View</span>

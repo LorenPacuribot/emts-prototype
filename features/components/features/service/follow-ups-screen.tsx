@@ -146,7 +146,7 @@ function FollowUps() {
                   return (
                     <TR key={a.id} className="cursor-pointer" onClick={() => setOpenAlert(a.id)}>
                       <TD><div className="flex items-start gap-2"><IdChip>{a.id}</IdChip><PropertyCell db={db} propertyId={a.propertyId} /></div></TD>
-                      <TD>{date(a.createdAt)} <span className="text-xs text-gray-400">· {esc.age} d</span></TD>
+                      <TD>{date(a.createdAt)} <span className="text-xs text-gray-500">· {esc.age} d</span></TD>
                       <TD>{a.surfaces.length}</TD>
                       <TD className="font-semibold text-ink">{date(a.earliestDue)}</TD>
                       <TD><EscalationBadge escalated={esc.escalated} age={esc.age} daysLeft={esc.running ? esc.daysLeft : undefined} /></TD>
@@ -190,9 +190,9 @@ function FollowUps() {
                         {x.driving ? (
                           <div>
                             <Badge tone={x.driving.escalated ? "red" : "blue"}>{x.driving.key === "unassigned" ? "Unassigned 3-day" : x.driving.key === "assigned" ? "Assigned 7-day" : "Alert 14-day"} · day {x.driving.days}</Badge>
-                            <div className="mt-0.5 text-xs text-gray-400">from {date(x.driving.source)}</div>
+                            <div className="mt-0.5 text-xs text-gray-500">from {date(x.driving.source)}</div>
                           </div>
-                        ) : <span className="text-xs text-gray-400">Stopped</span>}
+                        ) : <span className="text-xs text-gray-500">Stopped</span>}
                       </TD>
                       <TD><div className="flex flex-wrap gap-1">{p?.optOut ? <OptOutBadge /> : <SuppressionBadge s={sup} />}</div></TD>
                       <TD onClick={(e) => e.stopPropagation()}>

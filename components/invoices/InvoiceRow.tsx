@@ -38,12 +38,12 @@ export function InvoiceRow({ invoice, showQuickBooks = false }: { invoice: Invoi
       <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
         <div className="min-w-0 flex-1">
           <div className="mb-1 flex flex-wrap items-center gap-3">
-            <span className="rounded border border-gray-100 bg-gray-50 px-2 py-1 font-mono text-xs font-bold text-gray-400">{invoice.invoiceNumber}</span>
+            <span className="rounded border border-gray-100 bg-gray-50 px-2 py-1 font-mono text-xs font-bold text-gray-500">{invoice.invoiceNumber}</span>
             <span className={cn('rounded-full border px-2.5 py-0.5 text-xs font-bold', INVOICE_BADGE[status])}>{INVOICE_STATUS_LABEL[status]}</span>
             <InvoiceKindChip invoiceId={invoice.id} />
             {est && <RefChip href={`/estimates/${est.id}`}>{est.estimateNumber}</RefChip>}
             {lead && <RefChip kind="lead" href={`/leads/${lead.id}`}>{lead.leadNumber}</RefChip>}
-            <span className="hidden text-xs font-medium text-gray-400 sm:inline-block">• {shortDate(invoice.date)}</span>
+            <span className="hidden text-xs font-medium text-gray-500 sm:inline-block">• {shortDate(invoice.date)}</span>
           </div>
           <h3 className="text-lg font-bold text-gray-900 transition-colors group-hover:text-primary-700">{fullName(customer)}</h3>
           <div className="text-sm text-gray-500">{job?.jobNumber ?? '—'}</div>
@@ -52,7 +52,7 @@ export function InvoiceRow({ invoice, showQuickBooks = false }: { invoice: Invoi
         <div className="flex min-w-[120px] flex-col text-left md:items-end md:text-right">
           <div className="mb-1 text-sm text-gray-500">Balance Due</div>
           <div className="text-xl font-black text-gray-900">{moneyCompact(t.balance)}</div>
-          <div className="mt-1 text-xs text-gray-400">Total: {moneyCompact(t.total)}</div>
+          <div className="mt-1 text-xs text-gray-500">Total: {moneyCompact(t.total)}</div>
         </div>
       </div>
     </div>

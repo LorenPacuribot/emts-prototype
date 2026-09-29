@@ -95,7 +95,7 @@ function SalesGoal() {
   return (
     <Card title="Sales Goal">
       <div className="grid gap-6 p-6 sm:grid-cols-3">
-        {[["Target Revenue", 100000], ["Actual Sold", sold], ["Differential", sold - 100000]].map(([l, v]) => <div key={l as string}><div className="text-xs font-bold uppercase tracking-widest text-gray-400">{l}</div><div className="font-heading text-2xl font-black">{money(v as number)}</div></div>)}
+        {[["Target Revenue", 100000], ["Actual Sold", sold], ["Differential", sold - 100000]].map(([l, v]) => <div key={l as string}><div className="text-xs font-bold uppercase tracking-widest text-gray-500">{l}</div><div className="font-heading text-2xl font-black">{money(v as number)}</div></div>)}
       </div>
     </Card>
   );
@@ -140,7 +140,7 @@ function Stats() {
   return (
     <Card title={`${new Date().getFullYear()} Performance Summary`}>
       <div className="grid gap-6 p-6 sm:grid-cols-3">
-        {[["Estimates Done", done], ["Jobs Sold", sold], ["Close Rate", `${done ? Math.round((sold / done) * 100) : 0}%`]].map(([l, v]) => <div key={l as string}><div className="text-xs font-bold uppercase tracking-widest text-gray-400">{l}</div><div className="font-heading text-2xl font-black">{v}</div></div>)}
+        {[["Estimates Done", done], ["Jobs Sold", sold], ["Close Rate", `${done ? Math.round((sold / done) * 100) : 0}%`]].map(([l, v]) => <div key={l as string}><div className="text-xs font-bold uppercase tracking-widest text-gray-500">{l}</div><div className="font-heading text-2xl font-black">{v}</div></div>)}
       </div>
     </Card>
   );
@@ -152,7 +152,7 @@ function ActivityLog() {
   const rows = db.activity.filter((a) => [a.module, a.message].join(" ").toLowerCase().includes(q.toLowerCase())).slice(0, 100);
   return (
     <Card title="Activity Log">
-      <div className="relative px-6 pt-4"><Search className="pointer-events-none absolute left-9 top-1/2 mt-2 h-4 w-4 -translate-y-1/2 text-gray-400" /><Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search activity..." className="pl-9" /></div>
+      <div className="relative px-6 pt-4"><Search className="pointer-events-none absolute left-9 top-1/2 mt-2 h-4 w-4 -translate-y-1/2 text-gray-500" /><Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search activity..." className="pl-9" /></div>
       <table className="mt-2 w-full min-w-[720px] text-left">
         <thead className="border-b border-gray-100"><tr>{["When", "Area", "What", "User"].map((h) => <th key={h} className={th}>{h}</th>)}</tr></thead>
         <tbody className="divide-y divide-gray-100">

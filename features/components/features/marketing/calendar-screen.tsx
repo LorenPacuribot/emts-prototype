@@ -98,8 +98,8 @@ function Calendar() {
                       <div className="space-y-1">
                         {posts.filter((p) => postDay(p) === day).map((p) => (
                           <button key={p.id} type="button" onClick={() => push(`/marketing/compose?id=${p.id}`)} className="block w-full rounded-md border border-line bg-white px-1.5 py-1 text-left hover:border-gray-300">
-                            <div className="flex items-center gap-1"><span className={cn("h-1.5 w-1.5 shrink-0 rounded-full", POST_STATE[p.state].dot)} /><span className="truncate text-xs font-semibold text-ink">{p.title}</span></div>
-                            <div className="mt-0.5 flex gap-0.5">{p.platforms.map((pl) => <PlatformChip key={pl} platform={pl} status={p.publications.find((x) => x.platform === pl)?.status} />)}</div>
+                            <div className="flex items-center gap-1"><span className={cn("h-1.5 w-1.5 shrink-0 rounded-full", POST_STATE[p.state].dot)} aria-hidden /><span className="truncate text-xs font-semibold text-ink">{p.title}</span></div>
+                            <div className="mt-0.5 flex items-center gap-0.5">{p.platforms.map((pl) => <PlatformChip key={pl} platform={pl} status={p.publications.find((x) => x.platform === pl)?.status} />)}<span className="ml-1 min-w-0 truncate text-xxs text-gray-500">{POST_STATE[p.state].label}</span></div>
                           </button>
                         ))}
                       </div>
@@ -120,7 +120,7 @@ function Calendar() {
           <CardLabel>Needs a person</CardLabel>
           <p className="mt-1 text-xs text-gray-500">A post that turns up unexpectedly is worse than one that turns up late and deliberately.</p>
           <div className="mt-3 space-y-2">
-            {attention.length === 0 && <p className="text-xs italic text-gray-400">Nothing waiting.</p>}
+            {attention.length === 0 && <p className="text-xs italic text-gray-500">Nothing waiting.</p>}
             {attention.map(({ p, why }, i) => (
               <AppLink key={`${p.id}-${i}`} href={`/marketing/compose?id=${p.id}`} className="block rounded-lg border border-line px-3 py-2 text-xs hover:border-gray-300">
                 <div className="flex flex-wrap items-center gap-1.5"><strong>{p.id}</strong><PostStateBadge state={p.state} />{p.takedown && !p.takedown.doneAt && <Badge tone="red">Takedown</Badge>}</div>

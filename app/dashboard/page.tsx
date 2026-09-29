@@ -100,7 +100,7 @@ function DashboardInner() {
           <>
             <button
               onClick={() => saveHidden([...hidden, id])}
-              className="absolute -top-2 right-2 z-10 rounded-full border border-gray-200 bg-white p-1.5 text-gray-400 shadow-md transition-colors hover:text-red-500"
+              className="absolute -top-2 right-2 z-10 rounded-full border border-gray-200 bg-white p-1.5 text-gray-500 shadow-md transition-colors hover:text-red-500"
               title={`Hide ${CARD_TITLES[id]}`}
               aria-label={`Hide ${CARD_TITLES[id]}`}
             >
@@ -187,7 +187,7 @@ function DashboardInner() {
         <div className="mb-6 rounded-2xl border border-dashed border-gray-300 bg-white/70 p-4">
           <p className="mb-2 text-xs font-bold uppercase tracking-[0.15em] text-gray-500">Hidden cards</p>
           {hidden.length === 0 ? (
-            <p className="text-xs italic text-gray-400">All cards are showing. Use the eye button on a card to hide it.</p>
+            <p className="text-xs italic text-gray-500">All cards are showing. Use the eye button on a card to hide it.</p>
           ) : (
             <div className="flex flex-wrap gap-2">
               {hidden.map((id) => (
@@ -215,7 +215,7 @@ function DashboardInner() {
       </div>
 
       {editMode && (
-        <div className="mt-4 text-center text-xs font-medium text-gray-400">
+        <div className="mt-4 text-center text-xs font-medium text-gray-500">
           Use the eye button to hide a card. Click &quot;Done&quot; when finished.
         </div>
       )}

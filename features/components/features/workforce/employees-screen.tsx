@@ -51,11 +51,11 @@ function Employees() {
           <tbody>
             {db.employees.map((e) => (
               <TR key={e.id}>
-                <TD className="font-semibold">{e.name}<div className="text-xs font-normal text-gray-400">{e.id}</div></TD>
+                <TD className="font-semibold">{e.name}<div className="text-xs font-normal text-gray-500">{e.id}</div></TD>
                 <TD><Badge tone={TYPE[e.type].tone}>{TYPE[e.type].label}</Badge></TD>
                 <TD>{db.crews.find((c) => c.id === e.crewId)?.name ?? "—"}</TD>
                 {detail && <TD>{e.gustoId ?? "—"}</TD>}
-                <TD>{e.userId ? byId(db.users, e.userId)?.email : <span className="text-gray-400">No login</span>}</TD>
+                <TD>{e.userId ? byId(db.users, e.userId)?.email : <span className="text-gray-500">No login</span>}</TD>
                 <TD>{e.offboardedAt ? <Badge tone="gray">Offboarded {dateLong(e.offboardedAt)} · login disabled, history kept</Badge> : <Badge tone="green">Active</Badge>}</TD>
               </TR>
             ))}

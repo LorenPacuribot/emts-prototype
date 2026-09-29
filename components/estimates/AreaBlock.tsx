@@ -22,6 +22,7 @@ import { RowMenu } from '@/components/ui/menu';
 import { cn, money } from '@/lib/utils';
 import { includedLine, lineCost } from '@/lib/calculations';
 import { CONDITIONS, FALLBACK_COVERAGE, SURFACE_CONDITIONS, coverageFor, prepColumns, prepSummary, usesCoverageFallback } from '@/lib/estimating';
+import { pressable } from '@/lib/a11y';
 
 export const SHEENS = ['Flat', 'Matte', 'Eggshell', 'Satin', 'Semi-Gloss', 'Gloss'];
 export const UNIT_LABEL: Record<EstimateLineItem['unit'], string> = { sqft: 'sq ft', lnft: 'lin ft', each: 'each', hour: 'hour', gallon: 'gallon' };
@@ -205,7 +206,7 @@ export function AreaBlock(p: AreaBlockProps) {
       case 'tcol_matcost':
         return <span title="Material cost">{money(cost.material)}</span>;
       case 'tcol_total':
-        return <span className={cn('font-black', includedLine(l) ? 'text-gray-900' : 'text-gray-400')}>{money(l.total)}</span>;
+        return <span className={cn('font-black', includedLine(l) ? 'text-gray-900' : 'text-gray-500')}>{money(l.total)}</span>;
       default:
         return <PrepInput col={col} line={l} readOnly={readOnly} onChange={up} />;
     }
@@ -225,7 +226,7 @@ export function AreaBlock(p: AreaBlockProps) {
           className="w-full border-b-2 border-transparent bg-transparent font-heading text-lg font-bold text-gray-900 outline-none transition-all placeholder:text-gray-400 hover:border-gray-400 focus:border-primary-400 disabled:hover:border-transparent md:w-auto md:text-xl"
         />
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xxs font-bold uppercase tracking-wider text-gray-400">L x W x H</span>
+          <span className="text-xxs font-bold uppercase tracking-wider text-gray-500">L x W x H</span>
           {(['length', 'width', 'height'] as const).map((k) => (
             <label key={k} className={cn('flex items-center gap-1 rounded-md border bg-white px-2 py-0.5 shadow-sm', !area[k] && !readOnly ? 'border-amber-500/50 ring-1 ring-amber-500/20' : 'border-gray-200')}>
               <input
@@ -235,7 +236,7 @@ export function AreaBlock(p: AreaBlockProps) {
                 value={area[k] || ''}
                 placeholder="0"
                 onChange={(e) => p.onDimension(k, num(e.target.value))}
-                className="w-12 bg-transparent text-right text-sm font-bold text-gray-900 outline-none placeholder:text-gray-400"
+                className="w-12 rounded bg-transparent text-right text-sm font-bold text-gray-900 outline-none placeholder:text-gray-400 focus-visible:ring-2 focus-visible:ring-primary-400/60"
                 aria-label={k}
               />
               <span className="text-xxs font-bold uppercase text-gray-500">{k[0]}</span>
@@ -293,7 +294,7 @@ export function AreaBlock(p: AreaBlockProps) {
               {lines.map((l) => {
                 const optional = !includedLine(l);
                 return (
-                  <tr
+                  <tr {...pressable(p.painting, { row: true })}
                     key={l.id}
                     onClick={p.painting ? () => p.onPaintLine?.(l.id) : undefined}
                     className={cn('group', p.painting ? 'cursor-pointer hover:bg-green-50' : 'hover:bg-gray-50', optional && 'bg-gray-50/70')}
@@ -366,7 +367,7 @@ function ScopeToggle({ line, readOnly, onChange }: { line: EstimateLineItem; rea
       value={state}
       onClick={(e) => e.stopPropagation()}
       onChange={(e) => onChange({ optional: e.target.value !== 'included', selected: e.target.value === 'selected' })}
-      className={cn('h-7 rounded-full border px-2 text-xs font-bold focus:outline-none disabled:opacity-80', styles[state])}
+      className={cn('h-7 rounded-full border px-2 text-xs font-bold focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-400/60 disabled:opacity-80', styles[state])}
       title="Optional work stays priced but is kept out of the base total until the customer selects it"
     >
       <option value="included">Included</option>
@@ -391,7 +392,7 @@ function PrepInput({ col, line, readOnly, onChange }: { col: TableColumn; line: 
   return (
     <div className="flex items-center justify-center gap-0.5">
       <input type="number" min={0} step="0.25" disabled={readOnly} value={typeof v === 'number' ? v : ''} placeholder="0" onChange={(e) => set(num(e.target.value) || undefined)} className={cn(cellInput, 'w-16 text-center')} aria-label={col.name} />
-      <span className="text-xs text-gray-400">{col.columnType === 'HOURS' ? 'h' : col.unit === 'Percent' ? '%' : col.unit}</span>
+      <span className="text-xs text-gray-500">{col.columnType === 'HOURS' ? 'h' : col.unit === 'Percent' ? '%' : col.unit}</span>
     </div>
   );
 }
@@ -408,7 +409,7 @@ function PrepCell({ line, columns, readOnly, onChange }: { line: EstimateLineIte
           className="flex min-w-[130px] max-w-[200px] items-center justify-between gap-1 rounded-md border border-gray-200 bg-white px-2 py-1 text-left text-xs hover:border-primary-300"
           aria-label="Preparation"
         >
-          <span className={cn('truncate', summary.length ? 'text-gray-800' : 'italic text-gray-400')}>{summary.length ? summary.join(', ') : 'No prep'}</span>
+          <span className={cn('truncate', summary.length ? 'text-gray-800' : 'italic text-gray-500')}>{summary.length ? summary.join(', ') : 'No prep'}</span>
           <span className="shrink-0 font-semibold text-gray-500">{(line.prepHours ?? 0).toFixed(1)}h</span>
         </button>
       </Popover.Trigger>
@@ -433,7 +434,7 @@ function PrepCell({ line, columns, readOnly, onChange }: { line: EstimateLineIte
                 <li key={c.id} className="flex items-center justify-between gap-2 text-sm">
                   <span className="text-gray-700">
                     {c.name}
-                    {c.prepRate ? <span className="ml-1 text-xs text-gray-400">{c.prepRate}/h</span> : null}
+                    {c.prepRate ? <span className="ml-1 text-xs text-gray-500">{c.prepRate}/h</span> : null}
                   </span>
                   <PrepInput col={c} line={line} readOnly={readOnly} onChange={onChange} />
                 </li>

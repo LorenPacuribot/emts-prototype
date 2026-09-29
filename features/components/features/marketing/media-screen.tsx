@@ -84,7 +84,7 @@ function Media() {
         <p className="mt-1 text-xs text-gray-500">History is kept. Removing a media item from the queue is never counted as taking a published post down.</p>
         <div className="mt-3 grid gap-3 lg:grid-cols-2">
           <div className="space-y-2">
-            {withdrawn.length === 0 && <p className="text-xs italic text-gray-400">No withdrawals.</p>}
+            {withdrawn.length === 0 && <p className="text-xs italic text-gray-500">No withdrawals.</p>}
             {withdrawn.map((a) => (
               <div key={a.id} className="rounded-lg border border-line px-3 py-2 text-xs">
                 <strong>{a.id}</strong> {a.label} <div className="text-gray-500">Withdrawn {dateLong(a.withdrawnAt)} by {userName(db, a.withdrawnBy)} — {a.withdrawReason}</div>
@@ -92,7 +92,7 @@ function Media() {
             ))}
           </div>
           <div className="space-y-2">
-            {takedowns.length === 0 && <p className="text-xs italic text-gray-400">No published posts affected.</p>}
+            {takedowns.length === 0 && <p className="text-xs italic text-gray-500">No published posts affected.</p>}
             {takedowns.map((p) => (
               <AppLink key={p.id} href={`/marketing/compose?id=${p.id}`} className="block rounded-lg border border-line px-3 py-2 text-xs hover:border-gray-300">
                 <div className="flex flex-wrap items-center gap-1.5"><strong>{p.id}</strong> {p.title} {p.takedown!.doneAt ? <Badge tone="green">Taken down</Badge> : <Badge tone="red">Takedown review</Badge>}{p.takedown!.doneAt && <Badge tone={p.takedown!.spotCheckedBy ? "green" : "amber"}>Spot-check {p.takedown!.spotCheckedBy ? "done" : "pending"}</Badge>}</div>

@@ -124,7 +124,7 @@ function PublicRecord() {
         <RecordBody record={record} onTouchUp={(surfaceId, colourLabel) => setTouchUp({ surfaceId, colourLabel })} />
         <RecordFooter />
       </div>
-      <p className="mt-4 text-center text-xs text-gray-400">Read-only record. No login needed. Anyone with this link can view it.</p>
+      <p className="mt-4 text-center text-xs text-gray-500">Read-only record. No login needed. Anyone with this link can view it.</p>
       <TouchUpModal prefill={touchUp} onClose={() => setTouchUp(undefined)} linkRef={link.ref} record={record} />
     </Shell>
   );
@@ -168,7 +168,7 @@ function PassportView({ passport }: { passport: import("@/features/types").Paint
         ))}
         <RecordFooter />
       </div>
-      <p className="mt-4 text-center text-xs text-gray-400">Read-only passport. No login needed. Anyone with this link can view it.</p>
+      <p className="mt-4 text-center text-xs text-gray-500">Read-only passport. No login needed. Anyone with this link can view it.</p>
     </Shell>
   );
 }

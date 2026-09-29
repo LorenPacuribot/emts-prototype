@@ -81,7 +81,7 @@ export function JobSchedulingScreen() {
         <div className="my-6 flex items-center justify-between rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
           <button onClick={() => setWeekStart(addDaysToDay(weekStart, -7))} className="rounded-lg p-2 hover:bg-gray-100" aria-label="Previous week"><ChevronLeft className="h-5 w-5" /></button>
           <div className="text-center">
-            <div className="text-xxs font-bold uppercase tracking-widest text-gray-400">Week</div>
+            <div className="text-xxs font-bold uppercase tracking-widest text-gray-500">Week</div>
             <h3 className="font-heading text-lg font-bold text-gray-900">{fmt(days[0])} – {fmt(days[6])}</h3>
           </div>
           <button onClick={() => setWeekStart(addDaysToDay(weekStart, 7))} className="rounded-lg p-2 hover:bg-gray-100" aria-label="Next week"><ChevronRight className="h-5 w-5" /></button>
@@ -90,7 +90,7 @@ export function JobSchedulingScreen() {
         {view === "crew" ? (
           <div className="overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm" data-tour="crew-hours">
             <div className="flex items-center gap-2 border-b border-gray-100 px-4 py-3 text-xs text-gray-500">
-              <span className="font-bold uppercase tracking-widest text-gray-400">Hours</span>
+              <span className="font-bold uppercase tracking-widest text-gray-500">Hours</span>
               <span className="ml-auto inline-flex items-center gap-1.5">Clocked / approved hours per day <NewBadge feature={22} /></span>
             </div>
             <table className="w-full min-w-[1100px] text-left text-sm">
@@ -103,7 +103,7 @@ export function JobSchedulingScreen() {
                     return (
                       <th key={d} className="min-w-[140px] px-3 py-3 text-xs">
                         <div className="font-bold uppercase text-gray-500">{new Date(`${d}T12:00:00`).toLocaleDateString(undefined, { weekday: "short" })} {new Date(`${d}T12:00:00`).getDate()}</div>
-                        <div className="font-normal text-gray-400">{dayAssigned.toFixed(0)} / {crew.length * DAY_CAPACITY}h</div>
+                        <div className="font-normal text-gray-500">{dayAssigned.toFixed(0)} / {crew.length * DAY_CAPACITY}h</div>
                       </th>
                     );
                   })}
@@ -117,11 +117,11 @@ export function JobSchedulingScreen() {
                   return (
                     <tr key={e.id}>
                       <td className="px-4 py-3">
-                        <div className="flex items-center gap-2"><span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary-100 text-xs font-bold text-primary-700">{e.name[0]}</span><div><div className="font-semibold text-gray-900">{e.name}</div><div className="text-xs text-gray-400">{e.type}</div></div></div>
+                        <div className="flex items-center gap-2"><span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary-100 text-xs font-bold text-primary-700">{e.name[0]}</span><div><div className="font-semibold text-gray-900">{e.name}</div><div className="text-xs text-gray-500">{e.type}</div></div></div>
                       </td>
                       <td className="px-4 py-3">
                         <div className="text-sm font-bold text-gray-800">{week.toFixed(0)} / {cap}h</div>
-                        <div className={cn("text-xs", over ? "text-red-600" : "text-gray-400")}>{over ? `${(week - cap).toFixed(0)}h over` : `${(cap - week).toFixed(0)}h free`}</div>
+                        <div className={cn("text-xs", over ? "text-red-600" : "text-gray-500")}>{over ? `${(week - cap).toFixed(0)}h over` : `${(cap - week).toFixed(0)}h free`}</div>
                         <div className="mt-1 h-1.5 rounded-full bg-gray-100"><div className={cn("h-1.5 rounded-full", over ? "bg-red-500" : week === cap ? "bg-amber-500" : "bg-green-500")} style={{ width: `${Math.min(100, (week / cap) * 100)}%` }} /></div>
                       </td>
                       {days.map((d) => {
@@ -173,7 +173,7 @@ export function JobSchedulingScreen() {
             </div>
             <div className="rounded-2xl border border-gray-200 bg-white p-4">
               <h3 className="mb-3 font-heading text-base font-bold text-gray-900">Unscheduled Jobs</h3>
-              {unscheduled.length === 0 && <p className="text-sm text-gray-400">All jobs are scheduled.</p>}
+              {unscheduled.length === 0 && <p className="text-sm text-gray-500">All jobs are scheduled.</p>}
               {unscheduled.map((w) => (
                 <AppLink key={w.id} href={workOrderHref(w.id)} className="mb-2 block rounded-xl border border-gray-200 p-3 hover:border-primary-300">
                   <div className="text-sm font-bold text-gray-900">{byId(db.jobs, w.jobId)?.name}</div>

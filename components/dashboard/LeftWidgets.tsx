@@ -55,7 +55,7 @@ export function TasksWidget() {
           <CheckSquare className="h-4 w-4 text-primary-500" />
           <h3 className="text-xs font-black uppercase tracking-[0.15em] text-gray-500">My Tasks</h3>
         </div>
-        <span className="text-xs font-bold text-gray-400">{completed}/{tasks.length}</span>
+        <span className="text-xs font-bold text-gray-500">{completed}/{tasks.length}</span>
       </div>
 
       <div className="relative mb-4">
@@ -79,7 +79,7 @@ export function TasksWidget() {
 
       <div className="custom-scrollbar min-h-0 flex-1 space-y-2 overflow-y-auto pr-1">
         {tasks.length === 0 ? (
-          <div className="py-6 text-center text-xs italic text-gray-400">No tasks yet. Add one above!</div>
+          <div className="py-6 text-center text-xs italic text-gray-500">No tasks yet. Add one above!</div>
         ) : (
           tasks.map((task) => (
             <div
@@ -108,7 +108,7 @@ export function TasksWidget() {
                   toast('Task deleted');
                 }}
                 aria-label="Delete task"
-                className="rounded p-1 text-gray-400 transition-all hover:bg-red-50 hover:text-red-500 lg:opacity-0 lg:group-hover:opacity-100"
+                className="rounded p-1 text-gray-500 transition-all hover:bg-red-50 hover:text-red-500 lg:opacity-0 lg:group-hover:opacity-100"
               >
                 <Trash2 className="h-3 w-3" />
               </button>
@@ -155,7 +155,7 @@ export function MessagesWidget({ items }: { items: Message[] }) {
                     </div>
                     <div className="flex shrink-0 items-center gap-1.5">
                       {m.unread && <span className="h-1.5 w-1.5 rounded-full bg-primary-500" aria-label="Unread" />}
-                      <span className="text-xs font-bold text-gray-400">{relativeTime(m.date, false)}</span>
+                      <span className="text-xs font-bold text-gray-500">{relativeTime(m.date, false)}</span>
                     </div>
                   </div>
                   <p className={cn('truncate text-xs', m.unread ? 'font-semibold text-gray-700' : 'text-gray-500')}>{m.preview}</p>
@@ -230,7 +230,7 @@ export function JobsToDoWidget({ jobs }: { jobs: DashboardData['jobsToDo'] }) {
       <div className="custom-scrollbar min-h-0 flex-1 space-y-2 overflow-y-auto pb-1 pr-1">
         {jobs.length === 0 ? (
           <div className="flex min-h-[120px] items-center justify-center">
-            <p className="text-xs italic text-gray-400">No active jobs.</p>
+            <p className="text-xs italic text-gray-500">No active jobs.</p>
           </div>
         ) : (
           jobs.map((job) => (
@@ -239,7 +239,7 @@ export function JobsToDoWidget({ jobs }: { jobs: DashboardData['jobsToDo'] }) {
                 <span className={cn('rounded-full border px-2 py-0.5 text-xxs font-black uppercase leading-none tracking-wider', JOB_STATUS_BADGE[job.status])}>
                   {job.status}
                 </span>
-                <span className="text-xs font-black text-gray-400">{job.startDate ? shortDate(job.startDate) : 'TBD'}</span>
+                <span className="text-xs font-black text-gray-500">{job.startDate ? shortDate(job.startDate) : 'TBD'}</span>
               </div>
               <div className="flex items-center justify-between">
                 <h4 className="truncate text-sm font-black leading-tight text-gray-900 group-hover:text-primary-700">{job.customerName}</h4>
@@ -266,13 +266,13 @@ export function ActivityWidget({ items }: { items: Activity[] }) {
       <div className="custom-scrollbar min-h-0 flex-1 space-y-4 overflow-y-auto">
         {items.length === 0 ? (
           <div className="flex flex-1 items-center justify-center">
-            <p className="text-xs italic text-gray-400">No recent activity.</p>
+            <p className="text-xs italic text-gray-500">No recent activity.</p>
           </div>
         ) : (
           items.map((a) => {
             const inner = (
               <>
-                <div className="mb-1 text-xxs font-bold uppercase text-gray-400">{relativeTime(a.date, true)}</div>
+                <div className="mb-1 text-xxs font-bold uppercase text-gray-500">{relativeTime(a.date, true)}</div>
                 <div className="text-sm font-bold leading-tight text-gray-900">{a.text}</div>
               </>
             );

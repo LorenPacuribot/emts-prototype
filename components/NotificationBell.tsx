@@ -63,7 +63,7 @@ export function NotificationBell() {
                     <span className="min-w-0">
                       <span className="block text-sm font-semibold text-gray-900">{n.title}</span>
                       <span className="block text-xs text-gray-600">{n.body}</span>
-                      <span className="mt-0.5 block text-xs text-gray-400">{dateTime(n.createdAt)}{!n.readAt && <span className="sr-only"> · unread</span>}</span>
+                      <span className="mt-0.5 block text-xs text-gray-500">{dateTime(n.createdAt)}{!n.readAt && <span className="sr-only"> · unread</span>}</span>
                     </span>
                   </button>
                 </li>

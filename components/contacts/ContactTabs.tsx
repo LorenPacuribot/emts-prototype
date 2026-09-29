@@ -57,7 +57,7 @@ function useSorted<T>(items: T[], sort: Sort, date: (x: T) => string, amount: (x
 function Empty({ text }: { text: string }) {
   return (
     <div className="flex min-h-[300px] w-full flex-col items-center justify-center rounded-2xl border border-dashed border-gray-200 bg-white py-12 text-center">
-      <p className="italic text-gray-400">{text}</p>
+      <p className="italic text-gray-500">{text}</p>
     </div>
   );
 }
@@ -179,7 +179,7 @@ export function InvoicesTab({ invoices, jobNumber }: { invoices: Invoice[]; jobN
                   </div>
                 </div>
                 <div className="flex items-center justify-between border-t border-gray-100 pt-3">
-                  <div className="flex items-center gap-1 text-xs text-gray-400">
+                  <div className="flex items-center gap-1 text-xs text-gray-500">
                     <Calendar className="h-3 w-3" />{shortDate(inv.date)}<span className="mx-1">&bull;</span>Total: {money(t.total)}
                   </div>
                   <span className={viewLink}>View Invoice <ArrowRight className="h-3.5 w-3.5" /></span>
@@ -233,12 +233,12 @@ export function JobHistoryTab({ jobs, customerId }: { jobs: Job[]; customerId: s
                   <div className="mb-2 flex h-2 w-full overflow-hidden rounded-full bg-gray-100">
                     <div className={cn('h-full', done ? 'bg-green-500' : 'bg-blue-500')} style={{ width: idx < 0 ? '0%' : `${((idx + 0.5) / JOB_STAGES.length) * 100}%` }} />
                   </div>
-                  <div className="hidden justify-between text-xxs font-bold uppercase tracking-wider text-gray-400 sm:flex">
+                  <div className="hidden justify-between text-xxs font-bold uppercase tracking-wider text-gray-500 sm:flex">
                     {STAGE_LABELS.map((s, i) => <span key={s} className={i <= idx ? (done ? 'text-green-600' : 'text-blue-600') : ''}>{s}</span>)}
                   </div>
                 </div>
                 <div className="flex items-end justify-between border-t border-gray-100 pt-4">
-                  <div className="text-xs text-gray-400">{r.kind === 'live' ? `Created: ${shortDate(r.job.createdAt)}` : `Completed: ${shortDate(r.job.completedAt)}`}</div>
+                  <div className="text-xs text-gray-500">{r.kind === 'live' ? `Created: ${shortDate(r.job.createdAt)}` : `Completed: ${shortDate(r.job.completedAt)}`}</div>
                   <div className="text-xl font-bold text-gray-900">{money(j.value, { cents: false })}</div>
                 </div>
               </>
@@ -281,10 +281,10 @@ export function ConversationsTab({ messages }: { messages: Message[] }) {
           <div className="min-w-0 flex-1">
             <div className="flex items-center justify-between gap-2">
               <span className="font-bold text-gray-900">{m.from}</span>
-              <span className="text-xs text-gray-400">{shortDate(m.date)}</span>
+              <span className="text-xs text-gray-500">{shortDate(m.date)}</span>
             </div>
             <p className="mt-0.5 text-sm text-gray-600">{m.preview}</p>
-            <span className="mt-1 inline-block text-xxs font-bold uppercase tracking-wider text-gray-400">{m.channel}</span>
+            <span className="mt-1 inline-block text-xxs font-bold uppercase tracking-wider text-gray-500">{m.channel}</span>
           </div>
         </div>
       ))}

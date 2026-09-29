@@ -94,7 +94,7 @@ export function PaymentGatewayView() {
         )}
 
         <div className="space-y-5 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-          <div className="text-xs font-bold uppercase tracking-widest text-gray-400">Authorize.Net Credentials</div>
+          <div className="text-xs font-bold uppercase tracking-widest text-gray-500">Authorize.Net Credentials</div>
           <Field label="API Login ID" required error={errors.apiLoginId}>
             <Input value={form.apiLoginId} placeholder="Enter API Login ID" invalid={!!errors.apiLoginId} onChange={(e) => set('apiLoginId', e.target.value)} />
           </Field>

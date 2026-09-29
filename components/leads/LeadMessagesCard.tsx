@@ -13,7 +13,7 @@ import { pendingMessages } from '@/lib/lead-messages';
 
 const when = (iso: string) => new Date(iso).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
 const ChannelIcon = ({ channel }: { channel: 'EMAIL' | 'SMS' }) =>
-  channel === 'EMAIL' ? <Mail className="h-4 w-4 shrink-0 text-gray-400" aria-label="Email" /> : <MessageSquare className="h-4 w-4 shrink-0 text-gray-400" aria-label="Text message" />;
+  channel === 'EMAIL' ? <Mail className="h-4 w-4 shrink-0 text-gray-500" aria-label="Email" /> : <MessageSquare className="h-4 w-4 shrink-0 text-gray-500" aria-label="Text message" />;
 
 export function LeadMessagesCard({ lead, onCancel }: { lead: Lead; onCancel: (id: string) => void }) {
   const waiting = pendingMessages(lead).sort((a, b) => a.sendAt.localeCompare(b.sendAt));
@@ -49,7 +49,7 @@ export function LeadMessagesCard({ lead, onCancel }: { lead: Lead; onCancel: (id
               <ChannelIcon channel={h.channel} />
               <span className="min-w-0 flex-1 truncate font-medium text-gray-800">{h.name}</span>
               <span className={cn('shrink-0 text-xs font-semibold', h.tone)}>{h.state}</span>
-              <span className="shrink-0 text-xs text-gray-400">{when(h.at)}</span>
+              <span className="shrink-0 text-xs text-gray-500">{when(h.at)}</span>
             </li>
           ))}
         </ul>

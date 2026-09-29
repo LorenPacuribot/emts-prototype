@@ -85,7 +85,7 @@ function ContactDetails({ customer }: { customer: Customer }) {
         <div className="space-y-8">
           <LiveCard>
             <CardTitle icon={<MapPin />}>Service Locations</CardTitle>
-            {locations.length === 0 && <p className="text-sm text-gray-400">No service locations found.</p>}
+            {locations.length === 0 && <p className="text-sm text-gray-500">No service locations found.</p>}
             <div className="space-y-3">
               {locations.map((p) => <LocationCard key={p.id} property={p} customerId={customer.id} />)}
             </div>
@@ -210,7 +210,7 @@ function EstimatesTab({ customerId }: { customerId: string }) {
             <div>
               <div className="flex flex-wrap items-center gap-2"><span className="font-bold text-gray-900">{e.id}</span><StatusPill tone={ESTIMATE_STATUS_TONE[e.status]}>{ESTIMATE_STATUS_LABEL[e.status]}</StatusPill>{e.repeatEstimateId && <span className="rounded-md bg-indigo-50 px-1.5 py-0.5 text-xs font-bold text-indigo-700">From history</span>}</div>
               <div className="text-sm text-gray-600">{e.title}</div>
-              <div className="text-xs text-gray-400">{date(e.createdAt)}</div>
+              <div className="text-xs text-gray-500">{date(e.createdAt)}</div>
               <div className="mt-1 text-xs font-bold text-primary-700">View Estimate →</div>
             </div>
             <div className="text-right font-black text-gray-900">{money(e.total, { cents: true })}</div>
@@ -236,9 +236,9 @@ function InvoicesTab({ customerId }: { customerId: string }) {
             <div>
               <div className="flex items-center gap-2"><span className="font-bold text-gray-900">{i.id}</span><StatusPill tone={i.status === "paid" ? "green" : i.status === "draft" ? "gray" : "amber"}>{i.status === "paid" ? "Paid" : i.status === "draft" ? "Draft" : i.status === "void" ? "Canceled" : "Sent"}</StatusPill></div>
               <div className="text-xs text-gray-500">{i.jobId}</div>
-              <div className="text-xs text-gray-400">{date(i.createdAt)} • Total: {money(i.amount, { cents: true })}</div>
+              <div className="text-xs text-gray-500">{date(i.createdAt)} • Total: {money(i.amount, { cents: true })}</div>
             </div>
-            <div className="text-right"><div className="text-xxs font-bold uppercase tracking-widest text-gray-400">Balance Due</div><div className="font-black">{money(i.status === "paid" ? 0 : i.amount, { cents: true })}</div></div>
+            <div className="text-right"><div className="text-xxs font-bold uppercase tracking-widest text-gray-500">Balance Due</div><div className="font-black">{money(i.status === "paid" ? 0 : i.amount, { cents: true })}</div></div>
           </AppLink>
         ))}
       </div>
@@ -273,7 +273,7 @@ function JobHistoryTab({ customerId }: { customerId: string }) {
                 <div>
                   {j.live ? <AppLink href={jobHref(j.id)} className="font-bold text-gray-900 hover:text-primary-700">{j.id}</AppLink> : <span className="font-bold text-gray-900">{j.id}</span>}
                   <div className="text-sm text-gray-600">{j.name}</div>
-                  <div className="text-xs text-gray-400">{propertyAddress(p)}</div>
+                  <div className="text-xs text-gray-500">{propertyAddress(p)}</div>
                 </div>
                 <StatusPill tone={disp.tone}>{disp.label}</StatusPill>
               </div>
@@ -281,7 +281,7 @@ function JobHistoryTab({ customerId }: { customerId: string }) {
                 {JOB_STAGES.map((s, i) => <div key={s.label} className={cn("h-1.5 flex-1 rounded-full", i <= idx ? (idx >= 5 ? "bg-green-500" : "bg-primary-500") : "bg-gray-100")} title={s.label} />)}
               </div>
               <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-gray-100 pt-3">
-                <span className="text-xs text-gray-400">{j.live ? "Created" : "Completed"}: {date(j.at)} · {money(j.value)}</span>
+                <span className="text-xs text-gray-500">{j.live ? "Created" : "Completed"}: {date(j.at)} · {money(j.value)}</span>
                 <span className="flex flex-wrap gap-2">
                   {p && can(user, "qr.generate") && (
                     <AppLink href={contactHref(customerId, "paint-history", { location: p.id, view: "qr" })}>
@@ -314,14 +314,14 @@ function ActivityTab({ customer }: { customer: Customer }) {
     <div className="grid gap-6 xl:grid-cols-2">
       <LiveCard>
         <CardTitle icon={<StickyNote />}>Notes History</CardTitle>
-        {db.leads.filter((l) => l.customerId === customer.id && l.note).length === 0 ? <p className="text-sm text-gray-400">No notes logged yet.</p> : (
-          <div className="space-y-2">{db.leads.filter((l) => l.customerId === customer.id && l.note).map((l) => <div key={l.id} className="rounded-xl bg-gray-50 p-3 text-sm text-gray-700"><div className="text-xs text-gray-400">{date(l.createdAt)} · {l.id}</div>{l.note}</div>)}</div>
+        {db.leads.filter((l) => l.customerId === customer.id && l.note).length === 0 ? <p className="text-sm text-gray-500">No notes logged yet.</p> : (
+          <div className="space-y-2">{db.leads.filter((l) => l.customerId === customer.id && l.note).map((l) => <div key={l.id} className="rounded-xl bg-gray-50 p-3 text-sm text-gray-700"><div className="text-xs text-gray-500">{date(l.createdAt)} · {l.id}</div>{l.note}</div>)}</div>
         )}
       </LiveCard>
       <LiveCard>
         <CardTitle icon={<History />}>Activity Log</CardTitle>
-        {entries.length === 0 ? <p className="text-sm text-gray-400">No activity yet.</p> : (
-          <div className="space-y-2">{entries.map((a) => <div key={a.id} className="border-l-2 border-gray-200 pl-3 text-sm"><div className="text-xs font-bold uppercase text-gray-400">{dateTime(a.at)}</div><div className={a.blocked ? "text-red-700" : "text-gray-700"}>{a.message}</div></div>)}</div>
+        {entries.length === 0 ? <p className="text-sm text-gray-500">No activity yet.</p> : (
+          <div className="space-y-2">{entries.map((a) => <div key={a.id} className="border-l-2 border-gray-200 pl-3 text-sm"><div className="text-xs font-bold uppercase text-gray-500">{dateTime(a.at)}</div><div className={a.blocked ? "text-red-700" : "text-gray-700"}>{a.message}</div></div>)}</div>
         )}
       </LiveCard>
     </div>

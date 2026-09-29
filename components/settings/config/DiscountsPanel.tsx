@@ -34,7 +34,7 @@ export function DiscountsPanel({ title = 'Project Discounts' }: { title?: string
         <Button size="sm" variant="secondary" icon={<Plus className="h-4 w-4" />} onClick={() => setEditing('new')}>Add Discount</Button>
       </div>
       {list.length === 0 ? (
-        <p className="py-8 text-center text-sm italic text-gray-400">No discounts configured.</p>
+        <p className="py-8 text-center text-sm italic text-gray-500">No discounts configured.</p>
       ) : (
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
           {list.map((d) => (

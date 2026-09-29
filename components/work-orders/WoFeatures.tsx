@@ -138,7 +138,7 @@ export function WoTwinActions({ twin, onLogHours, onLogMaterial, onSchedule, onM
       )}
       <DM.Root modal={false}>
         <DM.Trigger asChild>
-          <button type="button" aria-label="More actions" className="rounded-md p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-700"><MoreVertical className="h-4 w-4" /></button>
+          <button type="button" aria-label="More actions" className="rounded-md p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700"><MoreVertical className="h-4 w-4" /></button>
         </DM.Trigger>
         <DM.Portal>
           <DM.Content align="end" sideOffset={4} className="z-[150] min-w-[220px] rounded-xl border border-gray-200 bg-white p-1 shadow-xl">

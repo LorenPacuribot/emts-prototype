@@ -64,7 +64,7 @@ export function RowMenu({ items, className }: { items: MenuItem[]; className?: s
         <button
           type="button"
           onClick={(e) => e.stopPropagation()}
-          className={cn('rounded-md p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-700', className)}
+          className={cn('rounded-md p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700', className)}
           aria-label="More actions"
         >
           <MoreVertical className="h-4 w-4" />

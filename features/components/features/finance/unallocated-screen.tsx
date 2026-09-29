@@ -51,9 +51,9 @@ function Unallocated() {
                 {list.map((r) => (
                   <TR key={r.id}>
                     <TD><TypeBadge type={r.type} /></TD>
-                    <TD className="font-semibold">{r.ref}<div className="text-xs font-normal text-gray-400">{r.externalRef}</div></TD>
+                    <TD className="font-semibold">{r.ref}<div className="text-xs font-normal text-gray-500">{r.externalRef}</div></TD>
                     <TD className="max-w-[260px] whitespace-normal">{r.party}</TD>
-                    <TD className="text-right tabular-nums">{money(r.amount)}{r.purchaseTax ? <div className="text-xs text-gray-400">+ {money(r.purchaseTax)} tax</div> : null}</TD>
+                    <TD className="text-right tabular-nums">{money(r.amount)}{r.purchaseTax ? <div className="text-xs text-gray-500">+ {money(r.purchaseTax)} tax</div> : null}</TD>
                     <TD>{dateLong(r.date)}</TD>
                     <TD>{can(user, "finance.code") && <Button size="sm" variant="primary" onClick={() => setCoding(r.id)}>Code</Button>}</TD>
                   </TR>
@@ -66,7 +66,7 @@ function Unallocated() {
       <Card className="p-4">
         <CardLabel>Recent allocations</CardLabel>
         <div className="mt-3 space-y-2">
-          {coded.length === 0 && <p className="text-xs italic text-gray-400">No allocations yet.</p>}
+          {coded.length === 0 && <p className="text-xs italic text-gray-500">No allocations yet.</p>}
           {coded.map((r) => (
             <div key={r.id} className="rounded-lg border border-line px-3 py-2 text-xs">
               <div className="flex flex-wrap items-center gap-2"><strong>{r.ref}</strong> · {money(r.amount)} · {r.costCode}</div>

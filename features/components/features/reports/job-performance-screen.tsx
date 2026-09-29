@@ -229,7 +229,7 @@ export function Performance() {
           <CardLabel>Incomplete — not in the completed totals</CardLabel>
           <p className="mt-1 text-xs text-gray-500">Jobs still in progress, or without a reconciled actual. A missing actual is shown as missing, never as zero.</p>
           <div className="mt-3">
-            {incompleteRows.length === 0 ? <p className="text-xs italic text-gray-400">No incomplete jobs in this period.</p> : (
+            {incompleteRows.length === 0 ? <p className="text-xs italic text-gray-500">No incomplete jobs in this period.</p> : (
               <Grid rows={incompleteRows} measure={measure} baseline={baseline} dimension={dimension} onOpen={setOpenJob} incomplete />
             )}
           </div>
@@ -267,13 +267,13 @@ function Grid({ rows, measure, baseline, dimension, onOpen, incomplete, readOnly
           const tint = !incomplete && v?.highlight === "over" ? "bg-red-50/70" : !incomplete && v?.highlight === "under" ? "bg-green-50/70" : "";
           return [
             <TR key={r.key} className={`${tint} ${onOpen && dimension === "job" ? "cursor-pointer" : ""}`} onClick={() => dimension === "job" && onOpen?.(r.key)}>
-              <TD className="max-w-[260px] whitespace-normal font-semibold text-ink">{r.label}{dimension !== "job" && <div className="text-xs font-normal text-gray-400">{r.jobIds.length} jobs</div>}</TD>
+              <TD className="max-w-[260px] whitespace-normal font-semibold text-ink">{r.label}{dimension !== "job" && <div className="text-xs font-normal text-gray-500">{r.jobIds.length} jobs</div>}</TD>
               <TD className="text-right tabular-nums">{fmt(r.original, measure)}</TD>
               <TD className="text-right tabular-nums">{fmt(r.change, measure)}</TD>
               <TD className="text-right tabular-nums font-semibold">{fmt(r.revised, measure)}</TD>
               <TD className="text-right tabular-nums">{r.actual === undefined ? <Badge tone="amber">Missing</Badge> : fmt(r.actual, measure)}</TD>
               <TD className="text-right tabular-nums">{v ? `${v.amount > 0 ? "+" : ""}${fmt(v.amount, measure)}` : "—"}</TD>
-              <TD className="text-right tabular-nums">{!v ? "—" : v.pct === null ? <span className="text-gray-400">Not applicable</span> : `${v.pct > 0 ? "+" : ""}${(v.pct * 100).toFixed(1)}%`}</TD>
+              <TD className="text-right tabular-nums">{!v ? "—" : v.pct === null ? <span className="text-gray-500">Not applicable</span> : `${v.pct > 0 ? "+" : ""}${(v.pct * 100).toFixed(1)}%`}</TD>
               <TD>{v ? <span className={`text-xs font-bold ${v.highlight === "over" ? "text-red-700" : v.highlight === "under" ? "text-green-700" : "text-gray-600"}`}>{v.label}</span> : "—"}</TD>
               <TD className="text-right tabular-nums text-gray-500">{r.pending ? r.pending.toFixed(1) : "—"}</TD>
               {dimension === "job" && <TD onClick={(e) => e.stopPropagation()}>{readOnly ? (r.reasonCode ?? "—") : <ReasonCell jobId={r.key} current={r.reasonCode as ReasonCode | undefined} canEdit={can(user, "perf.reason")} />}</TD>}
@@ -405,7 +405,7 @@ function Corrections() {
       <CardLabel>Actual corrections</CardLabel>
       <p className="mt-1 text-xs text-gray-500">After completion the office manager and the owner approve. The current report updates at once; issued snapshots don't.</p>
       <div className="mt-3 space-y-2">
-        {list.length === 0 && <p className="text-xs italic text-gray-400">No corrections.</p>}
+        {list.length === 0 && <p className="text-xs italic text-gray-500">No corrections.</p>}
         {list.map((c) => {
           const mine = user.role === "owner" || user.role === "office_manager" ? (user.role as "owner" | "office_manager") : undefined;
           const canApprove = c.status === "pending" && mine && c.requires.includes(mine) && !c.approvals.some((a) => a.role === mine);

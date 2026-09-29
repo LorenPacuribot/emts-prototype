@@ -82,7 +82,7 @@ function Batches() {
           </div>
           <div>
             <div className="text-xs font-semibold text-gray-700">Excluded — stays outstanding</div>
-            {outstanding.length === 0 ? <p className="text-xs italic text-gray-400">Nothing outstanding.</p> : (
+            {outstanding.length === 0 ? <p className="text-xs italic text-gray-500">Nothing outstanding.</p> : (
               <ul className="text-xs text-gray-600">
                 {outstanding.map((e) => (
                   <li key={e.id}>{byId(db.employees, e.employeeId)?.name} · {dayLabel(e.workDate)} · {hm(entryTotals(db, e).roundedMinutes)} — {e.dispute?.status === "open" ? "disputed" : e.state === "open" ? "not submitted" : "awaiting approval"}</li>
@@ -211,7 +211,7 @@ function BatchDrawer({ batchId, onClose }: { batchId?: string; onClose: () => vo
             const r = RESULT[l.result];
             return (
               <TR key={l.employeeId}>
-                <TD className="font-semibold">{emp?.name}<div className="text-xs font-normal text-gray-400">{l.entryIds.length} days</div></TD>
+                <TD className="font-semibold">{emp?.name}<div className="text-xs font-normal text-gray-500">{l.entryIds.length} days</div></TD>
                 <TD className="text-xs">{emp?.gustoId ?? "—"}</TD>
                 <TD className="text-right tabular-nums">{hm(l.regularMinutes)}</TD>
                 <TD className="text-right tabular-nums">{hm(l.overtimeMinutes)}</TD>

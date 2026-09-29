@@ -24,7 +24,7 @@ export function ScopeTotals({ estimate, totals }: { estimate: Estimate; totals: 
   const optionalCount = estimate.lineItems.filter((l) => !includedLine(l)).length;
   const stat = (label: string, value: React.ReactNode, tone = 'text-gray-900') => (
     <div className="min-w-0">
-      <div className="text-xxs font-bold uppercase tracking-widest text-gray-400">{label}</div>
+      <div className="text-xxs font-bold uppercase tracking-widest text-gray-500">{label}</div>
       <div className={`font-heading text-lg font-black ${tone}`}>{value}</div>
     </div>
   );

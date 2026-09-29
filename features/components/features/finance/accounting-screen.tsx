@@ -101,10 +101,10 @@ function Accounting() {
           {!qbo.connected && can(user, "finance.connect") && <Button size="sm" variant="primary" onClick={() => act(connectQuickBooks).ok && toast.success("QuickBooks connected")}>Connect</Button>}
         </div>
         <div className="mt-3 grid gap-3 text-xs sm:grid-cols-4 [&>*]:min-w-0">
-          <div><div className="text-gray-400">Last successful exchange</div><div className="font-semibold">{dateTime(qbo.lastExchangeAt)}</div></div>
-          <div><div className="text-gray-400">Next scheduled run</div><div className="font-semibold">{dateTime(nextExchangeRun(t).toISOString())}</div></div>
-          <div><div className="text-gray-400">Window</div><div className="font-semibold">Hourly, 6:00 a.m.–6:00 p.m., Mon–Sat</div></div>
-          <div><div className="text-gray-400">Bank feeds</div><div className="font-semibold">Chase feeds stay in QuickBooks — never duplicated here</div></div>
+          <div><div className="text-gray-500">Last successful exchange</div><div className="font-semibold">{dateTime(qbo.lastExchangeAt)}</div></div>
+          <div><div className="text-gray-500">Next scheduled run</div><div className="font-semibold">{dateTime(nextExchangeRun(t).toISOString())}</div></div>
+          <div><div className="text-gray-500">Window</div><div className="font-semibold">Hourly, 6:00 a.m.–6:00 p.m., Mon–Sat</div></div>
+          <div><div className="text-gray-500">Bank feeds</div><div className="font-semibold">Chase feeds stay in QuickBooks — never duplicated here</div></div>
         </div>
       </Card>
 
@@ -142,11 +142,11 @@ function Accounting() {
                 return (
                   <TR key={r.id} className="cursor-pointer" onClick={() => setOpenId(r.id)}>
                     <TD><TypeBadge type={r.type} /></TD>
-                    <TD className="font-semibold text-ink">{r.ref}<div className="text-xs font-normal text-gray-400">{r.externalRef ?? "Not yet in QuickBooks"}</div></TD>
+                    <TD className="font-semibold text-ink">{r.ref}<div className="text-xs font-normal text-gray-500">{r.externalRef ?? "Not yet in QuickBooks"}</div></TD>
                     <TD className="max-w-[220px] whitespace-normal">{r.party}</TD>
-                    <TD className="text-right tabular-nums">{money(r.amount)}{r.salesTax ? <div className="text-xs text-gray-400">+ {money(r.salesTax)} sales tax</div> : r.purchaseTax ? <div className="text-xs text-gray-400">+ {money(r.purchaseTax)} purchase tax</div> : null}</TD>
-                    <TD className="whitespace-nowrap">{dateLong(r.date)}<div className="text-xs text-gray-400">Period {r.period}</div></TD>
-                    <TD>{r.allocations?.length ? `${r.allocations.length} row${r.allocations.length === 1 ? "" : "s"}` : r.jobId ?? <span className="text-amber-700">—</span>}<div className="text-xs text-gray-400">{r.costCode ?? ""}</div></TD>
+                    <TD className="text-right tabular-nums">{money(r.amount)}{r.salesTax ? <div className="text-xs text-gray-500">+ {money(r.salesTax)} sales tax</div> : r.purchaseTax ? <div className="text-xs text-gray-500">+ {money(r.purchaseTax)} purchase tax</div> : null}</TD>
+                    <TD className="whitespace-nowrap">{dateLong(r.date)}<div className="text-xs text-gray-500">Period {r.period}</div></TD>
+                    <TD>{r.allocations?.length ? `${r.allocations.length} row${r.allocations.length === 1 ? "" : "s"}` : r.jobId ?? <span className="text-amber-700">—</span>}<div className="text-xs text-gray-500">{r.costCode ?? ""}</div></TD>
                     <TD>{q ? <Badge tone={EXCHANGE_STATUS[q.status].tone}>{EXCHANGE_STATUS[q.status].label} v{q.version}</Badge> : r.origin === "quickbooks" ? <Badge tone="gray">From QuickBooks</Badge> : <span className="text-gray-300">—</span>}</TD>
                     <TD><RecordFlags r={r} /></TD>
                   </TR>
@@ -201,7 +201,7 @@ function RecordDrawer({ recordId, onClose }: { recordId?: string; onClose: () =>
       )}
       <KV
         items={[
-          ["Amount (pre-tax)", <span key="a" className="inline-flex items-center gap-1.5">{money(r.amount)} {sent && <Lock className="h-3 w-3 text-gray-400" />}</span>],
+          ["Amount (pre-tax)", <span key="a" className="inline-flex items-center gap-1.5">{money(r.amount)} {sent && <Lock className="h-3 w-3 text-gray-500" />}</span>],
           ...(r.salesTax ? [["Customer sales tax", `${money(r.salesTax)} — never counted as revenue`] as [string, string]] : []),
           ...(r.purchaseTax ? [["Purchase tax", `${money(r.purchaseTax)} — included in gross job cost`] as [string, string]] : []),
           ["Date · period", `${dateLong(r.date)} · ${r.period}${r.postedFromClosedPeriod ? ` (from closed ${r.postedFromClosedPeriod})` : ""}`],

@@ -38,7 +38,7 @@ export function CrewActualChip({ memberId, day }: { memberId: string; day: strin
 export function CrewActualLegend() {
   return (
     <div className="flex flex-wrap items-center gap-2 border-b border-gray-100 px-5 py-3 text-xs text-gray-500">
-      <span className="font-bold uppercase tracking-widest text-gray-400">Hours</span>
+      <span className="font-bold uppercase tracking-widest text-gray-500">Hours</span>
       <span className="ml-auto inline-flex items-center gap-1.5">Clocked / approved hours per day <NewBadge feature={22} /></span>
     </div>
   );

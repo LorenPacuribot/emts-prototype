@@ -19,7 +19,7 @@ export interface MenuItem {
 export function RowMenu({ items, label = "Actions" }: { items: MenuItem[]; label?: string }) {
   return (
     <DropdownMenu.Root>
-      <DropdownMenu.Trigger className="rounded-md p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-700" aria-label={label}>
+      <DropdownMenu.Trigger className="rounded-md p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700" aria-label={label}>
         <MoreVertical className="h-4 w-4" />
       </DropdownMenu.Trigger>
       <DropdownMenu.Portal>
@@ -38,7 +38,7 @@ export function RowMenu({ items, label = "Actions" }: { items: MenuItem[]; label
               <span className="mt-0.5 [&>svg]:h-3.5 [&>svg]:w-3.5">{item.icon}</span>
               <span>
                 {item.label}
-                {item.disabled && item.reason && <span className="block text-xs text-gray-400">{item.reason}</span>}
+                {item.disabled && item.reason && <span className="block text-xs text-gray-500">{item.reason}</span>}
               </span>
             </DropdownMenu.Item>
           ))}

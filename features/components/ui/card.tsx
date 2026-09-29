@@ -27,7 +27,7 @@ export function CardLabel({ icon, children, right, className }: { icon?: ReactNo
 
 /** Uppercase field label ("SCHEDULE", "PIPELINE VALUE"). */
 export function MicroLabel({ children, className }: { children: ReactNode; className?: string }) {
-  return <div className={cn("text-xxs font-bold uppercase tracking-[0.12em] text-gray-400", className)}>{children}</div>;
+  return <div className={cn("text-xxs font-bold uppercase tracking-[0.12em] text-gray-500", className)}>{children}</div>;
 }
 
 export function Stat({ label, value, hint, tone }: { label: string; value: ReactNode; hint?: ReactNode; tone?: "default" | "brand" | "warn" | "danger" | "good" }) {

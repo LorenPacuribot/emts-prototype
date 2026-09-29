@@ -173,7 +173,7 @@ function PackageModal({
             {form.features.map((f, i) => (
               <div key={i} className="flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-700">
                 <span className="flex-1">{f}</span>
-                <button type="button" aria-label={`Remove ${f}`} className="rounded p-1 text-gray-400 hover:bg-red-50 hover:text-red-600" onClick={() => setForm({ ...form, features: form.features.filter((_, j) => j !== i) })}>
+                <button type="button" aria-label={`Remove ${f}`} className="rounded p-1 text-gray-500 hover:bg-red-50 hover:text-red-600" onClick={() => setForm({ ...form, features: form.features.filter((_, j) => j !== i) })}>
                   <Trash2 className="h-4 w-4" />
                 </button>
               </div>

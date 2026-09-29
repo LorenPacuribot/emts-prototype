@@ -46,7 +46,7 @@ export function RepaintFollowUpCard({ lead }: { lead: Lead }) {
       <div className="mb-4 flex flex-wrap items-center gap-2">
         <span className="font-mono text-sm font-bold text-gray-900">{fu.id}</span>
         <StatusPill tone={TONE[meta.tone] ?? "gray"}>{meta.label}</StatusPill>
-        <span className="text-xs text-gray-400">→ lead stage {LIVE_LEAD_STATUS[FOLLOW_UP_LEAD_STAGE[fu.status]]}</span>
+        <span className="text-xs text-gray-500">→ lead stage {LIVE_LEAD_STATUS[FOLLOW_UP_LEAD_STAGE[fu.status]]}</span>
       </div>
       <dl className="space-y-3 text-sm">
         <Row label="Owner">{byId(db.users, fu.assigneeId)?.name ?? <span className="text-amber-700">Unassigned</span>}</Row>
@@ -57,9 +57,9 @@ export function RepaintFollowUpCard({ lead }: { lead: Lead }) {
       </dl>
       {surfaces.length > 0 && (
         <div className="mt-4">
-          <div className="mb-1.5 text-xxs font-bold uppercase tracking-widest text-gray-400">Surfaces due</div>
+          <div className="mb-1.5 text-xxs font-bold uppercase tracking-widest text-gray-500">Surfaces due</div>
           <ul className="space-y-1 text-sm text-gray-700">{surfaces.slice(0, 4).map((s) => <li key={s} className="truncate">• {surfaceLabel(db, s)}</li>)}</ul>
-          {surfaces.length > 4 && <div className="mt-1 text-xs text-gray-400">+ {surfaces.length - 4} more</div>}
+          {surfaces.length > 4 && <div className="mt-1 text-xs text-gray-500">+ {surfaces.length - 4} more</div>}
         </div>
       )}
       <p className="mt-4 rounded-lg bg-gray-50 p-3 text-xs text-gray-500">This lead&apos;s stage follows the follow-up. Record calls and close it from the follow-up.</p>
@@ -79,7 +79,7 @@ export function RepaintFollowUpCard({ lead }: { lead: Lead }) {
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex items-start justify-between gap-3">
-      <dt className="text-xxs font-bold uppercase tracking-widest text-gray-400">{label}</dt>
+      <dt className="text-xxs font-bold uppercase tracking-widest text-gray-500">{label}</dt>
       <dd className="text-right text-gray-900">{children}</dd>
     </div>
   );

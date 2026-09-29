@@ -42,10 +42,10 @@ export function PreliminaryListModal({ open, job, lines, onClose }: { open: bool
           </div>
           <div className="text-right text-xs text-gray-500">No PO number<br />{dateLong(now())}</div>
         </div>
-        {printable.length === 0 ? <p className="text-xs italic text-gray-400">No specifications with a product and surfaces yet.</p> : (
+        {printable.length === 0 ? <p className="text-xs italic text-gray-500">No specifications with a product and surfaces yet.</p> : (
           <table className="w-full border-collapse text-xs">
             <thead>
-              <tr className="text-left text-xxs uppercase tracking-wider text-gray-400">
+              <tr className="text-left text-xxs uppercase tracking-wider text-gray-500">
                 <th className="border-b py-1">Product</th><th className="border-b py-1">Color</th><th className="border-b py-1">Sheen</th><th className="border-b py-1 text-right">Need</th><th className="border-b py-1">Packs</th><th className="border-b py-1">Status</th>
               </tr>
             </thead>
@@ -63,7 +63,7 @@ export function PreliminaryListModal({ open, job, lines, onClose }: { open: bool
             </tbody>
           </table>
         )}
-        <p className="mt-3 text-xs text-gray-400">Quantities follow the coverage, waste and packing rules. Prices are not shown on a preliminary list.</p>
+        <p className="mt-3 text-xs text-gray-500">Quantities follow the coverage, waste and packing rules. Prices are not shown on a preliminary list.</p>
       </div>
     </Modal>
   );
@@ -92,8 +92,8 @@ export function RecalcModal({ open, job, lines, snapshot, onClose }: { open: boo
             return (
               <TR key={l.specId} className={changed ? "bg-amber-50/50" : undefined}>
                 <TD className="font-semibold text-ink">{l.specId} · {l.colourName}</TD>
-                <TD>{p && p.rate !== l.rate ? <><s className="text-gray-400">{p.rate}</s> → </> : null}{l.rate} <span className="text-gray-400">({COVERAGE_LABEL[l.source]})</span></TD>
-                <TD>{p && p.waste !== l.waste ? <><s className="text-gray-400">{Math.round(p.waste * 100)}%</s> → </> : null}{Math.round(l.waste * 100)}%</TD>
+                <TD>{p && p.rate !== l.rate ? <><s className="text-gray-500">{p.rate}</s> → </> : null}{l.rate} <span className="text-gray-500">({COVERAGE_LABEL[l.source]})</span></TD>
+                <TD>{p && p.waste !== l.waste ? <><s className="text-gray-500">{Math.round(p.waste * 100)}%</s> → </> : null}{Math.round(l.waste * 100)}%</TD>
                 <TD className="text-right tabular-nums">{l.coatSqft}</TD>
                 <TD className="text-right tabular-nums">{p ? p.adjustedNeedGal.toFixed(3) : "—"}</TD>
                 <TD className="text-right font-semibold tabular-nums">{l.calculatedNeedGal.toFixed(3)}</TD>

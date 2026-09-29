@@ -50,7 +50,7 @@ export function useProposalData(e: Estimate) {
 }
 type Data = ReturnType<typeof useProposalData>;
 
-const label = 'mb-2 text-xs font-bold uppercase tracking-widest text-gray-400';
+const label = 'mb-2 text-xs font-bold uppercase tracking-widest text-gray-500';
 
 export function SectionTitle({ icon: Icon, children }: { icon: React.ComponentType<{ className?: string }>; children: React.ReactNode }) {
   return (
@@ -104,7 +104,7 @@ function partCell(e: Estimate, l: EstimateLineItem, d: Data, part: ProposalLineP
       return c ? (
         <span className="inline-flex items-center gap-1.5">
           <span className="h-3.5 w-3.5 shrink-0 rounded-full border border-gray-300" style={{ backgroundColor: c.hex }} />
-          {c.name} <span className="text-gray-400">#{c.number}</span>
+          {c.name} <span className="text-gray-500">#{c.number}</span>
         </span>
       ) : '—';
     }
@@ -125,7 +125,7 @@ function LineMenu({ l, s, onSettings }: { l: EstimateLineItem; s: EstimatePresen
   return (
     <DM.Root modal={false}>
       <DM.Trigger asChild>
-        <button type="button" className="rounded-md p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-700 print:hidden" aria-label={`Show or hide parts of ${l.description || l.surfaceType}`}>
+        <button type="button" className="rounded-md p-1 text-gray-500 hover:bg-gray-100 hover:text-gray-700 print:hidden" aria-label={`Show or hide parts of ${l.description || l.surfaceType}`}>
           <MoreHorizontal className="h-4 w-4" />
         </button>
       </DM.Trigger>
@@ -135,7 +135,7 @@ function LineMenu({ l, s, onSettings }: { l: EstimateLineItem; s: EstimatePresen
             <EyeOff className="h-4 w-4" /> {hiddenLine ? 'Show this line' : 'Hide this line'}
           </DM.Item>
           <DM.Separator className="my-1 h-px bg-gray-100" />
-          <DM.Label className="px-3 py-1 text-xxs font-bold uppercase tracking-wider text-gray-400">Show on this line</DM.Label>
+          <DM.Label className="px-3 py-1 text-xxs font-bold uppercase tracking-wider text-gray-500">Show on this line</DM.Label>
           {LINE_PARTS.map((p) => {
             const shown = partShown(s, l.id, p.key);
             return (
@@ -162,7 +162,7 @@ function LineTable({ e, lines, d, onSettings, priceColumn }: { e: Estimate; line
     <div className="overflow-x-auto">
       <table className="w-full text-sm">
         <thead>
-          <tr className="text-left text-xs font-bold uppercase tracking-wider text-gray-400">
+          <tr className="text-left text-xs font-bold uppercase tracking-wider text-gray-500">
             <th className="py-2 pr-3">Surface</th>
             {cols.map((c) => <th key={c} className={cn('px-2 py-2', c === 'price' && 'text-right')}>{HEAD[c]}</th>)}
             {onSettings && <th className="w-8 print:hidden" />}

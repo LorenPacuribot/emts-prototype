@@ -87,16 +87,16 @@ export function OwnershipPanel({ property }: { property: Property }) {
                   <TD>{dateLong(o.start)}</TD>
                   <TD>{o.end ? dateLong(o.end) : "—"}</TD>
                   <TD>
-                    {active ? <Badge tone="blue">Active · {active.ref.slice(0, 6)}…</Badge> : links.length ? <Badge tone="gray">Revoked</Badge> : <span className="text-gray-400">None</span>}
+                    {active ? <Badge tone="blue">Active · {active.ref.slice(0, 6)}…</Badge> : links.length ? <Badge tone="gray">Revoked</Badge> : <span className="text-gray-500">None</span>}
                   </TD>
-                  <TD>{first ? <span className="text-gray-400">First recorded owner</span> : <Badge tone={PREDECESSOR_CONSENT[o.predecessorConsent ?? "not_requested"].tone}>{PREDECESSOR_CONSENT[o.predecessorConsent ?? "not_requested"].label}</Badge>}</TD>
+                  <TD>{first ? <span className="text-gray-500">First recorded owner</span> : <Badge tone={PREDECESSOR_CONSENT[o.predecessorConsent ?? "not_requested"].tone}>{PREDECESSOR_CONSENT[o.predecessorConsent ?? "not_requested"].label}</Badge>}</TD>
                   <TD>
                     {o.end ? (
                       <Button size="sm" onClick={() => setPdfFor(o)}>
                         <FileText className="h-3.5 w-3.5" /> {o.formerOwnerPdf ? `Issued ${dateLong(o.formerOwnerPdf.issuedAt)}` : "View fixed PDF"}
                       </Button>
                     ) : (
-                      <span className="text-gray-400">Live link</span>
+                      <span className="text-gray-500">Live link</span>
                     )}
                   </TD>
                 </TR>
@@ -174,7 +174,7 @@ export function OwnershipPanel({ property }: { property: Property }) {
                         <AppLink className="text-brand hover:underline" href={propertyHref(r.targetPropertyId!)}>{byId(db.properties, r.targetPropertyId)?.address}</AppLink>. Both identifiers are preserved.
                       </div>
                     )}
-                    <div className="mt-1 text-xs text-gray-400">
+                    <div className="mt-1 text-xs text-gray-500">
                       Requested by {byId(db.users, r.requestedBy)?.name} {dateLong(r.requestedAt)}
                       {r.decidedBy && ` · ${titleCase(r.status)} by ${byId(db.users, r.decidedBy)?.name} ${dateLong(r.decidedAt)}`}
                     </div>
@@ -283,11 +283,11 @@ function ConsentCard({ property, period, sellerName, isFirst }: { property: Prop
             ))}
           </div>
           <div className="mt-2 space-y-1.5">
-            {(period.consentAttempts ?? []).length === 0 && <p className="text-xs italic text-gray-400">No attempts logged yet.</p>}
+            {(period.consentAttempts ?? []).length === 0 && <p className="text-xs italic text-gray-500">No attempts logged yet.</p>}
             {(period.consentAttempts ?? []).map((a) => (
               <div key={a.id} className="flex items-start gap-2 text-xs text-gray-600">
-                {a.channel === "phone" || a.channel === "text" ? <Phone className="mt-0.5 h-3.5 w-3.5 text-gray-400" /> : <Mail className="mt-0.5 h-3.5 w-3.5 text-gray-400" />}
-                <span><strong>{dateLong(a.at)}</strong> · {titleCase(a.channel)} — {a.note} <span className="text-gray-400">({byId(db.users, a.by)?.name})</span></span>
+                {a.channel === "phone" || a.channel === "text" ? <Phone className="mt-0.5 h-3.5 w-3.5 text-gray-500" /> : <Mail className="mt-0.5 h-3.5 w-3.5 text-gray-500" />}
+                <span><strong>{dateLong(a.at)}</strong> · {titleCase(a.channel)} — {a.note} <span className="text-gray-500">({byId(db.users, a.by)?.name})</span></span>
               </div>
             ))}
           </div>

@@ -54,7 +54,7 @@ export function timeLabel(iso?: string): string {
 }
 
 export function HoursCell({ minutes, muted }: { minutes: number; muted?: boolean }) {
-  return <span className={muted ? "tabular-nums text-gray-400" : "tabular-nums font-semibold text-ink"}>{hm(minutes)}</span>;
+  return <span className={muted ? "tabular-nums text-gray-500" : "tabular-nums font-semibold text-ink"}>{hm(minutes)}</span>;
 }
 
 export function JobChips({ rows }: { rows: { jobId?: string; allocated: number }[] }) {

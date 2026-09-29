@@ -105,7 +105,7 @@ export function LaborConfigView() {
                     <span className="pl-2 text-sm font-bold text-gray-700">{b.name}</span>
                     <div className="flex items-center gap-3">
                       <span className="font-bold text-gray-900">{b.percentage.toFixed(2)}%</span>
-                      <button type="button" onClick={() => setToDelete(b)} className="p-1 text-gray-400 hover:text-red-500" aria-label={`Delete ${b.name}`}>
+                      <button type="button" onClick={() => setToDelete(b)} className="p-1 text-gray-500 hover:text-red-500" aria-label={`Delete ${b.name}`}>
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </div>
@@ -118,11 +118,11 @@ export function LaborConfigView() {
 
         <div className="flex flex-col items-center space-y-6 lg:pt-2">
           <div className="text-center">
-            <div className="mb-1 text-xs font-bold uppercase tracking-widest text-gray-400">Total Burden Rate</div>
+            <div className="mb-1 text-xs font-bold uppercase tracking-widest text-gray-500">Total Burden Rate</div>
             <div className="text-3xl font-black text-gray-900">{burdenPercent.toFixed(2)}%</div>
           </div>
           <TrueCostCard base={base} burdenPercent={burdenPercent} total={trueCost} label="True Cost Per Hour" />
-          <p className="max-w-[16rem] text-center text-xs leading-relaxed text-gray-400">This is what it costs your business every hour an employee is on the clock.</p>
+          <p className="max-w-[16rem] text-center text-xs leading-relaxed text-gray-500">This is what it costs your business every hour an employee is on the clock.</p>
         </div>
       </div>
 

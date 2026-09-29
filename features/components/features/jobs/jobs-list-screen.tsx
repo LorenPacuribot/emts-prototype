@@ -58,7 +58,7 @@ export function JobsListScreen() {
       <PageHeader title="Job Management" subtitle="Mission control for active projects." />
       <div className="mb-5 flex flex-col gap-3 xl:flex-row xl:items-center">
         <div className="relative xl:w-[336px]">
-          <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+          <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
           <Input placeholder="Search jobs..." value={q} onChange={(e) => setQ(e.target.value)} className="h-9 pl-10" aria-label="Search jobs" />
         </div>
         <PillTabs options={FILTERS} value={filter} onChange={setFilter} />
@@ -101,7 +101,7 @@ export function JobsListScreen() {
                       <Calendar className="h-3.5 w-3.5 text-brand" /> {date(job.scheduleStart)} <span className="text-gray-300">-</span> {date(job.scheduleEnd)}
                     </div>
                   ) : (
-                    <div className="mt-1 text-xs italic text-gray-400">Not scheduled</div>
+                    <div className="mt-1 text-xs italic text-gray-500">Not scheduled</div>
                   )}
                 </div>
                 <div className="border-l border-line pl-4">

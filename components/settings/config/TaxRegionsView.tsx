@@ -51,7 +51,7 @@ export function TaxRegionsView() {
 
       {list.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-gray-300 bg-white px-6 py-14 text-center">
-          <div className="mx-auto mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-gray-100 text-gray-400"><MapIcon className="h-5 w-5" /></div>
+          <div className="mx-auto mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-gray-100 text-gray-500"><MapIcon className="h-5 w-5" /></div>
           <h3 className="font-heading text-base font-bold text-gray-900">No Tax Regions Found</h3>
           <p className="mt-1 text-sm text-gray-500">{query ? 'No regions match your search.' : 'Create regions to automate tax calculation based on location.'}</p>
         </div>
@@ -73,24 +73,24 @@ export function TaxRegionsView() {
                   {r.name}
                   {r.isDefault && <span className="rounded-full border border-primary-200 bg-primary-50 px-2 py-0.5 text-xxs font-black uppercase tracking-wider text-primary-700">Default</span>}
                 </h3>
-                <span className="text-xs font-bold uppercase tracking-wider text-gray-400">{r.zipCodes.length} Zip Codes</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-gray-500">{r.zipCodes.length} Zip Codes</span>
               </div>
               <div className="mb-5 flex divide-x divide-gray-200 overflow-hidden rounded-xl border border-gray-100 bg-gray-50">
                 {[['Sales Tax', r.salesTaxRate], ['Service Tax', r.serviceTaxRate]].map(([l, v]) => (
                   <div key={l as string} className="flex-1 p-3 text-center">
-                    <div className="mb-1 text-xxs font-bold uppercase tracking-wider text-gray-400">{l}</div>
+                    <div className="mb-1 text-xxs font-bold uppercase tracking-wider text-gray-500">{l}</div>
                     <div className="text-lg font-extrabold text-gray-900">{(v as number).toFixed(2)}%</div>
                   </div>
                 ))}
               </div>
               <div className="mt-auto">
-                <div className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-gray-400"><MapIcon className="h-3 w-3" /> Covered Zip Codes</div>
+                <div className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-gray-500"><MapIcon className="h-3 w-3" /> Covered Zip Codes</div>
                 <div className="flex max-h-24 flex-wrap gap-1.5 overflow-y-auto">
                   {r.zipCodes.slice(0, 8).map((z) => (
                     <span key={z} className="rounded-md border border-gray-200 bg-white px-2 py-1 text-xs font-bold text-gray-600 shadow-sm">{z}</span>
                   ))}
                   {r.zipCodes.length > 8 && <span className="rounded-md bg-gray-100 px-2 py-1 text-xs font-bold text-gray-500">+{r.zipCodes.length - 8}</span>}
-                  {r.zipCodes.length === 0 && <span className="text-xs italic text-gray-400">No zip codes defined.</span>}
+                  {r.zipCodes.length === 0 && <span className="text-xs italic text-gray-500">No zip codes defined.</span>}
                 </div>
               </div>
             </div>

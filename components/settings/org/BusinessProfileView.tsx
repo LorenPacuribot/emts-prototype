@@ -127,7 +127,7 @@ export function BusinessProfileView() {
   return (
     <SettingsPage title="Business Profile" subtitle="Manage your organizational identity and branding standards.">
       <div className="space-y-8">
-        <SettingsCard title="Company Information" icon={<Building2 className="text-gray-400" />}>
+        <SettingsCard title="Company Information" icon={<Building2 className="text-gray-500" />}>
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
             <Field label="Legal Business Name" className="md:col-span-2" error={errors.name}>
               <Input placeholder="Pro Painters LLC" {...clearable('name')} />
@@ -183,7 +183,7 @@ export function BusinessProfileView() {
           </div>
         </SettingsCard>
 
-        <SettingsCard title="Visual Identity" icon={<Palette className="text-gray-400" />}>
+        <SettingsCard title="Visual Identity" icon={<Palette className="text-gray-500" />}>
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
             <LogoBox label="Primary Logo" value={logo} onChange={setLogo} description="PNG, SVG preferred (Max 2MB)" />
             <LogoBox label="Inverted Logo" value={logoInv} onChange={setLogoInv} dark description="Used on dark headers & reports" />
@@ -236,8 +236,8 @@ function LogoBox({ label, value, onChange, dark, description }: { label: string;
             <span className={cn('flex h-12 w-12 items-center justify-center rounded-xl transition-transform group-hover:scale-110', dark ? 'bg-gray-800 text-gray-500' : 'bg-white text-gray-300 shadow-sm group-hover:text-primary-500')}>
               <Upload className="h-6 w-6" />
             </span>
-            <span className={cn('block text-xs font-black uppercase tracking-widest', dark ? 'text-gray-500' : 'text-gray-400')}>Upload {label}</span>
-            <span className={cn('block text-xs font-medium', dark ? 'text-gray-600' : 'text-gray-400')}>{description}</span>
+            <span className={cn('block text-xs font-black uppercase tracking-widest', dark ? 'text-gray-500' : 'text-gray-500')}>Upload {label}</span>
+            <span className={cn('block text-xs font-medium', dark ? 'text-gray-600' : 'text-gray-500')}>{description}</span>
           </button>
         )}
       </div>

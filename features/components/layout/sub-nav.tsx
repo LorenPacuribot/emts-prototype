@@ -24,7 +24,7 @@ export function SubNav({ groups, header }: { groups: SubNavGroup[]; header?: Rea
         {groups.map((g, gi) => (
           <div key={gi} className="contents">
             {gi > 0 && <div className="my-4 hidden h-px w-full bg-gray-100 lg:block" />}
-            {g.title && <h2 className="mb-2 mt-1 hidden px-2 text-xxs font-black uppercase tracking-[0.2em] text-gray-400 lg:block">{g.title}</h2>}
+            {g.title && <h2 className="mb-2 mt-1 hidden px-2 text-xxs font-black uppercase tracking-[0.2em] text-gray-500 lg:block">{g.title}</h2>}
             {g.items.map((item) => {
               const base = item.match ?? item.href.split("?")[0];
               const active = pathname === base;
@@ -41,7 +41,7 @@ export function SubNav({ groups, header }: { groups: SubNavGroup[]; header?: Rea
                       : "border-transparent bg-transparent font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-900",
                   )}
                 >
-                  <Icon className={cn("h-5 w-5 shrink-0", active ? "text-primary-600" : "text-gray-400")} strokeWidth={1.75} />
+                  <Icon className={cn("h-5 w-5 shrink-0", active ? "text-primary-600" : "text-gray-500")} strokeWidth={1.75} />
                   <span className="min-w-0 flex-1 text-sm leading-tight">{item.label}</span>
                   {item.badge !== undefined && item.badge !== 0 && (
                     <span className={cn("shrink-0 rounded-full px-1.5 text-xs font-bold", active ? "bg-primary-600 text-white" : "bg-gray-100 text-gray-600")}>{item.badge}</span>

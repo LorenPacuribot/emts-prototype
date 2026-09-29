@@ -179,7 +179,7 @@ export function ManageColorModal({ open, onOpenChange, job, colour, colorNumber,
                 setError(undefined);
               }}
             />
-            <p className="mt-1 text-xs text-gray-400">Or type the name and code below for a custom match or an off-palette color.</p>
+            <p className="mt-1 text-xs text-gray-500">Or type the name and code below for a custom match or an off-palette color.</p>
           </div>
           <div className="grid gap-4 sm:grid-cols-[120px_1fr]">
             <Field label="Color Number" required>
@@ -294,7 +294,7 @@ export function ManageColorModal({ open, onOpenChange, job, colour, colorNumber,
             {assigned.length === 0 ? (
               <div className="rounded-xl border border-dashed border-gray-200 p-4 text-center text-sm text-gray-500">
                 No surfaces assigned yet.
-                <div className="text-xs text-gray-400">Use the Paint Bucket tool in the estimate to assign this color.</div>
+                <div className="text-xs text-gray-500">Use the Paint Bucket tool in the estimate to assign this color.</div>
               </div>
             ) : (
               <div className="flex flex-wrap gap-1.5">

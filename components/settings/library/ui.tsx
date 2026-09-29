@@ -27,6 +27,7 @@ import { Select, type SelectOption } from '@/components/ui/form';
 import { RowMenu, type MenuItem } from '@/components/ui/menu';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { pressable } from '@/lib/a11y';
 
 export function LibraryToolbar({
   search, onSearch, placeholder, sort, onSort, sortOptions, children,
@@ -59,7 +60,7 @@ export function LibraryGrid({ children, cols = 3 }: { children: React.ReactNode;
 /** White card with the soft shadow used on every library screen. */
 export function LibraryCard({ children, className, onClick }: { children: React.ReactNode; className?: string; onClick?: () => void }) {
   return (
-    <div
+    <div {...pressable(onClick)}
       onClick={onClick}
       className={cn(
         'group relative flex flex-col rounded-2xl bg-white p-5 shadow-lg shadow-gray-200/70 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl',
@@ -90,7 +91,7 @@ export function EmptyBox({ children }: { children: React.ReactNode }) {
 
 /** Plain centered "No results" line shown when a search matches nothing. */
 export function NoMatches({ children }: { children: React.ReactNode }) {
-  return <div className="col-span-full py-12 text-center text-sm text-gray-400">{children}</div>;
+  return <div className="col-span-full py-12 text-center text-sm text-gray-500">{children}</div>;
 }
 
 const PILL = {
@@ -126,7 +127,7 @@ export function FormActions({
 export function SectionHeading({ icon, children, right }: { icon?: React.ReactNode; children: React.ReactNode; right?: React.ReactNode }) {
   return (
     <div className="mb-2 flex items-center justify-between">
-      <h4 className="flex items-center gap-2 text-xxs font-bold uppercase tracking-widest text-gray-400 [&>svg]:h-3.5 [&>svg]:w-3.5">
+      <h4 className="flex items-center gap-2 text-xxs font-bold uppercase tracking-widest text-gray-500 [&>svg]:h-3.5 [&>svg]:w-3.5">
         {icon}
         {children}
       </h4>

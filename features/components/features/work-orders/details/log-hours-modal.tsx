@@ -70,7 +70,7 @@ export function LogHoursModal({ open, onOpenChange, wo, job }: { open: boolean; 
     <Modal open={open} onOpenChange={onOpenChange} size="lg" title="Log Rendered Hours"
       footer={
         <div className="flex w-full items-center justify-between gap-3">
-          <div className="text-xs font-bold uppercase tracking-widest text-gray-400">Total to log <span className="ml-1 text-base font-black text-gray-900">{total.toFixed(2)} hrs</span></div>
+          <div className="text-xs font-bold uppercase tracking-widest text-gray-500">Total to log <span className="ml-1 text-base font-black text-gray-900">{total.toFixed(2)} hrs</span></div>
           <div className="flex gap-2">
             <Button onClick={() => onOpenChange(false)}>Cancel</Button>
             <Button variant="primary" disabled={!allowed || total === 0} onClick={submit}>Log Hours</Button>
@@ -122,7 +122,7 @@ export function LogHoursModal({ open, onOpenChange, wo, job }: { open: boolean; 
                         <div className="text-sm font-semibold text-gray-900">{s.name}</div>
                         <div className="text-xs text-gray-500">Est: {jobSurfaceHours(db, job.id, s).toFixed(1)}h · Rendered: {(rendered.get(s.id) ?? 0).toFixed(1)}h</div>
                       </div>
-                      <label className="flex items-center gap-2 text-xxs font-bold uppercase tracking-widest text-gray-400">
+                      <label className="flex items-center gap-2 text-xxs font-bold uppercase tracking-widest text-gray-500">
                         Log Hours
                         <Input type="number" min={0} step={0.25} placeholder="0" value={hours[s.id] ?? ""} onChange={(e) => setHours({ ...hours, [s.id]: e.target.value })} disabled={!allowed} className="h-9 w-24 text-right" aria-label={`Log hours for ${s.name}`} />
                       </label>

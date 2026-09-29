@@ -133,7 +133,7 @@ export function GoalsProfitView() {
     return (
       <div className="mx-auto w-full max-w-5xl px-4 py-8 md:px-8 lg:py-10">
         <div className="relative mb-10 flex items-center justify-between md:justify-center">
-          <button type="button" onClick={() => setMode('dashboard')} className="flex items-center gap-1 text-sm font-bold text-gray-400 hover:text-gray-600 md:absolute md:left-0">
+          <button type="button" onClick={() => setMode('dashboard')} className="flex items-center gap-1 text-sm font-bold text-gray-500 hover:text-gray-600 md:absolute md:left-0">
             <ArrowLeft className="h-4 w-4" /> Back
           </button>
           <h2 className="font-heading text-2xl font-bold text-gray-900 md:text-3xl">Engine Calibration</h2>
@@ -166,7 +166,7 @@ export function GoalsProfitView() {
       </div>
 
       <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-2">
-        <HeroMetric icon={<Activity />} label="Final OpEx Charge Rate" value={<>${c.chargeRate.toFixed(2)}<span className="text-lg font-bold text-gray-400">/hr</span></>} />
+        <HeroMetric icon={<Activity />} label="Final OpEx Charge Rate" value={<>${c.chargeRate.toFixed(2)}<span className="text-lg font-bold text-gray-500">/hr</span></>} />
         <HeroMetric icon={<Target />} label="Target Annual Revenue" value={usd0(c.targetRevenue)} />
       </div>
 
@@ -185,7 +185,7 @@ export function GoalsProfitView() {
             <div className="bg-blue-400" style={{ width: `${Math.max(0, c.totalExpensePercent)}%` }} />
             <div className="bg-gray-900" style={{ width: `${Math.max(0, c.laborPercent)}%` }} />
           </div>
-          <div className="grid grid-cols-3 gap-2 text-center text-xxs font-bold uppercase text-gray-400">
+          <div className="grid grid-cols-3 gap-2 text-center text-xxs font-bold uppercase text-gray-500">
             <div>Profit<div className="text-xs font-black text-green-600">{view.profitMargin}%</div></div>
             <div>Expense<div className="text-xs font-black text-blue-500">{c.totalExpensePercent.toFixed(1)}%</div></div>
             <div>Labor<div className="text-xs font-black text-gray-900">{c.laborPercent.toFixed(1)}%</div></div>
@@ -211,7 +211,7 @@ export function GoalsProfitView() {
           ].map((b) => (
             <div key={b.label} className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
               <div className={cn('mb-4 inline-flex rounded-lg p-2 [&>svg]:h-4 [&>svg]:w-4', b.tone)}>{b.icon}</div>
-              <div className="mb-1 text-xxs font-black uppercase tracking-widest text-gray-400">{b.label}</div>
+              <div className="mb-1 text-xxs font-black uppercase tracking-widest text-gray-500">{b.label}</div>
               <div className="mb-1 text-2xl font-black tracking-tight text-gray-900">{usd0(b.value ?? c.targetRevenue * (b.pct / 100))}</div>
               <div className="text-xs font-bold text-gray-500">{b.pct.toFixed(1)}% of Revenue</div>
             </div>
@@ -276,7 +276,7 @@ function PipeCard({ icon, tone, label, value, sub }: { icon: React.ReactNode; to
     <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
       <div className="mb-4 flex items-center justify-between">
         <div className={cn('rounded-lg p-2 [&>svg]:h-4 [&>svg]:w-4', tone)}>{icon}</div>
-        <span className="text-xxs font-black uppercase tracking-widest text-gray-400">{label}</span>
+        <span className="text-xxs font-black uppercase tracking-widest text-gray-500">{label}</span>
       </div>
       <div className="mb-1 text-3xl font-black text-gray-900">{value.toLocaleString()}</div>
       <div className="text-xs font-bold text-gray-500">{sub}</div>
@@ -304,10 +304,10 @@ function Stepper({ step, onStep }: { step: number; onStep: (s: number) => void }
           <React.Fragment key={s.id}>
             {i > 0 && <div className={cn('h-0.5 w-6 md:w-12', step >= s.id ? 'bg-primary-500' : 'bg-gray-200')} />}
             <button type="button" onClick={() => onStep(s.id)} className="flex flex-col items-center gap-2">
-              <span className={cn('flex h-11 w-11 items-center justify-center rounded-2xl border-2 transition', active ? 'border-primary-600 bg-primary-600 text-white shadow-lg shadow-primary-500/30' : done ? 'border-primary-200 bg-primary-50 text-primary-600' : 'border-gray-200 bg-white text-gray-400')}>
+              <span className={cn('flex h-11 w-11 items-center justify-center rounded-2xl border-2 transition', active ? 'border-primary-600 bg-primary-600 text-white shadow-lg shadow-primary-500/30' : done ? 'border-primary-200 bg-primary-50 text-primary-600' : 'border-gray-200 bg-white text-gray-500')}>
                 {done ? <Check className="h-5 w-5" /> : <Icon className="h-5 w-5" />}
               </span>
-              <span className={cn('hidden text-xxs font-bold uppercase tracking-wider md:block', active ? 'text-primary-700' : 'text-gray-400')}>{s.title}</span>
+              <span className={cn('hidden text-xxs font-bold uppercase tracking-wider md:block', active ? 'text-primary-700' : 'text-gray-500')}>{s.title}</span>
             </button>
           </React.Fragment>
         );
@@ -342,10 +342,10 @@ function StepIncome({ m, c, upd }: { m: Model; c: Calc; upd: Upd }) {
       <StepHeader title="Set Your Targets" sub="Define annual goals and sales assumptions." />
       <div className="grid grid-cols-1 items-start gap-8 md:grid-cols-2 md:gap-12">
         <div className="space-y-5">
-          <h4 className="border-b border-gray-100 pb-2 text-xs font-bold uppercase tracking-widest text-gray-400">Financial Goals</h4>
+          <h4 className="border-b border-gray-100 pb-2 text-xs font-bold uppercase tracking-widest text-gray-500">Financial Goals</h4>
           <NumInput label="Desired Annual Net Income ($)" value={m.desiredAnnualIncome} placeholder="100000" onChange={(n) => upd('desiredAnnualIncome', n)} />
           <NumInput label="Target Net Profit Margin (%)" value={m.profitMargin} placeholder="35" onChange={(n) => upd('profitMargin', Math.min(100, n))} />
-          <h4 className="border-b border-gray-100 pb-2 pt-3 text-xs font-bold uppercase tracking-widest text-gray-400">Sales Assumptions</h4>
+          <h4 className="border-b border-gray-100 pb-2 pt-3 text-xs font-bold uppercase tracking-widest text-gray-500">Sales Assumptions</h4>
           <NumInput label="Average Job Size ($)" value={m.avgJobSize} placeholder="3500" onChange={(n) => upd('avgJobSize', n)} />
           <div className="grid grid-cols-2 gap-4">
             <NumInput label="Closing Rate (%)" value={m.closingRate} placeholder="35" onChange={(n) => upd('closingRate', Math.min(100, n))} />
@@ -389,7 +389,7 @@ function StepExpenses({ m, c, upd }: { m: Model; c: Calc; upd: Upd }) {
           {c.laborPercent <= 0 && <p className="text-sm font-medium text-red-600">Profit and expenses add up to 100% or more. Nothing is left for labor.</p>}
         </div>
         <div className="flex flex-col justify-center">
-          <h4 className="mb-4 text-center text-xs font-black uppercase tracking-widest text-gray-400">Revenue Dollar Breakdown</h4>
+          <h4 className="mb-4 text-center text-xs font-black uppercase tracking-widest text-gray-500">Revenue Dollar Breakdown</h4>
           <div className="flex h-16 w-full overflow-hidden rounded-2xl border border-gray-200 bg-gray-100 shadow-inner">
             {m.profitMargin > 0 && <div className="flex h-full items-center justify-center bg-green-500 text-xs font-black text-white" style={{ width: `${m.profitMargin}%` }}>Profit</div>}
             {c.totalExpensePercent > 0 && <div className="flex h-full items-center justify-center bg-primary-400 text-xs font-black text-white" style={{ width: `${c.totalExpensePercent}%` }}>Exp</div>}
@@ -397,7 +397,7 @@ function StepExpenses({ m, c, upd }: { m: Model; c: Calc; upd: Upd }) {
           </div>
           <div className="mt-8 grid grid-cols-2 gap-4">
             <div className="rounded-xl border border-gray-100 bg-gray-50 p-4">
-              <span className="mb-1 block text-xxs font-black uppercase tracking-widest text-gray-400">Total Expenses</span>
+              <span className="mb-1 block text-xxs font-black uppercase tracking-widest text-gray-500">Total Expenses</span>
               <span className="text-2xl font-black text-gray-900">{c.totalExpensePercent.toFixed(1)}%</span>
             </div>
             <div className="rounded-xl border border-gray-800 bg-gray-900 p-4 text-white shadow-lg">
@@ -429,11 +429,11 @@ function StepLabor({ m, c, upd }: { m: Model; c: Calc; upd: Upd }) {
         </div>
         <div className="flex flex-col items-center justify-center space-y-6">
           <div className="text-center">
-            <div className="mb-1 text-sm font-bold uppercase tracking-widest text-gray-400">Total Burden Rate</div>
+            <div className="mb-1 text-sm font-bold uppercase tracking-widest text-gray-500">Total Burden Rate</div>
             <div className="text-4xl font-black text-gray-900">{c.burdenPercent.toFixed(2)}%</div>
           </div>
           <TrueCostCard base={m.avgHourlyPay} burdenPercent={c.burdenPercent} total={c.burdenedCost} />
-          <p className="max-w-xs text-center text-xs italic leading-relaxed text-gray-400">&ldquo;This is what it costs your business every hour an employee is on the clock.&rdquo;</p>
+          <p className="max-w-xs text-center text-xs italic leading-relaxed text-gray-500">&ldquo;This is what it costs your business every hour an employee is on the clock.&rdquo;</p>
         </div>
       </div>
     </div>
@@ -471,7 +471,7 @@ function StepReview({ m, c, onApply }: { m: Model; c: Calc; onApply: () => void 
       <div className="mx-auto grid w-full max-w-5xl grid-cols-1 items-center gap-10 lg:grid-cols-2">
         <div className="space-y-6">
           <div className="space-y-4 rounded-3xl border border-gray-100 bg-white p-7 shadow-sm">
-            <h4 className="border-b border-gray-50 pb-3 text-xs font-black uppercase tracking-[0.2em] text-gray-400">Labor &amp; Burden</h4>
+            <h4 className="border-b border-gray-50 pb-3 text-xs font-black uppercase tracking-[0.2em] text-gray-500">Labor &amp; Burden</h4>
             {line('Base Hourly Pay', `$${m.avgHourlyPay.toFixed(2)}`)}
             {line('Burden Rate', `${c.burdenPercent.toFixed(1)}%`)}
             <div className="flex items-center justify-between border-t border-dashed border-gray-100 pt-4">
@@ -480,7 +480,7 @@ function StepReview({ m, c, onApply }: { m: Model; c: Calc; onApply: () => void 
             </div>
           </div>
           <div className="space-y-4 rounded-3xl border border-gray-100 bg-white p-7 shadow-sm">
-            <h4 className="border-b border-gray-50 pb-3 text-xs font-black uppercase tracking-[0.2em] text-gray-400">Revenue Model</h4>
+            <h4 className="border-b border-gray-50 pb-3 text-xs font-black uppercase tracking-[0.2em] text-gray-500">Revenue Model</h4>
             {line('Target Margin', `${m.profitMargin}%`, 'text-green-500')}
             {line('Overhead/Exp', `${c.totalExpensePercent.toFixed(1)}%`, 'text-amber-500')}
             <div className="flex items-center justify-between border-t border-dashed border-gray-100 pt-4">
@@ -493,9 +493,9 @@ function StepReview({ m, c, onApply }: { m: Model; c: Calc; onApply: () => void 
           <div className="relative w-full overflow-hidden rounded-[2.5rem] border border-blue-100 bg-white p-10 text-center shadow-2xl shadow-primary-500/10">
             <span className="block text-xs font-black uppercase tracking-[0.3em] text-primary-600">Calculated Charge Rate</span>
             <div className="mt-4 text-6xl font-black tracking-tighter text-gray-900 md:text-7xl">${c.chargeRate.toFixed(2)}</div>
-            <span className="mt-1 block text-lg font-bold uppercase tracking-widest text-gray-400">per hour</span>
+            <span className="mt-1 block text-lg font-bold uppercase tracking-widest text-gray-500">per hour</span>
             <div className="mt-10 flex items-center justify-between border-t border-gray-100 px-2 pt-6">
-              <span className="text-xs font-bold uppercase tracking-widest text-gray-400">Target Annual Revenue</span>
+              <span className="text-xs font-bold uppercase tracking-widest text-gray-500">Target Annual Revenue</span>
               <span className="text-xl font-black text-gray-900">{usd0(c.targetRevenue)}</span>
             </div>
           </div>

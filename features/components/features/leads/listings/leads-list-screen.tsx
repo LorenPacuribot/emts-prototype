@@ -31,6 +31,7 @@ import { Button, EmptyState, Input, NewBadge, StatusPill, Tooltip } from "@/feat
 import { leadDisplay, timeAgo } from "../lead-shared";
 import { LeadFormModal } from "./lead-form-modal";
 import { WebsiteLeadsPanel } from "./website-leads-panel";
+import { pressable } from "@/lib/a11y";
 
 const STATUS_TONE: Record<PipelineStage, "blue" | "purple" | "amber" | "green" | "red" | "gray"> = {
   new_lead: "blue", contacted: "purple", estimate_scheduled: "amber", pending: "purple", sold: "green", lost: "red", archived: "gray",
@@ -82,7 +83,7 @@ export function LeadsListScreen() {
 
         <div className="mb-6 flex flex-col items-center justify-between gap-4 lg:flex-row">
           <div className="relative w-full lg:max-w-md">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
             <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search leads by name, email, or city..." className="h-10 rounded-xl pl-9" />
           </div>
           <div className="flex w-full self-start rounded-xl border border-gray-200 bg-gray-100 p-1 lg:w-auto lg:self-auto">
@@ -174,7 +175,7 @@ function LeadCard({ lead, draggable, onDragStart, onMove }: { lead: Lead; dragga
   const estimator = byId(db.users, lead.assignedUserId);
   const stop = (e: React.MouseEvent) => e.stopPropagation();
   return (
-    <div draggable={draggable && !fu} onDragStart={onDragStart} onClick={() => nav.push(leadHref(lead.id))}
+    <div {...pressable()} draggable={draggable && !fu} onDragStart={onDragStart} onClick={() => nav.push(leadHref(lead.id))}
       className="group relative cursor-pointer rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all hover:border-primary-300 hover:shadow-md">
       <div className="absolute right-4 top-4 text-gray-300 opacity-0 transition-opacity group-hover:opacity-100"><GripVertical className="h-4 w-4" /></div>
       <div className="mb-3">
@@ -193,7 +194,7 @@ function LeadCard({ lead, draggable, onDragStart, onMove }: { lead: Lead; dragga
         </div>
       </div>
       <div className="mb-4 flex flex-wrap gap-2">
-        <Chip><Calendar className="mr-1 h-3 w-3 text-gray-400" />{date(lead.createdAt)}</Chip>
+        <Chip><Calendar className="mr-1 h-3 w-3 text-gray-500" />{date(lead.createdAt)}</Chip>
         {lead.source === "repaint_alert"
           ? <span className="inline-flex items-center gap-1 rounded border border-primary-200 bg-primary-50 px-2 py-0.5 text-xs font-semibold text-primary-800"><BellRing className="h-3 w-3" /> Repaint alert <NewBadge feature={29} /></span>
           : <Chip>{leadSourceLabel(lead)}</Chip>}
@@ -215,16 +216,16 @@ function LeadCard({ lead, draggable, onDragStart, onMove }: { lead: Lead; dragga
       )}
       <div className="flex items-center justify-between border-t border-gray-50 pt-3">
         <div className="flex gap-1">
-          <button type="button" onClick={stop} title={d.phone ?? ""} className="rounded-lg p-1.5 text-gray-400 hover:bg-blue-50 hover:text-blue-600"><Phone className="h-4 w-4" /></button>
-          <button type="button" onClick={stop} title={d.email ?? ""} className="rounded-lg p-1.5 text-gray-400 hover:bg-blue-50 hover:text-blue-600"><Mail className="h-4 w-4" /></button>
+          <button aria-label="Call" type="button" onClick={stop} title={d.phone ?? ""} className="rounded-lg p-1.5 text-gray-500 hover:bg-blue-50 hover:text-blue-600"><Phone className="h-4 w-4" /></button>
+          <button aria-label="Email" type="button" onClick={stop} title={d.email ?? ""} className="rounded-lg p-1.5 text-gray-500 hover:bg-blue-50 hover:text-blue-600"><Mail className="h-4 w-4" /></button>
         </div>
         {can(user, "lead.update") && !fu && (
           <div className="flex items-center gap-2">
             {canArchiveStage(lead.stage) && (
-              <button type="button" title="Archive Lead" onClick={(e) => { stop(e); onMove(lead.id, "archived"); }} className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-50 text-gray-400 hover:bg-gray-100 hover:text-gray-600"><Archive className="h-4 w-4" /></button>
+              <button aria-label="Archive Lead" type="button" title="Archive Lead" onClick={(e) => { stop(e); onMove(lead.id, "archived"); }} className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-50 text-gray-500 hover:bg-gray-100 hover:text-gray-600"><Archive className="h-4 w-4" /></button>
             )}
             {next && (
-              <button type="button" title={`Move to ${LIVE_LEAD_STATUS[next]}`} onClick={(e) => { stop(e); onMove(lead.id, next); }} className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200"><ArrowRight className="h-4 w-4" /></button>
+              <button aria-label={`Move to ${LIVE_LEAD_STATUS[next]}`} type="button" title={`Move to ${LIVE_LEAD_STATUS[next]}`} onClick={(e) => { stop(e); onMove(lead.id, next); }} className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200"><ArrowRight className="h-4 w-4" /></button>
             )}
           </div>
         )}
@@ -252,12 +253,12 @@ function LeadsTable({ leads }: { leads: Lead[] }) {
             const d = leadDisplay(db, l);
             const life = lifecycleType(l.stage);
             return (
-              <tr key={l.id} className="cursor-pointer hover:bg-gray-50" onClick={() => nav.push(leadHref(l.id))}>
+              <tr {...pressable(true, { row: true })} key={l.id} className="cursor-pointer hover:bg-gray-50" onClick={() => nav.push(leadHref(l.id))}>
                 <td className={cn(td, "text-xs font-medium text-gray-500")}>{l.id}</td>
                 <td className={td}><div className="text-base font-bold text-gray-900">{d.name}</div><span className={cn("mt-1 inline-flex rounded-full px-2 py-0.5 text-xxs font-bold uppercase tracking-wide", life.color)}>{life.label}</span></td>
                 <td className={td}><StatusPill tone={STATUS_TONE[l.stage]}>{LIVE_LEAD_STATUS[l.stage]}</StatusPill></td>
                 <td className={td}>{l.estimateId ? <AppLink href={estimateHref(l.estimateId)} onClick={(e) => e.stopPropagation()} className="inline-flex items-center gap-1 text-xs font-bold text-primary-700 hover:underline"><FileText className="h-3.5 w-3.5" />{l.estimateId}</AppLink> : "-"}</td>
-                <td className={td}>{d.phone && <div className="flex items-center gap-1.5 text-xs"><Phone className="h-3 w-3 text-gray-400" />{d.phone}</div>}{d.email && <div className="flex items-center gap-1.5 text-xs"><Mail className="h-3 w-3 text-gray-400" />{d.email}</div>}</td>
+                <td className={td}>{d.phone && <div className="flex items-center gap-1.5 text-xs"><Phone className="h-3 w-3 text-gray-500" />{d.phone}</div>}{d.email && <div className="flex items-center gap-1.5 text-xs"><Mail className="h-3 w-3 text-gray-500" />{d.email}</div>}</td>
                 <td className={td}>{d.place}</td>
                 <td className={td}>{l.source === "repaint_alert" ? <span className="inline-flex items-center gap-1">Repaint alert</span> : leadSourceLabel(l)}</td>
                 <td className={cn(td, "whitespace-nowrap")}>{date(l.createdAt)}</td>
@@ -286,14 +287,14 @@ function ArchivedView({ leads, onRestore }: { leads: Lead[]; onRestore: (id: str
             <div className="mt-4 flex items-center justify-between border-t border-gray-100 pt-4">
               <StatusPill tone="gray">Archived</StatusPill>
               <div className="flex items-center gap-2">
-                <span className="text-xs text-gray-400">{timeAgo(l.createdAt)}</span>
+                <span className="text-xs text-gray-500">{timeAgo(l.createdAt)}</span>
                 {can(user, "lead.update") && !fu && <Button size="sm" onClick={() => onRestore(l.id)}><RotateCcw className="h-3.5 w-3.5" /> Restore</Button>}
               </div>
             </div>
           </div>
         );
       })}
-      {leads.length === 0 && <div className="col-span-full py-12 text-center italic text-gray-400">No archived leads found matching search.</div>}
+      {leads.length === 0 && <div className="col-span-full py-12 text-center italic text-gray-500">No archived leads found matching search.</div>}
     </div>
   );
 }

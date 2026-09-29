@@ -121,7 +121,7 @@ function QuickBooksConnectionCard() {
         </div>
       </div>
       <div className="space-y-4 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm md:p-8">
-        <div className="text-xxs font-bold uppercase tracking-widest text-gray-400">QuickBooks Online</div>
+        <div className="text-xxs font-bold uppercase tracking-widest text-gray-500">QuickBooks Online</div>
         <p className="text-sm text-gray-600">QuickBooks owns the ledger. Estimate Master sends invoices, payments, deposits and job allocations, and receives bills. Nothing here moves money.</p>
         <div className="flex flex-wrap gap-2 border-t border-gray-100 pt-4">
           <Button disabled={!can(user, "finance.connect")} onClick={() => toast.success("Connection OK", "QuickBooks answered (simulated).")}><Wifi className="h-4 w-4" /> Test Connection</Button>

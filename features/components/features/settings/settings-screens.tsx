@@ -99,8 +99,8 @@ export function GeneralConfigScreen() {
         <div className={card}>
           <h3 className={h3}><span className="inline-flex items-center gap-2"><Layers className="h-5 w-5 text-primary-600" /> Difficulty Tiers</span></h3>
           <div className="grid grid-cols-2 gap-4 text-sm">
-            <div className="space-y-2"><div className="text-xs font-bold uppercase tracking-widest text-gray-400">Height Tiers</div>{[["Standard (8-9ft)", "x1.0"], ["High (10-12ft)", "x1.2"], ["Vaulted / 2-Story", "x1.5"]].map(([a, b]) => <div key={a} className="flex justify-between"><span>{a}</span><Badge tone="blue">{b}</Badge></div>)}</div>
-            <div className="space-y-2"><div className="text-xs font-bold uppercase tracking-widest text-gray-400">Access Tiers</div>{[["Empty / Easy", "x1.0"], ["Furnished / Standard", "x1.1"], ["Occupied / Heavy Furniture", "x1.25"]].map(([a, b]) => <div key={a} className="flex justify-between"><span>{a}</span><Badge tone="amber">{b}</Badge></div>)}</div>
+            <div className="space-y-2"><div className="text-xs font-bold uppercase tracking-widest text-gray-500">Height Tiers</div>{[["Standard (8-9ft)", "x1.0"], ["High (10-12ft)", "x1.2"], ["Vaulted / 2-Story", "x1.5"]].map(([a, b]) => <div key={a} className="flex justify-between"><span>{a}</span><Badge tone="blue">{b}</Badge></div>)}</div>
+            <div className="space-y-2"><div className="text-xs font-bold uppercase tracking-widest text-gray-500">Access Tiers</div>{[["Empty / Easy", "x1.0"], ["Furnished / Standard", "x1.1"], ["Occupied / Heavy Furniture", "x1.25"]].map(([a, b]) => <div key={a} className="flex justify-between"><span>{a}</span><Badge tone="amber">{b}</Badge></div>)}</div>
           </div>
         </div>
       </div>
@@ -161,7 +161,7 @@ export function SurfaceRatesScreen() {
       <div className="space-y-10">
         {groups.map((g) => (
           <div key={g.name} className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-lg">
-            <div className="bg-gray-50/50 px-6 py-5 md:px-8"><h3 className="font-heading text-xl font-bold text-gray-900">{g.name}</h3><div className="text-xs text-gray-400">Standard Repaint</div></div>
+            <div className="bg-gray-50/50 px-6 py-5 md:px-8"><h3 className="font-heading text-xl font-bold text-gray-900">{g.name}</h3><div className="text-xs text-gray-500">Standard Repaint</div></div>
             <div className="overflow-x-auto">
               <table className="w-full min-w-[820px] text-left text-sm">
                 <thead className="border-b border-gray-100">
@@ -200,7 +200,7 @@ export function SurfaceRatesScreen() {
         <div className="space-y-2">
           {[...(versionsFor?.versions ?? [])].reverse().map((v) => (
             <div key={v.version} className="rounded-xl border border-gray-200 p-3 text-sm">
-              <div className="flex justify-between"><b>v{v.version} · {versionsFor && rateText(versionsFor, v.value)}</b><span className="text-xs text-gray-400">{dateTime(v.at)}</span></div>
+              <div className="flex justify-between"><b>v{v.version} · {versionsFor && rateText(versionsFor, v.value)}</b><span className="text-xs text-gray-500">{dateTime(v.at)}</span></div>
               <div className="text-xs text-gray-500">{v.kind} by {db.users.find((u) => u.id === v.by)?.name}{v.previous !== undefined && versionsFor ? ` · was ${rateText(versionsFor, v.previous)}` : ""}</div>
               <div className="mt-1 text-gray-700">{v.reason}</div>
             </div>

@@ -270,7 +270,7 @@ function OrderBody({ po }: { po: PurchaseOrder }) {
             .sort((a, b) => b.at.localeCompare(a.at))
             .map((ev, i) => (
               <div key={i} className="border-l-2 border-line pl-3 text-xs">
-                <div className="text-xxs font-bold uppercase text-gray-400">{dateTime(ev.at)} · {sourceName(db, ev)}</div>
+                <div className="text-xxs font-bold uppercase text-gray-500">{dateTime(ev.at)} · {sourceName(db, ev)}</div>
                 <div className="text-gray-700">{ev.text}</div>
               </div>
             ))}

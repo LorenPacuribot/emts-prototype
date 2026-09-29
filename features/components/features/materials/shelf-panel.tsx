@@ -49,7 +49,7 @@ export function ShelfPanel({ lines, readOnly }: { lines: DemandLine[]; readOnly:
                     {c.state === "reserved_elsewhere" && <Badge tone="gray" className="whitespace-normal">Unavailable — reserved to {s.reservedJobId}</Badge>}
                     {(c.state === "too_old" || c.state === "unsealed") && <Badge tone="gray" className="whitespace-normal">Not proposed — {c.reason}</Badge>}
                     {c.state === "rejected" && <Badge tone="gray" className="whitespace-normal">Rejected for this job — {c.reason}</Badge>}
-                    {perms.seePrices && s.unitCostPerGal !== undefined && <span className="text-gray-400">{money(s.unitCostPerGal)}/gal</span>}
+                    {perms.seePrices && s.unitCostPerGal !== undefined && <span className="text-gray-500">{money(s.unitCostPerGal)}/gal</span>}
                     <span className="ml-auto flex gap-1.5">
                       {c.state === "proposed" && !readOnly && perms.confirmShelf && (
                         <>

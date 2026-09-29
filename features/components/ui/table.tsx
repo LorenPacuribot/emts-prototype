@@ -37,7 +37,7 @@ export function THead({ children }: { children: ReactNode }) {
 }
 
 export function TH({ className, ...rest }: ThHTMLAttributes<HTMLTableCellElement>) {
-  return <th className={cn("border-b border-line px-3 py-2.5 text-xxs font-bold uppercase tracking-[0.12em] text-gray-400", className)} {...rest} />;
+  return <th className={cn("border-b border-line px-3 py-2.5 text-xxs font-bold uppercase tracking-[0.12em] text-gray-500", className)} {...rest} />;
 }
 
 /**

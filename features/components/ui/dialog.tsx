@@ -38,7 +38,7 @@ export function Modal({ open, onOpenChange, title, description, children, footer
                 <DialogPrimitive.Description className="sr-only">{title}</DialogPrimitive.Description>
               )}
             </div>
-            <DialogPrimitive.Close className="rounded-md p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-700" aria-label="Close">
+            <DialogPrimitive.Close className="rounded-md p-1 text-gray-500 hover:bg-gray-100 hover:text-gray-700" aria-label="Close">
               <X className="h-4 w-4" />
             </DialogPrimitive.Close>
           </div>
@@ -72,7 +72,7 @@ export function Drawer({ open, onOpenChange, title, subtitle, children, footer, 
                 <div className="mt-1 text-xs text-gray-500">{subtitle}</div>
               </DialogPrimitive.Description>
             </div>
-            <DialogPrimitive.Close className="rounded-md p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-700" aria-label="Close">
+            <DialogPrimitive.Close className="rounded-md p-1 text-gray-500 hover:bg-gray-100 hover:text-gray-700" aria-label="Close">
               <X className="h-4 w-4" />
             </DialogPrimitive.Close>
           </div>

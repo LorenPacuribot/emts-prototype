@@ -55,22 +55,22 @@ export function DemandTable({ lines, snapshot, stale, readOnly }: { lines: Deman
               <Fragment key={l.specId}>
                 <TR className={cn(blocked && "bg-red-50/30")}>
                   <TD className={cn("border-l-2", blocked ? "border-l-red-400" : "border-l-transparent")}>
-                    <button onClick={() => setOpen({ ...open, [l.specId]: !expanded })} className="rounded p-1 text-gray-400 hover:bg-gray-100" aria-label={expanded ? "Collapse line" : "Expand line"} aria-expanded={!!expanded}>
+                    <button onClick={() => setOpen({ ...open, [l.specId]: !expanded })} className="rounded p-1 text-gray-500 hover:bg-gray-100" aria-label={expanded ? "Collapse line" : "Expand line"} aria-expanded={!!expanded}>
                       {expanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                     </button>
                   </TD>
                   <TD>
                     <div className="max-w-[150px] font-semibold leading-snug text-ink">{l.spec.product ?? <span className="italic text-red-500">No product</span>}</div>
-                    <div className="text-xs text-gray-400">{l.specId}{l.spec.productLine ? ` · ${l.spec.productLine}` : ""}</div>
+                    <div className="text-xs text-gray-500">{l.specId}{l.spec.productLine ? ` · ${l.spec.productLine}` : ""}</div>
                   </TD>
                   <TD>
                     <span className="flex max-w-[150px] items-start gap-2 leading-snug"><Swatch hex={l.hex} size="sm" className="mt-0.5" /> <span>{l.colourName}</span></span>
-                    <div className="text-xs text-gray-400">{l.colourNumber} · {l.spec.sheen ?? "No sheen"}</div>
+                    <div className="text-xs text-gray-500">{l.colourNumber} · {l.spec.sheen ?? "No sheen"}</div>
                   </TD>
-                  <TD className="text-right tabular-nums">{num(l.coatSqft)}<div className="text-xs text-gray-400">{l.parts.length} surf. · {num(l.measuredSqft)} × {l.coats}</div></TD>
+                  <TD className="text-right tabular-nums">{num(l.coatSqft)}<div className="text-xs text-gray-500">{l.parts.length} surf. · {num(l.measuredSqft)} × {l.coats}</div></TD>
                   <TD>
                     <button onClick={() => setRate(l)} className="text-left">
-                      <span className="tabular-nums font-medium text-ink">{l.rate || "—"}</span> <span className="text-gray-400">sq ft/gal</span>
+                      <span className="tabular-nums font-medium text-ink">{l.rate || "—"}</span> <span className="text-gray-500">sq ft/gal</span>
                       <div className="mt-0.5 flex flex-col items-start gap-0.5"><Badge tone={l.source === "override" ? "purple" : l.source === "field_rate" ? "blue" : "gray"}>{COVERAGE_LABEL[l.source]}</Badge>{l.conditionRates.map((c) => <Badge key={c.condition} tone="amber">{CONDITION_LABEL[c.condition]} {c.rate}</Badge>)}</div>
                     </button>
                   </TD>
@@ -87,7 +87,7 @@ export function DemandTable({ lines, snapshot, stale, readOnly }: { lines: Deman
                     {l.adjustment && <div className="text-xs text-purple-700">adjusted from {g2(l.calculatedNeedGal)}</div>}
                     {stale && prev && prev.adjustedNeedGal !== l.calculatedNeedGal && <div className="text-xs text-amber-700">was {g2(prev.adjustedNeedGal)}</div>}
                   </TD>
-                  <TD>{blocked ? <span className="text-gray-400">—</span> : <div className="max-w-[120px] leading-snug">{formatPacks(l.packs.packs)}</div>}</TD>
+                  <TD>{blocked ? <span className="text-gray-500">—</span> : <div className="max-w-[120px] leading-snug">{formatPacks(l.packs.packs)}</div>}</TD>
                   <TD className="text-right tabular-nums">{blocked ? "—" : g2(l.packs.excessGal)}</TD>
                   {perms.seePrices && <TD className="text-right tabular-nums">{blocked || !l.catalog ? "—" : money(packsCost(l.packs.packs, l.catalog.cost))}</TD>}
                   <TD>
@@ -107,10 +107,10 @@ export function DemandTable({ lines, snapshot, stale, readOnly }: { lines: Deman
                 {expanded && (
                   <tr className="border-b border-line bg-gray-50/60">
                     <td colSpan={perms.seePrices ? 12 : 11} className="px-4 py-3">
-                      <div className="text-xxs font-bold uppercase tracking-[0.12em] text-gray-400">Measured area, coats and the rate used per surface</div>
+                      <div className="text-xxs font-bold uppercase tracking-[0.12em] text-gray-500">Measured area, coats and the rate used per surface</div>
                       <table className="mt-2 w-full text-xs">
                         <thead>
-                          <tr className="text-left text-xxs uppercase tracking-wider text-gray-400">
+                          <tr className="text-left text-xxs uppercase tracking-wider text-gray-500">
                             <th className="py-1 pr-3">Surface</th><th className="py-1 pr-3">Condition</th><th className="py-1 pr-3 text-right">Measured</th><th className="py-1 pr-3 text-right">Coats</th><th className="py-1 pr-3 text-right">Area with coats</th><th className="py-1 pr-3 text-right">Rate</th><th className="py-1 pr-3">Source</th><th className="py-1 text-right">Paint needed (exact)</th>
                           </tr>
                         </thead>

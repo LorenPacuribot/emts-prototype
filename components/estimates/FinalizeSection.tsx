@@ -217,7 +217,7 @@ export function FinalizeSection({
           </div>
           <div className="my-6 border-t border-dashed border-gray-200" />
           <div>
-            <span className="text-xs font-bold uppercase tracking-widest text-gray-400">Base Bid Total</span>
+            <span className="text-xs font-bold uppercase tracking-widest text-gray-500">Base Bid Total</span>
             {t.optionalSubtotal > 0 && <p className="text-sm text-gray-600">Optional work (before tax and discount): {money(t.optionalSubtotal)}</p>}
             <div className="mt-1 font-heading text-4xl font-black tracking-tight text-gray-900">{money(t.total)}</div>
           </div>

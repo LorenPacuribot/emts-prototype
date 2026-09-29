@@ -118,9 +118,9 @@ export function LaborSummary({ estimate, paintLabel }: { estimate: Estimate; pai
                   <tr key={l.id} className="text-sm">
                     <td className="px-6 py-3 font-bold text-gray-900">{i === 0 ? a.name : ''}</td>
                     <td className="px-6 py-3 text-gray-700">{l.surfaceType}</td>
-                    <td className="px-6 py-3 text-center text-gray-700">{l.quantity} <span className="text-xs text-gray-400">{l.unit}</span></td>
+                    <td className="px-6 py-3 text-center text-gray-700">{l.quantity} <span className="text-xs text-gray-500">{l.unit}</span></td>
                     <td className="px-6 py-3 text-center text-gray-700">{l.coats}</td>
-                    <td className="px-6 py-3 text-gray-700">{paintLabel(l.paintProductId) || <span className="italic text-gray-400">No paint assigned</span>}</td>
+                    <td className="px-6 py-3 text-gray-700">{paintLabel(l.paintProductId) || <span className="italic text-gray-500">No paint assigned</span>}</td>
                     <td className="px-4 py-3 text-center font-bold text-gray-900">{l.laborHours.toFixed(2)}</td>
                   </tr>
                 )),
@@ -129,7 +129,7 @@ export function LaborSummary({ estimate, paintLabel }: { estimate: Estimate; pai
           </table>
           <div className="flex items-center justify-between border-t border-gray-200 bg-gray-50 px-6 py-4">
             <span className="text-xs font-bold uppercase tracking-widest text-gray-500">Total Hours</span>
-            <span className="font-heading text-2xl font-black text-gray-900">{total.toFixed(2)} <span className="text-sm font-bold text-gray-400">hrs</span></span>
+            <span className="font-heading text-2xl font-black text-gray-900">{total.toFixed(2)} <span className="text-sm font-bold text-gray-500">hrs</span></span>
           </div>
         </div>
       )}

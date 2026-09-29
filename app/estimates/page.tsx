@@ -47,10 +47,10 @@ function StatCards({ items }: { items: Estimate[]; }) {
       {cards.map(({ label, value, sub, Icon }) => (
         <Card key={label} className="flex flex-col p-5">
           <div className="mb-2 flex items-center gap-2 text-xxs font-bold uppercase tracking-widest text-gray-500">
-            <Icon className="h-4 w-4 text-gray-400" /> {label}
+            <Icon className="h-4 w-4 text-gray-500" /> {label}
           </div>
           <div className="font-heading text-2xl font-black text-gray-900">{value}</div>
-          <div className="mt-1 text-xs font-medium text-gray-400">{sub}</div>
+          <div className="mt-1 text-xs font-medium text-gray-500">{sub}</div>
         </Card>
       ))}
     </div>
@@ -153,7 +153,7 @@ export default function EstimatesPage() {
         <ListSkeleton rows={5} />
       ) : filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-gray-300 bg-white py-20">
-          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-50 text-gray-400">
+          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-50 text-gray-500">
             <ClipboardList className="h-8 w-8" />
           </div>
           <h3 className="text-lg font-bold text-gray-900">No estimates found</h3>

@@ -94,7 +94,7 @@ export function PropertyRecordModal({ open, onClose, property, initial = "staff"
                   <div className="mb-1 text-xs font-bold uppercase tracking-[0.12em] text-gray-500">{[area.building, area.unit, area.name].filter(Boolean).join(" · ")}</div>
                   <table className="w-full border-collapse text-xs">
                     <thead>
-                      <tr className="text-left text-xxs uppercase tracking-wider text-gray-400">
+                      <tr className="text-left text-xxs uppercase tracking-wider text-gray-500">
                         <th className="border-b py-1 pr-2">Surface</th>
                         <th className="border-b py-1 pr-2">Color</th>
                         <th className="border-b py-1 pr-2">Product · sheen · coats</th>
@@ -106,7 +106,7 @@ export function PropertyRecordModal({ open, onClose, property, initial = "staff"
                     <tbody>
                       {surfaces.flatMap((s) => {
                         const apps = newestFirst(db.applications.filter((a) => a.surfaceId === s.id));
-                        if (!apps.length) return [<tr key={s.id}><td className="border-b py-1 pr-2">{s.name}</td><td colSpan={seeCosts ? 5 : 4} className="border-b py-1 italic text-gray-400">No applications recorded</td></tr>];
+                        if (!apps.length) return [<tr key={s.id}><td className="border-b py-1 pr-2">{s.name}</td><td colSpan={seeCosts ? 5 : 4} className="border-b py-1 italic text-gray-500">No applications recorded</td></tr>];
                         return apps.map((a, i) => (
                           <tr key={a.id}>
                             <td className="border-b py-1 pr-2">{i === 0 ? <span className={s.removedAt ? "line-through" : ""}>{s.name}{s.removedAt ? ` (removed ${dateLong(s.removedAt)})` : ""}</span> : ""}</td>

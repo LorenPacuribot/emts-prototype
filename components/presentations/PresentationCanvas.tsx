@@ -22,6 +22,7 @@ import { customerLines } from '@/lib/proposal';
 import { useToast } from '@/components/ui/toast';
 import { ProposalCustomer, ProposalOptional, ProposalPricing, ProposalScope, ProposalSpecs, useProposalData } from '@/components/estimates/ProposalParts';
 import { THEMES, parseItems, primaryColorOf, SECTION_META } from './presentation-utils';
+import { pressable } from '@/lib/a11y';
 
 interface CanvasProps {
   presentation: Presentation;
@@ -77,7 +78,7 @@ export function PresentationCanvas({ presentation: p, edit = false, onSectionCha
       {shown.map((s, i) => {
         const ctx: SectionCtx = { p, s, color, dark, edit, set: (patch) => onSectionChange?.(s.id, patch), estimate, onEstimateSettings };
         return (
-          <div
+          <div {...pressable(onSelect)}
             key={s.id}
             id={`sec-${s.id}`}
             onClick={onSelect ? () => onSelect(s.id) : undefined}
@@ -239,7 +240,7 @@ function EstimatePart({ ctx }: { ctx: SectionCtx }) {
           )}
         </div>
       ) : (
-        <div className="rounded-2xl border border-dashed border-gray-300 p-10 text-center text-sm text-gray-400">
+        <div className="rounded-2xl border border-dashed border-gray-300 p-10 text-center text-sm text-gray-500">
           {ctx.edit
             ? `${SECTION_META[ctx.s.type].label}: filled from the estimate when this template is used in Client Preview.`
             : 'This part of your proposal will appear here.'}
@@ -286,7 +287,7 @@ function ImageSlot({ src, fallback, edit, onChange, className, children, label =
     }
   };
   return (
-    <div
+    <div {...pressable(edit && clickArea)}
       className={cn('relative overflow-hidden', edit && clickArea && 'cursor-pointer', className)}
       style={{ background: fallback }}
       onClick={edit && clickArea ? pick : undefined}
@@ -332,7 +333,7 @@ function Cover({ ctx }: { ctx: SectionCtx }) {
           <div className="mb-4 h-1 w-10 rounded-full" style={{ backgroundColor: color }} />
           <h1 className={titleCls} style={{ fontFamily: p.branding?.headingFont }}><Editable edit={edit} value={s.content} onChange={(content) => set({ content })} /></h1>
           <p className="mt-4 text-lg text-gray-500"><Editable edit={edit} value={s.subtitle ?? ''} onChange={(subtitle) => set({ subtitle })} placeholder="Subtitle" /></p>
-          {customer && <p className="mt-6 text-sm font-bold uppercase tracking-widest text-gray-400">Prepared for {fullName(customer)}</p>}
+          {customer && <p className="mt-6 text-sm font-bold uppercase tracking-widest text-gray-500">Prepared for {fullName(customer)}</p>}
         </div>
         <ImageSlot src={s.imageUrl ?? p.coverImage} fallback={p.cover} edit={edit} onChange={(imageUrl) => set({ imageUrl })} label="cover image" className="aspect-[4/3] rounded-3xl shadow-xl" />
       </section>
@@ -368,7 +369,7 @@ function EstimateBlock({ ctx }: { ctx: SectionCtx }) {
     return (
       <section className={cn(pad, shell(ctx))}>
         <Heading ctx={ctx} />
-        <div className="rounded-2xl border border-dashed border-gray-300 p-10 text-center text-sm text-gray-400">
+        <div className="rounded-2xl border border-dashed border-gray-300 p-10 text-center text-sm text-gray-500">
           {edit ? 'Link an estimate in the Settings tab to show your proposal and pricing here.' : 'Your detailed proposal will appear here.'}
         </div>
       </section>
@@ -429,7 +430,7 @@ function EstimateBlock({ ctx }: { ctx: SectionCtx }) {
 function Info({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-xl bg-gray-50 p-4 text-gray-900">
-      <div className="text-xxs font-bold uppercase tracking-widest text-gray-400">{label}</div>
+      <div className="text-xxs font-bold uppercase tracking-widest text-gray-500">{label}</div>
       <div className="mt-1 font-semibold">{value}</div>
     </div>
   );

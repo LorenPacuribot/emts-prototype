@@ -151,10 +151,10 @@ function Review() {
                   <TR key={e.id} className="cursor-pointer" onClick={() => setOpenId(e.id)}>
                     <TD>
                       <div className="font-semibold text-ink">{emp.name}</div>
-                      <div className="text-xs text-gray-400">{emp.type === "hourly" ? "Hourly" : emp.type === "salaried" ? "Salaried" : "Subcontractor"}</div>
+                      <div className="text-xs text-gray-500">{emp.type === "hourly" ? "Hourly" : emp.type === "salaried" ? "Salaried" : "Subcontractor"}</div>
                     </TD>
                     <TD className="whitespace-nowrap">{dayLabel(e.workDate)}</TD>
-                    <TD className="whitespace-nowrap tabular-nums text-xs">{timeLabel(segs[0]?.start)} – {segs.every((s) => s.end) ? timeLabel(segs[segs.length - 1]?.end) : "now"}<div className="text-xs text-gray-400">{segs.length} punch{segs.length === 1 ? "" : "es"}</div></TD>
+                    <TD className="whitespace-nowrap tabular-nums text-xs">{timeLabel(segs[0]?.start)} – {segs.every((s) => s.end) ? timeLabel(segs[segs.length - 1]?.end) : "now"}<div className="text-xs text-gray-500">{segs.length} punch{segs.length === 1 ? "" : "es"}</div></TD>
                     <TD className="tabular-nums">{hm(totals.workedMinutes)}</TD>
                     <TD className="tabular-nums">{totals.lunchMinutes ? `−${hm(totals.lunchMinutes)}` : "—"}</TD>
                     <TD className="tabular-nums font-bold text-ink">{hm(totals.roundedMinutes)}</TD>
@@ -174,7 +174,7 @@ function Review() {
           <CardLabel icon={<TriangleAlert />}>Excluded from export</CardLabel>
           <p className="mt-1 text-xs text-gray-500">Hourly time that isn't approved stays out of the Gusto file and stays visible here until it is settled.</p>
           <div className="mt-3 space-y-1.5">
-            {excluded.length === 0 && <p className="text-xs italic text-gray-400">Every hourly day this week is approved.</p>}
+            {excluded.length === 0 && <p className="text-xs italic text-gray-500">Every hourly day this week is approved.</p>}
             {excluded.map((r) => (
               <button key={r.e.id} onClick={() => setOpenId(r.e.id)} className="flex w-full items-center justify-between rounded-lg border border-line px-3 py-2 text-left text-xs hover:bg-gray-50">
                 <span><strong>{r.emp.name}</strong> · {dayLabel(r.e.workDate)} · {hm(r.totals.roundedMinutes)}</span>

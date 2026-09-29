@@ -447,7 +447,7 @@ function ReviewCard({ r, canPost, canApprove, onTestimonial, onReject }: { r: So
           {r.testimonial?.status === "rejected" && <Badge tone="gray">Not for testimonials</Badge>}
         </div>
       </div>
-      {r.text ? <p className="mt-2 text-sm text-gray-700">&ldquo;{r.text}&rdquo;</p> : <p className="mt-2 text-xs italic text-gray-400">Rating only, no text.</p>}
+      {r.text ? <p className="mt-2 text-sm text-gray-700">&ldquo;{r.text}&rdquo;</p> : <p className="mt-2 text-xs italic text-gray-500">Rating only, no text.</p>}
       {r.response && <div className="mt-2 rounded-lg border border-line bg-gray-50 px-3 py-2 text-xs"><b>Our response</b> ({dateLong(r.response.at)}): {r.response.text}</div>}
       {r.testimonial?.status === "approved" && <div className="mt-2 rounded-lg border border-purple-200 bg-purple-50 px-3 py-2 text-xs">Testimonial: &ldquo;{r.testimonial.quote}&rdquo; — {r.testimonial.displayName}</div>}
       {replying ? (

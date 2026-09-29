@@ -121,7 +121,7 @@ function JobDetails({ job }: { job: Job }) {
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between"><span className="text-gray-500">Total Price</span><b>{money(total, { cents: true })}</b></div>
                 <div className="flex justify-between"><span className="text-gray-500">Paid to Date</span><b className="text-green-700">{money(paid, { cents: true })}</b></div>
-                <div className="mt-2 flex justify-between border-t border-gray-100 pt-2"><span className="text-xs font-bold uppercase tracking-widest text-gray-400">Balance Due</span><b className="text-lg">{money(total - paid, { cents: true })}</b></div>
+                <div className="mt-2 flex justify-between border-t border-gray-100 pt-2"><span className="text-xs font-bold uppercase tracking-widest text-gray-500">Balance Due</span><b className="text-lg">{money(total - paid, { cents: true })}</b></div>
               </div>
             </LiveCard>
           )}
@@ -140,7 +140,7 @@ function JobDetails({ job }: { job: Job }) {
             <CardTitle icon={<Briefcase />}>Job Progress</CardTitle>
             <div className="flex flex-wrap gap-2">
               {JOB_STAGES.map((s, i) => (
-                <div key={s.label} className={cn("flex-1 rounded-lg border px-2 py-2 text-center text-xs font-bold", i <= stageIndex ? "border-green-200 bg-green-50 text-green-700" : "border-gray-200 bg-white text-gray-400")}>{s.label}</div>
+                <div key={s.label} className={cn("flex-1 rounded-lg border px-2 py-2 text-center text-xs font-bold", i <= stageIndex ? "border-green-200 bg-green-50 text-green-700" : "border-gray-200 bg-white text-gray-500")}>{s.label}</div>
               ))}
             </div>
           </LiveCard>
@@ -178,7 +178,7 @@ function JobCostCard({ jobId }: { jobId: string }) {
         {[["Revised contract (ex tax, with change orders)", f.contractExTax], ["Invoiced (ex tax)", f.invoicedExTax], ["Labor (from approved hours)", f.labour], ["Material", f.material], ["Other", f.other + f.subcontractor], ["Cost to date", f.costToDate]].map(([l, v]) => (
           <div key={l as string} className="flex justify-between gap-2"><span className="text-gray-500">{l}</span><b>{money(v as number, { cents: true })}</b></div>
         ))}
-        <div className="mt-2 flex justify-between border-t border-gray-100 pt-2"><span className="text-xs font-bold uppercase tracking-widest text-gray-400">{f.actual !== null ? "Margin" : "Projected margin"}</span><b>{margin === null ? "—" : `${(margin * 100).toFixed(1)}%`}</b></div>
+        <div className="mt-2 flex justify-between border-t border-gray-100 pt-2"><span className="text-xs font-bold uppercase tracking-widest text-gray-500">{f.actual !== null ? "Margin" : "Projected margin"}</span><b>{margin === null ? "—" : `${(margin * 100).toFixed(1)}%`}</b></div>
         {f.unmatched > 0 && <p className="text-xs text-amber-700">{money(f.unmatched)} of supplier bills not yet matched to orders.</p>}
       </div>
     </LiveCard>

@@ -160,7 +160,7 @@ export function ScheduleEstimateModal({ open, onOpenChange, lead }: { open: bool
             placeholder={isReschedule ? 'Reason for rescheduling...' : 'Entry codes, parking info, specific requests...'}
           />
         </Field>
-        <p className="-mt-2 text-center text-xs text-gray-400">This will sync to Google Calendar and queue client reminders.</p>
+        <p className="-mt-2 text-center text-xs text-gray-500">This will sync to Google Calendar and queue client reminders.</p>
       </div>
     </Modal>
   );

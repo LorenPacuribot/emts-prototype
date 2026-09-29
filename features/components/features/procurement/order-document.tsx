@@ -39,24 +39,24 @@ export const OrderDocument = forwardRef<HTMLDivElement, { db: Database; po: Purc
       </div>
       <div className="grid gap-3 border-b border-line py-3 sm:grid-cols-3">
         <div>
-          <div className="text-xxs font-bold uppercase tracking-[0.12em] text-gray-400">Job</div>
+          <div className="text-xxs font-bold uppercase tracking-[0.12em] text-gray-500">Job</div>
           <div className="font-medium text-ink">{job?.name} ({po.jobId})</div>
           <div className="text-gray-600">{propertyAddress(property, true)}</div>
         </div>
         <div>
-          <div className="text-xxs font-bold uppercase tracking-[0.12em] text-gray-400">{po.fulfilment === "delivery" ? "Delivery" : "Pickup"}</div>
+          <div className="text-xxs font-bold uppercase tracking-[0.12em] text-gray-500">{po.fulfilment === "delivery" ? "Delivery" : "Pickup"}</div>
           <div className="font-medium text-ink">{po.fulfilment === "delivery" ? "Deliver to job site" : "Customer pickup at branch"}</div>
           <div className="text-gray-600">{dateLong(po.deliveryDate)} · {po.phase}</div>
         </div>
         <div>
-          <div className="text-xxs font-bold uppercase tracking-[0.12em] text-gray-400">Pickup contact</div>
+          <div className="text-xxs font-bold uppercase tracking-[0.12em] text-gray-500">Pickup contact</div>
           <div className="font-medium text-ink">{po.pickupContact ?? "—"}</div>
           <div className="text-gray-600">{po.pickupPhone ?? "—"}</div>
         </div>
       </div>
       <table className="mt-3 w-full border-collapse text-left">
         <thead>
-          <tr className="text-xxs uppercase tracking-[0.12em] text-gray-400">
+          <tr className="text-xxs uppercase tracking-[0.12em] text-gray-500">
             <th className="border-b border-line py-1.5 pr-2">Line</th>
             <th className="border-b border-line py-1.5 pr-2">Manufacturer / product</th>
             <th className="border-b border-line py-1.5 pr-2">Color / number</th>
@@ -104,7 +104,7 @@ export const OrderDocument = forwardRef<HTMLDivElement, { db: Database; po: Purc
           </tfoot>
         )}
       </table>
-      <p className="mt-4 text-xs text-gray-400">Reference {po.id} on every call, pickup ticket and invoice. Page 1 of 1.</p>
+      <p className="mt-4 text-xs text-gray-500">Reference {po.id} on every call, pickup ticket and invoice. Page 1 of 1.</p>
     </div>
   );
 });

@@ -49,7 +49,7 @@ export function FinancialsCard({ job }: { job: Job }) {
         <Row label="Total Price" hint="The job's value from the accepted estimate. Change orders show under Job Cost." value={money(job.value)} />
         <Row label="Paid on invoices" hint="Payments recorded on this job's invoices. A deposit taken before invoicing is not counted here." value={money(paid)} valueClass="text-green-600" />
         <div className="flex items-center justify-between py-2">
-          <span className="text-xs font-bold uppercase tracking-wider text-gray-400">Balance Due</span>
+          <span className="text-xs font-bold uppercase tracking-wider text-gray-500">Balance Due</span>
           <span className={cn('text-xl font-black', balance > 0 ? 'text-red-600' : 'text-gray-900')}>{money(balance)}</span>
         </div>
         {mine.length > 1 && <p className="text-xs text-gray-500">{mine.length} invoices linked to this job.</p>}
@@ -83,10 +83,10 @@ export function CustomerCard({ job, customer }: { job: Job; customer?: Customer 
           </div>
         </Link>
       ) : (
-        <p className="text-sm text-gray-400">No customer linked.</p>
+        <p className="text-sm text-gray-500">No customer linked.</p>
       )}
       <div className="mt-5 flex items-start gap-2 border-t border-gray-100 pt-4 text-sm text-gray-600">
-        <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-gray-400" />
+        <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-gray-500" />
         {job.address || 'No address set'}
       </div>
     </div>
@@ -102,7 +102,7 @@ export function ScheduleCard({ job, onEdit, onCancel, onToggleProtected }: { job
     <div className={cn(card, 'flex min-h-[240px] flex-col')}>
       <div className="mb-6 flex items-center justify-between">
         <h3 className={cardTitle}><Calendar className="h-5 w-5 text-blue-600" /> Schedule</h3>
-        <button type="button" onClick={onEdit} className="text-gray-400 hover:text-gray-600" aria-label="Edit schedule">
+        <button type="button" onClick={onEdit} className="text-gray-500 hover:text-gray-600" aria-label="Edit schedule">
           <Edit2 className="h-4 w-4" />
         </button>
       </div>
@@ -129,7 +129,7 @@ export function ScheduleCard({ job, onEdit, onCancel, onToggleProtected }: { job
               />
               <span>
                 <span className="flex items-center gap-1 font-bold text-gray-900">
-                  {job.scheduleProtected ? <Lock className="h-3.5 w-3.5 text-amber-600" /> : <Unlock className="h-3.5 w-3.5 text-gray-400" />}
+                  {job.scheduleProtected ? <Lock className="h-3.5 w-3.5 text-amber-600" /> : <Unlock className="h-3.5 w-3.5 text-gray-500" />}
                   Protect this date
                 </span>
                 <span className="block text-xs text-gray-500">
@@ -169,7 +169,7 @@ export function JobProgress({ status, onChange }: { status: JobStatus; onChange:
             const done = i <= idx;
             const current = i === idx;
             return (
-              <button key={s} type="button" onClick={() => onChange(s)} className="group flex min-w-[60px] flex-col items-center gap-3 focus:outline-none">
+              <button key={s} type="button" onClick={() => onChange(s)} className="group flex min-w-[60px] flex-col items-center gap-3 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-400/60">
                 <div className={cn(
                   'flex h-8 w-8 items-center justify-center rounded-full border-4 transition-all',
                   current ? 'scale-110 border-white bg-primary-600 text-white shadow-lg ring-2 ring-primary-600'
@@ -178,7 +178,7 @@ export function JobProgress({ status, onChange }: { status: JobStatus; onChange:
                 )}>
                   {done ? <Check className="h-3.5 w-3.5 stroke-[4]" /> : <div className="h-2 w-2 rounded-full bg-gray-200" />}
                 </div>
-                <span className={cn('max-w-[80px] text-center text-xxs font-black uppercase tracking-wider', current ? 'text-primary-700' : 'text-gray-400 group-hover:text-gray-600')}>
+                <span className={cn('max-w-[80px] text-center text-xxs font-black uppercase tracking-wider', current ? 'text-primary-700' : 'text-gray-500 group-hover:text-gray-600')}>
                   {STAGE_LABELS[s] ?? s}
                 </span>
               </button>
@@ -203,24 +203,24 @@ export function WorkOrdersCard({ job, workOrders, onCreate, statusOf }: { job: J
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-50 text-purple-600"><Briefcase className="h-5 w-5" /></div>
           <div>
             <h3 className="text-lg font-bold text-gray-900">Work Order Details</h3>
-            <span className="font-mono text-xs font-bold uppercase tracking-wider text-gray-400">{workOrders.length} linked</span>
+            <span className="font-mono text-xs font-bold uppercase tracking-wider text-gray-500">{workOrders.length} linked</span>
           </div>
         </div>
         <div className="flex items-center gap-6">
           <div className="text-right" title="Crew hours booked on the schedule">
-            <div className="text-xxs font-bold uppercase tracking-widest text-gray-400">Scheduled</div>
+            <div className="text-xxs font-bold uppercase tracking-widest text-gray-500">Scheduled</div>
             <div className="text-xl font-black text-primary-600">{assigned.toFixed(2)} hrs</div>
           </div>
           <div className="hidden h-8 w-px bg-gray-100 sm:block" />
           <div className="text-right" title="Hours the estimate allows for this job">
-            <div className="text-xxs font-bold uppercase tracking-widest text-gray-400">Estimated</div>
+            <div className="text-xxs font-bold uppercase tracking-widest text-gray-500">Estimated</div>
             <div className="text-xl font-black text-gray-900">{job.estimatedHours.toFixed(2)} hrs</div>
           </div>
         </div>
       </div>
       {workOrders.length === 0 ? (
         <div className="flex flex-col items-center p-10 text-center">
-          <p className="mb-4 text-sm text-gray-400">Work order has not been generated yet.</p>
+          <p className="mb-4 text-sm text-gray-500">Work order has not been generated yet.</p>
           <Button variant="secondary" icon={<ClipboardList className="h-4 w-4" />} onClick={onCreate}>Create Work Order</Button>
         </div>
       ) : (
@@ -232,7 +232,7 @@ export function WorkOrdersCard({ job, workOrders, onCreate, statusOf }: { job: J
                 <Link key={wo.id} href={`/work-orders/${wo.id}`} className="flex items-center justify-between gap-4 p-5 hover:bg-gray-50">
                   <div className="min-w-0">
                     <div className="mb-1 flex items-center gap-2">
-                      <span className="font-mono text-xs font-bold text-gray-400">{wo.workOrderNumber}</span>
+                      <span className="font-mono text-xs font-bold text-gray-500">{wo.workOrderNumber}</span>
                       <span className="text-xs font-bold text-purple-600">{statusOf?.(wo) ?? wo.status}</span>
                     </div>
                     <div className="truncate text-sm font-bold text-gray-900">{wo.title}</div>
@@ -298,7 +298,7 @@ export function CrewCard({ job }: { job: Job }) {
                 </div>
                 <div className="mt-2 flex items-center justify-between text-xs">
                   <span className={cn('font-bold', tone.text)}>{load} / {cap}h booked</span>
-                  <span className="text-gray-400">{load > cap ? `${Math.round((load - cap) * 10) / 10}h over` : `${Math.round((cap - load) * 10) / 10}h free`}</span>
+                  <span className="text-gray-500">{load > cap ? `${Math.round((load - cap) * 10) / 10}h over` : `${Math.round((cap - load) * 10) / 10}h free`}</span>
                 </div>
                 <ProgressBar value={cap ? (load / cap) * 100 : 0} className="mt-1 h-1.5" barClassName={tone.bar} />
               </div>
@@ -351,7 +351,7 @@ export function BreaksCard({ job }: { job: Job }) {
         </div>
       )}
       {job.breaks.length === 0 ? (
-        !adding && <p className="text-sm text-gray-400">No pauses. Add one for rain delays, holidays or material holds.</p>
+        !adding && <p className="text-sm text-gray-500">No pauses. Add one for rain delays, holidays or material holds.</p>
       ) : (
         <div className="divide-y divide-gray-100">
           {job.breaks.map((b) => (
@@ -418,7 +418,7 @@ export function NotesCard({ job }: { job: Job }) {
         </div>
       </div>
       {notes.length === 0 ? (
-        <p className="text-sm text-gray-400">No entries yet.</p>
+        <p className="text-sm text-gray-500">No entries yet.</p>
       ) : (
         <div className="space-y-4">
           {notes.map((n) => {
@@ -432,7 +432,7 @@ export function NotesCard({ job }: { job: Job }) {
                     <span className={cn('rounded-full px-2 py-0.5 text-xxs font-black uppercase tracking-wider', n.type === 'daily-log' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700')}>
                       {n.type === 'daily-log' ? 'Daily Log' : 'Note'}
                     </span>
-                    <span className="text-gray-400">{longDate(n.date)}</span>
+                    <span className="text-gray-500">{longDate(n.date)}</span>
                     <button onClick={() => setDeleteId(n.id)} className="ml-auto text-gray-300 hover:text-red-500" aria-label="Delete entry"><Trash2 className="h-3.5 w-3.5" /></button>
                   </div>
                   <p className="whitespace-pre-wrap text-sm text-gray-700">{n.text}</p>
@@ -456,14 +456,14 @@ export function HistoryCard({ job }: { job: Job }) {
     <div className={card}>
       <h3 className={cn(cardTitle, 'mb-5')}><History className="h-5 w-5 text-gray-500" /> Job History</h3>
       {items.length === 0 ? (
-        <p className="text-sm text-gray-400">No history yet.</p>
+        <p className="text-sm text-gray-500">No history yet.</p>
       ) : (
         <ol className="relative ml-2 space-y-4 border-l border-gray-200 pl-5">
           {items.map((h, i) => (
             <li key={i} className="relative">
               <span className="absolute -left-[26px] top-1 flex h-3 w-3 items-center justify-center rounded-full border-2 border-white bg-primary-500 ring-1 ring-primary-200" />
               <div className="text-sm font-medium text-gray-800">{h.text}</div>
-              <div className="flex items-center gap-1 text-xs text-gray-400"><Clock className="h-3 w-3" /> {longDate(h.date)}</div>
+              <div className="flex items-center gap-1 text-xs text-gray-500"><Clock className="h-3 w-3" /> {longDate(h.date)}</div>
             </li>
           ))}
         </ol>

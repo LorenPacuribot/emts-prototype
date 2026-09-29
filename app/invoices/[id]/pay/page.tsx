@@ -112,7 +112,7 @@ export default function PayInvoicePage() {
             <div className="text-xs text-gray-500">{biz.phone} • {biz.email}</div>
           </div>
         </div>
-        <Link href={`/invoices/${invoice.id}`} className="flex items-center gap-1.5 text-xs font-bold text-gray-400 hover:text-gray-700">
+        <Link href={`/invoices/${invoice.id}`} className="flex items-center gap-1.5 text-xs font-bold text-gray-500 hover:text-gray-700">
           <ArrowLeft className="h-3.5 w-3.5" /> Exit customer view
         </Link>
       </div>
@@ -130,7 +130,7 @@ export default function PayInvoicePage() {
                 <CheckCircle2 className="mx-auto h-14 w-14 text-green-500" />
                 <h2 className="mt-4 font-heading text-xl font-bold text-gray-900">Payment Successful</h2>
                 <p className="mt-1 text-sm text-gray-500">{usd(paid.amount)} charged to card ending {paid.cardLast4}.</p>
-                <p className="mt-1 text-xs text-gray-400">Confirmation {paid.reference}</p>
+                <p className="mt-1 text-xs text-gray-500">Confirmation {paid.reference}</p>
                 <div className="mt-5 rounded-xl bg-gray-50 p-4 text-sm">
                   <div className="flex justify-between"><span className="text-gray-500">Remaining balance</span><span className="font-bold text-gray-900">{usd(t.balance)}</span></div>
                 </div>
@@ -145,7 +145,7 @@ export default function PayInvoicePage() {
             ) : (
               <div className="space-y-4">
                 <div>
-                  <div className="text-xs font-bold uppercase tracking-widest text-gray-400">Amount Due</div>
+                  <div className="text-xs font-bold uppercase tracking-widest text-gray-500">Amount Due</div>
                   <div className="mt-1 text-3xl font-black tracking-tight text-gray-900">{usd(t.balance)}</div>
                   <div className="text-xs text-gray-500">Invoice {invoice.invoiceNumber}</div>
                 </div>
@@ -172,7 +172,7 @@ export default function PayInvoicePage() {
                 <Button size="lg" className="w-full" loading={processing} icon={<Lock className="h-4 w-4" />} onClick={pay}>
                   Pay {usd(amount || 0)}
                 </Button>
-                <p className="flex items-center justify-center gap-1.5 text-center text-xs text-gray-400">
+                <p className="flex items-center justify-center gap-1.5 text-center text-xs text-gray-500">
                   <ShieldCheck className="h-3.5 w-3.5" /> Secure payment. Card details are never stored.
                 </p>
               </div>

@@ -20,6 +20,7 @@ import { Button } from '@/components/ui/button';
 import { cn, money, shortDate } from '@/lib/utils';
 import { LEAD_LIFECYCLE, LEAD_STATUS_BADGE, PIPELINE_STEPS, canArchiveLeadStatus, formatPhone } from './leadHelpers';
 import { LeadSourceChip, useFollowUpLocks } from './leadFeatures';
+import { pressable } from '@/lib/a11y';
 
 type SortKey = 'name' | 'status' | 'source' | 'service' | 'value' | 'date';
 
@@ -103,7 +104,7 @@ export function LeadsTable({
         </div>
         <div className="flex items-center gap-2">
           <Input type="date" value={from} onChange={(e) => setFrom(e.target.value)} aria-label="From date" className="w-40" />
-          <span className="text-xs text-gray-400">to</span>
+          <span className="text-xs text-gray-500">to</span>
           <Input type="date" value={to} onChange={(e) => setTo(e.target.value)} aria-label="To date" className="w-40" />
         </div>
         {hasFilters && (
@@ -116,7 +117,7 @@ export function LeadsTable({
       <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
         <div className="overflow-x-auto">
           {rows.length === 0 ? (
-            <div className="py-12 text-center italic text-gray-400">No leads found.</div>
+            <div className="py-12 text-center italic text-gray-500">No leads found.</div>
           ) : (
             <table className="w-full min-w-[1100px] text-sm">
               <thead className="border-b border-gray-200 bg-gray-50">
@@ -139,7 +140,7 @@ export function LeadsTable({
                   const est = lookups.estimate(l.estimateId);
                   const lc = LEAD_LIFECYCLE[l.status];
                   return (
-                    <tr
+                    <tr {...pressable(true, { row: true })}
                       key={l.id}
                       onClick={() => router.push(`/leads/${l.id}`)}
                       className={cn('cursor-pointer transition-colors hover:bg-gray-50', i % 2 ? 'bg-gray-50/50' : 'bg-white')}
@@ -159,7 +160,7 @@ export function LeadsTable({
                       </td>
                       <td className="px-5 py-4"><Badge className={LEAD_STATUS_BADGE[l.status]}>{l.status}</Badge></td>
                       <td className="px-5 py-4">
-                        {est ? <RefChip href={`/estimates/${est.id}`}>{est.estimateNumber}</RefChip> : <span className="text-xs text-gray-400">-</span>}
+                        {est ? <RefChip href={`/estimates/${est.id}`}>{est.estimateNumber}</RefChip> : <span className="text-xs text-gray-500">-</span>}
                       </td>
                       <td className="px-5 py-4">
                         <div className="flex flex-col gap-0.5 text-xs text-gray-500">

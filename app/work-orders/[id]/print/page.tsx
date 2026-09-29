@@ -91,10 +91,10 @@ export default function WorkOrderPrintPage() {
                 <tr key={t.id} className="border-b border-gray-200">
                   <td className="w-8 py-2"><span className="inline-block h-4 w-4 border border-gray-500 text-center text-xs leading-4">{t.done ? '✓' : ''}</span></td>
                   <td className="py-2">{i + 1}. {t.text}</td>
-                  <td className="w-32 py-2 text-right text-gray-400">Initials ______</td>
+                  <td className="w-32 py-2 text-right text-gray-500">Initials ______</td>
                 </tr>
               ))}
-              {wo.tasks.length === 0 && <tr><td className="py-2 text-gray-400">No tasks.</td></tr>}
+              {wo.tasks.length === 0 && <tr><td className="py-2 text-gray-500">No tasks.</td></tr>}
             </tbody>
           </table>
         </div>

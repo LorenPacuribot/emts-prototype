@@ -148,7 +148,7 @@ export function InspectionModal({ rep, open, onOpenChange }: { rep: RepeatEstima
             {photos > 0 && (
               <>
                 <span className="inline-flex items-center gap-1 text-xs text-green-700"><CheckCircle2 className="h-3.5 w-3.5" /> OK</span>
-                <button className="text-xs text-gray-400 hover:text-red-600" onClick={() => setPhotos((n) => Math.max(0, n - 1))}>Remove one</button>
+                <button className="text-xs text-gray-500 hover:text-red-600" onClick={() => setPhotos((n) => Math.max(0, n - 1))}>Remove one</button>
               </>
             )}
           </div>

@@ -38,7 +38,7 @@ export function DocumentNumberingView() {
   return (
     <SettingsPage wide title="Document Numbering" subtitle="Configure auto-numbering formats for leads, estimates, jobs, work orders, and invoices.">
       {list.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-gray-200 bg-white p-10 text-center text-sm text-gray-400">No numbering configurations found.</p>
+        <p className="rounded-2xl border border-dashed border-gray-200 bg-white p-10 text-center text-sm text-gray-500">No numbering configurations found.</p>
       ) : (
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
           {list.map((cfg) => <NumberingCard key={cfg.id} cfg={cfg} />)}
@@ -94,23 +94,23 @@ function NumberingCard({ cfg }: { cfg: DocumentNumbering }) {
           </Field>
         )}
         <div className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3" title="Changes will apply to newly created documents. Existing document numbers will not be affected.">
-          <p className="mb-1 text-xxs font-bold uppercase tracking-wider text-gray-400">Preview</p>
+          <p className="mb-1 text-xxs font-bold uppercase tracking-wider text-gray-500">Preview</p>
           <p className="font-mono text-base font-bold text-primary-600">{preview}</p>
         </div>
       </div>
       <div className="mt-4 border-t border-gray-100 pt-4">
         {cfg.startingSet ? (
           <div className="flex items-start gap-2">
-            <Lock className="mt-0.5 h-3.5 w-3.5 text-gray-400" />
+            <Lock className="mt-0.5 h-3.5 w-3.5 text-gray-500" />
             <div>
-              <p className="text-xxs font-bold uppercase tracking-wider text-gray-400">Starting Number Set</p>
+              <p className="text-xxs font-bold uppercase tracking-wider text-gray-500">Starting Number Set</p>
               <p className="text-xs text-gray-500">Next document will be #{cfg.nextSerial}. This was a one-time setting.</p>
             </div>
           </div>
         ) : (
           <>
             <div className="mb-1 flex items-center gap-2 text-xxs font-bold uppercase tracking-wider text-gray-500"><Hash className="h-3.5 w-3.5" /> Set Starting Number</div>
-            <p className="mb-2 text-xs text-gray-400">One-time only. Useful for migrating from offline systems.</p>
+            <p className="mb-2 text-xs text-gray-500">One-time only. Useful for migrating from offline systems.</p>
             <div className="flex gap-2">
               <div className="flex-1">
                 <Input type="number" min="1" step="1" value={start} placeholder="e.g. 100" invalid={!!startError} onChange={(e) => { setStart(e.target.value); setStartError(''); }} />

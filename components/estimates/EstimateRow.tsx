@@ -99,15 +99,15 @@ export function EstimateRow({ estimate: e, total, handlers }: { estimate: Estima
 
       <div className="flex items-center justify-between gap-6 border-t border-gray-100 pt-3 md:justify-end md:gap-8 md:border-0 md:pt-0">
         <div className="flex w-24 flex-col gap-1">
-          <span className="text-xxs font-bold uppercase tracking-wider text-gray-400">Status</span>
+          <span className="text-xxs font-bold uppercase tracking-wider text-gray-500">Status</span>
           <EstimateStatusBadge status={e.status} />
         </div>
         <div className="hidden w-24 flex-col gap-1 lg:flex">
-          <span className="text-xxs font-bold uppercase tracking-wider text-gray-400">Type</span>
+          <span className="text-xxs font-bold uppercase tracking-wider text-gray-500">Type</span>
           <span className="truncate text-sm font-bold text-gray-700">{e.estimateType}</span>
         </div>
         <div className="flex min-w-28 flex-col items-end gap-1 text-right">
-          <span className="text-xxs font-bold uppercase tracking-wider text-gray-400">Total Value</span>
+          <span className="text-xxs font-bold uppercase tracking-wider text-gray-500">Total Value</span>
           <span className="text-sm font-black text-gray-900">{money(total)}</span>
         </div>
         <div className="flex items-center gap-2 border-l border-gray-100 pl-4">

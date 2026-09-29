@@ -76,7 +76,7 @@ export function EstimateToolbar({
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-gray-600 shadow-sm">
-            <Hash className="h-4 w-4 text-gray-400" />
+            <Hash className="h-4 w-4 text-gray-500" />
             <span className="font-mono text-sm font-bold tracking-wide">{e.estimateNumber}</span>
           </div>
           <EstimateStatusBadge status={e.status} size="md" />

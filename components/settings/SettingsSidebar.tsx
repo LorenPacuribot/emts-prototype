@@ -23,7 +23,7 @@ export function SettingsSidebar() {
         {SETTINGS_NAV.map((group, gi) => (
           <div key={group.section} className="contents">
             {gi > 0 && <div className="my-4 hidden h-px w-full bg-gray-100 lg:block" />}
-            <h2 className="mb-3 mt-2 hidden px-2 text-xxs font-black uppercase tracking-[0.2em] text-gray-400 lg:block">{group.section}</h2>
+            <h2 className="mb-3 mt-2 hidden px-2 text-xxs font-black uppercase tracking-[0.2em] text-gray-500 lg:block">{group.section}</h2>
             {group.items.filter(visible).map((item) => {
               const href = `/settings/${item.id}`;
               const active = isActive(href);
@@ -39,7 +39,7 @@ export function SettingsSidebar() {
                       : 'border-transparent bg-transparent font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-900',
                   )}
                 >
-                  <Icon className={cn('h-5 w-5 shrink-0', active ? 'text-primary-600' : 'text-gray-400')} />
+                  <Icon className={cn('h-5 w-5 shrink-0', active ? 'text-primary-600' : 'text-gray-500')} />
                   <span className="min-w-0 flex-1 truncate text-sm leading-tight">{item.label}</span>
                   {item.isNew && <NewBadge feature={item.feature} />}
                 </Link>

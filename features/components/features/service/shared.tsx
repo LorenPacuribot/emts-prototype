@@ -36,7 +36,7 @@ export function NoticeBadge({ basis }: { basis: RepaintAlert["noticeBasis"] }) {
 }
 
 export function SuppressionBadge({ s }: { s?: Suppression }) {
-  if (!s) return <span className="text-xs text-gray-400">None</span>;
+  if (!s) return <span className="text-xs text-gray-500">None</span>;
   return <Badge tone="gray" icon={<EyeOff className="h-3 w-3" />}>{s.label}</Badge>;
 }
 

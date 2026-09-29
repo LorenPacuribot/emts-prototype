@@ -31,13 +31,13 @@ const PRIORITIES = ['Low', 'Normal', 'High', 'Urgent'] as const;
 function Row({ icon: Icon, label, children }: { icon: React.ElementType; label: string; children: React.ReactNode }) {
   return (
     <div className="flex items-start gap-3">
-      <Icon className="mt-0.5 h-4 w-4 shrink-0 text-gray-400" />
+      <Icon className="mt-0.5 h-4 w-4 shrink-0 text-gray-500" />
       <div className="w-24 shrink-0 text-sm text-gray-500">{label}</div>
       <div className="min-w-0 flex-1 text-sm font-medium text-gray-900">{children}</div>
     </div>
   );
 }
-const NotScheduled = () => <span className="font-normal text-gray-400">Not scheduled</span>;
+const NotScheduled = () => <span className="font-normal text-gray-500">Not scheduled</span>;
 
 export function JobDetailsPanel({
   job, onClose, onReschedule, onManageCrew, onCancel,
@@ -69,16 +69,16 @@ export function JobDetailsPanel({
         <div className="border-b border-gray-100 px-5 pt-5">
           <div className="flex items-start justify-between gap-3">
             <div className="flex min-w-0 items-center gap-2.5">
-              <span className={cn('h-2.5 w-2.5 shrink-0 rounded-full', JOB_STAGE_DOT[job.status])} />
+              <span className={cn('h-2.5 w-2.5 shrink-0 rounded-full', JOB_STAGE_DOT[job.status])} title={job.status} aria-hidden />
               <h2 className="truncate font-heading text-xl font-black text-gray-900">{job.title}</h2>
             </div>
-            <button type="button" onClick={onClose} aria-label="Close" className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100"><X className="h-5 w-5" /></button>
+            <button type="button" onClick={onClose} aria-label="Close" className="rounded-lg p-1.5 text-gray-500 hover:bg-gray-100"><X className="h-5 w-5" /></button>
           </div>
-          <div className="ml-5 mt-1 text-sm font-medium text-gray-400">{job.jobNumber}</div>
+          <div className="ml-5 mt-1 text-sm font-medium text-gray-500">{job.jobNumber}</div>
           <div className="-mb-px mt-3 flex gap-5">
             {(['details', 'notes'] as const).map((t) => (
               <button key={t} type="button" onClick={() => setTab(t)}
-                className={cn('border-b-2 pb-2.5 text-sm font-bold capitalize', tab === t ? 'border-primary-600 text-primary-600' : 'border-transparent text-gray-400 hover:text-gray-600')}>
+                className={cn('border-b-2 pb-2.5 text-sm font-bold capitalize', tab === t ? 'border-primary-600 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-600')}>
                 {t}
                 {t === 'notes' && notes.length > 0 && <span className="ml-1.5 inline-flex h-[1.1rem] min-w-[1.1rem] items-center justify-center rounded-full bg-primary-500 px-1 text-xs font-black text-white">{notes.length}</span>}
               </button>
@@ -90,7 +90,7 @@ export function JobDetailsPanel({
           {tab === 'details' ? (
             <div className="space-y-4">
               <Row icon={User} label="Customer">{fullName(customer)}{customer?.phone && <span className="font-normal text-gray-500"> · {customer.phone}</span>}</Row>
-              <Row icon={MapPin} label="Address">{job.address || <span className="font-normal text-gray-400">-</span>}</Row>
+              <Row icon={MapPin} label="Address">{job.address || <span className="font-normal text-gray-500">-</span>}</Row>
               <Row icon={Users} label="Crew">
                 {job.crew.length ? (
                   <div className="flex flex-col gap-1.5">
@@ -99,18 +99,18 @@ export function JobDetailsPanel({
                       return (
                         <div key={c.memberId} className="flex items-center gap-2">
                           <Avatar name={fullName(m)} color={m?.color} size="sm" />
-                          <div><div className="text-sm font-medium text-gray-700">{fullName(m)}</div><div className="text-xs font-normal text-gray-400">{c.role} · {Math.round(job.crew.filter((entry) => entry.memberId === c.memberId).reduce((n, entry) => n + entry.hours, 0) * 10) / 10}h</div></div>
+                          <div><div className="text-sm font-medium text-gray-700">{fullName(m)}</div><div className="text-xs font-normal text-gray-500">{c.role} · {Math.round(job.crew.filter((entry) => entry.memberId === c.memberId).reduce((n, entry) => n + entry.hours, 0) * 10) / 10}h</div></div>
                         </div>
                       );
                     })}
                   </div>
-                ) : <span className="font-normal text-gray-400">No crew assigned</span>}
+                ) : <span className="font-normal text-gray-500">No crew assigned</span>}
               </Row>
               <Row icon={Calendar} label="Start date">{job.startDate ? fmtDay(job.startDate, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }) : <NotScheduled />}</Row>
               <Row icon={Calendar} label="End date">{job.startDate ? fmtDay(job.endDate ?? job.startDate, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }) : <NotScheduled />}</Row>
-              <Row icon={Clock} label="Duration">{job.startDate ? `${days.length} working day${days.length === 1 ? '' : 's'}` : <span className="font-normal text-gray-400">—</span>}</Row>
+              <Row icon={Clock} label="Duration">{job.startDate ? `${days.length} working day${days.length === 1 ? '' : 's'}` : <span className="font-normal text-gray-500">—</span>}</Row>
               <Row icon={Clock} label="Daily hours">
-                {job.startDate && job.shifts?.length ? <div className="space-y-2">{job.shifts.flatMap((shift) => workingShiftDays(job, shift).map((day) => { const w = shiftWindow(shift, day); return <div key={shift.id + day} className="flex justify-between gap-2 text-xs"><span className="text-gray-500">{fmtDay(day, { weekday: 'short', month: 'short', day: 'numeric' })}</span><span>{fmtTime(w.startTime)} – {fmtTime(w.endTime)}</span></div>; }))}</div> : job.startDate ? (job.startTime ? `${fmtTime(job.startTime)} – ${fmtTime(job.endTime)}` : <span className="font-normal text-gray-400">Time not set</span>) : <NotScheduled />}
+                {job.startDate && job.shifts?.length ? <div className="space-y-2">{job.shifts.flatMap((shift) => workingShiftDays(job, shift).map((day) => { const w = shiftWindow(shift, day); return <div key={shift.id + day} className="flex justify-between gap-2 text-xs"><span className="text-gray-500">{fmtDay(day, { weekday: 'short', month: 'short', day: 'numeric' })}</span><span>{fmtTime(w.startTime)} – {fmtTime(w.endTime)}</span></div>; }))}</div> : job.startDate ? (job.startTime ? `${fmtTime(job.startTime)} – ${fmtTime(job.endTime)}` : <span className="font-normal text-gray-500">Time not set</span>) : <NotScheduled />}
               </Row>
               {job.breaks.length > 0 && (
                 <Row icon={Calendar} label="Pauses">
@@ -133,13 +133,13 @@ export function JobDetailsPanel({
                   <Button size="sm" disabled={!text.trim()} onClick={() => { addNote(job.id, { text: text.trim(), type: 'note', authorId: me.id }); setText(''); toast('Note added'); }}>Add note</Button>
                 </div>
               </div>
-              {notes.length === 0 ? <p className="text-sm text-gray-400">No notes yet.</p> : notes.map((n) => {
+              {notes.length === 0 ? <p className="text-sm text-gray-500">No notes yet.</p> : notes.map((n) => {
                 const a = look.member(n.authorId);
                 return (
                   <div key={n.id} className="rounded-xl border border-gray-100 bg-gray-50 p-3">
                     <div className="mb-1 flex items-center gap-2 text-xs">
                       <span className="font-bold text-gray-900">{fullName(a)}</span>
-                      <span className="text-gray-400">{longDate(n.date)}</span>
+                      <span className="text-gray-500">{longDate(n.date)}</span>
                       <button onClick={() => { removeNote(job.id, n.id); toast('Note deleted'); }} className="ml-auto text-gray-300 hover:text-red-500" aria-label="Delete note"><Trash2 className="h-3.5 w-3.5" /></button>
                     </div>
                     <p className="whitespace-pre-wrap text-sm text-gray-700">{n.text}</p>
@@ -246,7 +246,7 @@ export function BulkRescheduleModal({ open, onOpenChange }: { open: boolean; onO
           </Field>
         </div>
         <div>
-          <div className="mb-2 flex items-center justify-between text-xs font-black uppercase tracking-[0.12em] text-gray-400">
+          <div className="mb-2 flex items-center justify-between text-xs font-black uppercase tracking-[0.12em] text-gray-500">
             <span>Reschedule preview</span>
             {affected.length > 0 && (
               <span className="flex gap-3 normal-case tracking-normal">
@@ -256,7 +256,7 @@ export function BulkRescheduleModal({ open, onOpenChange }: { open: boolean; onO
             )}
           </div>
           {affected.length === 0 ? (
-            <p className="rounded-xl border border-dashed border-gray-200 p-6 text-center text-sm text-gray-400">No scheduled jobs in this date range.</p>
+            <p className="rounded-xl border border-dashed border-gray-200 p-6 text-center text-sm text-gray-500">No scheduled jobs in this date range.</p>
           ) : (
             <div className="divide-y divide-gray-100 rounded-xl border border-gray-200">
               {affected.map((j) => {
@@ -272,7 +272,7 @@ export function BulkRescheduleModal({ open, onOpenChange }: { open: boolean; onO
                     <button
                       type="button"
                       onClick={() => update(j.id, { scheduleProtected: !isProtected })}
-                      className={cn('rounded-lg p-1.5', isProtected ? 'bg-amber-100 text-amber-700' : 'text-gray-400 hover:bg-gray-100 hover:text-gray-700')}
+                      className={cn('rounded-lg p-1.5', isProtected ? 'bg-amber-100 text-amber-700' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700')}
                       aria-label={isProtected ? `Unprotect ${j.jobNumber}` : `Protect ${j.jobNumber}`}
                       aria-pressed={isProtected}
                       title={isProtected ? 'Protected: keeps its date. Click to unlock.' : 'Protect: keep this job on its date'}
@@ -280,12 +280,12 @@ export function BulkRescheduleModal({ open, onOpenChange }: { open: boolean; onO
                       {isProtected ? <Lock className="h-4 w-4" /> : <Unlock className="h-4 w-4" />}
                     </button>
                     <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm font-bold text-gray-900">{j.title} <span className="font-medium text-gray-400">({j.jobNumber})</span></div>
+                      <div className="truncate text-sm font-bold text-gray-900">{j.title} <span className="font-medium text-gray-500">({j.jobNumber})</span></div>
                       <div className="text-xs text-gray-500">
                         Now {fmtSpan(j.startDate, j.endDate)}
                         {isProtected ? <span className="ml-2 font-bold text-amber-700">Protected · stays on its date</span>
-                          : on && proposed ? <> → <span className="font-bold text-primary-600">{fmtSpan(proposed.startDate, proposed.endDate)}</span>{leapfrog && <span className="ml-1 text-gray-400">(moved past a busy day)</span>}</>
-                          : !on ? <span className="ml-2 text-gray-400">Not moving</span> : null}
+                          : on && proposed ? <> → <span className="font-bold text-primary-600">{fmtSpan(proposed.startDate, proposed.endDate)}</span>{leapfrog && <span className="ml-1 text-gray-500">(moved past a busy day)</span>}</>
+                          : !on ? <span className="ml-2 text-gray-500">Not moving</span> : null}
                       </div>
                       {on && conflicts.length > 0 && (
                         <div className="mt-1 text-xs font-semibold text-amber-700" title={conflicts.map((c) => c.message).join('\n')}>

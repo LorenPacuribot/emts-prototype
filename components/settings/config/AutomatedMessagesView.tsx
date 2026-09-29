@@ -70,7 +70,7 @@ export function AutomatedMessagesView() {
     <SettingsPage wide title="Automated Messages" subtitle="Customize the default email and SMS templates sent to clients.">
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
         <div className="space-y-3 lg:col-span-4 lg:max-h-[calc(100vh-9rem)] lg:overflow-y-auto lg:pr-2">
-          {items.length === 0 && <p className="rounded-xl border border-dashed border-gray-200 p-6 text-center text-sm text-gray-400">No email templates.</p>}
+          {items.length === 0 && <p className="rounded-xl border border-dashed border-gray-200 p-6 text-center text-sm text-gray-500">No email templates.</p>}
           {items.map((t) => (
             <TemplateListItem key={t.id} active={t.id === activeId} icon={<Mail />} title={t.name} subtitle={t.subject ?? ''} onClick={() => select(t.id)} />
           ))}
@@ -126,7 +126,7 @@ export function AutomatedMessagesView() {
               </div>
             </div>
           ) : (
-            <div className="flex h-full min-h-[300px] items-center justify-center rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 text-gray-400">Select a template to edit</div>
+            <div className="flex h-full min-h-[300px] items-center justify-center rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 text-gray-500">Select a template to edit</div>
           )}
         </div>
       </div>

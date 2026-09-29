@@ -188,7 +188,7 @@ function Library() {
             {history.map((h) => (
               <li key={h.version} className="rounded-lg border border-line px-3 py-2 text-gray-600">
                 <strong className="text-ink">v{h.version}</strong> · {date(h.updatedAt)} · {byId(db.users, h.updatedBy)?.name} · {h.note ?? "—"}
-                <div className="text-xs text-gray-400">{h.defaults.map((d) => `${labelRoomType(d.roomType)} ${d.years}`).join(" · ")}</div>
+                <div className="text-xs text-gray-500">{h.defaults.map((d) => `${labelRoomType(d.roomType)} ${d.years}`).join(" · ")}</div>
               </li>
             ))}
           </ul>
@@ -196,7 +196,7 @@ function Library() {
         <Card className="p-4">
           <CardLabel icon={<RefreshCw />}>Historical recalculations</CardLabel>
           {(db.recalculations ?? []).length === 0 ? (
-            <p className="mt-3 text-xs italic text-gray-400">None yet. Old dates are always kept when the owner recalculates.</p>
+            <p className="mt-3 text-xs italic text-gray-500">None yet. Old dates are always kept when the owner recalculates.</p>
           ) : (
             <ul className="mt-3 space-y-3">
               {(db.recalculations ?? []).map((r) => (
@@ -321,7 +321,7 @@ function ProductDefaultsEditor({ rows, errField, errMessage, onChange }: {
   };
   return (
     <div>
-      <div className="mb-2 text-xs font-semibold text-gray-600">Product and product-line defaults <span className="font-normal text-gray-400">— win over surface and room defaults; a product on one surface type wins over all</span></div>
+      <div className="mb-2 text-xs font-semibold text-gray-600">Product and product-line defaults <span className="font-normal text-gray-500">— win over surface and room defaults; a product on one surface type wins over all</span></div>
       <div className="grid gap-3 sm:grid-cols-2">
         {rows.map((d, i) => (
           <Field key={key(d)} label={`${d.product ?? `${d.productLine} line`}${d.surfaceType ? ` on ${labelSurfaceType(d.surfaceType).toLowerCase()}` : ""} (years)`} error={errField === `years-${key(d)}` ? errMessage : undefined}>

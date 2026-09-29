@@ -198,7 +198,7 @@ function CoLink({ co }: { co: ChangeOrder }) {
     <AppLink href={coHref(db, co)} className="group block">
       <IdChip tone="blue">{co.id}</IdChip>
       <div className="mt-0.5 max-w-60 truncate text-xs font-medium text-ink group-hover:text-brand">{co.title}</div>
-      <div className="text-xs text-gray-400">{job?.name}</div>
+      <div className="text-xs text-gray-500">{job?.name}</div>
     </AppLink>
   );
 }

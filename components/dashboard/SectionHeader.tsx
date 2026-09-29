@@ -11,7 +11,7 @@ import { ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export function SectionHeader({
-  title, icon: Icon, colorClass = 'text-gray-400', href, right, className,
+  title, icon: Icon, colorClass = 'text-gray-500', href, right, className,
 }: {
   title: string;
   icon: React.ElementType;
@@ -48,5 +48,5 @@ export function Pulse({ className }: { className?: string }) {
 
 /** Italic grey "nothing here" line used inside cards. */
 export function EmptyLine({ children, className }: { children: React.ReactNode; className?: string }) {
-  return <p className={cn('py-4 text-center text-xs italic text-gray-400', className)}>{children}</p>;
+  return <p className={cn('py-4 text-center text-xs italic text-gray-500', className)}>{children}</p>;
 }

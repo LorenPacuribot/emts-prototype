@@ -131,11 +131,11 @@ export function PaintHistoryPanel({ property }: { property: Property }) {
                 <DropdownMenu.Content align="end" sideOffset={4} className="z-50 min-w-52 rounded-xl border border-line bg-white p-1 shadow-xl">
                   {(["staff", "customer"] as const).map((v) => (
                     <DropdownMenu.Item key={v} onSelect={() => setPrint({ open: true, variant: v })} className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm outline-none data-[highlighted]:bg-gray-100">
-                      <Printer className="h-4 w-4 text-gray-400" /> {v === "staff" ? "PDF · staff record" : "PDF · customer variant"}
+                      <Printer className="h-4 w-4 text-gray-500" /> {v === "staff" ? "PDF · staff record" : "PDF · customer variant"}
                     </DropdownMenu.Item>
                   ))}
                   <DropdownMenu.Item onSelect={exportCsv} className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm outline-none data-[highlighted]:bg-gray-100">
-                    <Download className="h-4 w-4 text-gray-400" /> CSV
+                    <Download className="h-4 w-4 text-gray-500" /> CSV
                   </DropdownMenu.Item>
                 </DropdownMenu.Content>
               </DropdownMenu.Portal>
@@ -182,7 +182,7 @@ export function PaintHistoryPanel({ property }: { property: Property }) {
             <div className="mt-2 font-display text-xl font-bold text-ink">{property.address}</div>
             <div className="text-sm text-gray-500">{property.city}, {property.state} {property.zip}</div>
             {property.addressHistory?.length ? (
-              <div className="mt-1 text-xs text-gray-400">Earlier address: {property.addressHistory.map((h) => `“${h.address}” (until ${date(h.changedAt)})`).join(", ")}</div>
+              <div className="mt-1 text-xs text-gray-500">Earlier address: {property.addressHistory.map((h) => `“${h.address}” (until ${date(h.changedAt)})`).join(", ")}</div>
             ) : null}
           </div>
           <KV
@@ -226,7 +226,7 @@ export function PaintHistoryPanel({ property }: { property: Property }) {
             ) : (
               <>
                 <div className="mt-3 flex flex-wrap items-center gap-2">
-                  <span className={surface.removedAt ? "font-display text-base font-bold text-gray-400 line-through" : "font-display text-base font-bold text-ink"}>{surfaceLabel(db, surface.id)}</span>
+                  <span className={surface.removedAt ? "font-display text-base font-bold text-gray-500 line-through" : "font-display text-base font-bold text-ink"}>{surfaceLabel(db, surface.id)}</span>
                   <IdChip>{surface.id}</IdChip>
                   {surface.removedAt && <Badge tone="red">Removed {dateLong(surface.removedAt)}</Badge>}
                   {surface.replacesSurfaceId && (
@@ -306,7 +306,7 @@ export function PaintHistoryPanel({ property }: { property: Property }) {
                         <div className="flex flex-wrap items-center gap-2">
                           <span className="font-semibold text-ink">{c.field}</span>
                           <IdChip>{c.applicationId}</IdChip>
-                          <span className="text-xs text-gray-400">{a ? surfaceLabel(db, a.surfaceId) : ""}</span>
+                          <span className="text-xs text-gray-500">{a ? surfaceLabel(db, a.surfaceId) : ""}</span>
                         </div>
                         <div className="mt-1 text-gray-600">
                           <span className="line-through decoration-gray-400">{c.oldValue}</span> → <span className="font-semibold text-ink">{c.newValue}</span>
@@ -447,8 +447,8 @@ function ApplicationCard({ app, latest, seeCosts, canCorrect, canLog, onCorrect,
       )}
 
       <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-line pt-3 text-xs">
-        <span className="flex items-center gap-1.5 text-gray-600"><Camera className="h-3.5 w-3.5 text-gray-400" /> {app.photoCount} photo{app.photoCount === 1 ? "" : "s"}<Mark field="Photographs" /></span>
-        <span className="flex items-center gap-1.5 text-gray-600"><FlaskConical className="h-3.5 w-3.5 text-gray-400" /> Tint {app.tintFormula ?? <NotRecorded />}</span>
+        <span className="flex items-center gap-1.5 text-gray-600"><Camera className="h-3.5 w-3.5 text-gray-500" /> {app.photoCount} photo{app.photoCount === 1 ? "" : "s"}<Mark field="Photographs" /></span>
+        <span className="flex items-center gap-1.5 text-gray-600"><FlaskConical className="h-3.5 w-3.5 text-gray-500" /> Tint {app.tintFormula ?? <NotRecorded />}</span>
         {app.product !== "Unknown" && app.verification === "confirmed" && (
           <a href={pdsLink(app.product)} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 font-semibold text-brand hover:underline">
             <ExternalLink className="h-3.5 w-3.5" /> Product data sheet <Badge tone="dark" className="ml-1">Staff-only</Badge>

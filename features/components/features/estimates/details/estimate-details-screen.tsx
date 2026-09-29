@@ -116,11 +116,11 @@ function EstimateHeader({ estimate, job, editable }: { estimate: Estimate; job?:
           <div>
             <div className="font-heading text-lg font-bold text-gray-900">Estimate Master</div>
             <div className="text-sm text-gray-500">410 Commerce Park, Dallas, TX 75201</div>
-            <div className="text-xs text-gray-400">license #TX-PNT-20418</div>
+            <div className="text-xs text-gray-500">license #TX-PNT-20418</div>
           </div>
         </div>
         <div className="sm:text-right">
-          <div className="mb-1 text-xxs font-bold uppercase tracking-widest text-gray-400">Estimator</div>
+          <div className="mb-1 text-xxs font-bold uppercase tracking-widest text-gray-500">Estimator</div>
           {editable ? (
             <Select value={estimate.estimatorId ?? ""} onChange={(e) => act(updateEstimateDetails, estimate.id, { estimatorId: e.target.value })} className="h-10 w-56 rounded-full" aria-label="Estimator">
               <option value="">Select Estimator ▾</option>
@@ -143,22 +143,22 @@ function ClientInfo({ estimate, editable }: { estimate: Estimate; editable: bool
   return (
     <div className="grid gap-6 px-4 pt-8 sm:grid-cols-3 md:px-12">
       <div>
-        <h4 className="mb-2 flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-gray-400"><UserRound className="h-3.5 w-3.5" /> Client</h4>
+        <h4 className="mb-2 flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-gray-500"><UserRound className="h-3.5 w-3.5" /> Client</h4>
         <AppLink href={contactHref(estimate.customerId)} className="font-bold text-gray-900 hover:text-primary-700">{customer?.name}</AppLink>
         <div className="text-sm text-gray-500">{customer?.email}</div>
         <div className="text-sm text-gray-500">{customer?.phone}</div>
       </div>
       <div>
-        <h4 className="mb-2 flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-gray-400"><MapPin className="h-3.5 w-3.5" /> Job Site</h4>
+        <h4 className="mb-2 flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-gray-500"><MapPin className="h-3.5 w-3.5" /> Job Site</h4>
         <div className="font-semibold text-gray-900">{property?.address}</div>
         <div className="text-sm text-gray-500">{property ? `${property.city}, ${property.state} ${property.zip}` : "No job address specified"}</div>
       </div>
       <div>
-        <h4 className="mb-2 flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-gray-400"><Calendar className="h-3.5 w-3.5" /> Dates
-          {editable && <button onClick={() => setDatesOpen(true)} className="ml-1 text-gray-400 hover:text-primary-600" aria-label="Edit Estimate Dates"><Pencil className="h-3.5 w-3.5" /></button>}
+        <h4 className="mb-2 flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-gray-500"><Calendar className="h-3.5 w-3.5" /> Dates
+          {editable && <button onClick={() => setDatesOpen(true)} className="ml-1 text-gray-500 hover:text-primary-600" aria-label="Edit Estimate Dates"><Pencil className="h-3.5 w-3.5" /></button>}
         </h4>
-        <div className="text-sm text-gray-600"><span className="text-gray-400">Estimate Date:</span> {date(estimate.estimateDate ?? estimate.createdAt)}</div>
-        <div className="text-sm text-gray-600"><span className="text-gray-400">Valid Until:</span> {date(estimate.validUntil)}</div>
+        <div className="text-sm text-gray-600"><span className="text-gray-500">Estimate Date:</span> {date(estimate.estimateDate ?? estimate.createdAt)}</div>
+        <div className="text-sm text-gray-600"><span className="text-gray-500">Valid Until:</span> {date(estimate.validUntil)}</div>
       </div>
       <DatesModal open={datesOpen} onOpenChange={setDatesOpen} estimate={estimate} />
     </div>
@@ -225,9 +225,9 @@ function MaterialsSummary({ estimate, job }: { estimate: Estimate; job: Job }) {
           </Button>
         )}
       />
-      <div className="text-xs font-bold uppercase tracking-widest text-gray-400">Paint Products (Calculated)</div>
+      <div className="text-xs font-bold uppercase tracking-widest text-gray-500">Paint Products (Calculated)</div>
       {lines.length === 0 ? (
-        <p className="mt-3 text-sm italic text-gray-400">Add a color with a product, then assign surfaces.</p>
+        <p className="mt-3 text-sm italic text-gray-500">Add a color with a product, then assign surfaces.</p>
       ) : (
         <div className="mt-3 overflow-x-auto rounded-xl border border-gray-200">
           <table className="w-full min-w-[600px] text-left text-sm">
@@ -271,11 +271,11 @@ function FinalizeSection({ estimate, job, editable }: { estimate: Estimate; job?
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-4 lg:col-span-2">
           <div className="rounded-xl border border-gray-200 p-4">
-            <div className="text-xs font-bold uppercase tracking-widest text-gray-400">Deposit &amp; Payment Schedule</div>
+            <div className="text-xs font-bold uppercase tracking-widest text-gray-500">Deposit &amp; Payment Schedule</div>
             <p className="mt-2 text-sm text-gray-700">{DEFAULT_DEPOSIT_PERCENT}% deposit due at signing. Balance due on completion.</p>
           </div>
           <div className="rounded-xl border border-gray-200 p-4">
-            <div className="text-xs font-bold uppercase tracking-widest text-gray-400">Terms and Conditions</div>
+            <div className="text-xs font-bold uppercase tracking-widest text-gray-500">Terms and Conditions</div>
             <p className="mt-2 text-sm text-gray-700">Standard Residential Terms v3</p>
           </div>
         </div>
@@ -293,7 +293,7 @@ function FinalizeSection({ estimate, job, editable }: { estimate: Estimate; job?
               <Row label={`Tax (${t.taxRatePct}%)`} value={money(t.taxAmount)} />
             </div>
           )}
-          <div className="mt-4 text-xxs font-bold uppercase tracking-widest text-gray-400">Base Bid Total</div>
+          <div className="mt-4 text-xxs font-bold uppercase tracking-widest text-gray-500">Base Bid Total</div>
           <div className="font-heading text-4xl font-black text-gray-900">{money(total, { cents: true })}</div>
           {editable && total !== estimate.total && <p className="mt-1 text-xs text-amber-700">Save to update the stored total ({money(estimate.total, { cents: true })}).</p>}
           {estimate.status === "DRAFT" && can(user, "estimate.send") && (

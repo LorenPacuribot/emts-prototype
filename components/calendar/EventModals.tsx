@@ -257,16 +257,16 @@ export function EventDetailsModal({
 
           <div className="space-y-4 rounded-2xl border border-gray-100 bg-gray-50 p-5">
             <div className="flex items-start gap-3">
-              <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-gray-400" />
+              <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-gray-500" />
               <div>
-                <div className="text-xs font-bold uppercase tracking-wide text-gray-400">Location</div>
+                <div className="text-xs font-bold uppercase tracking-wide text-gray-500">Location</div>
                 <div className="text-sm font-bold text-gray-900">{event.address || 'No address available'}</div>
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <User className="mt-0.5 h-5 w-5 shrink-0 text-gray-400" />
+              <User className="mt-0.5 h-5 w-5 shrink-0 text-gray-500" />
               <div>
-                <div className="text-xs font-bold uppercase tracking-wide text-gray-400">{isEstimate ? 'Assigned Estimator' : 'Assigned To'}</div>
+                <div className="text-xs font-bold uppercase tracking-wide text-gray-500">{isEstimate ? 'Assigned Estimator' : 'Assigned To'}</div>
                 <div className="text-sm font-bold text-gray-900">{member ? fullName(member) : 'Unassigned'}</div>
               </div>
             </div>
@@ -274,7 +274,7 @@ export function EventDetailsModal({
               <div className="flex items-start gap-3">
                 <div className="w-5 shrink-0" />
                 <div>
-                  <div className="text-xs font-bold uppercase tracking-wide text-gray-400">Notes</div>
+                  <div className="text-xs font-bold uppercase tracking-wide text-gray-500">Notes</div>
                   <div className="text-sm italic text-gray-600">&ldquo;{event.notes}&rdquo;</div>
                 </div>
               </div>

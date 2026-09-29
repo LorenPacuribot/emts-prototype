@@ -299,14 +299,14 @@ function EditInvoiceForm({ invoice, onDone }: { invoice: Invoice; onDone: () => 
                   <td className="px-3 py-2"><Input type="number" step="0.01" min={0} value={l.rate} onChange={(e) => setLine(l.id, { rate: Number(e.target.value) })} /></td>
                   <td className="px-3 py-2 text-right font-semibold text-gray-900">{usd(l.quantity * l.rate)}</td>
                   <td className="px-2 py-2">
-                    <button onClick={() => setLines((ls) => ls.filter((x) => x.id !== l.id))} className="rounded-md p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-600" aria-label="Remove line">
+                    <button onClick={() => setLines((ls) => ls.filter((x) => x.id !== l.id))} className="rounded-md p-1.5 text-gray-500 hover:bg-red-50 hover:text-red-600" aria-label="Remove line">
                       <Trash2 className="h-4 w-4" />
                     </button>
                   </td>
                 </tr>
               ))}
               {lines.length === 0 && (
-                <tr><td colSpan={5} className="px-3 py-6 text-center text-sm text-gray-400">No line items yet.</td></tr>
+                <tr><td colSpan={5} className="px-3 py-6 text-center text-sm text-gray-500">No line items yet.</td></tr>
               )}
             </tbody>
           </table>

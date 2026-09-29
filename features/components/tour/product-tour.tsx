@@ -173,13 +173,13 @@ function TourRunner() {
       >
         <div className="flex items-center gap-2">
           {stopDef.feature && <span className="rounded-md bg-ink px-1.5 py-0.5 text-xs font-bold text-white">F{stopDef.feature}</span>}
-          <span className="text-xxs font-bold uppercase tracking-[0.14em] text-gray-400">
+          <span className="text-xxs font-bold uppercase tracking-[0.14em] text-gray-500">
             Stop {stop + 1} of {TOUR.length} · {stopDef.title}
           </span>
-          <button onClick={() => setShowStops(!showStops)} className="ml-auto rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-ink" aria-label="All stops" aria-expanded={showStops}>
+          <button onClick={() => setShowStops(!showStops)} className="ml-auto rounded p-1 text-gray-500 hover:bg-gray-100 hover:text-ink" aria-label="All stops" aria-expanded={showStops}>
             <List className="h-3.5 w-3.5" />
           </button>
-          <button onClick={exit} className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-ink" aria-label="Exit tour">
+          <button onClick={exit} className="rounded p-1 text-gray-500 hover:bg-gray-100 hover:text-ink" aria-label="Exit tour">
             <X className="h-3.5 w-3.5" />
           </button>
         </div>
@@ -196,7 +196,7 @@ function TourRunner() {
                     {completed.includes(s.id) ? <Check className="h-3 w-3" /> : i + 1}
                   </span>
                   <span className="flex-1">{s.title}</span>
-                  {s.feature && <span className="text-xs text-gray-400">F{s.feature}</span>}
+                  {s.feature && <span className="text-xs text-gray-500">F{s.feature}</span>}
                 </button>
               </li>
             ))}
@@ -246,7 +246,7 @@ function TourRunner() {
               </div>
             )}
             {missing && (
-              <p className="mt-3 text-xs italic text-gray-400">
+              <p className="mt-3 text-xs italic text-gray-500">
                 The highlighted area isn&apos;t showing right now. It can depend on your role or on changes made to the demo data.
               </p>
             )}

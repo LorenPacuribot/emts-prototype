@@ -51,7 +51,7 @@ function Report() {
         <Stat label="Posts published" value={r.published} hint={`Facebook ${r.perPlatform.facebook} · Instagram ${r.perPlatform.instagram} platform posts`} />
         <Stat label="Website leads" value={r.bySource.website ?? 0} />
         <Stat label="All leads" value={r.leads} />
-        {r.unavailable.map((u) => <Stat key={u} label={u} value={<span className="text-sm text-gray-400">Unavailable</span>} hint="not reported by the platform" />)}
+        {r.unavailable.map((u) => <Stat key={u} label={u} value={<span className="text-sm text-gray-500">Unavailable</span>} hint="not reported by the platform" />)}
       </StatStrip>
       <Card className="p-4">
         <CardLabel>Leads by source at creation</CardLabel>

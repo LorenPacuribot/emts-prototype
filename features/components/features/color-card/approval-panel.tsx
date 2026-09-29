@@ -208,7 +208,7 @@ export function SendApprovalModal({ open, onOpenChange, jobId, preselect }: { op
                     }
                   />
                   {blocked && picked.includes(s.id) && <p className="mt-1 pl-6 text-xs font-medium text-red-600">{blocked}</p>}
-                  {blocked && !picked.includes(s.id) && <p className="mt-1 pl-6 text-xs text-gray-400">{blocked}</p>}
+                  {blocked && !picked.includes(s.id) && <p className="mt-1 pl-6 text-xs text-gray-500">{blocked}</p>}
                 </div>
               );
             })}

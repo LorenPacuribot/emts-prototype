@@ -87,14 +87,14 @@ function Returns() {
                   return (
                     <TR key={r.id}>
                       <TD className="font-semibold text-ink">{r.id}</TD>
-                      <TD><button className="text-brand hover:underline" onClick={() => setOpenPo(r.poId)}>{r.poId}</button><div className="text-xs text-gray-400">ordered {line?.gallons} gal (unchanged)</div></TD>
+                      <TD><button className="text-brand hover:underline" onClick={() => setOpenPo(r.poId)}>{r.poId}</button><div className="text-xs text-gray-500">ordered {line?.gallons} gal (unchanged)</div></TD>
                       <TD><AppLink className="text-brand hover:underline" href={jobHref(r.jobId, "materials")}>{r.jobId}</AppLink></TD>
                       <TD>{r.lineId} · {line?.product}<div><Badge tone="blue">Untinted</Badge></div></TD>
                       <TD className="text-right tabular-nums">{r.qtyGal} gal</TD>
                       {perms.seePrices && <TD className="text-right tabular-nums">{money(r.credit)}</TD>}
                       <TD>{r.confirmed ? <Badge tone="green">Confirmed</Badge> : perms.submit ? <Button size="sm" onClick={() => act(confirmReturnCredit, r.id).ok && toast.success("Credit confirmed", "It now reduces the job's purchasing totals.")}><CheckCircle2 className="h-3.5 w-3.5" /> Confirm credit</Button> : <Badge tone="amber">Awaiting supplier</Badge>}</TD>
                       <TD className="max-w-[240px] whitespace-normal">{r.reason}</TD>
-                      <TD>{userName(db, r.by)}<div className="text-xs text-gray-400">{dateTime(r.at)}</div></TD>
+                      <TD>{userName(db, r.by)}<div className="text-xs text-gray-500">{dateTime(r.at)}</div></TD>
                     </TR>
                   );
                 })}

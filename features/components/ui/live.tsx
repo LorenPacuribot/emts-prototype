@@ -104,9 +104,9 @@ export function CardTitle({ icon, children, badge, right, className }: { icon?: 
   );
 }
 
-/** Small label used across the live app (`text-xxs font-bold text-gray-400 uppercase tracking-widest`). */
+/** Small label used across the live app (`text-xxs font-bold text-gray-500 uppercase tracking-widest`). */
 export function LiveLabel({ children, className }: { children: ReactNode; className?: string }) {
-  return <div className={cn("text-xxs font-bold uppercase tracking-widest text-gray-400", className)}>{children}</div>;
+  return <div className={cn("text-xxs font-bold uppercase tracking-widest text-gray-500", className)}>{children}</div>;
 }
 
 /** Live page title block for list and settings pages (`text-3xl md:text-4xl font-bold`). */
@@ -148,7 +148,7 @@ export function LiveTabs<T extends string>({ tabs, value, onChange, variant = "p
               value === t.key ? "bg-white text-primary-700 shadow-sm ring-1 ring-black/5" : "text-gray-500 hover:bg-gray-100 hover:text-gray-900",
             )}
           >
-            {t.icon && <span className={cn("[&>svg]:h-3.5 [&>svg]:w-3.5 md:[&>svg]:h-4 md:[&>svg]:w-4", value === t.key ? "text-primary-600" : "text-gray-400")}>{t.icon}</span>}
+            {t.icon && <span className={cn("[&>svg]:h-3.5 [&>svg]:w-3.5 md:[&>svg]:h-4 md:[&>svg]:w-4", value === t.key ? "text-primary-600" : "text-gray-500")}>{t.icon}</span>}
             {t.label}
             {t.isNew && <NewBadge feature={t.feature} />}
           </button>

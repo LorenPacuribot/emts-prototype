@@ -116,7 +116,7 @@ function Checkbook() {
                     <div className={`font-semibold text-ink ${e.status === "void" ? "line-through" : ""}`}>{e.payee}</div>
                     <div className="text-xs text-gray-500">{e.purpose}{e.voidReason && ` · Void: ${e.voidReason}`}</div>
                   </TD>
-                  <TD className="text-xs">{e.jobId ?? (e.kind === "check" ? "Overhead" : "")}{e.costCode && <span className="text-gray-400"> · {e.costCode}</span>}</TD>
+                  <TD className="text-xs">{e.jobId ?? (e.kind === "check" ? "Overhead" : "")}{e.costCode && <span className="text-gray-500"> · {e.costCode}</span>}</TD>
                   <TD className="text-right tabular-nums">{e.kind === "check" ? cents(e.amount) : ""}</TD>
                   <TD className="text-right tabular-nums">{e.kind === "deposit" ? cents(e.amount) : ""}</TD>
                   <TD className="text-right font-semibold tabular-nums">{cents(b)}</TD>
@@ -249,7 +249,7 @@ function Feeds() {
               {done.map((t) => (
                 <TR key={t.id}>
                   <TD className="whitespace-nowrap">{dateLong(t.date)}</TD>
-                  <TD><div className="font-semibold text-ink">{t.description}</div><div className="text-xs text-gray-400">{t.source === "card" ? "Card" : "Bank"} · {byId(db.bankAccounts ?? [], t.accountId)?.name}</div></TD>
+                  <TD><div className="font-semibold text-ink">{t.description}</div><div className="text-xs text-gray-500">{t.source === "card" ? "Card" : "Bank"} · {byId(db.bankAccounts ?? [], t.accountId)?.name}</div></TD>
                   <TD className={`text-right tabular-nums ${t.amount < 0 ? "" : "text-green-700"}`}>{cents(t.amount)}</TD>
                   <TD className="text-xs">
                     {t.status === "matched" && <Badge tone="indigo">Matched {byId(db.financeRecords, t.recordId)?.ref}</Badge>}
@@ -404,7 +404,7 @@ function Recurring() {
       </StatStrip>
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_380px] [&>*]:min-w-0">
         <Card className="p-4">
-          <div className="mb-2 text-xxs font-bold uppercase tracking-[0.12em] text-gray-400">Upcoming</div>
+          <div className="mb-2 text-xxs font-bold uppercase tracking-[0.12em] text-gray-500">Upcoming</div>
           {occ.length === 0 ? <EmptyState icon={<Repeat />} title="Nothing due in the next 60 days" /> : (
             <div className="divide-y divide-line">
               {occ.map((o) => {
@@ -534,9 +534,9 @@ function Alerts() {
             <Card key={n.id} className="p-4">
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-2"><Bell className="h-4 w-4 text-gray-400" /><span className="font-semibold text-ink">{n.title}</span><Badge tone={tone[n.severity]}>{n.severity === "critical" ? "Critical" : n.severity === "warn" ? "Warning" : "Heads up"}</Badge></div>
+                  <div className="flex flex-wrap items-center gap-2"><Bell className="h-4 w-4 text-gray-500" /><span className="font-semibold text-ink">{n.title}</span><Badge tone={tone[n.severity]}>{n.severity === "critical" ? "Critical" : n.severity === "warn" ? "Warning" : "Heads up"}</Badge></div>
                   <div className="mt-1 text-xs text-gray-600">{n.detail}</div>
-                  <div className="mt-1 text-xs text-gray-400">Raised {dateLong(n.raisedAt)}</div>
+                  <div className="mt-1 text-xs text-gray-500">Raised {dateLong(n.raisedAt)}</div>
                 </div>
                 <div className="flex gap-1">
                   {n.href && <AppLink href={n.href} className="inline-flex h-8 items-center rounded-lg border border-line bg-white px-3 text-xs font-semibold text-ink hover:bg-gray-50">Open</AppLink>}
@@ -553,7 +553,7 @@ function Alerts() {
           )}
         </div>
         <Card className="p-4">
-          <div className="mb-2 text-xxs font-bold uppercase tracking-[0.12em] text-gray-400">Your alert rules</div>
+          <div className="mb-2 text-xxs font-bold uppercase tracking-[0.12em] text-gray-500">Your alert rules</div>
           {(db.financeAlertRules ?? []).length === 0 && <p className="text-xs text-gray-500">No rules yet. Built-in alerts still run.</p>}
           <div className="divide-y divide-line">
             {(db.financeAlertRules ?? []).map((r) => {
@@ -633,7 +633,7 @@ function FinanceSearch() {
     <>
       <PageHeader title="Search the Books" subtitle="Search by any field: reference, payee, vendor, amount, job, cost code, memo, date or status. Every word must match." />
       <div className="relative mb-3">
-        <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+        <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
         <Input autoFocus value={q} onChange={(e) => setQ(e.target.value)} placeholder="e.g. sherwin JOB-2026-1, 450, check 1188, fuel" className="pl-9" aria-label="Search the books" />
       </div>
       {q.trim() && kinds.length > 1 && (

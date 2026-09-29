@@ -73,7 +73,7 @@ export function WorkOrderScope({ job, estimate, lead, workOrder, onSchedule }: {
           ['Paint', `${gallons.toFixed(2)} gal`],
         ].map(([label, value]) => (
           <div key={label}>
-            <div className="text-xxs font-bold uppercase tracking-widest text-gray-400">{label}</div>
+            <div className="text-xxs font-bold uppercase tracking-widest text-gray-500">{label}</div>
             <div className="font-heading text-xl font-black text-gray-900">{value}</div>
           </div>
         ))}
@@ -103,7 +103,7 @@ export function WorkOrderScope({ job, estimate, lead, workOrder, onSchedule }: {
                       <td className="px-4 py-2.5 font-semibold text-gray-900">{l.description || l.surfaceType}</td>
                       <td className="px-4 py-2.5 text-gray-600">{l.quantity} {l.unit === 'sqft' ? 'sq ft' : l.unit === 'lnft' ? 'lin ft' : l.unit}</td>
                       <td className="px-4 py-2.5 text-gray-600">
-                        {c ? <span className="inline-flex items-center gap-1.5"><span className="h-3.5 w-3.5 rounded-full border border-gray-300" style={{ backgroundColor: c.hex }} />{c.name} <span className="text-gray-400">#{c.number}</span></span> : '—'}
+                        {c ? <span className="inline-flex items-center gap-1.5"><span className="h-3.5 w-3.5 rounded-full border border-gray-300" style={{ backgroundColor: c.hex }} />{c.name} <span className="text-gray-500">#{c.number}</span></span> : '—'}
                       </td>
                       <td className="px-4 py-2.5 text-gray-600">{paint(l.paintProductId)}</td>
                       <td className="px-4 py-2.5 text-gray-600">{l.sheen || '—'}</td>
@@ -139,7 +139,7 @@ export function WorkOrderScope({ job, estimate, lead, workOrder, onSchedule }: {
                       <td className="px-4 py-2.5 text-gray-600">{l.sqft ? `${l.kind === 'remove' ? '−' : ''}${l.sqft} sq ft` : '—'}</td>
                       <td className="px-4 py-2.5 text-gray-600">{l.colour || '—'}</td>
                       <td className="px-4 py-2.5 text-gray-600">{l.product || '—'}</td>
-                      <td className="px-4 py-2.5 text-right font-bold text-gray-900">{h ? h.toFixed(2) : <span className="font-normal text-gray-400" title="Add labor hours to this change-order line to include it in the required hours">Not given</span>}</td>
+                      <td className="px-4 py-2.5 text-right font-bold text-gray-900">{h ? h.toFixed(2) : <span className="font-normal text-gray-500" title="Add labor hours to this change-order line to include it in the required hours">Not given</span>}</td>
                     </tr>
                   );
                 })}

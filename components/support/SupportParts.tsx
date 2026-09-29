@@ -35,9 +35,9 @@ export function KnowledgeBase({ faqs }: { faqs: { category: string; items: strin
           <div className="divide-y divide-gray-50">
             {cat.items.map((item) => (
               <details key={item} className="group/item cursor-pointer px-6 py-4 transition-colors open:bg-gray-50/50 hover:bg-gray-50">
-                <summary className="flex list-none items-start justify-between gap-4 font-medium text-gray-700 outline-none group-hover/item:text-gray-900 [&::-webkit-details-marker]:hidden">
+                <summary className="flex list-none items-start justify-between gap-4 rounded-md font-medium text-gray-700 outline-none focus-visible:ring-2 focus-visible:ring-primary-400/60 group-hover/item:text-gray-900 [&::-webkit-details-marker]:hidden">
                   <span className="text-sm leading-relaxed">{item}</span>
-                  <ChevronDown className="mt-0.5 h-5 w-5 shrink-0 text-gray-400 transition-transform duration-200 group-open/item:rotate-180" />
+                  <ChevronDown className="mt-0.5 h-5 w-5 shrink-0 text-gray-500 transition-transform duration-200 group-open/item:rotate-180" />
                 </summary>
                 <div className="mt-3 text-sm leading-relaxed text-gray-500">{faqAnswer(item)}</div>
               </details>
@@ -113,7 +113,7 @@ export function VideoTutorials({ videos, searching }: { videos: Video[]; searchi
             <div className="rounded-xl border border-gray-100 bg-gray-50 p-4">
               <h4 className="mb-2 font-bold text-gray-900">About this tutorial</h4>
               <p className="text-sm leading-relaxed text-gray-600">{playing.about}</p>
-              <p className="mt-2 text-xs italic text-gray-400">Video playback is not available in this demo.</p>
+              <p className="mt-2 text-xs italic text-gray-500">Video playback is not available in this demo.</p>
             </div>
           </div>
         )}
@@ -189,14 +189,14 @@ export function ContactSupport() {
       )}
 
       <div className="mt-8 border-t border-gray-100 pt-6">
-        <h4 className="mb-4 text-xs font-bold uppercase tracking-widest text-gray-400">Direct Lines</h4>
+        <h4 className="mb-4 text-xs font-bold uppercase tracking-widest text-gray-500">Direct Lines</h4>
         <div className="space-y-3">
           <a href="tel:5551234567" className="group flex items-center gap-3 rounded-xl border border-transparent p-3 transition-colors hover:border-gray-200 hover:bg-gray-50">
-            <Phone className="h-4 w-4 text-gray-400 group-hover:text-primary-600" />
+            <Phone className="h-4 w-4 text-gray-500 group-hover:text-primary-600" />
             <span className="text-sm font-medium text-gray-600 group-hover:text-gray-900">{SUPPORT_PHONE}</span>
           </a>
           <a href={`mailto:${SUPPORT_EMAIL}`} className="group flex items-center gap-3 rounded-xl border border-transparent p-3 transition-colors hover:border-gray-200 hover:bg-gray-50">
-            <Mail className="h-4 w-4 text-gray-400 group-hover:text-primary-600" />
+            <Mail className="h-4 w-4 text-gray-500 group-hover:text-primary-600" />
             <span className="text-sm font-medium text-gray-600 group-hover:text-gray-900">{SUPPORT_EMAIL}</span>
           </a>
         </div>
@@ -215,7 +215,7 @@ function ResetDemoData() {
   const [open, setOpen] = useState(false);
   return (
     <div className="mt-6 border-t border-gray-100 pt-6">
-      <h4 className="mb-2 text-xs font-bold uppercase tracking-widest text-gray-400">Demo Data</h4>
+      <h4 className="mb-2 text-xs font-bold uppercase tracking-widest text-gray-500">Demo Data</h4>
       <p className="mb-3 text-xs text-gray-500">Restore the original sample leads, estimates, jobs, invoices and settings. Your changes will be lost.</p>
       <Button variant="danger-outline" size="sm" className="w-full" icon={<RotateCcw className="h-4 w-4" />} onClick={() => setOpen(true)}>
         Reset demo data

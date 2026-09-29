@@ -23,6 +23,7 @@ import { labelRoomType } from "@/features/lib/rules/lifespan";
 import { toast } from "@/features/lib/toast";
 import { cn } from "@/features/lib/cn";
 import { Banner, Button, EstimateSection, Field, Input, Modal, SectionHeader, Select, Swatch } from "@/features/components/ui";
+import { pressable } from "@/lib/a11y";
 
 const SURFACE_TYPES: { value: SurfaceType; label: string; unit: string }[] = [
   { value: "walls", label: "Walls", unit: "SQFT" },
@@ -112,7 +113,7 @@ export function ScopeOfWork({ estimateId, job, editable, paintColourId, onPainte
                       const colourNo = colour ? db.colours.filter((c) => c.jobId === job.id).sort((a, b) => a.createdAt.localeCompare(b.createdAt)).findIndex((c) => c.id === colour.id) + 1 : 0;
                       const ps = paintSurfaceFor(s.condition);
                       return (
-                        <tr key={s.id} onClick={() => clickRow(s.id)} className={cn("text-sm", paintColourId && editable ? "cursor-pointer hover:bg-green-50" : "hover:bg-gray-50/50")}>
+                        <tr {...pressable(paintColourId && editable, { row: true })} key={s.id} onClick={() => clickRow(s.id)} className={cn("text-sm", paintColourId && editable ? "cursor-pointer hover:bg-green-50" : "hover:bg-gray-50/50")}>
                           <td className="sticky left-0 bg-white py-2 pl-4 pr-2 font-semibold text-gray-900">
                             {editable ? (
                               <Input defaultValue={s.name} onClick={(e) => e.stopPropagation()} onBlur={(e) => e.target.value !== s.name && act(updateScopeSurface, estimateId, s.id, { name: e.target.value })} className="h-8 min-w-36 text-sm" aria-label="Item" />
@@ -130,7 +131,7 @@ export function ScopeOfWork({ estimateId, job, editable, paintColourId, onPainte
                                 <Swatch hex={colour.hex} size="sm" /> #{colourNo}
                               </span>
                             ) : (
-                              <span className={cn("text-xs", paintColourId ? "font-semibold text-green-700" : "italic text-gray-400")}>{paintColourId ? <><PaintBucket className="inline h-3.5 w-3.5" /> Click to paint</> : "None"}</span>
+                              <span className={cn("text-xs", paintColourId ? "font-semibold text-green-700" : "italic text-gray-500")}>{paintColourId ? <><PaintBucket className="inline h-3.5 w-3.5" /> Click to paint</> : "None"}</span>
                             )}
                           </td>
                           <td className="px-2 py-2 text-center text-gray-700">{jobSurfaceHours(db, job.id, s).toFixed(2)}</td>
@@ -145,7 +146,7 @@ export function ScopeOfWork({ estimateId, job, editable, paintColourId, onPainte
                           {editable && (
                             <td className="pr-2" onClick={(e) => e.stopPropagation()}>
                               <DropdownMenu.Root>
-                                <DropdownMenu.Trigger className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100" aria-label="Row actions">
+                                <DropdownMenu.Trigger className="rounded-lg p-1.5 text-gray-500 hover:bg-gray-100" aria-label="Row actions">
                                   <MoreVertical className="h-4 w-4" />
                                 </DropdownMenu.Trigger>
                                 <DropdownMenu.Portal>

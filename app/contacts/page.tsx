@@ -113,12 +113,12 @@ export default function ContactsPage() {
         <button type="button" onClick={() => setType('HasActiveProjects')} className={cn(statCard, 'group text-left hover:border-primary-300')}>
           <div className={cn(statLabel, 'group-hover:text-primary-600')}><Building /> Active Projects</div>
           <div className="font-heading text-3xl font-black text-gray-900">{activeProjects}</div>
-          <div className="mt-1 text-sm font-medium text-gray-400 group-hover:text-primary-500">View in progress</div>
+          <div className="mt-1 text-sm font-medium text-gray-500 group-hover:text-primary-500">View in progress</div>
         </button>
         <div className={statCard}>
           <div className={statLabel}><DollarSign /> Lifetime Value</div>
           <div className="font-heading text-3xl font-black text-gray-900">{moneyShort(lifetime)}</div>
-          <div className="mt-1 text-sm font-medium text-gray-400">Total revenue generated</div>
+          <div className="mt-1 text-sm font-medium text-gray-500">Total revenue generated</div>
         </div>
       </div>
 
@@ -144,8 +144,8 @@ export default function ContactsPage() {
               items={SORTS.map((o) => ({ label: o.label, icon: <o.icon className={sort === o.value ? 'text-primary-600' : undefined} />, onClick: () => setSort(o.value) }))}
               trigger={
                 <button type="button" className="flex min-w-[180px] items-center justify-between gap-3 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-bold text-gray-700 shadow-sm hover:border-gray-300">
-                  <span className="flex items-center gap-2"><currentSort.icon className="h-4 w-4 text-gray-400" />{currentSort.label}</span>
-                  <ChevronDown className="h-4 w-4 text-gray-400" />
+                  <span className="flex items-center gap-2"><currentSort.icon className="h-4 w-4 text-gray-500" />{currentSort.label}</span>
+                  <ChevronDown className="h-4 w-4 text-gray-500" />
                 </button>
               }
             />
@@ -154,7 +154,7 @@ export default function ContactsPage() {
 
         {list.length === 0 ? (
           <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-gray-300 bg-white py-20">
-            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-50"><User className="h-8 w-8 text-gray-400" /></div>
+            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-50"><User className="h-8 w-8 text-gray-500" /></div>
             <h3 className="text-lg font-bold text-gray-900">No contacts found</h3>
             <p className="mb-6 text-gray-500">Try adjusting your search or filters.</p>
           </div>
@@ -186,35 +186,35 @@ export default function ContactsPage() {
                         </div>
                         <div className="truncate text-sm text-gray-500">
                           {[c.street, c.city, c.state, c.zip].filter(Boolean).join(', ') || 'No address'}
-                          {c.companyName && <span className="text-gray-400"> · {c.companyName}</span>}
+                          {c.companyName && <span className="text-gray-500"> · {c.companyName}</span>}
                         </div>
                       </div>
                     </div>
 
                     <div className="flex flex-col items-start lg:flex-none">
-                      <div className="mb-1 text-xxs font-bold uppercase tracking-wider text-gray-400">Status</div>
+                      <div className="mb-1 text-xxs font-bold uppercase tracking-wider text-gray-500">Status</div>
                       <div className={cn('rounded-full border px-3 py-1 text-xs font-bold', CONTACT_JOB_STATUS[status] ?? CONTACT_JOB_STATUS['No Active Jobs'])}>{status}</div>
                     </div>
 
                     <div className="min-w-0 space-y-1.5 border-gray-100 lg:flex-1 lg:border-l lg:px-6">
-                      <div className="flex items-center gap-2 text-sm text-gray-600"><Phone className="h-3.5 w-3.5 shrink-0 text-gray-400" />{formatPhone(c.phone) || '-'}</div>
-                      <div className="flex items-center gap-2 truncate text-sm text-gray-600"><Mail className="h-3.5 w-3.5 shrink-0 text-gray-400" /><span className="truncate">{c.email || '-'}</span></div>
-                      <div className="flex items-center gap-2 text-sm text-gray-500"><MapPin className="h-3.5 w-3.5 shrink-0 text-gray-400" /><span className="whitespace-nowrap">{st?.propertiesManaged ?? 1} Properties Managed</span></div>
+                      <div className="flex items-center gap-2 text-sm text-gray-600"><Phone className="h-3.5 w-3.5 shrink-0 text-gray-500" />{formatPhone(c.phone) || '-'}</div>
+                      <div className="flex items-center gap-2 truncate text-sm text-gray-600"><Mail className="h-3.5 w-3.5 shrink-0 text-gray-500" /><span className="truncate">{c.email || '-'}</span></div>
+                      <div className="flex items-center gap-2 text-sm text-gray-500"><MapPin className="h-3.5 w-3.5 shrink-0 text-gray-500" /><span className="whitespace-nowrap">{st?.propertiesManaged ?? 1} Properties Managed</span></div>
                     </div>
 
                     <div className="flex w-full flex-row justify-between gap-4 lg:w-auto lg:flex-1 lg:flex-col lg:gap-1">
                       <div>
-                        <div className="mb-1 text-xxs font-bold uppercase tracking-wider text-gray-400">Lifetime Value</div>
+                        <div className="mb-1 text-xxs font-bold uppercase tracking-wider text-gray-500">Lifetime Value</div>
                         <div className="text-base font-bold text-gray-900">${Math.round(st?.lifetimeValue ?? 0).toLocaleString()}</div>
                       </div>
                       <div>
-                        <div className="mb-1 text-xxs font-bold uppercase tracking-wider text-gray-400">Jobs Completed</div>
+                        <div className="mb-1 text-xxs font-bold uppercase tracking-wider text-gray-500">Jobs Completed</div>
                         <div className="text-base font-bold text-gray-900">{st?.completedJobs ?? 0}</div>
                       </div>
                     </div>
 
                     <div className="mr-4 hidden text-right xl:block">
-                      <div className="mb-1 text-xxs font-bold uppercase tracking-wider text-gray-400">Last Contact</div>
+                      <div className="mb-1 text-xxs font-bold uppercase tracking-wider text-gray-500">Last Contact</div>
                       <div className="flex items-center justify-end gap-1 text-xs font-bold text-gray-600"><Calendar className="h-3 w-3" />{st?.lastContactAt ? shortDate(st.lastContactAt) : '-'}</div>
                     </div>
 

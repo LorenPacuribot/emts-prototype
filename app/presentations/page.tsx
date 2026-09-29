@@ -117,7 +117,7 @@ export default function PresentationsPage() {
                       {p.scopes.length ? p.scopes.join(', ') : 'No type'}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between border-t border-gray-100 pt-3 text-xs text-gray-400">
+                  <div className="flex items-center justify-between border-t border-gray-100 pt-3 text-xs text-gray-500">
                     <span className="flex items-center gap-1.5"><Clock className="h-3.5 w-3.5" />{shortDate(p.updatedAt)}</span>
                     {p.views > 0 && <span className="flex items-center gap-1"><Eye className="h-3.5 w-3.5" />{p.views}</span>}
                   </div>

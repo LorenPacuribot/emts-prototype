@@ -24,7 +24,7 @@ import { Badge, Banner, Button, Card, PillTabs, Table, TD, TH, THead, TR } from 
 type View = "margin" | "income" | "receivables";
 
 
-const NA = <span className="text-gray-400">Not applicable</span>;
+const NA = <span className="text-gray-500">Not applicable</span>;
 
 export function FinanceReportsBody({ view }: { view: View }) {
   const db = useDb((d) => d);
@@ -74,15 +74,15 @@ function Margin({ cutoff }: { cutoff?: string }) {
         <tbody>
           {rows.map(({ job, f }) => (
             <TR key={job.id}>
-              <TD className="font-semibold">{job.id}<div className="text-xs font-normal text-gray-400">{job.name}</div>{f.unmatched > 0 && <Badge tone="amber" icon={<AlertTriangle className="h-3 w-3" />}>{money(f.unmatched)} unmatched</Badge>}</TD>
+              <TD className="font-semibold">{job.id}<div className="text-xs font-normal text-gray-500">{job.name}</div>{f.unmatched > 0 && <Badge tone="amber" icon={<AlertTriangle className="h-3 w-3" />}>{money(f.unmatched)} unmatched</Badge>}</TD>
               <TD className="text-right tabular-nums">{money(f.contractExTax)}</TD>
               <TD className="text-right tabular-nums">{money(f.invoicedExTax)}</TD>
               <TD className="text-right tabular-nums">{money(f.labour)}</TD>
-              <TD className="text-right tabular-nums">{money(f.material)}<div className="text-xs text-gray-400">incl. purchase tax</div></TD>
+              <TD className="text-right tabular-nums">{money(f.material)}<div className="text-xs text-gray-500">incl. purchase tax</div></TD>
               <TD className="text-right tabular-nums">{money(f.subcontractor + f.other)}</TD>
-              <TD className="text-right tabular-nums font-semibold">{money(f.costToDate)}{f.credits ? <div className="text-xs text-gray-400">after {money(f.credits)} credits</div> : null}</TD>
-              <TD className="text-right"><div className="text-xxs font-bold uppercase tracking-wide text-gray-400">Actual margin</div>{f.actual === null ? NA : <span className="font-semibold tabular-nums">{pct(f.actual, 1)}</span>}</TD>
-              <TD className="text-right"><div className="text-xxs font-bold uppercase tracking-wide text-gray-400">Projected margin</div>{f.projected === null ? (f.inProgress ? NA : <span className="text-gray-400">Job complete</span>) : <span className="font-semibold tabular-nums">{pct(f.projected, 1)}</span>}<div className="text-xs text-gray-400">forecast {money(f.forecastCost)}</div></TD>
+              <TD className="text-right tabular-nums font-semibold">{money(f.costToDate)}{f.credits ? <div className="text-xs text-gray-500">after {money(f.credits)} credits</div> : null}</TD>
+              <TD className="text-right"><div className="text-xxs font-bold uppercase tracking-wide text-gray-500">Actual margin</div>{f.actual === null ? NA : <span className="font-semibold tabular-nums">{pct(f.actual, 1)}</span>}</TD>
+              <TD className="text-right"><div className="text-xxs font-bold uppercase tracking-wide text-gray-500">Projected margin</div>{f.projected === null ? (f.inProgress ? NA : <span className="text-gray-500">Job complete</span>) : <span className="font-semibold tabular-nums">{pct(f.projected, 1)}</span>}<div className="text-xs text-gray-500">forecast {money(f.forecastCost)}</div></TD>
             </TR>
           ))}
         </tbody>
@@ -165,8 +165,8 @@ function Receivables({ cutoff }: { cutoff?: string }) {
       <Table>
         <THead><tr><TH>Invoice</TH><TH>Job</TH><TH>Customer</TH><TH>Invoice date</TH><TH className="text-right">Age</TH><TH className="text-right">Outstanding</TH></tr></THead>
         <tbody>{rows.map(({ r, age, outstanding, credit }) => (
-          <TR key={r.id}><TD className="font-semibold">{r.ref}</TD><TD>{r.jobId} <span className="text-gray-400">{byId(db.jobs, r.jobId)?.name}</span></TD><TD>{r.party}</TD><TD>{dateLong(r.date)}</TD>
-            <TD className="text-right tabular-nums">{age.days} d <Badge tone="gray">{age.bucket}</Badge></TD><TD className="text-right tabular-nums font-semibold">{money(outstanding)}{credit ? <div className="text-xs text-gray-400">after {money(credit)} credit</div> : null}</TD></TR>
+          <TR key={r.id}><TD className="font-semibold">{r.ref}</TD><TD>{r.jobId} <span className="text-gray-500">{byId(db.jobs, r.jobId)?.name}</span></TD><TD>{r.party}</TD><TD>{dateLong(r.date)}</TD>
+            <TD className="text-right tabular-nums">{age.days} d <Badge tone="gray">{age.bucket}</Badge></TD><TD className="text-right tabular-nums font-semibold">{money(outstanding)}{credit ? <div className="text-xs text-gray-500">after {money(credit)} credit</div> : null}</TD></TR>
         ))}</tbody>
       </Table>
       <p className="mt-2 text-xs text-gray-500">Receivables age from the invoice date, never from the due date. Credits reduce receivables; bad-debt entries stay in QuickBooks.</p>

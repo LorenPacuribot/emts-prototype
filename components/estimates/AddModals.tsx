@@ -89,7 +89,7 @@ export function AddToEstimateModal({
                 }}
                 className="flex w-full items-center gap-4 rounded-xl border border-dashed border-gray-300 bg-white p-3 text-left hover:border-primary-300 hover:shadow-md"
               >
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-400"><Plus className="h-5 w-5" /></div>
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-500"><Plus className="h-5 w-5" /></div>
                 <div className="min-w-0 flex-1">
                   <div className="font-bold text-gray-800">Blank Area</div>
                   <div className="truncate text-xs text-gray-500">An empty area: name it, enter L x W x H, then add line items.</div>
@@ -107,12 +107,12 @@ export function AddToEstimateModal({
                 }}
                 className="flex w-full items-center gap-4 rounded-xl border border-gray-200 bg-white p-3 text-left hover:border-primary-300 hover:shadow-md"
               >
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-400"><LayoutTemplate className="h-5 w-5" /></div>
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-500"><LayoutTemplate className="h-5 w-5" /></div>
                 <div className="min-w-0 flex-1">
-                  <div className="font-bold text-gray-800">{a.name} <span className="ml-1 text-xs font-medium text-gray-400">{typeName(a.estimateTypeId)}</span></div>
+                  <div className="font-bold text-gray-800">{a.name} <span className="ml-1 text-xs font-medium text-gray-500">{typeName(a.estimateTypeId)}</span></div>
                   <div className="truncate text-xs text-gray-500">{a.surfaceRateIds.map(srName).filter(Boolean).join(', ') || 'No surfaces'}</div>
                 </div>
-                <Plus className="h-4 w-4 text-gray-400" />
+                <Plus className="h-4 w-4 text-gray-500" />
               </button>
             ))}
           </div>

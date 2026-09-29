@@ -33,7 +33,7 @@ export function PipelineStatusBar({ current, onChange, lockedBy, lockNote }: { c
                 active
                   ? 'bg-white text-blue-600 shadow-sm ring-1 ring-black/5'
                   : !allowed
-                    ? 'text-gray-400 opacity-60'
+                    ? 'text-gray-500 opacity-60'
                     : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700',
               )}
             >

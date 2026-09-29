@@ -54,18 +54,18 @@ export function QuotePrintModal({ rep, open, onOpenChange }: { rep: RepeatEstima
         </div>
         <div className="grid gap-4 py-4 sm:grid-cols-2">
           <div>
-            <div className="text-xxs font-bold uppercase tracking-wider text-gray-400">Prepared for</div>
+            <div className="text-xxs font-bold uppercase tracking-wider text-gray-500">Prepared for</div>
             <div className="font-semibold text-ink">{owner?.name}</div>
             <div>{propertyAddress(property, true)}</div>
           </div>
           <div>
-            <div className="text-xxs font-bold uppercase tracking-wider text-gray-400">Project</div>
+            <div className="text-xxs font-bold uppercase tracking-wider text-gray-500">Project</div>
             <div className="font-semibold text-ink">{rep.title}</div>
           </div>
         </div>
         <table className="w-full border-collapse text-left">
           <thead>
-            <tr className="border-b border-line text-xxs uppercase tracking-wider text-gray-400">
+            <tr className="border-b border-line text-xxs uppercase tracking-wider text-gray-500">
               <th className="py-2">Area · Surface</th>
               <th className="py-2">Color</th>
               <th className="py-2">Product · Sheen</th>

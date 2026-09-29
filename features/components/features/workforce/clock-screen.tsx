@@ -100,7 +100,7 @@ function Clock() {
             <Card key={e.id} className="p-4">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <div className="font-display text-base font-bold text-ink">{e.name}{e.userId === user.id && <span className="ml-1.5 text-xs font-medium text-gray-400">(you)</span>}</div>
+                  <div className="font-display text-base font-bold text-ink">{e.name}{e.userId === user.id && <span className="ml-1.5 text-xs font-medium text-gray-500">(you)</span>}</div>
                   {seg ? (
                     <div className="mt-0.5 text-xs text-gray-600">
                       In since {timeLabel(seg.start)} · {seg.jobId ?? "Overhead"}{seg.shiftId ? ` · ${punchTagLabel(db, seg)}` : ""} · {ACTIVITY_LABEL[seg.activity]} · {hm(elapsedMinutes(seg.start, now()))}
@@ -111,7 +111,7 @@ function Clock() {
                       </div>
                     </div>
                   ) : (
-                    <div className="mt-0.5 text-xs text-gray-400">Not clocked in</div>
+                    <div className="mt-0.5 text-xs text-gray-500">Not clocked in</div>
                   )}
                 </div>
                 <div className="flex shrink-0 flex-col gap-1.5">

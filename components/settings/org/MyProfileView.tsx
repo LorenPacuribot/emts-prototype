@@ -95,7 +95,7 @@ export function MyProfileView() {
             <div className="flex-1 text-center md:text-left">
               <h3 className="mb-2 font-heading text-xl font-bold text-gray-900">{profile.firstName} {profile.lastName}</h3>
               <p className="text-sm text-gray-500">User profile photo is visible to clients in estimates and work orders.</p>
-              <p className="mt-1 text-xs text-gray-400">Maximum file size: 5MB. Supported formats: JPG, PNG, GIF, WebP</p>
+              <p className="mt-1 text-xs text-gray-500">Maximum file size: 5MB. Supported formats: JPG, PNG, GIF, WebP</p>
               <div className="mt-5 flex flex-wrap justify-center gap-3 md:justify-start">
                 <Button size="sm" variant="secondary" onClick={() => fileRef.current?.click()}>Upload New</Button>
                 <Button size="sm" variant="ghost" className="text-red-500 hover:bg-red-50 hover:text-red-600" disabled={!photo} onClick={removePhoto}>
@@ -134,7 +134,7 @@ export function MyProfileView() {
           </div>
         </SettingsCard>
 
-        <SettingsCard title="Security" icon={<Lock className="text-gray-400" />}>
+        <SettingsCard title="Security" icon={<Lock className="text-gray-500" />}>
           <div className="flex flex-col items-center justify-between gap-4 rounded-2xl border border-gray-100 bg-gray-50 p-5 md:flex-row">
             <div className="text-sm font-bold text-gray-900">Change Password</div>
             <Button variant="secondary" onClick={() => setPwOpen(true)}>Update Password</Button>

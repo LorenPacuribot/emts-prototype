@@ -46,10 +46,10 @@ export function CoDocument({ co }: { co: ChangeOrder }) {
       </div>
 
       <div>
-        <div className="mb-2 text-xxs font-bold uppercase tracking-[0.14em] text-gray-400">What changes (incremental only)</div>
+        <div className="mb-2 text-xxs font-bold uppercase tracking-[0.14em] text-gray-500">What changes (incremental only)</div>
         <table className="w-full text-left">
           <thead>
-            <tr className="border-b border-line text-xxs uppercase tracking-wider text-gray-400">
+            <tr className="border-b border-line text-xxs uppercase tracking-wider text-gray-500">
               <th className="py-1.5 pr-2">Change</th>
               <th className="py-1.5 pr-2">Description</th>
               <th className="py-1.5 pr-2 text-right">Area</th>
@@ -62,7 +62,7 @@ export function CoDocument({ co }: { co: ChangeOrder }) {
                 <td className="py-1.5 pr-2 font-semibold">{l.kind === "add" ? "Add" : "Remove"}</td>
                 <td className="py-1.5 pr-2">
                   {l.description}
-                  {l.colour && <span className="text-gray-400"> · {l.colour}</span>}
+                  {l.colour && <span className="text-gray-500"> · {l.colour}</span>}
                   {l.treatment === "stranded_paint" && <span className="block text-xs text-gray-500">Nonreturnable tinted paint</span>}
                   {l.treatment === "absorbed_labour" && <span className="block text-xs text-gray-500">No charge</span>}
                 </td>
@@ -72,7 +72,7 @@ export function CoDocument({ co }: { co: ChangeOrder }) {
             ))}
             {co.lines.length === 0 && (
               <tr>
-                <td colSpan={4} className="py-3 italic text-gray-400">No changes recorded yet.</td>
+                <td colSpan={4} className="py-3 italic text-gray-500">No changes recorded yet.</td>
               </tr>
             )}
           </tbody>
@@ -98,7 +98,7 @@ export function CoDocument({ co }: { co: ChangeOrder }) {
       </p>
 
       <div className="rounded-lg border border-line p-4">
-        <div className="text-xxs font-bold uppercase tracking-[0.14em] text-gray-400">Approval — the whole change order</div>
+        <div className="text-xxs font-bold uppercase tracking-[0.14em] text-gray-500">Approval — the whole change order</div>
         <p className="mt-1 text-xs text-gray-500">Approve or decline this change order as a whole. If you agree with only part of it, tell us and we'll split it into separate change orders.</p>
         {signed && co.evidence ? (
           <div className="mt-3 grid gap-2 sm:grid-cols-2">

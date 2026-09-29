@@ -200,7 +200,7 @@ function Preview() {
           <aside className="h-fit rounded-2xl border border-gray-200 bg-white p-4 shadow-sm lg:sticky lg:top-24 print:hidden" aria-label="Show or hide content">
             <div className="mb-3 flex items-center justify-between">
               <h3 className="font-heading text-base font-bold text-gray-900">Show / hide</h3>
-              <button type="button" onClick={() => setGearOpen(false)} className="rounded p-1 text-gray-400 hover:bg-gray-100" aria-label="Close"><X className="h-4 w-4" /></button>
+              <button type="button" onClick={() => setGearOpen(false)} className="rounded p-1 text-gray-500 hover:bg-gray-100" aria-label="Close"><X className="h-4 w-4" /></button>
             </div>
             <ul className="space-y-1">
               {gearItems.map((g) => {
@@ -215,8 +215,8 @@ function Preview() {
                     >
                       <span className={cn('flex h-5 w-5 shrink-0 items-center justify-center rounded border', shown ? 'border-primary-500 bg-primary-500 text-white' : 'border-gray-300')}>{shown && <Check className="h-3.5 w-3.5" />}</span>
                       <span className="min-w-0">
-                        <span className={cn('block font-semibold', shown ? 'text-gray-900' : 'text-gray-400')}>{g.label}</span>
-                        {g.hint && g.hint !== g.label && <span className="block text-xs text-gray-400">{g.hint}</span>}
+                        <span className={cn('block font-semibold', shown ? 'text-gray-900' : 'text-gray-500')}>{g.label}</span>
+                        {g.hint && g.hint !== g.label && <span className="block text-xs text-gray-500">{g.hint}</span>}
                       </span>
                     </button>
                   </li>

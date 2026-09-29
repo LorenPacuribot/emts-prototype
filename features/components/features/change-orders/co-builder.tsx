@@ -50,7 +50,7 @@ export function CoBuilder({ coId, onClose, onOpenCo }: { coId?: string; onClose:
       title={
         co ? (
           <span className="flex flex-wrap items-center gap-2">
-            {co.id} <span className="font-normal text-gray-400">v{coVersion(co)}</span>
+            {co.id} <span className="font-normal text-gray-500">v{coVersion(co)}</span>
           </span>
         ) : (
           ""
@@ -172,7 +172,7 @@ function BuilderBody({ co, onOpenCo }: { co: ChangeOrder; onOpenCo: (id: string)
         ) : (
           <div className="overflow-x-auto rounded-lg border border-line">
             <table className="w-full min-w-[560px] text-left text-xs">
-              <thead className="bg-gray-50/80 text-xxs font-bold uppercase tracking-[0.12em] text-gray-400">
+              <thead className="bg-gray-50/80 text-xxs font-bold uppercase tracking-[0.12em] text-gray-500">
                 <tr>
                   <th className="px-3 py-2">Change</th>
                   <th className="px-3 py-2">Description</th>
@@ -203,7 +203,7 @@ function BuilderBody({ co, onOpenCo }: { co: ChangeOrder; onOpenCo: (id: string)
                         <td className="px-3 py-2 text-right text-gray-500">
                           {money(l.cost)}
                           {(l.laborHours !== undefined || l.materialCost !== undefined) && (
-                            <div className="text-xs text-gray-400">
+                            <div className="text-xs text-gray-500">
                               {l.laborHours ? `${l.laborHours} h labor` : "no labor"} · {money(l.materialCost ?? 0)} material
                             </div>
                           )}
@@ -262,7 +262,7 @@ function BuilderBody({ co, onOpenCo }: { co: ChangeOrder; onOpenCo: (id: string)
                 ) : (
                   <div className="text-xs text-gray-500">{co.discount ? `${co.discount.pct}% · ${co.discount.status === "approved" ? `approved by ${byId(db.users, co.discount.approvedBy)?.name}` : "awaiting owner"}` : "None"}</div>
                 )}
-                <p className="mt-1 text-xs text-gray-400">No discount is inherited without the owner&apos;s approval.</p>
+                <p className="mt-1 text-xs text-gray-500">No discount is inherited without the owner&apos;s approval.</p>
               </div>
             </div>
             <div className="space-y-1.5 rounded-lg bg-gray-50 p-4 text-sm">
@@ -396,7 +396,7 @@ function BuilderBody({ co, onOpenCo }: { co: ChangeOrder; onOpenCo: (id: string)
             {coLinks(co).length > 0 && (
               <div className="overflow-x-auto rounded-lg border border-line">
                 <table className="w-full min-w-[620px] text-left text-xs">
-                  <thead className="bg-gray-50/80 text-xxs font-bold uppercase tracking-[0.12em] text-gray-400">
+                  <thead className="bg-gray-50/80 text-xxs font-bold uppercase tracking-[0.12em] text-gray-500">
                     <tr>
                       <th className="px-3 py-2">Link</th>
                       <th className="px-3 py-2">Version</th>
@@ -416,10 +416,10 @@ function BuilderBody({ co, onOpenCo }: { co: ChangeOrder; onOpenCo: (id: string)
                           <td className="px-3 py-2">v{l.version}</td>
                           <td className="px-3 py-2">{dateTime(l.sentAt)} · {l.channel === "portal" ? "Portal" : "Email"}</td>
                           <td className="px-3 py-2">{l.recipientName}</td>
-                          <td className="px-3 py-2">{date(l.expiresAt)} <span className="text-gray-400">({relDays(l.expiresAt, nowIso)})</span></td>
+                          <td className="px-3 py-2">{date(l.expiresAt)} <span className="text-gray-500">({relDays(l.expiresAt, nowIso)})</span></td>
                           <td className="px-3 py-2">
                             <Badge tone={CO_LINK_STATE[st].tone}>{CO_LINK_STATE[st].label}</Badge>
-                            {l.supersededReason && <div className="mt-0.5 max-w-52 text-xs text-gray-400">{l.supersededReason}</div>}
+                            {l.supersededReason && <div className="mt-0.5 max-w-52 text-xs text-gray-500">{l.supersededReason}</div>}
                           </td>
                           <td className="px-3 py-2">
                             <Button size="sm" variant="ghost" onClick={() => setCustomerLink(l)}>
@@ -454,7 +454,7 @@ function BuilderBody({ co, onOpenCo }: { co: ChangeOrder; onOpenCo: (id: string)
                 </Button>
               )}
             </div>
-            {!canSend && ["ready_to_send", "sent"].includes(co.status) && <p className="text-xs text-gray-400">The office verifies the recipient and sends. Your role can view only.</p>}
+            {!canSend && ["ready_to_send", "sent"].includes(co.status) && <p className="text-xs text-gray-500">The office verifies the recipient and sends. Your role can view only.</p>}
           </div>
         </Section>
       )}
@@ -481,7 +481,7 @@ function BuilderBody({ co, onOpenCo }: { co: ChangeOrder; onOpenCo: (id: string)
               const meta = co.downstreamMeta?.[k];
               return (
                 <div key={k} className="flex flex-wrap items-start gap-3 px-3 py-3">
-                  <span className="mt-0.5 text-gray-400">{DS_ICON[k]}</span>
+                  <span className="mt-0.5 text-gray-500">{DS_ICON[k]}</span>
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="font-semibold text-ink">{DOWNSTREAM_LABEL[k]}</span>
@@ -489,8 +489,8 @@ function BuilderBody({ co, onOpenCo }: { co: ChangeOrder; onOpenCo: (id: string)
                     </div>
                     {meta?.ref && <div className="text-xs text-gray-500">{meta.ref}{meta.reconciledNote ? ` — ${meta.reconciledNote}` : ""}</div>}
                     {st === "failed" && meta?.error && <div className="text-xs text-red-600">Failed {dateTime(meta.at)}: {meta.error}</div>}
-                    {meta?.at && st === "done" && <div className="text-xs text-gray-400">{dateTime(meta.at)}</div>}
-                    {k === "scheduler" && <div className="text-xs text-gray-400">Crews are never rescheduled automatically. Schedule review is confirmed separately from customer approval.</div>}
+                    {meta?.at && st === "done" && <div className="text-xs text-gray-500">{dateTime(meta.at)}</div>}
+                    {k === "scheduler" && <div className="text-xs text-gray-500">Crews are never rescheduled automatically. Schedule review is confirmed separately from customer approval.</div>}
                     {k === "billing" && <BillingDetail co={co} canPrice={canPrice} />}
                   </div>
                   {st === "failed" && can(user, "co.exceptions") ? (
@@ -534,12 +534,12 @@ function BuilderBody({ co, onOpenCo }: { co: ChangeOrder; onOpenCo: (id: string)
       {/* ---------- History ---------- */}
       <Section title="Version and activity history" icon={<History />}>
         {history.length === 0 ? (
-          <p className="text-xs italic text-gray-400">No recorded activity.</p>
+          <p className="text-xs italic text-gray-500">No recorded activity.</p>
         ) : (
           <div className="max-h-64 space-y-2 overflow-y-auto">
             {history.map((a) => (
               <div key={a.id} className="border-l-2 border-line pl-3 text-xs">
-                <div className="text-xxs font-bold uppercase text-gray-400">{dateTime(a.at)} · {byId(db.users, a.userId)?.name}</div>
+                <div className="text-xxs font-bold uppercase text-gray-500">{dateTime(a.at)} · {byId(db.users, a.userId)?.name}</div>
                 <div className={a.blocked ? "text-red-700" : "text-gray-700"}>{a.message}</div>
               </div>
             ))}
@@ -604,7 +604,7 @@ function noteCopy(note: NoteKind | null, co: ChangeOrder) {
 
 function PriceRow({ k, v, bold, muted }: { k: string; v: React.ReactNode; bold?: boolean; muted?: boolean }) {
   return (
-    <div className={`flex justify-between gap-4 ${bold ? "font-bold text-ink" : muted ? "text-gray-400" : "text-gray-600"}`}>
+    <div className={`flex justify-between gap-4 ${bold ? "font-bold text-ink" : muted ? "text-gray-500" : "text-gray-600"}`}>
       <span>{k}</span>
       <span className="text-right">{v}</span>
     </div>
@@ -744,7 +744,7 @@ function ApplyPanel({ co, canDecide, canPrice }: { co: ChangeOrder; canDecide: b
       <div className="divide-y divide-line rounded-lg border border-line">
         {rows.map(([icon, label, text]) => (
           <div key={label} className="flex items-start gap-3 px-3 py-3">
-            <span className="mt-0.5 text-gray-400">{icon}</span>
+            <span className="mt-0.5 text-gray-500">{icon}</span>
             <div className="min-w-0"><div className="font-semibold text-ink">{label}</div><div className="text-xs text-gray-500">{text}</div></div>
           </div>
         ))}

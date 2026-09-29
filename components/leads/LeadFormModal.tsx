@@ -221,7 +221,7 @@ export function LeadFormModal({
             onClick={() => setPicking(true)}
             className="group flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-300 bg-white py-3 font-bold text-gray-500 shadow-sm transition-all hover:border-primary-300 hover:bg-primary-50 hover:text-primary-600"
           >
-            <Search className="h-4 w-4 text-gray-400 group-hover:text-primary-500" /> Select Existing Client
+            <Search className="h-4 w-4 text-gray-500 group-hover:text-primary-500" /> Select Existing Client
           </button>
         )}
 
@@ -229,17 +229,17 @@ export function LeadFormModal({
           <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
             <div className="flex items-center justify-between border-b border-primary-100 bg-primary-50 px-4 py-2.5">
               <span className="flex items-center gap-2 text-sm font-bold text-primary-700"><UserCheck className="h-4 w-4 text-primary-600" /> Existing Client</span>
-              <button type="button" onClick={clearClient} className="rounded-lg p-1 text-primary-500 hover:bg-primary-100" title="Clear selection"><X className="h-4 w-4" /></button>
+              <button aria-label="Clear selection" type="button" onClick={clearClient} className="rounded-lg p-1 text-primary-500 hover:bg-primary-100" title="Clear selection"><X className="h-4 w-4" /></button>
             </div>
             <div className="flex items-center gap-3 p-4">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-100 text-lg font-bold text-primary-700">{selected.firstName.charAt(0)}</div>
               <div className="min-w-0 flex-1">
                 <p className="text-base font-bold text-gray-900">{selected.firstName} {selected.lastName}</p>
-                <span className="text-xs text-gray-400">Lead Source: Existing Client</span>
+                <span className="text-xs text-gray-500">Lead Source: Existing Client</span>
               </div>
               <div className="flex shrink-0 flex-col items-end gap-1 text-sm text-gray-600">
-                <span className="flex items-center gap-1.5"><Phone className="h-3.5 w-3.5 text-gray-400" />{formatPhone(selected.phone) || '-'}</span>
-                <span className="flex items-center gap-1.5"><Mail className="h-3.5 w-3.5 text-gray-400" /><span className="max-w-44 truncate">{selected.email || '-'}</span></span>
+                <span className="flex items-center gap-1.5"><Phone className="h-3.5 w-3.5 text-gray-500" />{formatPhone(selected.phone) || '-'}</span>
+                <span className="flex items-center gap-1.5"><Mail className="h-3.5 w-3.5 text-gray-500" /><span className="max-w-44 truncate">{selected.email || '-'}</span></span>
               </div>
             </div>
           </div>
@@ -273,7 +273,7 @@ export function LeadFormModal({
                     <div className="flex-1">
                       <Input autoFocus value={s.leadSource} onChange={(e) => set('leadSource', e.target.value)} placeholder="Type source (e.g. Billboard)..." invalid={!!errors.leadSource} />
                     </div>
-                    <button type="button" title="Cancel custom input" onClick={() => { setCustomSource(false); set('leadSource', ''); }} className="rounded-lg bg-gray-100 px-3 text-gray-500 hover:bg-gray-200">
+                    <button aria-label="Cancel custom input" type="button" title="Cancel custom input" onClick={() => { setCustomSource(false); set('leadSource', ''); }} className="rounded-lg bg-gray-100 px-3 text-gray-500 hover:bg-gray-200">
                       <X className="h-5 w-5" />
                     </button>
                   </div>
@@ -283,7 +283,7 @@ export function LeadFormModal({
                     onChange={(e) => {
                       if (e.target.value === OTHER) { setCustomSource(true); set('leadSource', ''); } else set('leadSource', e.target.value);
                     }}
-                    className={cn(errors.leadSource && 'border-red-400', !s.leadSource && 'text-gray-400')}
+                    className={cn(errors.leadSource && 'border-red-400', !s.leadSource && 'text-gray-500')}
                   >
                     <option value="">Select Source...</option>
                     {COMMON_SOURCES.map((o) => <option key={o} value={o}>{o}</option>)}
@@ -341,7 +341,7 @@ export function LeadFormModal({
             <Field label="Quality Rating">
               <div className="flex h-10 items-center gap-1">
                 {[1, 2, 3, 4, 5].map((n) => (
-                  <button key={n} type="button" onClick={() => set('qualityRating', s.qualityRating === n ? 0 : n)} title={`${n} star${n > 1 ? 's' : ''}`}>
+                  <button aria-label={`${n} star${n > 1 ? 's' : ''}`} key={n} type="button" onClick={() => set('qualityRating', s.qualityRating === n ? 0 : n)} title={`${n} star${n > 1 ? 's' : ''}`}>
                     <Star className={cn('h-6 w-6 transition-colors', s.qualityRating >= n ? 'fill-amber-400 text-amber-400' : 'text-gray-300 hover:text-amber-200')} />
                   </button>
                 ))}
@@ -396,10 +396,10 @@ function ClientPicker({
                   <span className="rounded-full border border-blue-100 bg-blue-50 px-2 py-0.5 text-xxs font-bold uppercase text-blue-700">{c.type}</span>
                 </div>
                 <div className="space-y-1.5 text-sm text-gray-600">
-                  <div className="flex items-center gap-2"><MapPin className="h-3.5 w-3.5 shrink-0 text-gray-400" /><span className="truncate">{c.street}, {c.city}, {c.state} {c.zip}</span></div>
+                  <div className="flex items-center gap-2"><MapPin className="h-3.5 w-3.5 shrink-0 text-gray-500" /><span className="truncate">{c.street}, {c.city}, {c.state} {c.zip}</span></div>
                   <div className="flex flex-wrap justify-between gap-4">
-                    <span className="flex items-center gap-2"><Mail className="h-3.5 w-3.5 text-gray-400" />{c.email}</span>
-                    <span className="flex items-center gap-2"><Phone className="h-3.5 w-3.5 text-gray-400" />{formatPhone(c.phone)}</span>
+                    <span className="flex items-center gap-2"><Mail className="h-3.5 w-3.5 text-gray-500" />{c.email}</span>
+                    <span className="flex items-center gap-2"><Phone className="h-3.5 w-3.5 text-gray-500" />{formatPhone(c.phone)}</span>
                   </div>
                 </div>
               </button>

@@ -169,7 +169,7 @@ export function DashboardScreen() {
                 <AppLink href={j.href} className="group flex h-full items-start gap-3 rounded-xl border border-gray-200 bg-white p-3 hover:border-primary-300">
                   <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gray-900 text-xs font-bold text-white">{i + 1}</span>
                   <span className="min-w-0 flex-1">
-                    <span className="block text-sm font-bold text-gray-900 group-hover:text-primary-700">{j.title}{j.features && <span className="font-medium text-gray-400"> · F{j.features}</span>}</span>
+                    <span className="block text-sm font-bold text-gray-900 group-hover:text-primary-700">{j.title}{j.features && <span className="font-medium text-gray-500"> · F{j.features}</span>}</span>
                     <span className="block text-xs text-gray-500">{j.body}</span>
                   </span>
                 </AppLink>
@@ -187,14 +187,14 @@ export function DashboardScreen() {
           {/* Left */}
           <div className="space-y-4 lg:col-span-3">
             <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-              <div className="mb-3 flex items-center justify-between"><span className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.15em] text-gray-500"><CheckSquare className="h-4 w-4 text-primary-500" /> My Tasks</span><span className="text-xs text-gray-400">{db.tasks.filter((t) => t.done).length}/{db.tasks.length}</span></div>
+              <div className="mb-3 flex items-center justify-between"><span className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.15em] text-gray-500"><CheckSquare className="h-4 w-4 text-primary-500" /> My Tasks</span><span className="text-xs text-gray-500">{db.tasks.filter((t) => t.done).length}/{db.tasks.length}</span></div>
               <form className="relative" onSubmit={(e) => { e.preventDefault(); if (act(addTask, task).ok) setTask(""); }}>
                 <Input value={task} onChange={(e) => setTask(e.target.value)} placeholder="Add a task..." className="h-9 pr-10 text-sm" aria-label="New task" />
                 <button type="submit" className="absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-md bg-primary-600 text-white" aria-label="Add task"><Plus className="h-3.5 w-3.5" /></button>
               </form>
               <div className="mt-3 max-h-[240px] space-y-2 overflow-y-auto">
-                {db.tasks.length === 0 && <p className="text-xs text-gray-400">No tasks yet. Add one above!</p>}
-                {db.tasks.map((t) => <div key={t.id} className="rounded-lg border border-gray-100 p-2"><Checkbox checked={t.done} onCheckedChange={() => act(toggleTask, t.id)} label={<span className={cn("text-sm", t.done && "text-gray-400 line-through")}>{t.title}</span>} /></div>)}
+                {db.tasks.length === 0 && <p className="text-xs text-gray-500">No tasks yet. Add one above!</p>}
+                {db.tasks.map((t) => <div key={t.id} className="rounded-lg border border-gray-100 p-2"><Checkbox checked={t.done} onCheckedChange={() => act(toggleTask, t.id)} label={<span className={cn("text-sm", t.done && "text-gray-500 line-through")}>{t.title}</span>} /></div>)}
               </div>
             </div>
             {can(user, "time.approve") && (
@@ -208,14 +208,14 @@ export function DashboardScreen() {
                 {[...db.leads].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 4).map((l) => (
                   <AppLink key={l.id} href={leadHref(l.id)} className="flex items-center justify-between gap-2 text-sm hover:text-primary-700">
                     <span className="min-w-0 truncate font-semibold">{byId(db.customers, l.customerId)?.name ?? l.name}</span>
-                    <span className="shrink-0 text-xs text-gray-400">{LEAD_STAGE[l.stage]}</span>
+                    <span className="shrink-0 text-xs text-gray-500">{LEAD_STAGE[l.stage]}</span>
                   </AppLink>
                 ))}
               </div>
             </Widget>
             <Widget icon={<ListChecks />} title="Jobs To Do" href={reportsHref("production")}>
               <div className="space-y-2">
-                {active.slice(0, 4).map((j) => <AppLink key={j.id} href={jobHref(j.id)} className="flex justify-between gap-2 text-sm"><span className="truncate font-semibold">{j.name}</span><span className="shrink-0 text-xs text-gray-400">{j.id}</span></AppLink>)}
+                {active.slice(0, 4).map((j) => <AppLink key={j.id} href={jobHref(j.id)} className="flex justify-between gap-2 text-sm"><span className="truncate font-semibold">{j.name}</span><span className="shrink-0 text-xs text-gray-500">{j.id}</span></AppLink>)}
               </div>
             </Widget>
           </div>
@@ -224,7 +224,7 @@ export function DashboardScreen() {
           <div className="space-y-4 lg:col-span-6">
             <Widget icon={<Filter />} title="Pending Sales" href="/estimates" className="p-6 shadow-lg">
               <div className="space-y-2">
-                {pending.length === 0 && <p className="text-sm text-gray-400">No pending estimates.</p>}
+                {pending.length === 0 && <p className="text-sm text-gray-500">No pending estimates.</p>}
                 {pending.map((e) => <AppLink key={e.id} href={estimateHref(e.id)} className="flex items-center justify-between gap-3 rounded-xl border border-gray-100 px-3 py-2 text-sm hover:border-primary-200"><span className="min-w-0 truncate"><b>{byId(db.customers, e.customerId)?.name}</b> · {e.title}</span><b className="shrink-0">{money(e.total)}</b></AppLink>)}
               </div>
             </Widget>
@@ -243,8 +243,8 @@ export function DashboardScreen() {
             {can(user, "supplier.submit") && (
               <Widget icon={<PackageSearch />} title="Supplier Order Exceptions" color="text-red-600" isNew feature={19} href="/supplier-orders?view=exceptions">
                 <div className="space-y-1.5">
-                  {poEx.length === 0 && <p className="text-sm text-gray-400">No supplier exceptions.</p>}
-                  {poEx.slice(0, 4).map((p) => <AppLink key={p.id} href={`/supplier-orders?po=${p.id}`} className="flex items-center justify-between gap-2 text-sm"><span className="inline-flex items-center gap-1.5 font-semibold"><AlertTriangle className="h-3.5 w-3.5 text-red-500" />{p.id}</span><span className="text-xs text-gray-400">{p.uncertainSend ? "Send uncertain" : p.status === "problem" ? "Problem" : "Not acknowledged"}</span></AppLink>)}
+                  {poEx.length === 0 && <p className="text-sm text-gray-500">No supplier exceptions.</p>}
+                  {poEx.slice(0, 4).map((p) => <AppLink key={p.id} href={`/supplier-orders?po=${p.id}`} className="flex items-center justify-between gap-2 text-sm"><span className="inline-flex items-center gap-1.5 font-semibold"><AlertTriangle className="h-3.5 w-3.5 text-red-500" />{p.id}</span><span className="text-xs text-gray-500">{p.uncertainSend ? "Send uncertain" : p.status === "problem" ? "Problem" : "Not acknowledged"}</span></AppLink>)}
                 </div>
               </Widget>
             )}
@@ -252,7 +252,7 @@ export function DashboardScreen() {
               <div className="grid gap-3 md:grid-cols-2">
                 {db.invoices.filter((i) => i.status !== "paid" && i.status !== "void").slice(0, 4).map((i) => {
                   const job = byId(db.jobs, i.jobId);
-                  return <div key={i.id} className="rounded-2xl border border-gray-100 p-4"><div className="truncate text-sm font-bold">{byId(db.customers, job?.customerId)?.name}</div><div className="text-xxs font-black uppercase text-gray-400">{i.status === "draft" ? "Draft" : `Due ${date(i.createdAt)}`}</div><div className="font-bold text-green-600">{money(i.amount)}</div></div>;
+                  return <div key={i.id} className="rounded-2xl border border-gray-100 p-4"><div className="truncate text-sm font-bold">{byId(db.customers, job?.customerId)?.name}</div><div className="text-xxs font-black uppercase text-gray-500">{i.status === "draft" ? "Draft" : `Due ${date(i.createdAt)}`}</div><div className="font-bold text-green-600">{money(i.amount)}</div></div>;
                 })}
               </div>
             </Widget>
@@ -280,7 +280,7 @@ export function DashboardScreen() {
               <div className="space-y-2">
                 {active.slice(0, 5).map((j) => {
                   const d = JOB_STATUS_DISPLAY[j.status];
-                  return <AppLink key={j.id} href={jobHref(j.id)} className="flex items-center justify-between gap-2 text-sm"><span className="truncate font-semibold">{j.name}</span><span className="shrink-0 text-xs text-gray-400">{d?.label}</span></AppLink>;
+                  return <AppLink key={j.id} href={jobHref(j.id)} className="flex items-center justify-between gap-2 text-sm"><span className="truncate font-semibold">{j.name}</span><span className="shrink-0 text-xs text-gray-500">{d?.label}</span></AppLink>;
                 })}
               </div>
             </Widget>

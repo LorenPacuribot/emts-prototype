@@ -96,12 +96,12 @@ function HistoryCard({ entry: e }: { entry: EstimateHistoryEntry & { coId?: stri
             {e.amendmentNumber > 0 && !e.coId && <span className="rounded-md border border-amber-200 bg-amber-50 px-2 py-0.5 text-xs font-bold text-amber-700">Amendment #{e.amendmentNumber}</span>}
             {!e.coId && <StatusPill tone={ESTIMATE_STATUS_TONE[e.status]}>{ESTIMATE_STATUS_LABEL[e.status]}</StatusPill>}
           </div>
-          <span className="text-xs text-gray-400">{new Date(e.createdAt).toLocaleString(undefined, { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" })}</span>
+          <span className="text-xs text-gray-500">{new Date(e.createdAt).toLocaleString(undefined, { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" })}</span>
         </div>
         <div className="mt-1 flex flex-wrap items-center justify-between gap-2 text-sm">
           <span className="text-gray-500">{actor}</span>
           <span className="font-semibold text-gray-900">
-            {e.preAmendmentTotal !== undefined && e.preAmendmentTotal !== e.grandTotal && <span className="mr-2 text-gray-400 line-through">{money(e.preAmendmentTotal, { cents: true })}</span>}
+            {e.preAmendmentTotal !== undefined && e.preAmendmentTotal !== e.grandTotal && <span className="mr-2 text-gray-500 line-through">{money(e.preAmendmentTotal, { cents: true })}</span>}
             {e.coId ? `CO total ${money(e.grandTotal, { cents: true })}` : money(e.grandTotal, { cents: true })}
           </span>
         </div>

@@ -69,12 +69,12 @@ export default function PresentationViewPage() {
       {/* Viewer bar */}
       <div className="flex h-14 shrink-0 items-center justify-between gap-3 border-b border-gray-200 bg-white px-4">
         <div className="flex min-w-0 items-center gap-3">
-          <Link href={`/presentations/${p.id}`} className="flex items-center gap-1.5 text-xs font-bold text-gray-400 hover:text-gray-700">
+          <Link href={`/presentations/${p.id}`} className="flex items-center gap-1.5 text-xs font-bold text-gray-500 hover:text-gray-700">
             <ArrowLeft className="h-4 w-4" /> <span className="hidden sm:inline">Back to builder</span>
           </Link>
           <span className="truncate font-heading text-sm font-bold text-gray-900">{p.title}</span>
           {p.status === 'Draft' && <span className="rounded-full bg-blue-50 px-2 py-0.5 text-xxs font-bold uppercase tracking-wider text-blue-700">Draft</span>}
-          <span className="hidden items-center gap-1 text-xs text-gray-400 md:flex"><Eye className="h-3.5 w-3.5" />{p.views}</span>
+          <span className="hidden items-center gap-1 text-xs text-gray-500 md:flex"><Eye className="h-3.5 w-3.5" />{p.views}</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="flex rounded-lg border border-gray-200 bg-gray-100 p-1">
@@ -94,7 +94,7 @@ export default function PresentationViewPage() {
           <PresentationCanvas presentation={p} className="min-h-full" />
         </div>
       ) : total === 0 ? (
-        <div className="flex flex-1 items-center justify-center text-sm text-gray-400">This presentation has no visible sections.</div>
+        <div className="flex flex-1 items-center justify-center text-sm text-gray-500">This presentation has no visible sections.</div>
       ) : (
         <>
           <div className="h-1 w-full bg-gray-200">

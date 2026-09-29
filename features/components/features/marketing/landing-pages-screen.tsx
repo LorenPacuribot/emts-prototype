@@ -235,7 +235,7 @@ function PageForm({ page, onClose }: { page?: LandingPage; onClose: () => void }
           </div>
         </fieldset>
         <div className="rounded-lg border border-line bg-gray-50 p-3 text-xs">
-          <div className="mb-1 text-xxs font-bold uppercase tracking-[0.12em] text-gray-400">Preview</div>
+          <div className="mb-1 text-xxs font-bold uppercase tracking-[0.12em] text-gray-500">Preview</div>
           <div className="font-display text-base font-bold text-ink">{f.headline || "Your headline"}</div>
           {f.body && <p className="mt-1 whitespace-pre-wrap text-gray-600">{f.body}</p>}
           {promo && <p className="mt-1 font-semibold text-gray-700">Quote {promo.code}: {promo.discountType === "percent" ? `${promo.value}% off` : `$${promo.value.toFixed(2)} off`}</p>}

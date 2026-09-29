@@ -82,7 +82,7 @@ function Reimbursements() {
                     {due === "crew_lead" && can(user, "reimburse.crewApprove") && <Button size="sm" onClick={() => act(crewApproveClaim, c.id).ok && toast.success("Approved", "Sent for office review.")}><CheckCircle2 className="h-3.5 w-3.5" /> Approve</Button>}
                     {due === "office" && can(user, "reimburse.officeReview") && <Button size="sm" variant="primary" onClick={() => { const r = act(officeReviewClaim, c.id); if (r.ok) toast.success(r.value ? "Reviewed — duplicate suspected" : "Reviewed", r.value ? "The original expense is already on the job. Reject if it's the same purchase." : "Original expense matched."); }}>Review</Button>}
                     {due === "owner" && can(user, "reimburse.ownerApprove") && <Button size="sm" variant="primary" onClick={() => act(ownerApproveClaim, c.id).ok && toast.success("Approved by the owner")}>Owner approve</Button>}
-                    {["crew_lead", "office_manager", "owner"].includes(user.role) && <Button size="sm" variant="ghost" onClick={() => { setRejecting(c.id); setReason(""); }}><XCircle className="h-3.5 w-3.5" /></Button>}
+                    {["crew_lead", "office_manager", "owner"].includes(user.role) && <Button aria-label="Reject" title="Reject" size="sm" variant="ghost" onClick={() => { setRejecting(c.id); setReason(""); }}><XCircle className="h-3.5 w-3.5" /></Button>}
                   </div>
                 )}
               </div>

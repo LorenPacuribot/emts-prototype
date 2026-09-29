@@ -151,10 +151,10 @@ function WoHeader({ wo, job, onLogHours, onSchedule, onMarkComplete }: { wo: Wor
       <div className="flex flex-col gap-3 lg:items-end">
         <div className="flex gap-6 rounded-xl border border-gray-100 bg-gray-50 px-4 py-3">
           <Tooltip content="Painting hours from the estimate's production rates">
-            <div><div className="flex items-center gap-1 text-xxs font-bold uppercase tracking-widest text-gray-400">Total Hours <Info className="h-3 w-3" /></div><div className="text-lg font-black text-gray-900">{totalHours.toFixed(2)}</div></div>
+            <div><div className="flex items-center gap-1 text-xxs font-bold uppercase tracking-widest text-gray-500">Total Hours <Info className="h-3 w-3" /></div><div className="text-lg font-black text-gray-900">{totalHours.toFixed(2)}</div></div>
           </Tooltip>
-          <div><div className="text-xxs font-bold uppercase tracking-widest text-gray-400">Assigned</div><div className="text-lg font-black text-gray-900">{assigned.toFixed(1)}</div></div>
-          <div><div className="text-xxs font-bold uppercase tracking-widest text-gray-400">Rendered</div><div className="text-lg font-black text-primary-600">{rendered.toFixed(2)}</div></div>
+          <div><div className="text-xxs font-bold uppercase tracking-widest text-gray-500">Assigned</div><div className="text-lg font-black text-gray-900">{assigned.toFixed(1)}</div></div>
+          <div><div className="text-xxs font-bold uppercase tracking-widest text-gray-500">Rendered</div><div className="text-lg font-black text-primary-600">{rendered.toFixed(2)}</div></div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {can(user, "workOrder.logTime") && <Button className="h-11 px-5 font-black" onClick={onLogHours} data-tour="log-hours"><Timer className="h-4 w-4" /> Log Hours</Button>}

@@ -80,7 +80,7 @@ export function InvoicesListScreen() {
           ))}
         </div>
         <div className="mb-5 flex flex-col gap-3 md:flex-row">
-          <div className="relative flex-1"><Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" /><Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search invoices..." className="h-11 pl-9" /></div>
+          <div className="relative flex-1"><Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" /><Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search invoices..." className="h-11 pl-9" /></div>
           <Select value={status} onChange={(e) => setStatus(e.target.value)} className="h-11 md:w-56" aria-label="Status">
             <option value="All">All</option>
             {(Object.keys(STATUS) as Invoice["status"][]).map((s) => <option key={s} value={s}>{STATUS[s].label}</option>)}
@@ -98,16 +98,16 @@ export function InvoicesListScreen() {
                     <NumberChip>{i.id}</NumberChip>
                     <StatusPill tone={STATUS[i.status].tone}>{STATUS[i.status].label}</StatusPill>
                     {i.kind !== "standard" && <span className="rounded-md bg-purple-50 px-1.5 py-0.5 font-bold text-purple-700">{i.kind === "credit_note" ? "Credit note" : "Supplemental"}</span>}
-                    <span className="text-gray-400">• {date(i.createdAt)}</span>
+                    <span className="text-gray-500">• {date(i.createdAt)}</span>
                   </div>
                   <h3 className="mt-1 font-bold text-gray-900">{byId(db.customers, job?.customerId)?.name}</h3>
                   <div className="text-sm text-gray-500">{job?.id} · {job?.name}</div>
                 </div>
-                {showQbo && <div className="md:w-40" onClick={(e) => e.stopPropagation()}><div className="text-xxs font-bold uppercase tracking-wider text-gray-400">QuickBooks</div><QboCell invoiceId={i.id} /></div>}
+                {showQbo && <div className="md:w-40" onClick={(e) => e.stopPropagation()}><div className="text-xxs font-bold uppercase tracking-wider text-gray-500">QuickBooks</div><QboCell invoiceId={i.id} /></div>}
                 <div className="text-right">
-                  <div className="text-xxs font-bold uppercase tracking-wider text-gray-400">Balance Due</div>
+                  <div className="text-xxs font-bold uppercase tracking-wider text-gray-500">Balance Due</div>
                   <div className="text-xl font-black text-gray-900">{money(invoiceBalance(i), { cents: true })}</div>
-                  <div className="text-xs text-gray-400">Total: {money(i.amount, { cents: true })}</div>
+                  <div className="text-xs text-gray-500">Total: {money(i.amount, { cents: true })}</div>
                 </div>
               </div>
             );
@@ -161,12 +161,12 @@ export function InvoiceDetailsScreen() {
             <div className="text-center"><h2 className="font-heading text-2xl font-extrabold">{job?.name}</h2><div className="text-sm text-gray-500">Invoice #{inv.id}</div></div>
             <div className="mt-8 flex flex-wrap items-start justify-between gap-4 border-b border-gray-200 pb-6">
               <div><div className="font-heading text-lg font-bold">Estimate Master Painting</div><div className="text-xs text-gray-500">410 Commerce Park, Dallas, TX 75201</div></div>
-              <div className="text-right"><div className="text-xxs font-bold uppercase tracking-widest text-gray-400">Balance Due</div><div className="font-heading text-4xl font-black">{money(invoiceBalance(inv), { cents: true })}</div><StatusPill tone={STATUS[inv.status].tone}>{STATUS[inv.status].label}</StatusPill></div>
+              <div className="text-right"><div className="text-xxs font-bold uppercase tracking-widest text-gray-500">Balance Due</div><div className="font-heading text-4xl font-black">{money(invoiceBalance(inv), { cents: true })}</div><StatusPill tone={STATUS[inv.status].tone}>{STATUS[inv.status].label}</StatusPill></div>
             </div>
             <div className="grid gap-4 border-b border-gray-200 py-6 sm:grid-cols-3 text-sm">
-              <div><div className="text-xxs font-bold uppercase tracking-widest text-gray-400">Client</div><div className="font-semibold">{customer?.name}</div><div className="text-gray-500">{customer?.email}</div></div>
-              <div><div className="text-xxs font-bold uppercase tracking-widest text-gray-400">Job Site</div><div>{property ? propertyAddress(property, true) : "No job address specified"}</div></div>
-              <div><div className="text-xxs font-bold uppercase tracking-widest text-gray-400">Dates</div><div>Invoice Date: {date(inv.createdAt)}</div></div>
+              <div><div className="text-xxs font-bold uppercase tracking-widest text-gray-500">Client</div><div className="font-semibold">{customer?.name}</div><div className="text-gray-500">{customer?.email}</div></div>
+              <div><div className="text-xxs font-bold uppercase tracking-widest text-gray-500">Job Site</div><div>{property ? propertyAddress(property, true) : "No job address specified"}</div></div>
+              <div><div className="text-xxs font-bold uppercase tracking-widest text-gray-500">Dates</div><div>Invoice Date: {date(inv.createdAt)}</div></div>
             </div>
             <table className="mt-6 w-full text-sm">
               <thead><tr className="border-b border-gray-200 text-left text-xs uppercase tracking-wider text-gray-500"><th className="py-2">Item</th><th className="py-2 text-right">Price</th></tr></thead>
@@ -183,7 +183,7 @@ export function InvoiceDetailsScreen() {
               {inv.depositDue !== undefined && <div className="flex justify-between text-gray-500"><span>Deposit due</span><span>{money(inv.depositDue, { cents: true })}</span></div>}
               <div className="flex justify-between text-gray-500"><span>Paid</span><span>{money(invoicePaid(inv), { cents: true })}</span></div>
             </div></div>
-            {job && <div className="no-print mt-6 text-xs text-gray-400">Job <AppLink href={jobHref(job.id)} className="font-semibold text-primary-700 hover:underline">{job.id}</AppLink></div>}
+            {job && <div className="no-print mt-6 text-xs text-gray-500">Job <AppLink href={jobHref(job.id)} className="font-semibold text-primary-700 hover:underline">{job.id}</AppLink></div>}
           </div>
 
           {(inv.payments ?? []).length > 0 && (
@@ -238,7 +238,7 @@ function PaymentModal({ open, onOpenChange, invoice }: { open: boolean; onOpenCh
   return (
     <Modal open={open} onOpenChange={onOpenChange} size="lg" title="Record Payment" footer={<><Button onClick={() => onOpenChange(false)}>Cancel</Button><Button variant="primary" onClick={submit}>{mode === "credit_card" ? "Charge Card" : "Record Payment"}</Button></>}>
       <div className="space-y-4">
-        <div className="rounded-xl bg-gray-50 p-4"><div className="text-xs font-bold uppercase tracking-widest text-gray-400">Balance Due</div><div className="font-heading text-2xl font-black">{money(invoiceBalance(invoice), { cents: true })}</div></div>
+        <div className="rounded-xl bg-gray-50 p-4"><div className="text-xs font-bold uppercase tracking-widest text-gray-500">Balance Due</div><div className="font-heading text-2xl font-black">{money(invoiceBalance(invoice), { cents: true })}</div></div>
         <div className="flex flex-wrap gap-2">
           {([["credit_card", "Credit Card"], ["check", "Check"], ["cash", "Cash"], ["bank_transfer", "Bank Transfer"]] as const).map(([k, l]) => (
             <button key={k} onClick={() => setMode(k)} className={cn("rounded-lg border px-3 py-1.5 text-sm font-semibold", mode === k ? "border-primary-600 bg-primary-50 text-primary-700" : "border-gray-200 text-gray-600")}>{l}</button>

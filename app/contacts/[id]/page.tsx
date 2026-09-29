@@ -133,12 +133,12 @@ function ContactDetail() {
               <h1 className="font-heading text-2xl font-extrabold tracking-tight text-gray-900 sm:text-3xl md:text-4xl">{name}</h1>
               <div className="group flex items-center gap-0.5 sm:gap-1">
                 {[1, 2, 3, 4, 5].map((n) => (
-                  <button key={n} type="button" onClick={() => setRating(n)} title={`Rate ${n} star${n > 1 ? 's' : ''}`} className="transition-transform hover:scale-110 active:scale-90">
+                  <button aria-label={`Rate ${n} star${n > 1 ? 's' : ''}`} key={n} type="button" onClick={() => setRating(n)} title={`Rate ${n} star${n > 1 ? 's' : ''}`} className="transition-transform hover:scale-110 active:scale-90">
                     <Star className={cn('h-5 w-5 transition-colors sm:h-6 sm:w-6', rating >= n ? 'fill-amber-400 text-amber-400' : 'text-gray-300 hover:text-amber-200')} />
                   </button>
                 ))}
                 {rating > 0 && (
-                  <button type="button" onClick={() => setRating(0)} title="Clear rating" className="ml-1 text-gray-300 transition-opacity hover:text-red-400 lg:opacity-0 lg:group-hover:opacity-100">
+                  <button aria-label="Clear rating" type="button" onClick={() => setRating(0)} title="Clear rating" className="ml-1 text-gray-300 transition-opacity hover:text-red-400 lg:opacity-0 lg:group-hover:opacity-100">
                     <X className="h-4 w-4" />
                   </button>
                 )}
@@ -146,12 +146,12 @@ function ContactDetail() {
               <span className={cn('rounded-full border px-2.5 py-0.5 text-xs font-bold uppercase', CONTACT_TYPE_COLORS[customer.type])}>{customer.type}</span>
             </div>
             <div className="flex flex-wrap gap-x-6 gap-y-2 pl-1 text-sm font-medium text-gray-500 md:text-base">
-              <a href={`tel:${customer.phone}`} className="flex items-center gap-2 hover:text-gray-800"><Phone className="h-4 w-4 text-gray-400" /> {formatPhone(customer.phone) || '-'}</a>
-              <a href={`mailto:${customer.email}`} className="flex items-center gap-2 hover:text-gray-800"><Mail className="h-4 w-4 text-gray-400" /> {customer.email || '-'}</a>
-              <span className="flex items-center gap-2"><MapPin className="h-4 w-4 text-gray-400" /> {address}</span>
+              <a href={`tel:${customer.phone}`} className="flex items-center gap-2 hover:text-gray-800"><Phone className="h-4 w-4 text-gray-500" /> {formatPhone(customer.phone) || '-'}</a>
+              <a href={`mailto:${customer.email}`} className="flex items-center gap-2 hover:text-gray-800"><Mail className="h-4 w-4 text-gray-500" /> {customer.email || '-'}</a>
+              <span className="flex items-center gap-2"><MapPin className="h-4 w-4 text-gray-500" /> {address}</span>
             </div>
             {(customer.companyName || customer.secondaryPhone) && (
-              <div className="flex flex-wrap gap-x-6 pl-1 text-sm text-gray-400">
+              <div className="flex flex-wrap gap-x-6 pl-1 text-sm text-gray-500">
                 {customer.companyName && <span>{customer.companyName}</span>}
                 {customer.secondaryPhone && <span>Alt: {formatPhone(customer.secondaryPhone)}</span>}
                 <span>Source: {customer.source}</span>
@@ -175,7 +175,7 @@ function ContactDetail() {
               ]}
               trigger={
                 <button type="button" aria-label="More actions" className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-gray-200 bg-white shadow-sm hover:border-gray-300">
-                  <MoreVertical className="h-5 w-5 text-gray-400" />
+                  <MoreVertical className="h-5 w-5 text-gray-500" />
                 </button>
               }
             />
@@ -195,11 +195,11 @@ function ContactDetail() {
               {locations.map((loc) => (
                 <div key={loc.key} className="group relative rounded-xl border border-gray-100 bg-gray-50 p-4">
                   <div className="flex items-start gap-3">
-                    <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-400"><MapPin className="h-4 w-4" /></div>
+                    <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500"><MapPin className="h-4 w-4" /></div>
                     <div className="min-w-0 flex-1">
                       <div className="text-sm font-bold text-gray-900">{[loc.street, loc.unit].filter(Boolean).join(' ') || '-'}</div>
                       <div className="text-xs text-gray-500">{[loc.city, [loc.state, loc.zip].filter(Boolean).join(' ')].filter(Boolean).join(', ')}</div>
-                      <div className="mt-1 flex items-center gap-2 text-xxs font-bold uppercase tracking-wider text-gray-400">
+                      <div className="mt-1 flex items-center gap-2 text-xxs font-bold uppercase tracking-wider text-gray-500">
                         {loc.label}
                         {loc.street && (
                           <Link
@@ -210,7 +210,7 @@ function ContactDetail() {
                           </Link>
                         )}
                         {loc.removable && (
-                          <button type="button" onClick={() => setLocationToRemove(loc.key)} className="normal-case tracking-normal text-gray-400 hover:text-red-600">Remove</button>
+                          <button type="button" onClick={() => setLocationToRemove(loc.key)} className="normal-case tracking-normal text-gray-500 hover:text-red-600">Remove</button>
                         )}
                       </div>
                       <LocationPaintChips customerId={customer.id} street={loc.street} />
@@ -231,7 +231,7 @@ function ContactDetail() {
               </div>
               <button type="button" onClick={() => setTab('jobs')} className="group flex w-full items-center justify-between rounded border-b border-gray-100 pb-2 text-left">
                 <span className="flex items-center gap-1 font-medium text-gray-500 group-hover:text-primary-700">Active Jobs <ArrowUpRight className="h-3 w-3 opacity-0 group-hover:opacity-100" /></span>
-                <span className={cn('font-bold', stats.activeJobs > 0 ? 'text-amber-600' : 'text-gray-400')}>{stats.activeJobs}</span>
+                <span className={cn('font-bold', stats.activeJobs > 0 ? 'text-amber-600' : 'text-gray-500')}>{stats.activeJobs}</span>
               </button>
               <button type="button" onClick={() => setTab('invoices')} className="group flex w-full items-center justify-between rounded text-left">
                 <span className="flex items-center gap-1 font-medium text-gray-500 group-hover:text-primary-700">Total Value <Eye className="h-3 w-3 opacity-0 group-hover:opacity-100" /></span>
@@ -278,7 +278,7 @@ function ContactDetail() {
               <div className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
                 <div className="mb-6 text-xs font-bold uppercase tracking-widest text-gray-500">Activity Log</div>
                 {activity.length === 0 ? (
-                  <div className="py-8 text-center text-sm italic text-gray-400">No activity recorded yet.</div>
+                  <div className="py-8 text-center text-sm italic text-gray-500">No activity recorded yet.</div>
                 ) : (
                   <ul className="space-y-4">
                     {activity.map((a) => (
@@ -286,7 +286,7 @@ function ContactDetail() {
                         <div className="mt-2 h-2 w-2 shrink-0 rounded-full bg-primary-400" />
                         <div>
                           <div className="text-sm text-gray-700">{a.text}</div>
-                          <div className="text-xs text-gray-400">{new Date(a.date).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })}</div>
+                          <div className="text-xs text-gray-500">{new Date(a.date).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })}</div>
                         </div>
                       </li>
                     ))}

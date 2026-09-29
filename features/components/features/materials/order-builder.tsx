@@ -123,10 +123,10 @@ export function OrderBuilder({ open, job, lines, onClose, onViewOrder }: { open:
           </div>
 
           <div>
-            <div className="mb-2 text-xs font-semibold text-gray-700">Lines <span className="font-normal text-gray-400">— quantities start at what can be ordered now</span></div>
+            <div className="mb-2 text-xs font-semibold text-gray-700">Lines <span className="font-normal text-gray-500">— quantities start at what can be ordered now</span></div>
             {e("lines") && <p className="mb-2 text-xs font-medium text-red-600">{e("lines")}</p>}
             <div className="space-y-2">
-              {orderable.length === 0 && <p className="text-xs italic text-gray-400">No orderable lines.</p>}
+              {orderable.length === 0 && <p className="text-xs italic text-gray-500">No orderable lines.</p>}
               {orderable.map(({ l, s }) => {
                 const v = sel[l.specId] ?? { on: false, qty: "" };
                 const q = Number(v.qty);
@@ -185,11 +185,11 @@ function LimitPanel({ limit, error, seePrices }: { limit?: { orderValue: number;
             <div className="mt-1 h-2 overflow-hidden rounded-full bg-gray-200"><div className={cn("h-full rounded-full", limit.needs === "owner" ? "bg-red-500" : "bg-brand")} style={{ width: `${pctLife}%` }} /></div>
           </div>
           {seePrices && <div className="text-xs text-gray-600">This order: <strong className="text-ink">{money(limit.orderValue)}</strong> pre-tax, pre-shipping</div>}
-          <p className="text-xs text-gray-400">Same-job orders in the last seven calendar days combine. Confirmed cancellations and issued credits reduce both totals; unconfirmed requests don't.{!seePrices && " Prices are not shown for your role."}</p>
+          <p className="text-xs text-gray-500">Same-job orders in the last seven calendar days combine. Confirmed cancellations and issued credits reduce both totals; unconfirmed requests don't.{!seePrices && " Prices are not shown for your role."}</p>
           {error && <Banner tone="danger">{error}</Banner>}
         </>
       )}
-      <p className="text-xs text-gray-400">Checked {new Date(now()).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}</p>
+      <p className="text-xs text-gray-500">Checked {new Date(now()).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}</p>
     </div>
   );
 }

@@ -108,13 +108,13 @@ export function CreateEstimateModal({ open, onOpenChange, leadId: boundLeadId, c
         <div>
           <p className="mb-4 text-sm text-gray-500">Every estimate originates from a scheduled lead. Pick the lead this estimate is for.</p>
           <div className="relative mb-4">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
             <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search by name, address, phone, email, or lead number..." className="pl-9" />
           </div>
           {eligible.length === 0 ? (
             <div className="rounded-xl border border-dashed border-gray-200 p-6 text-center text-sm text-gray-500">
               No scheduled leads without an estimate.
-              <div className="mt-1 text-xs text-gray-400">Schedule the estimate appointment on a lead first (Lead Pipeline › lead › Schedule).</div>
+              <div className="mt-1 text-xs text-gray-500">Schedule the estimate appointment on a lead first (Lead Pipeline › lead › Schedule).</div>
             </div>
           ) : (
             <div className="space-y-2">
@@ -128,7 +128,7 @@ export function CreateEstimateModal({ open, onOpenChange, leadId: boundLeadId, c
                       <span className="rounded-md bg-gray-100 px-1.5 py-0.5 font-mono text-xs font-bold text-gray-600">{l.id}</span>
                     </div>
                     <div className="mt-1 text-sm text-gray-500">{propertyAddress(p)}</div>
-                    <div className="text-xs text-gray-400">{c?.email} · {c?.phone}{l.scheduledAt && ` · Appointment ${dateTime(l.scheduledAt)}`}</div>
+                    <div className="text-xs text-gray-500">{c?.email} · {c?.phone}{l.scheduledAt && ` · Appointment ${dateTime(l.scheduledAt)}`}</div>
                   </button>
                 );
               })}

@@ -72,18 +72,18 @@ function Mileage() {
                     const s = STATUS[c.status];
                     return (
                       <TR key={c.id}>
-                        <TD className="font-semibold">{c.id}<div className="max-w-[180px] truncate text-xs font-normal text-gray-400" title={c.purpose}>{c.purpose}</div></TD>
+                        <TD className="font-semibold">{c.id}<div className="max-w-[180px] truncate text-xs font-normal text-gray-500" title={c.purpose}>{c.purpose}</div></TD>
                         <TD>{byId(db.employees, c.employeeId)?.name}</TD>
                         <TD>{dayLabel(c.date.slice(0, 10), false)}</TD>
                         <TD className="text-xs">{c.evidence.kind === "odometer" ? `Odometer ${c.evidence.start.toLocaleString()} → ${c.evidence.end.toLocaleString()}` : `${c.evidence.from} → ${c.evidence.to}`}</TD>
                         <TD className="text-right tabular-nums">{c.miles}</TD>
-                        <TD className="text-right tabular-nums">{c.amount !== undefined ? <>{money(c.amount)}<div className="text-xs text-gray-400">{c.centsPerMile}¢/mi</div></> : "—"}</TD>
-                        <TD><Badge tone={s.tone}>{s.label}</Badge>{c.rejectedReason && <div className="mt-0.5 text-xs text-red-700">{c.rejectedReason}</div>}{c.reviewedBy && <div className="mt-0.5 text-xs text-gray-400">Reviewed by {userName(db, c.reviewedBy)}</div>}</TD>
+                        <TD className="text-right tabular-nums">{c.amount !== undefined ? <>{money(c.amount)}<div className="text-xs text-gray-500">{c.centsPerMile}¢/mi</div></> : "—"}</TD>
+                        <TD><Badge tone={s.tone}>{s.label}</Badge>{c.rejectedReason && <div className="mt-0.5 text-xs text-red-700">{c.rejectedReason}</div>}{c.reviewedBy && <div className="mt-0.5 text-xs text-gray-500">Reviewed by {userName(db, c.reviewedBy)}</div>}</TD>
                         <TD>
                           <div className="flex gap-1">
                             {c.status === "submitted" && can(user, "mileage.approve") && <Button size="sm" onClick={() => act(approveMileage, c.id).ok && toast.success("Claim approved", "Sent to the office for review.")}><CheckCircle2 className="h-3.5 w-3.5" /> Approve</Button>}
                             {c.status === "crew_approved" && can(user, "mileage.review") && <Button size="sm" variant="primary" onClick={() => act(reviewMileage, c.id).ok && toast.success("Claim reviewed", "Amount set from the IRS rate on the claim date.")}>Review</Button>}
-                            {(c.status === "submitted" || c.status === "crew_approved") && (can(user, "mileage.approve") || can(user, "mileage.review")) && <Button size="sm" variant="ghost" onClick={() => { setRejecting(c.id); setReason(""); }}><XCircle className="h-3.5 w-3.5" /></Button>}
+                            {(c.status === "submitted" || c.status === "crew_approved") && (can(user, "mileage.approve") || can(user, "mileage.review")) && <Button aria-label="Reject" title="Reject" size="sm" variant="ghost" onClick={() => { setRejecting(c.id); setReason(""); }}><XCircle className="h-3.5 w-3.5" /></Button>}
                           </div>
                         </TD>
                       </TR>

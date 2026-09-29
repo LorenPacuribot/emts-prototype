@@ -291,7 +291,7 @@ function Versions({ post }: { post: MarketingPost }) {
           <div key={i} className="rounded-lg border border-line px-3 py-2 text-xs">
             <div className="flex flex-wrap items-center gap-1.5"><strong>v{v.version}</strong> <span className="text-gray-500">{v.note} · {userName(db, v.by)} · {dateTime(v.at)}</span>{post.approval?.version === v.version && <Badge tone="green">Approved version</Badge>}</div>
             <div className="mt-0.5 text-gray-600">{v.copy}</div>
-            <div className="text-xs text-gray-400">Media: {v.assetIds.join(", ") || "none"}</div>
+            <div className="text-xs text-gray-500">Media: {v.assetIds.join(", ") || "none"}</div>
           </div>
         ))}
       </div>

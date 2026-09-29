@@ -75,7 +75,7 @@ export function LeadCard({
       </div>
 
       <div className="mb-3 flex flex-wrap gap-1.5">
-        <span className={chip}><Calendar className="mr-1 h-3 w-3 text-gray-400" />{longDate(lead.date)}</span>
+        <span className={chip}><Calendar className="mr-1 h-3 w-3 text-gray-500" />{longDate(lead.date)}</span>
         <LeadSourceChip lead={lead} className="text-xs" fallback={<span className={chip}>{lead.leadSource}</span>} />
         <span className={chip}>{timeAgo(lead.date)}</span>
       </div>
@@ -104,36 +104,36 @@ export function LeadCard({
 
       <div className="relative z-20 flex items-center justify-between border-t border-gray-100 pt-3">
         <div className="flex gap-1">
-          <a
+          <a aria-label="Call"
             href={lead.phone ? `tel:${lead.phone}` : undefined}
             title={formatPhone(lead.phone)}
             onClick={(e) => e.stopPropagation()}
-            className="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-blue-50 hover:text-blue-600"
+            className="rounded-lg p-1.5 text-gray-500 transition-colors hover:bg-blue-50 hover:text-blue-600"
           >
             <Phone className="h-4 w-4" />
           </a>
-          <a
+          <a aria-label="Email"
             href={lead.email ? `mailto:${lead.email}` : undefined}
             title={lead.email}
             onClick={(e) => e.stopPropagation()}
-            className="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-blue-50 hover:text-blue-600"
+            className="rounded-lg p-1.5 text-gray-500 transition-colors hover:bg-blue-50 hover:text-blue-600"
           >
             <Mail className="h-4 w-4" />
           </a>
         </div>
         <div className="flex items-center gap-2 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
           {canArchiveLeadStatus(lead.status) && !followUpId && (
-            <button
+            <button aria-label="Archive Lead"
               type="button"
               title="Archive Lead"
               onClick={(e) => { e.stopPropagation(); onArchive?.(lead); }}
-              className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-50 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+              className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-50 text-gray-500 hover:bg-gray-100 hover:text-gray-600"
             >
               <Archive className="h-4 w-4" />
             </button>
           )}
           {next && (
-            <button
+            <button aria-label={`Move to ${next}`}
               type="button"
               title={`Move to ${next}`}
               onClick={(e) => { e.stopPropagation(); onAdvance?.(lead); }}

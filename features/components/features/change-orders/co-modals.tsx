@@ -505,7 +505,7 @@ export function SendModal({ co, reissue, onClose }: { co?: ChangeOrder; reissue?
         </Field>
         <p className="text-xs text-gray-500">Verbal approval is not offered. It is accepted only for emergency work strictly below $500.00.</p>
         {reissue && <Banner tone="warn">The current link is superseded and blocked. The customer will see a message pointing them to the new link.</Banner>}
-        <p className="text-xs text-gray-400">The prototype records the send; no real message leaves the browser.</p>
+        <p className="text-xs text-gray-500">The prototype records the send; no real message leaves the browser.</p>
       </div>
     </Modal>
   );

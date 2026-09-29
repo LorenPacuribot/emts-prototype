@@ -38,7 +38,7 @@ export function GatedButton({ allowed, reason, children, className, ...rest }: B
 export function SectionTitle({ children, right }: { children: ReactNode; right?: ReactNode }) {
   return (
     <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-      <div className="text-xxs font-bold uppercase tracking-[0.12em] text-gray-400">{children}</div>
+      <div className="text-xxs font-bold uppercase tracking-[0.12em] text-gray-500">{children}</div>
       {right}
     </div>
   );
@@ -52,7 +52,7 @@ export function ReportTableCard({ table, empty }: { table: ReportTable; empty: s
     <Card className="p-0">
       <div className="border-b border-line px-4 py-3 font-display text-sm font-bold text-ink">{table.title}</div>
       {table.rows.length === 0 ? (
-        <p className="px-4 py-6 text-center text-xs italic text-gray-400">{empty}</p>
+        <p className="px-4 py-6 text-center text-xs italic text-gray-500">{empty}</p>
       ) : (
         <div className="overflow-x-auto">
           <Table className="rounded-none border-0">

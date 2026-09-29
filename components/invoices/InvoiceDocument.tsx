@@ -30,9 +30,9 @@ export function InvoiceDocument({ invoice, className }: { invoice: Invoice; clas
       {/* 1. Title */}
       <div className="px-12 pb-8 pt-12 text-center">
         <h1 className="mb-2 text-3xl font-extrabold tracking-tight text-gray-900 md:text-5xl">{title}</h1>
-        <p className="text-lg font-medium text-gray-400">Invoice #{invoice.invoiceNumber}</p>
+        <p className="text-lg font-medium text-gray-500">Invoice #{invoice.invoiceNumber}</p>
         {(job || estimate || lead) && (
-          <p className="mt-1 text-sm font-medium text-gray-400">
+          <p className="mt-1 text-sm font-medium text-gray-500">
             {[job && `Job ${job.jobNumber}`, estimate && `Estimate ${estimate.estimateNumber}`, lead && `Lead ${lead.leadNumber}`].filter(Boolean).join(' · ')}
           </p>
         )}
@@ -47,11 +47,11 @@ export function InvoiceDocument({ invoice, className }: { invoice: Invoice; clas
           <div className="ml-2 space-y-0.5 text-xs font-medium text-gray-500 md:text-sm">
             <p className="font-bold text-gray-900">{biz.companyName}</p>
             <p>{[biz.street, biz.city, biz.state].filter(Boolean).join(', ')}</p>
-            {biz.licenseNumber && <p className="text-gray-400">license #{biz.licenseNumber}</p>}
+            {biz.licenseNumber && <p className="text-gray-500">license #{biz.licenseNumber}</p>}
           </div>
         </div>
         <div className="flex w-full shrink-0 flex-col items-center md:w-auto md:items-end">
-          <div className="mb-1 text-xxs font-bold uppercase tracking-widest text-gray-400 md:text-xs">Balance Due</div>
+          <div className="mb-1 text-xxs font-bold uppercase tracking-widest text-gray-500 md:text-xs">Balance Due</div>
           <div className="text-4xl font-black tracking-tighter text-gray-900">{usd(t.balance)}</div>
           <div className="mt-2">
             <span className={cn('inline-flex rounded-full border px-2.5 py-0.5 text-xs font-bold', INVOICE_BADGE[status])}>{INVOICE_STATUS_LABEL[status]}</span>
@@ -64,7 +64,7 @@ export function InvoiceDocument({ invoice, className }: { invoice: Invoice; clas
       {/* 3. Info grid */}
       <div className="grid grid-cols-1 gap-8 p-8 md:grid-cols-3 md:gap-12 md:p-12">
         <div>
-          <h4 className="mb-3 border-b border-gray-100 pb-2 text-xs font-bold uppercase tracking-widest text-gray-400">Client</h4>
+          <h4 className="mb-3 border-b border-gray-100 pb-2 text-xs font-bold uppercase tracking-widest text-gray-500">Client</h4>
           <div className="mb-1 text-xl font-bold text-gray-900">{fullName(customer)}</div>
           <div className="space-y-0.5 pt-2 text-sm text-gray-500">
             {customer?.email && <div>{customer.email}</div>}
@@ -72,22 +72,22 @@ export function InvoiceDocument({ invoice, className }: { invoice: Invoice; clas
           </div>
         </div>
         <div>
-          <h4 className="mb-3 border-b border-gray-100 pb-2 text-xs font-bold uppercase tracking-widest text-gray-400">Job Site</h4>
+          <h4 className="mb-3 border-b border-gray-100 pb-2 text-xs font-bold uppercase tracking-widest text-gray-500">Job Site</h4>
           {jobSite ? (
             <div className="text-sm font-medium leading-relaxed text-gray-600">{jobSite}</div>
           ) : (
-            <div className="text-sm italic text-gray-400">No job address specified</div>
+            <div className="text-sm italic text-gray-500">No job address specified</div>
           )}
         </div>
         <div>
-          <h4 className="mb-3 border-b border-gray-100 pb-2 text-xs font-bold uppercase tracking-widest text-gray-400">Dates</h4>
+          <h4 className="mb-3 border-b border-gray-100 pb-2 text-xs font-bold uppercase tracking-widest text-gray-500">Dates</h4>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <div className="mb-1 text-xxs font-bold uppercase text-gray-400">Invoice Date</div>
+              <div className="mb-1 text-xxs font-bold uppercase text-gray-500">Invoice Date</div>
               <div className="font-bold text-gray-900">{shortDate(invoice.date)}</div>
             </div>
             <div>
-              <div className="mb-1 text-xxs font-bold uppercase text-gray-400">Due Date</div>
+              <div className="mb-1 text-xxs font-bold uppercase text-gray-500">Due Date</div>
               <div className="font-bold text-gray-900">{invoice.dueDate ? shortDate(invoice.dueDate) : 'N/A'}</div>
             </div>
           </div>
@@ -101,11 +101,11 @@ export function InvoiceDocument({ invoice, className }: { invoice: Invoice; clas
           <div className="text-lg font-bold text-gray-900">{usd(t.subtotal)}</div>
         </div>
         {invoice.lineItems.length === 0 ? (
-          <div className="px-8 py-8 text-center italic text-gray-400 md:px-12">No items available.</div>
+          <div className="px-8 py-8 text-center italic text-gray-500 md:px-12">No items available.</div>
         ) : (
           <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
-            <thead className="text-gray-400">
+            <thead className="text-gray-500">
               <tr>
                 <th className="py-2 pl-5 pr-2 sm:pl-8 sm:pr-4 text-xs font-bold uppercase md:pl-12">Item</th>
                 <th className="px-2 py-2 sm:px-4 text-center text-xs font-bold uppercase">Qty</th>
@@ -174,15 +174,15 @@ export function InvoiceDocument({ invoice, className }: { invoice: Invoice; clas
 
         <div className="mt-12 grid grid-cols-1 gap-12 border-t border-gray-200 pt-8 md:grid-cols-2">
           <div>
-            <h4 className="mb-3 text-xxs font-black uppercase tracking-widest text-gray-400">Terms & Conditions</h4>
+            <h4 className="mb-3 text-xxs font-black uppercase tracking-widest text-gray-500">Terms & Conditions</h4>
             <p className="whitespace-pre-line text-xs leading-relaxed text-gray-500">{terms?.content || invoice.notes || 'Standard terms apply.'}</p>
             {terms && invoice.notes && <p className="mt-3 whitespace-pre-line text-xs leading-relaxed text-gray-500">{invoice.notes}</p>}
           </div>
           <div>
-            <h4 className="mb-4 text-xxs font-black uppercase tracking-widest text-gray-400">Acceptance</h4>
+            <h4 className="mb-4 text-xxs font-black uppercase tracking-widest text-gray-500">Acceptance</h4>
             <div className="mb-2 h-12" />
             <div className="mb-2 border-b border-gray-300" />
-            <div className="flex justify-between text-xxs font-black uppercase tracking-widest text-gray-400">
+            <div className="flex justify-between text-xxs font-black uppercase tracking-widest text-gray-500">
               <span>Signature</span>
               <span>Date</span>
             </div>

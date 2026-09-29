@@ -48,7 +48,7 @@ export default function SupportPage() {
       <div className="mx-auto mb-10 max-w-3xl pt-4 text-center">
         <h1 className="mb-6 font-heading text-4xl font-black tracking-tight text-gray-900 md:text-5xl">How can we help you?</h1>
         <div className="relative mx-auto max-w-2xl">
-          <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+          <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}

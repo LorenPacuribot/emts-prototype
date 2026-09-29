@@ -85,12 +85,12 @@ export function TableColumnsView() {
                       update(c.id, { isVisible: !c.isVisible });
                       toast(`${c.name} is now ${c.isVisible ? 'hidden' : 'visible'}`);
                     }}
-                    className={cn('shrink-0 rounded-lg p-2 transition-colors', c.isVisible ? 'bg-primary-50 text-primary-600' : 'bg-gray-100 text-gray-400')}
+                    className={cn('shrink-0 rounded-lg p-2 transition-colors', c.isVisible ? 'bg-primary-50 text-primary-600' : 'bg-gray-100 text-gray-500')}
                   >
                     {c.isVisible ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
                   </button>
                   <div className="min-w-0 flex-1">
-                    <p className={cn('truncate text-sm font-bold', c.isVisible ? 'text-gray-900' : 'text-gray-400')}>{c.name}</p>
+                    <p className={cn('truncate text-sm font-bold', c.isVisible ? 'text-gray-900' : 'text-gray-500')}>{c.name}</p>
                     <span className={cn('mt-1 inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium', badge.cls)}>
                       {badge.label}
                       {c.columnType === 'QUANTITY' && c.unit && <span className="ml-1">({c.unit === 'Percent' ? '%' : c.unit})</span>}

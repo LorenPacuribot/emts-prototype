@@ -42,7 +42,7 @@ export function LeadDetailsScreen() {
   if (!lead) {
     return (
       <Screen crumbs={[{ label: "Leads", href: "/leads" }, { label: "Lead Details" }]} bare>
-        <div className="px-4 py-20 text-center text-gray-400">Lead not found.</div>
+        <div className="px-4 py-20 text-center text-gray-500">Lead not found.</div>
       </Screen>
     );
   }
@@ -74,11 +74,11 @@ export function LeadDetailsScreen() {
                   <span className={cn("rounded-full px-2.5 py-1 text-xs font-bold uppercase tracking-wide", life.color)}>{life.label}</span>
                 </div>
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-500">
-                  <span className="flex items-center gap-1"><MapPin className="h-4 w-4 text-gray-400" /> {d.place}</span>
+                  <span className="flex items-center gap-1"><MapPin className="h-4 w-4 text-gray-500" /> {d.place}</span>
                   {lead.source === "repaint_alert"
                     ? <span className="inline-flex items-center gap-1 rounded-full bg-primary-50 px-2 py-0.5 text-xxs font-bold uppercase tracking-wider text-primary-800"><BellRing className="h-3 w-3" /> Repaint alert <NewBadge feature={29} /></span>
                     : <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xxs font-bold uppercase tracking-wider text-gray-600">{leadSourceLabel(lead)}</span>}
-                  <span className="text-gray-400">Created: {date(lead.createdAt)}</span>
+                  <span className="text-gray-500">Created: {date(lead.createdAt)}</span>
                   {lead.scheduledAt && estimator && (
                     <span className="flex items-center gap-1.5 rounded-md border border-primary-100 bg-primary-50 px-2 py-1 text-xs font-medium text-primary-700"><Calendar className="h-3.5 w-3.5" /> {dateTime(lead.scheduledAt)} with {estimator.name}</span>
                   )}
@@ -114,7 +114,7 @@ export function LeadDetailsScreen() {
                     title={!selectable && !active ? (fu ? `Set by follow-up ${fu.id}` : "Set by the estimate lifecycle — not editable manually") : undefined}
                     className={cn("flex min-w-[100px] flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-lg px-4 py-3 text-center text-sm font-bold transition-all",
                       clickable ? "cursor-pointer" : "cursor-default",
-                      active ? "bg-white text-blue-600 shadow-sm ring-1 ring-black/5" : !selectable ? "text-gray-400 opacity-60" : "text-gray-500 hover:bg-gray-100 hover:text-gray-700")}>
+                      active ? "bg-white text-blue-600 shadow-sm ring-1 ring-black/5" : !selectable ? "text-gray-500 opacity-60" : "text-gray-500 hover:bg-gray-100 hover:text-gray-700")}>
                     {active && <Check className="h-4 w-4" />}
                     {!active && !selectable && <Lock className="h-3 w-3" />}
                     {LIVE_LEAD_STATUS[step]}
@@ -164,7 +164,7 @@ function InfoRow({ icon, tint, label, value }: { icon: React.ReactNode; tint: st
     <div className="flex items-center gap-4 rounded-xl bg-gray-50 p-4">
       <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-full", tint)}>{icon}</div>
       <div className="min-w-0">
-        <div className="mb-0.5 text-xxs font-bold uppercase tracking-widest text-gray-400">{label}</div>
+        <div className="mb-0.5 text-xxs font-bold uppercase tracking-widest text-gray-500">{label}</div>
         <div className="truncate text-lg font-bold text-gray-900">{value}</div>
       </div>
     </div>
@@ -194,7 +194,7 @@ function Notes({ leadId }: { leadId: string }) {
         <div className="space-y-4">
           {notes.map((n) => (
             <div key={n.id} className="rounded-xl bg-gray-50 p-4">
-              <div className="mb-1 flex items-center justify-between gap-2 text-xs text-gray-400"><span className="font-bold text-gray-600">{byId(db.users, n.by)?.name ?? "Lead intake"}</span><span>{dateTime(n.at)}</span></div>
+              <div className="mb-1 flex items-center justify-between gap-2 text-xs text-gray-500"><span className="font-bold text-gray-600">{byId(db.users, n.by)?.name ?? "Lead intake"}</span><span>{dateTime(n.at)}</span></div>
               <p className="whitespace-pre-wrap text-sm text-gray-800">{n.text}</p>
             </div>
           ))}

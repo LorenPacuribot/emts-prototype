@@ -80,7 +80,7 @@ function Suppliers() {
                         const open = branchCommitments(db, b.id);
                         return (
                           <TR key={b.id}>
-                            <TD className="font-semibold text-ink">{b.name}{b.address && <div className="text-xs font-normal text-gray-400">{b.address}</div>}</TD>
+                            <TD className="font-semibold text-ink">{b.name}{b.address && <div className="text-xs font-normal text-gray-500">{b.address}</div>}</TD>
                             <TD>{b.storeNumber || <span className="italic text-red-500">Missing</span>}</TD>
                             {perms.seeAccount && <TD className="font-mono text-xs">{b.accountNumber || <span className="italic text-red-500">Missing</span>}</TD>}
                             <TD>{b.phone || <span className="italic text-red-500">Missing</span>}</TD>
@@ -116,7 +116,7 @@ function Suppliers() {
             <div className="mt-3 flex flex-wrap gap-1.5">
               {holidays.map((h) => <Badge key={h} tone="gray">{dateLong(`${h}T12:00:00`)}</Badge>)}
             </div>
-            <p className="mt-2 text-xs text-gray-400">Maintained by the office manager. Both branches use the same calendar at launch.</p>
+            <p className="mt-2 text-xs text-gray-500">Maintained by the office manager. Both branches use the same calendar at launch.</p>
           </Card>
           <Card className="p-4">
             <CardLabel icon={<Plug />}>Connection access</CardLabel>
@@ -166,7 +166,7 @@ function ConnectionStrip({ supplier, canSetup, onEdit }: { supplier: Supplier; c
   };
   return (
     <div className="mt-3 flex flex-wrap items-center gap-2 rounded-lg border border-line bg-gray-50/60 px-3 py-2 text-xs">
-      <Plug className="h-4 w-4 text-gray-400" />
+      <Plug className="h-4 w-4 text-gray-500" />
       <span className="font-semibold text-ink">{CONNECTION_LABEL[c.type]}</span>
       {c.endpointLabel && <span className="text-gray-600">· {c.endpointLabel}</span>}
       {c.orderEmail && <span className="font-mono text-xs text-gray-600">· {c.orderEmail}</span>}
@@ -176,7 +176,7 @@ function ConnectionStrip({ supplier, canSetup, onEdit }: { supplier: Supplier; c
         <span className={`h-2 w-2 rounded-full ${h.dot}`} aria-hidden />
         <span className="text-gray-600">{h.label}</span>
       </span>
-      {c.lastCheckedAt && <span className="text-xs text-gray-400">checked {dateTime(c.lastCheckedAt)}</span>}
+      {c.lastCheckedAt && <span className="text-xs text-gray-500">checked {dateTime(c.lastCheckedAt)}</span>}
       {c.lastError && <span className="text-xs text-red-600">{c.lastError}</span>}
       {c.type === "api_edi" && (
         <span className="text-xs text-gray-500">

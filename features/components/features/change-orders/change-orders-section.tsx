@@ -139,7 +139,7 @@ export function ChangeOrdersSection({ job, estimateId, creating, setCreating }: 
       )}
 
       <Card className="p-5" data-tour="co-list">
-        <CardLabel icon={<FileDiff />} right={<span className="text-xs text-gray-400">{cos.length} change order{cos.length === 1 ? "" : "s"}</span>}>
+        <CardLabel icon={<FileDiff />} right={<span className="text-xs text-gray-500">{cos.length} change order{cos.length === 1 ? "" : "s"}</span>}>
           Change order list
         </CardLabel>
         <PillTabs
@@ -188,7 +188,7 @@ export function ChangeOrdersSection({ job, estimateId, creating, setCreating }: 
                       <TD>
                         <div className="flex items-center gap-1.5">
                           <IdChip tone="blue">{c.id}</IdChip>
-                          <span className="text-xs text-gray-400">v{c.version ?? 1}</span>
+                          <span className="text-xs text-gray-500">v{c.version ?? 1}</span>
                         </div>
                         <div className="mt-0.5 max-w-36 truncate text-xs font-medium text-ink" title={c.title}>{c.title}</div>
                       </TD>
@@ -213,10 +213,10 @@ export function ChangeOrdersSection({ job, estimateId, creating, setCreating }: 
                         <div className="text-xs">{c.sentAt ? `Sent ${date(c.sentAt)}` : <span className="text-gray-300">Not sent</span>}</div>
                         {link && c.status === "sent" ? (
                           <span className={lst === "expired" ? "font-semibold text-amber-700" : ""}>
-                            Expires {date(link.expiresAt)} <span className="block text-xs text-gray-400">{relDays(link.expiresAt, nowIso)}</span>
+                            Expires {date(link.expiresAt)} <span className="block text-xs text-gray-500">{relDays(link.expiresAt, nowIso)}</span>
                           </span>
                         ) : link ? (
-                          <span className="text-xs text-gray-400">Link {date(link.expiresAt)}</span>
+                          <span className="text-xs text-gray-500">Link {date(link.expiresAt)}</span>
                         ) : null}
                       </TD>
                       <TD><Badge tone={ap.tone} className="max-w-28 whitespace-normal">{ap.label}</Badge></TD>

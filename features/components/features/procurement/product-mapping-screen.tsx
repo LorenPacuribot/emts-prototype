@@ -74,7 +74,7 @@ function Mapping() {
                           checked={c.available.includes(s)}
                           disabled={!perms.editCatalog || c.cost[s] === undefined}
                           onCheckedChange={(v) => act(setPackAvailability, c.id, s, v).ok && toast.success(`${c.product} ${PACK_LABEL[s].toLowerCase()} ${v ? "available" : "unavailable"}`)}
-                          label={c.cost[s] === undefined ? <span className="text-xs text-gray-400">not sold</span> : undefined}
+                          label={c.cost[s] === undefined ? <span className="text-xs text-gray-500">not sold</span> : undefined}
                         />
                       </TD>
                     ))}
@@ -101,7 +101,7 @@ function Mapping() {
                         <TD>{m.branchId ? byId(db.branches, m.branchId)?.name : <span className="text-gray-500">All branches</span>}</TD>
                         <TD className="font-mono text-xs">{m.itemCode}</TD>
                         <TD>{m.colourNumber || m.tintFormula ? <>{m.colourNumber}{m.tintFormula && <div className="text-xs text-gray-500">{m.tintFormula}</div>}</> : <span className="text-gray-300">—</span>}</TD>
-                        <TD>{dateLong(m.updatedAt)}<div className="text-xs text-gray-400">{userName(db, m.updatedBy)}</div></TD>
+                        <TD>{dateLong(m.updatedAt)}<div className="text-xs text-gray-500">{userName(db, m.updatedBy)}</div></TD>
                         <TD>
                           {perms.setup && <RowMenu items={[
                             { label: "Edit mapping", icon: <Pencil />, onSelect: () => setEdit({ open: true, mapping: m }) },

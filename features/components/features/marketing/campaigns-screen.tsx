@@ -385,7 +385,7 @@ function CampaignDrawer({ id, onClose, onEdit }: { id: string; onClose: () => vo
                     <div className="min-w-0">
                       <div className="font-semibold text-ink">{l.name} {l.kind === "qr" && <Badge tone="gray" icon={<QrCode className="h-3 w-3" />}>QR code</Badge>} {!l.active && <Badge tone="red">Turned off</Badge>}</div>
                       <div className="break-all text-gray-600">{short}</div>
-                      <div className="break-all text-xs text-gray-400">Opens {full}</div>
+                      <div className="break-all text-xs text-gray-500">Opens {full}</div>
                     </div>
                     <div className="text-right tabular-nums"><div className="font-display text-lg font-bold text-ink">{l.clicks.length}</div><div className="text-xs text-gray-500">clicks{qr ? ` (${qr} by QR)` : ""}</div></div>
                   </div>

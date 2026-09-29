@@ -80,7 +80,7 @@ export function ComparisonDrawer({ rep, open, onOpenChange }: { rep: RepeatEstim
                       <TD className="text-right">{surface ? num(surface.areaSqft) : "—"}</TD>
                       <TD className={cn("text-right", mDiff !== 0 && "font-semibold text-amber-700")}>{num(l.sqft)}{mDiff !== 0 && ` (${mDiff > 0 ? "+" : ""}${mDiff})`}</TD>
                       <TD className="text-right">{money(op)}</TD>
-                      <TD className="text-right">{l.price !== undefined ? money(l.price) : <span className="italic text-gray-400">Not priced</span>}</TD>
+                      <TD className="text-right">{l.price !== undefined ? money(l.price) : <span className="italic text-gray-500">Not priced</span>}</TD>
                       <TD className={cn("text-right", d !== undefined && (d >= 0 ? "text-green-700" : "text-red-600"))}>{d !== undefined ? `${d >= 0 ? "+" : ""}${money(d)}` : "—"}</TD>
                     </TR>
                   );
@@ -108,7 +108,7 @@ export function ComparisonDrawer({ rep, open, onOpenChange }: { rep: RepeatEstim
 function Stat({ label, value, tone }: { label: string; value: string; tone?: string }) {
   return (
     <div className="rounded-xl border border-line p-3">
-      <div className="text-xxs font-bold uppercase tracking-[0.12em] text-gray-400">{label}</div>
+      <div className="text-xxs font-bold uppercase tracking-[0.12em] text-gray-500">{label}</div>
       <div className={cn("mt-1 font-display text-base font-bold text-ink", tone)}>{value}</div>
     </div>
   );

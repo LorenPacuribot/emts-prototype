@@ -64,7 +64,7 @@ export function PaintHistoryTab({ customer }: { customer: Customer }) {
       <div className="rounded-2xl border border-green-200 bg-white p-3 shadow-sm">
         <div className="flex flex-col gap-3 xl:flex-row xl:items-center">
           <div className="flex min-w-0 shrink-0 items-center gap-2">
-            <MapPin className="h-4 w-4 shrink-0 text-gray-400" aria-hidden />
+            <MapPin className="h-4 w-4 shrink-0 text-gray-500" aria-hidden />
             {locations.length > 1 ? (
               <Select value={property.id} onChange={(e) => go({ location: e.target.value })} className="h-9 w-auto max-w-[18rem] text-sm font-semibold" aria-label="Service location">
                 {locations.map((p) => <option key={p.id} value={p.id}>{p.address}</option>)}

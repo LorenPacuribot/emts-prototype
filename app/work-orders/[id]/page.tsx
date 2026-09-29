@@ -146,7 +146,7 @@ export default function WorkOrderDetailPage() {
             <div className="min-w-0 flex-1 space-y-3">
               <div className="flex flex-wrap items-center gap-3">
                 <span className={cn('inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-bold', WO_STATUS_STYLE[status])}>{status}</span>
-                <span className="font-mono text-xs font-bold uppercase tracking-wider text-gray-400">{wo.workOrderNumber}</span>
+                <span className="font-mono text-xs font-bold uppercase tracking-wider text-gray-500">{wo.workOrderNumber}</span>
                 {est && <RefChip href={`/estimates/${est.id}`}>{est.estimateNumber}</RefChip>}
                 {lead && <RefChip kind="lead" href={`/leads/${lead.id}`}>{lead.leadNumber}</RefChip>}
                 {twin && <WoTwinChips twin={twin} />}
@@ -154,7 +154,7 @@ export default function WorkOrderDetailPage() {
               <div>
                 <h1 className="mb-1 font-heading text-xl font-extrabold leading-tight tracking-tight text-gray-900 md:text-2xl">{wo.title}</h1>
                 <div className="flex flex-wrap items-center gap-2 text-sm font-semibold text-gray-500">
-                  <Users className="h-4 w-4 text-gray-400" /> {fullName(customer)}
+                  <Users className="h-4 w-4 text-gray-500" /> {fullName(customer)}
                   {job && <Link href={`/jobs/${job.id}`} className="ml-2 inline-flex items-center gap-1 text-primary-600 hover:underline">{job.jobNumber} · {job.title} <ExternalLink className="h-3 w-3" /></Link>}
                 </div>
               </div>
@@ -196,7 +196,7 @@ export default function WorkOrderDetailPage() {
               {customer?.phone && <div className="flex items-center gap-2 text-sm text-gray-500"><Phone className="h-3 w-3" /> {customer.phone}</div>}
             </Link>
             <div className="group relative -m-4 rounded-xl border border-transparent p-4 hover:border-gray-100 hover:bg-gray-50">
-              <button type="button" onClick={openSchedule} disabled={scheduleDisabled} title="Edit Schedule"
+              <button aria-label="Edit Schedule" type="button" onClick={openSchedule} disabled={scheduleDisabled} title="Edit Schedule"
                 className="absolute right-4 top-4 rounded-lg p-1.5 text-gray-300 hover:bg-primary-50 hover:text-primary-600 disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-gray-300"><Edit2 className="h-4 w-4" /></button>
               <SectionHead icon={<Calendar className="h-4 w-4" />} tone="bg-green-50 text-green-600" title="Schedule" />
               <div className="space-y-3">
@@ -233,10 +233,10 @@ export default function WorkOrderDetailPage() {
                 <div className="rounded-lg bg-gray-100 p-1.5 text-gray-600"><Users className="h-4 w-4" /></div>
                 <h3 className="text-lg font-bold text-gray-900">Assigned Crew</h3>
               </div>
-              <span className="text-xs font-bold text-gray-400">{wo.assignedTo.length} assigned</span>
+              <span className="text-xs font-bold text-gray-500">{wo.assignedTo.length} assigned</span>
             </div>
             <div className="flex-1 space-y-3 p-6">
-              {wo.assignedTo.length === 0 && <p className="text-sm text-gray-400">No crew assigned yet.</p>}
+              {wo.assignedTo.length === 0 && <p className="text-sm text-gray-500">No crew assigned yet.</p>}
               {wo.assignedTo.map((mid) => {
                 const m = look.member(mid);
                 const a = job?.crew.find((c) => c.memberId === mid);
@@ -274,7 +274,7 @@ export default function WorkOrderDetailPage() {
         <div className={cn(card, 'p-6 md:p-8')}>
           <div className="mb-4 flex items-center justify-between">
             <h4 className="text-base font-bold text-gray-900">General Instructions</h4>
-            {!editingInstr && <button onClick={() => setEditingInstr(true)} className="rounded-full p-2 text-gray-400 hover:text-primary-600" title="Edit instructions"><Edit2 className="h-4 w-4" /></button>}
+            {!editingInstr && <button aria-label="Edit instructions" onClick={() => setEditingInstr(true)} className="rounded-full p-2 text-gray-500 hover:text-primary-600" title="Edit instructions"><Edit2 className="h-4 w-4" /></button>}
           </div>
           {editingInstr ? (
             <div className="space-y-3">
@@ -312,7 +312,7 @@ export default function WorkOrderDetailPage() {
                   className={cn('flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-2', t.done ? 'border-green-500 bg-green-500 text-white' : 'border-gray-300 hover:border-primary-400')}>
                   {t.done && <CheckCircle2 className="h-3.5 w-3.5" />}
                 </button>
-                <span className={cn('flex-1 text-sm', t.done ? 'text-gray-400 line-through' : 'font-medium text-gray-800')}>{t.text}</span>
+                <span className={cn('flex-1 text-sm', t.done ? 'text-gray-500 line-through' : 'font-medium text-gray-800')}>{t.text}</span>
                 <button onClick={() => patch({ tasks: wo.tasks.filter((x) => x.id !== t.id) }, 'Task removed')}
                   className="rounded-lg p-1.5 text-gray-300 opacity-0 hover:bg-red-50 hover:text-red-500 group-hover:opacity-100" aria-label="Remove task"><Trash2 className="h-4 w-4" /></button>
               </li>
@@ -348,9 +348,9 @@ export default function WorkOrderDetailPage() {
 function Stat({ label, value, primary, hint }: { label: string; value: number; primary?: boolean; hint?: string }) {
   return (
     <div className="flex min-w-0 flex-col sm:min-w-[60px]" title={hint}>
-      <span className={cn('mb-0.5 text-xxs font-black uppercase tracking-[0.15em]', primary ? 'text-primary-500' : 'text-gray-400')}>{label}</span>
+      <span className={cn('mb-0.5 text-xxs font-black uppercase tracking-[0.15em]', primary ? 'text-primary-500' : 'text-gray-500')}>{label}</span>
       <div className={cn('flex items-center gap-1.5 font-black', primary ? 'text-primary-600' : 'text-gray-900')}>
-        <Clock className={cn('h-3.5 w-3.5', !primary && 'text-gray-400')} /><span className="text-base leading-none sm:text-lg">{value.toFixed(2)}</span>
+        <Clock className={cn('h-3.5 w-3.5', !primary && 'text-gray-500')} /><span className="text-base leading-none sm:text-lg">{value.toFixed(2)}</span>
       </div>
     </div>
   );
@@ -360,7 +360,7 @@ function SectionHead({ icon, tone, title }: { icon: React.ReactNode; tone: strin
   return (
     <div className="mb-3 flex items-center gap-2 border-b border-gray-100 pb-2 pr-8">
       <div className={cn('rounded-lg p-1.5', tone)}>{icon}</div>
-      <h4 className="text-xs font-bold uppercase tracking-widest text-gray-400">{title}</h4>
+      <h4 className="text-xs font-bold uppercase tracking-widest text-gray-500">{title}</h4>
     </div>
   );
 }

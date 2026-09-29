@@ -79,13 +79,13 @@ export function AreaTemplatesView() {
                 </div>
                 <div className="mb-5 pr-10 pt-2">
                   <h3 className="mb-1 font-heading text-base font-bold text-gray-900">{t.name}</h3>
-                  <span className="text-xs font-bold uppercase tracking-wider text-gray-400">{lookups.estimateType(t.estimateTypeId)?.name || 'General'}</span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-gray-500">{lookups.estimateType(t.estimateTypeId)?.name || 'General'}</span>
                 </div>
                 <div className="mt-auto flex flex-wrap gap-1.5">
                   {surfs.map((s) => (
                     <span key={s!.id} className="rounded-lg border border-gray-200 bg-gray-100 px-2.5 py-1 text-xs font-bold text-gray-700">{s!.name}</span>
                   ))}
-                  {surfs.length === 0 && <span className="text-xs italic text-gray-400">No default surfaces</span>}
+                  {surfs.length === 0 && <span className="text-xs italic text-gray-500">No default surfaces</span>}
                 </div>
               </LibraryCard>
             );

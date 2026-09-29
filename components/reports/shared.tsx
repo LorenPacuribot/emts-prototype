@@ -22,7 +22,7 @@ export function TabButton({ active, onClick, icon: Icon, label, badge }: { activ
         active ? 'bg-white text-primary-700 shadow-sm ring-1 ring-black/5' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900',
       )}
     >
-      <Icon className={cn('h-3.5 w-3.5 md:h-4 md:w-4', active ? 'text-primary-600' : 'text-gray-400')} />
+      <Icon className={cn('h-3.5 w-3.5 md:h-4 md:w-4', active ? 'text-primary-600' : 'text-gray-500')} />
       {label}
       {badge}
     </button>
@@ -37,7 +37,7 @@ export function DateRangeInputs({ value, onChange, labels = ['Start Date', 'End 
         <span className="mb-1 block text-xxs font-bold uppercase tracking-wider text-gray-500">{labels[0]}</span>
         <input type="date" value={value.start} max={value.end || undefined} onChange={(e) => onChange({ ...value, start: e.target.value })} className={input} />
       </label>
-      <span className="mb-2.5 font-bold text-gray-400">-</span>
+      <span className="mb-2.5 font-bold text-gray-500">-</span>
       <label className="block min-w-0 flex-1 sm:w-40 sm:flex-none">
         <span className="mb-1 block text-xxs font-bold uppercase tracking-wider text-gray-500">{labels[1]}</span>
         <input type="date" value={value.end} min={value.start || undefined} onChange={(e) => onChange({ ...value, end: e.target.value })} className={input} />
@@ -81,7 +81,7 @@ export function MultiSelect({
         )}
       >
         <span className="truncate">{value.length ? `${label} (${value.length})` : label}</span>
-        <ChevronDown className={cn('h-4 w-4 text-gray-400 transition-transform', open && 'rotate-180')} />
+        <ChevronDown className={cn('h-4 w-4 text-gray-500 transition-transform', open && 'rotate-180')} />
       </button>
       {open && (
         <div className="absolute left-0 top-full z-50 mt-1.5 max-h-80 w-56 overflow-y-auto rounded-xl border border-gray-100 bg-white p-1.5 shadow-xl">
@@ -95,7 +95,7 @@ export function MultiSelect({
                     const all = vals.every((v) => value.includes(v));
                     onChange(all ? value.filter((v) => !vals.includes(v)) : [...new Set([...value, ...vals])]);
                   }}
-                  className="w-full px-2 pb-1 pt-2 text-left text-xxs font-bold uppercase tracking-widest text-gray-400 hover:text-primary-600"
+                  className="w-full px-2 pb-1 pt-2 text-left text-xxs font-bold uppercase tracking-widest text-gray-500 hover:text-primary-600"
                 >
                   {g.label}
                 </button>

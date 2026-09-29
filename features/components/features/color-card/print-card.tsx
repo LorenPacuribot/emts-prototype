@@ -67,14 +67,14 @@ export function PrintCardModal({ open, onOpenChange, jobId, initial = "crew" }: 
             Card v{job.cardVersion}
           </div>
         </div>
-        {rows.length === 0 && <p className="text-sm italic text-gray-400">No surfaces assigned yet.</p>}
+        {rows.length === 0 && <p className="text-sm italic text-gray-500">No surfaces assigned yet.</p>}
         {layout === "crew"
           ? Object.entries(byArea).map(([area, list]) => (
               <div key={area} className="mb-4">
                 <div className="mb-1 text-xs font-bold uppercase tracking-[0.12em] text-gray-500">{area}</div>
                 <table className="w-full border-collapse text-xs">
                   <thead>
-                    <tr className="text-left text-xxs uppercase tracking-wider text-gray-400">
+                    <tr className="text-left text-xxs uppercase tracking-wider text-gray-500">
                       <th className="border-b py-1">Surface</th>
                       <th className="border-b py-1">Color</th>
                       <th className="border-b py-1">Sheen</th>
@@ -120,7 +120,7 @@ export function PrintCardModal({ open, onOpenChange, jobId, initial = "crew" }: 
               ))}
             </div>
           )}
-        {layout === "customer" && <p className="mt-4 text-xs text-gray-400">On-screen swatches are a guide only and are not a guarantee of physical color match.</p>}
+        {layout === "customer" && <p className="mt-4 text-xs text-gray-500">On-screen swatches are a guide only and are not a guarantee of physical color match.</p>}
       </div>
     </Modal>
   );

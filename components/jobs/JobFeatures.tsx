@@ -79,7 +79,7 @@ export function JobCostCard({ job }: { job: PJob }) {
         ))}
         {!hoursOnly && (
           <div className="mt-2 flex justify-between border-t border-gray-100 pt-2">
-            <span className="text-xs font-bold uppercase tracking-widest text-gray-400">{f.actual !== null ? 'Margin' : 'Projected margin'}</span>
+            <span className="text-xs font-bold uppercase tracking-widest text-gray-500">{f.actual !== null ? 'Margin' : 'Projected margin'}</span>
             <b>{margin === null ? '—' : `${(margin * 100).toFixed(1)}%`}</b>
           </div>
         )}

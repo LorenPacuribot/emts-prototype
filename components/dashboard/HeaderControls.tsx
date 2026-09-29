@@ -40,7 +40,7 @@ export function PeriodFilter({ value, onChange }: { value: PeriodValue; onChange
         onClick={() => setOpen((o) => !o)}
         className="flex h-11 items-center gap-2 rounded-2xl border border-gray-200 bg-white px-4 text-sm font-bold text-gray-700 shadow-sm transition-colors hover:border-gray-300 md:h-12"
       >
-        <CalendarIcon className="h-4 w-4 shrink-0 text-gray-400" />
+        <CalendarIcon className="h-4 w-4 shrink-0 text-gray-500" />
         <span className="truncate">{label}</span>
         <ChevronDown className={cn('h-3.5 w-3.5 shrink-0 transition-transform', open && 'rotate-180')} />
       </button>
@@ -64,7 +64,7 @@ export function PeriodFilter({ value, onChange }: { value: PeriodValue; onChange
             ))}
           </div>
           <div className="rounded-b-xl bg-gray-50 p-4">
-            <span className="mb-3 block text-xxs font-bold uppercase tracking-widest text-gray-400">Custom Range</span>
+            <span className="mb-3 block text-xxs font-bold uppercase tracking-widest text-gray-500">Custom Range</span>
             <div className="space-y-3">
               {(['from', 'to'] as const).map((f) => (
                 <label key={f} className="block">

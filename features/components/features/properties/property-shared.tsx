@@ -33,14 +33,14 @@ export function VerificationBadge({ app }: { app: Pick<Application, "verificatio
 export function Cell({ label, children, className }: { label: string; children: ReactNode; className?: string }) {
   return (
     <div className={className}>
-      <div className="text-xxs font-bold uppercase tracking-[0.12em] text-gray-400">{label}</div>
+      <div className="text-xxs font-bold uppercase tracking-[0.12em] text-gray-500">{label}</div>
       <div className="mt-0.5 text-xs text-gray-700">{children}</div>
     </div>
   );
 }
 
 export function NotRecorded({ text = "Not recorded" }: { text?: string }) {
-  return <span className="italic text-gray-400">{text}</span>;
+  return <span className="italic text-gray-500">{text}</span>;
 }
 
 /** Input value for a date field from an ISO string. */

@@ -35,7 +35,7 @@ export function TiersPanel() {
           </button>
         </div>
         {list.length === 0 ? (
-          <p className="rounded-xl border border-dashed border-gray-200 py-6 text-center text-xs text-gray-400">No {title.toLowerCase()} yet.</p>
+          <p className="rounded-xl border border-dashed border-gray-200 py-6 text-center text-xs text-gray-500">No {title.toLowerCase()} yet.</p>
         ) : (
           <div className="space-y-2.5">
             {list.map((t) => (

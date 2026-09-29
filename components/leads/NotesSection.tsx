@@ -49,7 +49,7 @@ export function NotesSection({ notes, onAddNote, className }: { notes?: string; 
         </div>
         <div className="max-h-[500px] overflow-y-auto pr-2">
           {parsed.length === 0 ? (
-            <div className="py-12 text-center text-sm italic text-gray-400">No notes logged yet.</div>
+            <div className="py-12 text-center text-sm italic text-gray-500">No notes logged yet.</div>
           ) : (
             parsed.map((n, i) => (
               <div key={n.id} className="flex gap-3">
@@ -58,7 +58,7 @@ export function NotesSection({ notes, onAddNote, className }: { notes?: string; 
                   {i < parsed.length - 1 && <div className="w-px flex-1 bg-gray-200" />}
                 </div>
                 <div className="flex-1 pb-5">
-                  <div className="mb-1.5 text-xs text-gray-400">{n.timestamp || 'Earlier note'}</div>
+                  <div className="mb-1.5 text-xs text-gray-500">{n.timestamp || 'Earlier note'}</div>
                   <div className="whitespace-pre-wrap rounded-xl border border-gray-100 bg-gray-50 px-4 py-3 text-sm leading-relaxed text-gray-700">{n.content}</div>
                 </div>
               </div>
