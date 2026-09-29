@@ -121,8 +121,8 @@ export default function PresentationBuilderPage() {
           <button className={btn} onClick={() => updateSection(s.id, { enabled: !s.enabled })} title={s.enabled ? 'Hide section' : 'Show section'}>
             {s.enabled ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
           </button>
-          {s.type !== 'cover' && i > 1 && <button className={btn} onClick={() => moveSection(s.id, -1)} title="Move up"><ArrowUp className="h-4 w-4" /></button>}
-          {s.type !== 'cover' && !last && <button className={btn} onClick={() => moveSection(s.id, 1)} title="Move down"><ArrowDown className="h-4 w-4" /></button>}
+          {s.type !== 'cover' && i > 1 && <button className={cn(btn, 'text-red-500 hover:text-red-600')} onClick={() => moveSection(s.id, -1)} title="Move up" aria-label="Move up"><ArrowUp className="h-4 w-4" /></button>}
+          {s.type !== 'cover' && !last && <button className={cn(btn, 'text-red-500 hover:text-red-600')} onClick={() => moveSection(s.id, 1)} title="Move down" aria-label="Move down"><ArrowDown className="h-4 w-4" /></button>}
           {s.type !== 'cover' && s.type !== 'estimate' && (
             <button className={cn(btn, 'text-red-600 hover:bg-red-50 hover:text-red-600')} onClick={() => removeSection(s.id)} title="Delete section"><Trash2 className="h-4 w-4" /></button>
           )}

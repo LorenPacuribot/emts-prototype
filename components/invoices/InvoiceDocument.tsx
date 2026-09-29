@@ -18,6 +18,7 @@ export function InvoiceDocument({ invoice, className }: { invoice: Invoice; clas
   const customer = look.customer(invoice.customerId);
   const estimate = look.estimate(invoice.estimateId);
   const job = look.job(invoice.jobId);
+  const lead = look.lead(invoice.leadId ?? estimate?.leadId ?? job?.leadId);
   const terms = look.terms(invoice.termsId);
   const t = invoiceTotals(invoice);
   const status = derivedInvoiceStatus(invoice);
@@ -30,6 +31,11 @@ export function InvoiceDocument({ invoice, className }: { invoice: Invoice; clas
       <div className="px-12 pb-8 pt-12 text-center">
         <h1 className="mb-2 text-3xl font-extrabold tracking-tight text-gray-900 md:text-5xl">{title}</h1>
         <p className="text-lg font-medium text-gray-400">Invoice #{invoice.invoiceNumber}</p>
+        {(job || estimate || lead) && (
+          <p className="mt-1 text-sm font-medium text-gray-400">
+            {[job && `Job ${job.jobNumber}`, estimate && `Estimate ${estimate.estimateNumber}`, lead && `Lead ${lead.leadNumber}`].filter(Boolean).join(' · ')}
+          </p>
+        )}
       </div>
 
       {/* 2. Branding + balance */}

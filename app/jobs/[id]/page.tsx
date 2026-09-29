@@ -31,10 +31,12 @@ import {
 import { CreateWorkOrderModal } from '@/components/work-orders/CreateWorkOrderModal';
 import { useCan } from '@/components/work-orders/WoFeatures';
 import { JobCostCard, stageBlockedReason, twinWoStatusLabel, useJobTwin } from '@/components/jobs/JobFeatures';
+import { WorkOrderScope } from '@/components/jobs/WorkOrderScope';
+import { requiredHoursChange } from '@/lib/scheduling';
 import { JOB_STATUSES } from '@/lib/constants';
 import { useCollection, useLookups } from '@/lib/store';
 import type { JobStatus } from '@/lib/types';
-import { money } from '@/lib/utils';
+import { cn, money } from '@/lib/utils';
 
 export default function JobDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -47,6 +49,7 @@ export default function JobDetailPage() {
 
   const [scheduleOpen, setScheduleOpen] = useState(false);
   const [woOpen, setWoOpen] = useState(false);
+  const [tab, setTab] = useState<'overview' | 'work-order'>('overview');
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [confirmCancel, setConfirmCancel] = useState(false);
 
@@ -72,6 +75,7 @@ export default function JobDetailPage() {
   const lead = look.lead(job.leadId);
   const customer = look.customer(job.customerId);
   const linkedWOs = workOrders.filter((w) => w.jobId === job.id);
+  const hoursChange = job.startDate ? requiredHoursChange(job) : undefined;
 
   const changeStatus = (s: JobStatus) => {
     if (s === job.status) return;
@@ -145,6 +149,16 @@ export default function JobDetailPage() {
         </div>
       </div>
 
+      {hoursChange && (
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-900">
+          <span>
+            <b>Labor requirement changed:</b> {hoursChange.from.toFixed(1)} h → {hoursChange.to.toFixed(1)} h ({hoursChange.diff > 0 ? '+' : ''}{hoursChange.diff.toFixed(1)} h) since the schedule was planned.
+            The schedule was not moved automatically.
+          </span>
+          <Button size="sm" variant="secondary" onClick={() => setScheduleOpen(true)}>Adjust schedule</Button>
+        </div>
+      )}
+
       {/* Content grid */}
       <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12">
         <div className="space-y-8 lg:col-span-4">
@@ -155,11 +169,25 @@ export default function JobDetailPage() {
           <CrewCard job={job} />
         </div>
         <div className="space-y-8 lg:col-span-8">
-          <JobProgress status={job.status} onChange={changeStatus} />
-          <WorkOrdersCard job={job} workOrders={linkedWOs} onCreate={() => setWoOpen(true)} statusOf={(w) => twinWoStatusLabel(twin, w.id)} />
-          <BreaksCard job={job} />
-          <NotesCard job={job} />
-          <HistoryCard job={job} />
+          <div className="flex gap-2" role="tablist" aria-label="Job sections">
+            {([['overview', 'Overview'], ['work-order', 'Work Order']] as const).map(([k, label]) => (
+              <button key={k} type="button" role="tab" aria-selected={tab === k} onClick={() => setTab(k)}
+                className={cn('rounded-xl px-5 py-2.5 text-sm font-bold', tab === k ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/20' : 'border border-gray-200 bg-white text-gray-600 hover:bg-gray-50')}>
+                {label}
+              </button>
+            ))}
+          </div>
+          {tab === 'work-order' ? (
+            <WorkOrderScope job={job} estimate={est} lead={lead} workOrder={linkedWOs[0]} onSchedule={() => setScheduleOpen(true)} />
+          ) : (
+            <>
+              <JobProgress status={job.status} onChange={changeStatus} />
+              <WorkOrdersCard job={job} workOrders={linkedWOs} onCreate={() => setWoOpen(true)} statusOf={(w) => twinWoStatusLabel(twin, w.id)} />
+              <BreaksCard job={job} />
+              <NotesCard job={job} />
+              <HistoryCard job={job} />
+            </>
+          )}
         </div>
       </div>
 

@@ -8,6 +8,7 @@ export function shiftCapacityError(db: Database, woId: string, proposed: WorkOrd
   const team: TeamMember[] = db.employees.map((e) => ({ id: e.id, firstName: e.name, lastName: '', email: '', phone: '', role: 'Painter', roleId: '', status: e.offboardedAt ? 'Inactive' : 'Active', hourlyRate: 0, capacityHours: 40, color: '', isCrew: true }));
   const minutes = (s: string) => /^([01]\d|2[0-3]):[0-5]\d$/.test(s) ? Number(s.slice(0, 2)) * 60 + Number(s.slice(3)) : NaN;
   const jobs: Job[] = [];
+  const toEmployee = (id: string) => db.employees.find((e) => e.id === id || e.userId === id)?.id ?? id;
   for (const wo of db.workOrders.filter((w) => w.status === 'SCHEDULED' || w.status === 'IN_PROGRESS' || w.id === woId)) {
     const saved = db.jobs.find((j) => j.id === wo.jobId)?.crewAssignments;
     const shifts = wo.id === woId ? proposed : wo.shifts;
@@ -15,7 +16,9 @@ export function shiftCapacityError(db: Database, woId: string, proposed: WorkOrd
       const first = [...shifts].sort((a, b) => a.startDate.localeCompare(b.startDate))[0]!;
       jobs.push({ id: `${wo.id}:allocations`, jobNumber: wo.id, title: '', customerId: '', address: '', status: 'Scheduled',
         startDate: first.startDate, endDate: shifts.map((s) => s.endDate).sort().at(-1), startTime: first.startTime, endTime: first.endTime,
-        crew: saved.map((c) => ({ ...c, memberId: db.employees.find((e) => e.id === c.memberId || e.userId === c.memberId)?.id ?? c.memberId })),
+        crew: saved.map((c) => ({ ...c, memberId: toEmployee(c.memberId) })),
+        // Hours booked to a named shift are checked against that shift's dates and window.
+        shifts: shifts.map((s) => ({ ...s, memberIds: s.memberIds.map(toEmployee) })),
         breaks: [], notes: [], history: [], createdAt: wo.createdAt, value: 0, estimatedHours: 0 });
       continue;
     }

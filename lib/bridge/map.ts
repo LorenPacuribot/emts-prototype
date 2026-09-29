@@ -48,9 +48,17 @@ export function splitName(name: string): { firstName: string; lastName: string; 
 }
 export const joinName = (first?: string, last?: string) => [first, last].filter((x) => x && x.trim()).join(' ').trim();
 
-/** The property a customer currently owns (their service location). */
-export function currentProperty(db: P.Database, customerId: string): P.Property | undefined {
-  const owned = db.properties.filter((p) => !p.mergedInto && p.ownership.some((o) => o.customerId === customerId));
+/** Properties made from a replica contact's extra service locations (PROP-sl_…). */
+export const isServiceLocationProperty = (p: Pick<P.Property, 'id'>) => p.id.startsWith('PROP-sl_');
+
+/**
+ * The property a customer currently owns (their primary service location).
+ * Extra service locations come last; with `primaryOnly` they are left out.
+ */
+export function currentProperty(db: P.Database, customerId: string, opts: { primaryOnly?: boolean } = {}): P.Property | undefined {
+  const owned = db.properties
+    .filter((p) => !p.mergedInto && p.ownership.some((o) => o.customerId === customerId) && !(opts.primaryOnly && isServiceLocationProperty(p)))
+    .sort((a, b) => Number(isServiceLocationProperty(a)) - Number(isServiceLocationProperty(b)));
   return owned.find((p) => p.ownership.some((o) => o.customerId === customerId && !o.end)) ?? owned[0];
 }
 

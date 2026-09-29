@@ -16,7 +16,7 @@ import { NewBadge } from '@/features/components/ui';
 import { cn } from '@/lib/utils';
 import { ICONS } from './layout/icons';
 import { LogoFull, LogoIcon } from './layout/Logo';
-import { useToast } from './ui/toast';
+import { useSignOut } from './auth/AuthGate';
 
 type NavItem = { href: string; label: string; icon: string; feature?: number | number[]; hiddenFor?: readonly string[] };
 
@@ -34,7 +34,7 @@ function useIsActive() {
 export function Sidebar() {
   const [collapsed, setCollapsed] = useState(true);
   const isActive = useIsActive();
-  const { toast } = useToast();
+  const signOut = useSignOut();
   const newNav = useNewNav();
 
   return (
@@ -83,7 +83,7 @@ export function Sidebar() {
             item={{ href: '', label: 'Logout', icon: 'LogOut' }}
             collapsed={collapsed}
             active={false}
-            onClick={() => toast('Logout is disabled in this replica (no authentication).', 'info')}
+            onClick={signOut}
           />
         </div>
       </div>

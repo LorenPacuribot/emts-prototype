@@ -65,7 +65,7 @@ export function AddToEstimateModal({
         onChange={(v) => setTab(v as 'area' | 'line')}
         className="mb-4"
         tabs={[
-          { value: 'area', label: <span className="flex items-center gap-1.5"><Grid3x3 className="h-4 w-4" />Area</span> },
+          { value: 'area', label: <span className="flex items-center gap-1.5"><Grid3x3 className="h-4 w-4" />New Area</span> },
           { value: 'line', label: <span className="flex items-center gap-1.5"><List className="h-4 w-4" />Line Item</span> },
         ]}
       />
@@ -74,13 +74,29 @@ export function AddToEstimateModal({
       {tab === 'area' ? (
         <div className="mt-4 space-y-4">
           <div className="flex items-center justify-between">
-            <p className="text-sm font-medium text-gray-500">Area Templates</p>
+            <p className="text-sm font-medium text-gray-500">Area Template</p>
             <label className="flex items-center gap-2 text-xs font-semibold text-gray-600">
               <input type="checkbox" checked={showAll} onChange={(e) => setShowAll(e.target.checked)} /> Show all scopes
             </label>
           </div>
           <div className="max-h-72 space-y-2 overflow-y-auto pr-1">
-            {areas.length === 0 && <p className="py-6 text-center text-sm text-gray-500">No area templates found.</p>}
+            {(!q || 'blank area'.includes(q.toLowerCase())) && (
+              <button
+                type="button"
+                onClick={() => {
+                  onAddCustomArea('New Area');
+                  close();
+                }}
+                className="flex w-full items-center gap-4 rounded-xl border border-dashed border-gray-300 bg-white p-3 text-left hover:border-primary-300 hover:shadow-md"
+              >
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-400"><Plus className="h-5 w-5" /></div>
+                <div className="min-w-0 flex-1">
+                  <div className="font-bold text-gray-800">Blank Area</div>
+                  <div className="truncate text-xs text-gray-500">An empty area: name it, enter L x W x H, then add line items.</div>
+                </div>
+              </button>
+            )}
+            {areas.length === 0 && q && <p className="py-6 text-center text-sm text-gray-500">No area templates found.</p>}
             {areas.map((a) => (
               <button
                 key={a.id}
@@ -176,7 +192,7 @@ export function SurfacePickerModal({
   const list = surfaceRates.filter((s) => !q || `${s.name} ${s.rateGroup}`.toLowerCase().includes(q.toLowerCase()));
   const groups = Array.from(new Set(list.map((s) => s.rateGroup)));
   return (
-    <Modal open={open} onOpenChange={onOpenChange} title="Add Line Item" description="Pick a surface from your Surface Rates." size="md">
+    <Modal open={open} onOpenChange={onOpenChange} title="Select Item to Add" description="Choose the surface to add. Rates and coats come from Settings › Surface Rates." size="md">
       <Input leftIcon={<Search className="h-4 w-4" />} placeholder="Search surfaces…" value={q} onChange={(e) => setQ(e.target.value)} onClear={() => setQ('')} />
       <div className="mt-4 max-h-96 space-y-4 overflow-y-auto pr-1">
         {groups.length === 0 && <p className="py-6 text-center text-sm text-gray-500">No surfaces found.</p>}
@@ -196,7 +212,7 @@ export function SurfacePickerModal({
                   className="flex w-full items-center justify-between rounded-lg border border-gray-200 px-3 py-2 text-left text-sm hover:border-primary-300 hover:bg-primary-50/40"
                 >
                   <span className="font-semibold text-gray-800">{s.name}</span>
-                  <span className="text-xs text-gray-500">{s.rateCoat1} {s.unit}/hr · {s.defaultCoats} coats</span>
+                  <span className="text-xs text-gray-500">{[s.rateCoat1, s.rateCoat2, s.rateCoat3, s.rateCoat4].filter((r) => r > 0).join(' / ')} {s.unit}/hr · {s.defaultCoats} coats</span>
                 </button>
               ))}
             </div>

@@ -23,7 +23,8 @@ const MODULE = "Marketing";
 export const TEMPLATE_LABEL: Record<PostTemplate, string> = {
   before_after: "Before and after", finished_job: "Finished job", crew_spotlight: "Crew spotlight", seasonal: "Seasonal reminder",
 };
-export const PLATFORM_LABEL: Record<SocialPlatform, string> = { facebook: "Facebook", instagram: "Instagram" };
+import { PLATFORM_LABEL } from "@/features/lib/rules/marketing-social";
+export { PLATFORM_LABEL };
 const DST_LOG = { none: "None", moved_to_first_valid: "MovedToFirstValidTime", first_occurrence: "FirstOccurrenceUsed" } as const;
 
 export function postAssets(db: Database, post: Pick<MarketingPost, "assetIds">): MediaAsset[] {

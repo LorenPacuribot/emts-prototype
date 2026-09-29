@@ -6,8 +6,8 @@ import { ProductTour } from "@/features/components/tour/product-tour";
 import { Toaster, TooltipProvider } from "@/features/components/ui";
 import { useHydrated } from "@/features/lib/hooks";
 
-/** Customer-facing pages: no Prototype bar or tour on top of them. */
-const PUBLIC_PATHS = ["/estimates/view", "/paint-record/view"];
+/** Customer-facing pages and the sign-in page: no Prototype bar or tour on top of them. */
+const PUBLIC_PATHS = ["/estimates/view", "/paint-record/view", "/login"];
 
 /**
  * Feature layer mounted inside the replica providers (app/providers.tsx):

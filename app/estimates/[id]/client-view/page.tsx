@@ -12,9 +12,9 @@
   prototype twin (/estimates/view?token=), where the customer also approves
   colours and decides change orders.
 */
-import React, { useEffect, useRef, useState } from 'react';
+import React, { Suspense, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import { ArrowLeft, Check, CheckCircle2, FileQuestion, Printer, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Checkbox, Field, Input, Textarea } from '@/components/ui/form';
@@ -31,8 +31,20 @@ import { useEstimateActions } from '@/components/estimates/useEstimateActions';
 import { useProtoEstimate } from '@/components/estimates/FeatureSections';
 import { publicEstimateHref } from '@/features/lib/hrefs';
 import { NewBadge } from '@/features/components/ui';
+import { PresentationCanvas } from '@/components/presentations/PresentationCanvas';
+import { useDemoSession } from '@/components/auth/AuthGate';
+import { chosenTemplate } from '@/lib/proposal';
+import { appendView, viewLogOf } from '@/lib/estimate-views';
 
 export default function ClientViewPage() {
+  return (
+    <Suspense fallback={null}>
+      <ClientView />
+    </Suspense>
+  );
+}
+
+function ClientView() {
   const { id } = useParams<{ id: string }>();
   const { get } = useCollection('estimates');
   const look = useLookups();
@@ -51,17 +63,28 @@ export default function ClientViewPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [selectedOptions, setSelectedOptions] = useState<string[] | null>(null);
   const twin = useProtoEstimate(id).est;
+  const { items: presentations } = useCollection('presentations');
+  const { update } = useCollection('estimates');
+  const params = useSearchParams();
+  const { session } = useDemoSession();
+  // Staff opening it from the app (Open Customer View) is a preview, not a customer visit.
+  const staffPreview = params.get('preview') === '1';
 
-  // Opening the link counts as "viewed" (once).
+  // Every customer open is recorded (first open and return visits, patent 12); the first one also marks it Viewed.
   const marked = useRef(false);
   useEffect(() => {
-    if (!e || marked.current) return;
+    if (!e || marked.current || staffPreview) return;
     marked.current = true;
+    const at = new Date().toISOString();
+    const viewLog = appendView(viewLogOf(e), at);
+    update(e.id, { viewLog, viewedAt: e.viewedAt ?? at });
     if (e.status === 'Sent') {
-      actions.setStatus(e, 'Viewed', 'Viewed by customer', {}, 'Customer');
+      actions.setStatus({ ...e, viewLog, viewedAt: e.viewedAt ?? at }, 'Viewed', 'Viewed by customer', {}, 'Customer');
       log(`${e.estimateNumber} viewed by ${fullName(customer)}`, 'estimate', e.id);
+    } else if (viewLog.length > 1) {
+      log(`${e.estimateNumber} opened again by ${fullName(customer)} (view ${viewLog.length})`, 'estimate', e.id);
     }
-  }, [e, actions, log, customer]);
+  }, [e, actions, log, customer, update, staffPreview]);
 
   if (!e) {
     return (
@@ -71,9 +94,14 @@ export default function ClientViewPage() {
     );
   }
 
-  const canRespond = e.status === 'Sent' || e.status === 'Viewed';
+  const canRespond = !staffPreview && (e.status === 'Sent' || e.status === 'Viewed');
   const proposal = canRespond && selectedOptions ? { ...e, lineItems: e.lineItems.map((l) => l.optional ? { ...l, selected: selectedOptions.includes(l.id) } : l) } : e;
   const total = estimateTotals(proposal).total;
+  // The presentation chosen in Client Preview, or the standard proposal.
+  const template = chosenTemplate(presentations, e);
+  const output = template
+    ? <PresentationCanvas presentation={template} estimate={proposal} className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl print:rounded-none print:border-0 print:shadow-none" />
+    : <ProposalDocument estimate={proposal} />;
 
   const accept = () => {
     const err: Record<string, string> = {};
@@ -99,9 +127,13 @@ export default function ClientViewPage() {
     <div className="fixed inset-0 z-[70] overflow-y-auto bg-gray-100 print:static print:bg-white">
       <div className="sticky top-0 z-10 border-b border-gray-200 bg-white/90 backdrop-blur print:hidden">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3">
-          <Link href={`/estimates/${e.id}`} className="flex items-center gap-1.5 text-xs font-semibold text-gray-400 hover:text-gray-700">
-            <ArrowLeft className="h-3.5 w-3.5" /> Back to app
-          </Link>
+          {session ? (
+            <Link href={`/estimates/${e.id}`} className="flex items-center gap-1.5 text-xs font-semibold text-gray-400 hover:text-gray-700">
+              <ArrowLeft className="h-3.5 w-3.5" /> Back to app{staffPreview ? ' (preview: not counted as a customer view)' : ''}
+            </Link>
+          ) : (
+            <span className="text-xs font-semibold text-gray-500">{e.estimateType} Estimate</span>
+          )}
           <div className="hidden text-sm font-bold text-gray-700 sm:block">{e.estimateNumber} · {money(total)}</div>
           <div className="flex items-center gap-2">
             {twin?.publicToken && (
@@ -149,11 +181,9 @@ export default function ClientViewPage() {
             }} /><span>{l.description} — {money(l.total)} before tax and discount</span>
           </label>)}
         </section>}
-        <ProposalDocument estimate={proposal} className="print:hidden" />
+        <div className="print:hidden">{output}</div>
       </div>
-      <PrintPortal>
-        <ProposalDocument estimate={proposal} />
-      </PrintPortal>
+      <PrintPortal>{output}</PrintPortal>
 
       {canRespond && (
         <div className="fixed inset-x-0 bottom-6 z-20 flex justify-center px-4 print:hidden">

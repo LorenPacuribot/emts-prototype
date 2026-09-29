@@ -30,6 +30,7 @@ const UNITS = [
   { value: 'SqFt', label: 'Square Feet (SqFt)' },
   { value: 'LnFt', label: 'Linear Feet (LnFt)' },
   { value: 'Item', label: 'Item Count (Item)' },
+  { value: 'Percent', label: 'Percent of the surface (%)' },
 ];
 
 export function TableColumnsView() {
@@ -92,8 +93,11 @@ export function TableColumnsView() {
                     <p className={cn('truncate text-sm font-bold', c.isVisible ? 'text-gray-900' : 'text-gray-400')}>{c.name}</p>
                     <span className={cn('mt-1 inline-flex items-center rounded px-1.5 py-0.5 text-[9px] font-medium', badge.cls)}>
                       {badge.label}
-                      {c.columnType === 'QUANTITY' && c.unit && <span className="ml-1">({c.unit})</span>}
+                      {c.columnType === 'QUANTITY' && c.unit && <span className="ml-1">({c.unit === 'Percent' ? '%' : c.unit})</span>}
                     </span>
+                    {!c.isSystem && c.columnType !== 'HOURS' && (
+                      <span className="ml-1 text-[10px] text-gray-500">{c.prepRate ? `${c.prepRate} units/hr` : 'No prep rate'}</span>
+                    )}
                   </div>
                   <RowMenu
                     items={[
@@ -132,6 +136,7 @@ function ColumnFormModal({ column, nextSort, onClose }: { column?: TableColumn; 
   const [name, setName] = useState(column?.name ?? '');
   const [type, setType] = useState<Exclude<TableColumn['columnType'], 'SYSTEM'>>(column && column.columnType !== 'SYSTEM' ? column.columnType : 'HOURS');
   const [unit, setUnit] = useState(column?.unit && UNITS.some((u) => u.value === column.unit) ? column.unit : '');
+  const [rate, setRate] = useState(column?.prepRate ? String(column.prepRate) : '');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const isSystem = !!column?.isSystem;
 
@@ -140,11 +145,14 @@ function ColumnFormModal({ column, nextSort, onClose }: { column?: TableColumn; 
     if (!name.trim()) e.name = 'Column title is required';
     else if (items.some((c) => c.name.toLowerCase() === name.trim().toLowerCase() && c.id !== column?.id)) e.name = 'A column with this name already exists';
     if (!isSystem && type === 'QUANTITY' && !unit) e.unit = 'Unit type is required for quantity columns';
+    const prepRate = rate.trim() ? Number(rate) : undefined;
+    if (prepRate !== undefined && !(prepRate > 0)) e.rate = 'Enter a rate above zero, or leave it blank';
     setErrors(e);
     if (Object.keys(e).length) return;
     const unitValue = type === 'QUANTITY' ? unit : type === 'HOURS' ? 'hr' : undefined;
-    if (column) update(column.id, isSystem ? { name: name.trim() } : { name: name.trim(), columnType: type, unit: unitValue });
-    else add({ name: name.trim(), columnType: type, unit: unitValue, isVisible: true, isSystem: false, sortOrder: nextSort });
+    const rateValue = type === 'HOURS' ? undefined : prepRate;
+    if (column) update(column.id, isSystem ? { name: name.trim() } : { name: name.trim(), columnType: type, unit: unitValue, prepRate: rateValue });
+    else add({ name: name.trim(), columnType: type, unit: unitValue, prepRate: rateValue, isVisible: true, isSystem: false, sortOrder: nextSort });
     toast(`Column ${column ? 'updated' : 'added'} successfully`);
     onClose();
   };
@@ -175,6 +183,15 @@ function ColumnFormModal({ column, nextSort, onClose }: { column?: TableColumn; 
             {type === 'QUANTITY' && (
               <Field label="Unit Type" required error={errors.unit}>
                 <Select value={unit} onChange={setUnit} placeholder="Select unit" invalid={!!errors.unit} options={UNITS} />
+              </Field>
+            )}
+            {type !== 'HOURS' && (
+              <Field
+                label="Production rate (units per hour)"
+                error={errors.rate}
+                hint={type === 'CHECKBOX' ? 'A ticked row adds coating area ÷ rate prep hours.' : unit === 'Percent' ? 'Adds (area × %) ÷ rate prep hours.' : 'Adds quantity ÷ rate prep hours.'}
+              >
+                <Input type="number" min={0} value={rate} placeholder="e.g. 400" invalid={!!errors.rate} onChange={(e) => setRate(e.target.value)} />
               </Field>
             )}
           </>

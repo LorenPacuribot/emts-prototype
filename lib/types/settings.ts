@@ -182,7 +182,10 @@ export interface TableColumn {
   id: ID;
   name: string;
   columnType: 'SYSTEM' | 'HOURS' | 'CHECKBOX' | 'QUANTITY';
+  /** hr for Hours columns; SqFt, LnFt, Item or Percent (% of the surface) for Quantity columns. */
   unit?: string;
+  /** Preparation production rate in units per hour (patent 7). Checkbox and Quantity columns use it to add prep hours. */
+  prepRate?: number;
   isVisible: boolean;
   isSystem: boolean;
   sortOrder: number;

@@ -18,6 +18,7 @@ import type {
   CollectionKey, Collections, Database, DocumentNumbering, ItemOf, SingletonKey, Singletons,
 } from './types';
 import { createInitialDatabase } from './sampleData';
+import { migrateCollections } from './migrate';
 import { uid } from './utils';
 import { applyOps, resetBridge, runSync, type BridgeOp } from './bridge/sync';
 import { BridgeSync } from './bridge/BridgeSync';
@@ -87,7 +88,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         // Merge so new collections added in code still appear for old saves.
         const fresh = createInitialDatabase();
         const merged = {
-          collections: { ...fresh.collections, ...saved.collections },
+          collections: migrateCollections({ ...fresh.collections, ...saved.collections }, fresh.collections),
           singletons: { ...fresh.singletons, ...saved.singletons },
         };
         dispatch({ type: 'replace', db: applyOps(merged, runSync(merged, { baseline: true })) });

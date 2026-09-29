@@ -66,6 +66,25 @@ export interface Customer {
   secondaryEmail?: string;
   /** 0-5 star rating shown on the contact header */
   rating?: number;
+  /** Job-site addresses besides the primary address (patent 1: "Add Service Location"). */
+  serviceLocations?: ServiceLocation[];
+}
+
+/** A property / job site belonging to a customer. Geocoded for the map and directions. */
+export interface ServiceLocation {
+  id: ID;
+  label?: string;
+  street: string;
+  /** Unit, suite or lot */
+  unit?: string;
+  city: string;
+  state: string;
+  zip: string;
+  lat?: number;
+  lng?: number;
+  /** When geocoding was tried; `lat` is missing when the address couldn't be found. */
+  geocodedAt?: string;
+  createdAt: string;
 }
 
 /* ---------- Leads ---------- */
@@ -106,6 +125,23 @@ export interface Lead {
   appointmentEventId?: ID;
   /** Minutes for the estimate appointment (15-120) */
   appointmentDuration?: number;
+  /** Automated messages sent for this lead's pipeline stages (Settings > Automated Messages). */
+  sentMessages?: LeadMessageLog[];
+}
+
+export interface LeadMessageLog {
+  /** AutomatedMessage id */
+  messageId: ID;
+  name: string;
+  stage: LeadStatus;
+  channel: 'EMAIL' | 'SMS';
+  to: string;
+  at: string;
+  ok: boolean;
+  /** True when no live email/SMS service is configured (nothing left the server). */
+  sandbox: boolean;
+  externalId?: string;
+  error?: string;
 }
 
 /* ---------- Estimates ---------- */
@@ -138,7 +174,22 @@ export interface EstimateLineItem {
   quantityManual?: boolean;
   /** Explicit coating area for lines measured in length, items, hours or gallons. */
   coatingAreaSqft?: number;
+  /** Property side or room location, e.g. "Front Exterior", "Living Rm" (patent 4). */
+  location?: string;
+  /** Surface characteristic; changes labour and coverage (lib/estimating.ts). Missing = smooth. */
+  condition?: SurfaceCondition;
+  /** Finish / sheen for this surface; filled from the colour card when a colour is assigned. */
+  sheen?: string;
+  /** Preparation entries keyed by Table Column id: ticked (checkbox), hours or quantity. */
+  prep?: Record<ID, number | boolean>;
+  /** Derived (lib/estimating.ts): laborHours = applicationHours + prepHours. */
+  applicationHours?: number;
+  prepHours?: number;
+  /** Derived: gallons of paint for this surface. */
+  gallons?: number;
 }
+
+export type SurfaceCondition = 'smooth' | 'medium' | 'rough' | 'porous';
 
 export interface EstimateArea {
   id: ID;
@@ -171,6 +222,8 @@ export interface Estimate {
   date: string;
   validUntil: string;
   address: string;
+  /** Service location the estimate is for (Customer.serviceLocations); missing = the primary address. */
+  serviceLocationId?: ID;
   areas: EstimateArea[];
   lineItems: EstimateLineItem[];
   /** Additional flat items from the Line Items library */
@@ -413,6 +466,8 @@ export interface Presentation {
   isTemplate: boolean;
   /** Estimate types this presentation is for, e.g. ['Interior','Exterior'] */
   scopes: string[];
+  /** Estimate templates this presentation is used for (Client Preview). Takes precedence over `scopes` when set. */
+  templateIds?: ID[];
   /** CSS gradient used as the cover image */
   cover: string;
   /** Uploaded cover photo (data URL), shown over the gradient. */

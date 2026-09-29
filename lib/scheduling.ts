@@ -173,9 +173,12 @@ export function planSpecificDates(jobs: Job[], team: TeamMember[], moves: Record
     const candidate = moveJob(job, daysInclusive(job.startDate!, moves[job.id]!) - 1);
     conflicts[job.id] = scheduleConflicts(candidate, reserved, team);
     const error = scheduleError(candidate, reserved, team);
-    if (error) rowErrors[job.id] = error;
     planned.push(candidate);
-    reserved.push(candidate);
+    // A row that can't move stays where it is, so later rows are checked against its current dates.
+    if (error) {
+      rowErrors[job.id] = error;
+      reserved.push(job);
+    } else reserved.push(candidate);
   }
   const first = Object.entries(rowErrors)[0];
   const jobNumber = (id: string) => jobs.find((j) => j.id === id)?.jobNumber ?? id;

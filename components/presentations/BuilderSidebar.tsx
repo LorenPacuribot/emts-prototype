@@ -15,7 +15,8 @@ import type { Presentation, PresentationSection, PresentationSectionType } from 
 import { useCollection, useLookups } from '@/lib/store';
 import { cn, fullName } from '@/lib/utils';
 import { Checkbox, Field, Input, NativeSelect, Select, Textarea } from '@/components/ui/form';
-import { ADDABLE_TYPES, BODY_FONTS, BRAND_COLORS, HEADING_FONTS, SECTION_META, THEMES, primaryColorOf } from './presentation-utils';
+import { ADDABLE_TYPES, BODY_FONTS, BRAND_COLORS, ESTIMATE_BLOCKS, HEADING_FONTS, SECTION_META, THEMES, primaryColorOf } from './presentation-utils';
+import { EstimateTemplateChecklist } from './PresentationModals';
 
 type Tab = 'Blocks' | 'Sections' | 'Branding' | 'Settings' | 'Headers' | 'Footers';
 const TABS: Tab[] = ['Blocks', 'Sections', 'Branding', 'Settings', 'Headers', 'Footers'];
@@ -76,12 +77,18 @@ function BlocksTab({ addSection }: SidebarProps) {
         <h2 className={heading}>Design Blocks</h2>
         <p className={hint}>Click a style to add it to your presentation.</p>
       </div>
-      {ADDABLE_TYPES.map((type) => {
+      {[...ADDABLE_TYPES, ...ESTIMATE_BLOCKS].map((type) => {
         const m = SECTION_META[type];
         const Icon = m.icon;
         const isCollapsed = collapsed.includes(type);
         return (
           <div key={type} className="border-b border-gray-100 pb-2 last:border-0">
+            {type === ESTIMATE_BLOCKS[0] && (
+              <div className="mb-1 mt-4 px-2">
+                <h2 className={heading}>Estimate Content</h2>
+                <p className={hint}>Filled from the estimate in Client Preview: property, scope by surface, paint specifications, optional items and pricing.</p>
+              </div>
+            )}
             <button
               onClick={() => setCollapsed((c) => (c.includes(type) ? c.filter((x) => x !== type) : [...c, type]))}
               className="flex w-full items-center justify-between rounded-lg px-2 py-3 hover:bg-gray-50"
@@ -146,8 +153,8 @@ function SectionsTab({ p, updateSection, moveSection, removeSection, selectedId,
               <IconBtn label={s.enabled ? 'Hide section' : 'Show section'} onClick={() => updateSection(s.id, { enabled: !s.enabled })}>
                 {s.enabled ? <Eye className="h-3.5 w-3.5" /> : <EyeOff className="h-3.5 w-3.5" />}
               </IconBtn>
-              <IconBtn label="Move up" disabled={locked || i <= 1} onClick={() => moveSection(s.id, -1)}><ArrowUp className="h-3.5 w-3.5" /></IconBtn>
-              <IconBtn label="Move down" disabled={locked || i === p.sections.length - 1} onClick={() => moveSection(s.id, 1)}><ArrowDown className="h-3.5 w-3.5" /></IconBtn>
+              <IconBtn label="Move up" arrow disabled={locked || i <= 1} onClick={() => moveSection(s.id, -1)}><ArrowUp className="h-3.5 w-3.5" /></IconBtn>
+              <IconBtn label="Move down" arrow disabled={locked || i === p.sections.length - 1} onClick={() => moveSection(s.id, 1)}><ArrowDown className="h-3.5 w-3.5" /></IconBtn>
               <IconBtn label="Delete section" danger disabled={locked || s.type === 'estimate'} onClick={() => removeSection(s.id)}><Trash2 className="h-3.5 w-3.5" /></IconBtn>
             </div>
             {open && (
@@ -179,14 +186,19 @@ function SectionsTab({ p, updateSection, moveSection, removeSection, selectedId,
   );
 }
 
-function IconBtn({ children, onClick, label, disabled, danger }: { children: React.ReactNode; onClick: () => void; label: string; disabled?: boolean; danger?: boolean }) {
+function IconBtn({ children, onClick, label, disabled, danger, arrow }: { children: React.ReactNode; onClick: () => void; label: string; disabled?: boolean; danger?: boolean; arrow?: boolean }) {
   return (
     <button
       onClick={onClick}
       disabled={disabled}
       title={label}
       aria-label={label}
-      className={cn('rounded-md p-1 text-gray-400 disabled:opacity-25', danger ? 'hover:bg-red-50 hover:text-red-600' : 'hover:bg-gray-100 hover:text-gray-700')}
+      className={cn(
+        'rounded-md p-1 disabled:opacity-25',
+        // The move arrows are red, as in the live builder.
+        arrow ? 'text-red-500 hover:bg-red-50 hover:text-red-600' : 'text-gray-400',
+        !arrow && (danger ? 'hover:bg-red-50 hover:text-red-600' : 'hover:bg-gray-100 hover:text-gray-700'),
+      )}
     >
       {children}
     </button>
@@ -292,6 +304,11 @@ function SettingsTab({ p, change }: SidebarProps) {
             </div>
           ))}
         </div>
+      </div>
+      <div>
+        <div className="mb-2 text-[11px] font-bold uppercase tracking-wide text-gray-600">Used for Estimate Templates</div>
+        <EstimateTemplateChecklist value={p.templateIds ?? []} onChange={(templateIds) => change({ templateIds, isTemplate: templateIds.length > 0 || p.isTemplate })} />
+        <p className={cn(hint, 'mt-1')}>Client Preview offers this presentation for estimates made from these templates (or, when none are ticked, for the estimate types above).</p>
       </div>
       <Field label="Linked Estimate" hint="Shown in the Estimate section with an approve button.">
         <Select

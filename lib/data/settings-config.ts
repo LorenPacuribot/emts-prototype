@@ -76,26 +76,46 @@ export const taxRegions: TaxRegion[] = [
   { id: 'tx_none', name: 'Tax Exempt', salesTaxRate: 0, serviceTaxRate: 0, zipCodes: [] },
 ];
 
+/*
+  Estimate area table columns (components/estimates/grid-columns.tsx renders them).
+  System columns are the estimate's own fields; custom columns are the
+  preparation activities, priced with their production rate (units per hour).
+*/
 export const tableColumns: TableColumn[] = [
-  { id: 'tcol_surface', name: 'Item', columnType: 'SYSTEM', isVisible: true, isSystem: true, sortOrder: 1 },
-  { id: 'tcol_qty', name: 'Amount', columnType: 'SYSTEM', isVisible: true, isSystem: true, sortOrder: 2 },
-  { id: 'tcol_coats', name: 'Coats', columnType: 'SYSTEM', isVisible: true, isSystem: true, sortOrder: 3 },
-  { id: 'tcol_paint', name: 'Color', columnType: 'SYSTEM', isVisible: true, isSystem: true, sortOrder: 4 },
-  { id: 'tcol_hours', name: 'Hours', columnType: 'SYSTEM', isVisible: true, isSystem: true, sortOrder: 5 },
-  { id: 'tcol_gal', name: 'Est. Gal', columnType: 'SYSTEM', isVisible: true, isSystem: true, sortOrder: 6 },
-  { id: 'tcol_psurface', name: 'Paint Surface', columnType: 'SYSTEM', isVisible: true, isSystem: true, sortOrder: 7 },
-  { id: 'tcol_prep', name: 'Prep (Hrs)', columnType: 'HOURS', unit: 'hr', isVisible: true, isSystem: false, sortOrder: 8 },
-  { id: 'tcol_doors', name: 'Patching', columnType: 'CHECKBOX', isVisible: true, isSystem: false, sortOrder: 9 },
-  { id: 'tcol_wash', name: 'Wash', columnType: 'CHECKBOX', isVisible: false, isSystem: false, sortOrder: 10 },
-  { id: 'tcol_prime', name: 'Prime', columnType: 'CHECKBOX', isVisible: false, isSystem: false, sortOrder: 11 },
-  { id: 'tcol_caulk', name: 'Caulk', columnType: 'CHECKBOX', isVisible: false, isSystem: false, sortOrder: 12 },
-  { id: 'tcol_mask', name: 'Masking', columnType: 'CHECKBOX', isVisible: false, isSystem: false, sortOrder: 13 },
+  { id: 'tcol_location', name: 'Location', columnType: 'SYSTEM', isVisible: true, isSystem: true, sortOrder: 1 },
+  { id: 'tcol_surface', name: 'Item', columnType: 'SYSTEM', isVisible: true, isSystem: true, sortOrder: 2 },
+  { id: 'tcol_qty', name: 'Amount', columnType: 'SYSTEM', isVisible: true, isSystem: true, sortOrder: 3 },
+  { id: 'tcol_psurface', name: 'Paint Surface', columnType: 'SYSTEM', isVisible: true, isSystem: true, sortOrder: 4 },
+  { id: 'tcol_coats', name: 'Coats', columnType: 'SYSTEM', isVisible: true, isSystem: true, sortOrder: 5 },
+  { id: 'tcol_product', name: 'Product', columnType: 'SYSTEM', isVisible: true, isSystem: true, sortOrder: 6 },
+  { id: 'tcol_sheen', name: 'Sheen', columnType: 'SYSTEM', isVisible: true, isSystem: true, sortOrder: 7 },
+  { id: 'tcol_paint', name: 'Color', columnType: 'SYSTEM', isVisible: true, isSystem: true, sortOrder: 8 },
+  { id: 'tcol_prepcell', name: 'Preparation', columnType: 'SYSTEM', isVisible: true, isSystem: true, sortOrder: 9 },
+  { id: 'tcol_difficulty', name: 'Difficulty', columnType: 'SYSTEM', isVisible: true, isSystem: true, sortOrder: 10 },
+  { id: 'tcol_prephours', name: 'Prep Hrs', columnType: 'SYSTEM', isVisible: true, isSystem: true, sortOrder: 11 },
+  { id: 'tcol_apphours', name: 'Application Hrs', columnType: 'SYSTEM', isVisible: true, isSystem: true, sortOrder: 12 },
+  { id: 'tcol_hours', name: 'Hours', columnType: 'SYSTEM', isVisible: true, isSystem: true, sortOrder: 13 },
+  { id: 'tcol_gal', name: 'Est. Gal', columnType: 'SYSTEM', isVisible: true, isSystem: true, sortOrder: 14 },
+  { id: 'tcol_rate', name: 'Rate', columnType: 'SYSTEM', isVisible: false, isSystem: true, sortOrder: 15 },
+  { id: 'tcol_matunit', name: 'Mat./Unit', columnType: 'SYSTEM', isVisible: false, isSystem: true, sortOrder: 16 },
+  { id: 'tcol_laborcost', name: 'Labor', columnType: 'SYSTEM', isVisible: true, isSystem: true, sortOrder: 17 },
+  { id: 'tcol_matcost', name: 'Material', columnType: 'SYSTEM', isVisible: true, isSystem: true, sortOrder: 18 },
+  { id: 'tcol_total', name: 'Price', columnType: 'SYSTEM', isVisible: true, isSystem: true, sortOrder: 19 },
+  { id: 'tcol_prep', name: 'Prep (Hrs)', columnType: 'HOURS', unit: 'hr', isVisible: true, isSystem: false, sortOrder: 20 },
+  { id: 'tcol_wash', name: 'Wash', columnType: 'CHECKBOX', prepRate: 600, isVisible: false, isSystem: false, sortOrder: 21 },
+  { id: 'tcol_scrape', name: 'Scrape', columnType: 'QUANTITY', unit: 'Percent', prepRate: 80, isVisible: false, isSystem: false, sortOrder: 22 },
+  { id: 'tcol_sand', name: 'Sand', columnType: 'CHECKBOX', prepRate: 350, isVisible: false, isSystem: false, sortOrder: 23 },
+  { id: 'tcol_doors', name: 'Patching', columnType: 'CHECKBOX', prepRate: 300, isVisible: true, isSystem: false, sortOrder: 24 },
+  { id: 'tcol_fill', name: 'Fill / Putty', columnType: 'CHECKBOX', prepRate: 400, isVisible: false, isSystem: false, sortOrder: 25 },
+  { id: 'tcol_caulk', name: 'Caulk', columnType: 'CHECKBOX', prepRate: 400, isVisible: false, isSystem: false, sortOrder: 26 },
+  { id: 'tcol_prime', name: 'Prime', columnType: 'CHECKBOX', prepRate: 250, isVisible: false, isSystem: false, sortOrder: 27 },
+  { id: 'tcol_mask', name: 'Masking', columnType: 'CHECKBOX', prepRate: 500, isVisible: false, isSystem: false, sortOrder: 28 },
 ];
 
 export const pipelineStages: PipelineStage[] = [
-  { id: 'ps_new', stageId: 'NEW', displayName: 'New Lead', color: '#3B82F6', sortOrder: 1 },
+  { id: 'ps_new', stageId: 'NEW', displayName: 'New Leads', color: '#3B82F6', sortOrder: 1 },
   { id: 'ps_contacted', stageId: 'CONTACTED', displayName: 'Contacted', color: '#A855F7', sortOrder: 2 },
-  { id: 'ps_scheduled', stageId: 'SCHEDULED', displayName: 'Estimate Scheduled', color: '#14B8A6', sortOrder: 3 },
+  { id: 'ps_scheduled', stageId: 'SCHEDULED', displayName: 'Scheduled', color: '#14B8A6', sortOrder: 3 },
   { id: 'ps_pending', stageId: 'PENDING', displayName: 'Pending', color: '#F59E0B', sortOrder: 4 },
   { id: 'ps_sold', stageId: 'SOLD', displayName: 'Sold', color: '#22C55E', sortOrder: 5 },
   { id: 'ps_lost', stageId: 'LOST', displayName: 'Lost', color: '#EF4444', sortOrder: 6 },
@@ -106,6 +126,7 @@ const INV_VARS = ['customerName', 'invoiceNumber', 'estimateName', 'orgName'];
 const EST_VARS = ['customerName', 'projectName', 'estimateLink', 'orgName'];
 const APPT_VARS = ['customerName', 'appointmentDate', 'appointmentTime', 'estimatorName', 'orgName'];
 const USER_VARS = ['firstName', 'resetLink', 'orgName'];
+const LEAD_VARS = ['customerName', 'leadNumber', 'orgName'];
 
 /** Email templates. Names and subjects match the live Automated Messages screen. */
 export const automatedMessages: AutomatedMessage[] = [
@@ -120,6 +141,11 @@ export const automatedMessages: AutomatedMessage[] = [
   { id: 'am_newlead', name: 'Estimate Scheduled', trigger: 'Estimate Scheduled', channel: 'EMAIL', delayValue: 0, delayUnit: 'minutes', subject: 'Your Estimate Appointment is Confirmed', body: 'Hi {{customerName}},\n\nYour estimate appointment is confirmed for {{appointmentDate}} at {{appointmentTime}}.', isActive: true, availableVariables: APPT_VARS },
   { id: 'am_jobsched', name: 'Job Scheduled', trigger: 'Job Scheduled', channel: 'EMAIL', delayValue: 0, delayUnit: 'minutes', subject: 'Your project is scheduled', body: 'Hi {{customerName}},\n\nYour project "{{projectName}}" has been scheduled. We look forward to working with you.', isActive: true, availableVariables: EST_VARS },
   { id: 'am_review', name: 'Estimate Amended', trigger: 'Estimate Amended', channel: 'EMAIL', delayValue: 0, delayUnit: 'minutes', subject: 'Your estimate for {{projectName}} was updated', body: 'Hi {{customerName}},\n\nWe updated your estimate for "{{projectName}}". View the latest version here: {{estimateLink}}', isActive: true, availableVariables: EST_VARS },
+  /* Lead pipeline stages (components/leads/stageMessages.ts sends these when a lead moves). */
+  { id: 'am_lead_new', name: 'New Lead Received', trigger: 'Lead Received', channel: 'BOTH', delayValue: 0, delayUnit: 'minutes', subject: 'Thanks for contacting {{orgName}}', body: 'Hi {{customerName}},\n\nThanks for reaching out to {{orgName}}. We received your request and will contact you shortly to arrange your free estimate.', isActive: true, availableVariables: LEAD_VARS },
+  { id: 'am_lead_contacted', name: 'Lead Contacted', trigger: 'Lead Contacted', channel: 'EMAIL', delayValue: 0, delayUnit: 'minutes', subject: 'Great speaking with you', body: 'Hi {{customerName}},\n\nThanks for speaking with us about your project. Reply to this email or call us any time with questions.', isActive: true, availableVariables: LEAD_VARS },
+  { id: 'am_lead_pending', name: 'Estimate Pending Follow Up', trigger: 'Lead Pending', channel: 'EMAIL', delayValue: 0, delayUnit: 'minutes', subject: 'Your estimate from {{orgName}}', body: 'Hi {{customerName}},\n\nYour estimate is ready for review. Let us know if you have any questions or would like to change anything.', isActive: true, availableVariables: LEAD_VARS },
+  { id: 'am_lead_lost', name: 'Lead Closed', trigger: 'Lead Lost', channel: 'EMAIL', delayValue: 0, delayUnit: 'minutes', subject: 'Thank you for considering {{orgName}}', body: 'Hi {{customerName}},\n\nThank you for considering {{orgName}}. If your plans change, we would be glad to help in the future.', isActive: false, availableVariables: LEAD_VARS },
 ];
 
 const SMS_EST = ['clientName', 'projectName', 'estimateLink', 'orgName'];

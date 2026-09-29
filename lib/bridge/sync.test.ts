@@ -138,6 +138,62 @@ describe('scope bridge', () => {
   });
 });
 
+describe('schedule bridge', () => {
+  it('schedules a work order from one save of dates, shifts and per-day crew hours without rolling back', () => {
+    let replica = initial();
+    // A job whose work order is ready to schedule and has no shifts yet.
+    const wo = getDb().workOrders.find((w) => w.status === 'UNSCHEDULED' || w.status === 'SCHEDULED')!;
+    expect(wo).toBeDefined();
+    useStore.setState(({ db }) => ({ db: produce(db, (d) => {
+      const w = d.workOrders.find((x) => x.id === wo.id)!;
+      w.status = 'UNSCHEDULED';
+      w.shifts = [];
+      const j = d.jobs.find((x) => x.id === wo.jobId)!;
+      j.crewAssignments = [];
+    }) }));
+    replica = applyOps(replica, runSync(replica));
+    const member = replica.collections.team.find((t) => t.isCrew && t.status !== 'Inactive')!;
+    const day = '2030-03-04';
+    replica = produce(replica, (d) => {
+      const j = d.collections.jobs.find((x) => x.id === wo.jobId)!;
+      j.startDate = day;
+      j.endDate = '2030-03-05';
+      j.startTime = '07:00';
+      j.endTime = '15:00';
+      j.shifts = [{ id: 'sh_test', name: 'Walls', startDate: day, endDate: '2030-03-05', startTime: '07:00', endTime: '15:00', memberIds: [member.id] }];
+      j.crew = [{ memberId: member.id, role: 'Painter', hours: 6, date: day, shiftId: 'sh_test' }];
+      j.status = 'Scheduled';
+    });
+    const ops = runSync(replica);
+    replica = applyOps(replica, ops);
+    const w = getDb().workOrders.find((x) => x.id === wo.id)!;
+    expect(w.status).toBe('SCHEDULED');
+    expect(w.shifts.map((s) => s.id)).toEqual(['sh_test']);
+    const job = replica.collections.jobs.find((x) => x.id === wo.jobId)!;
+    // Nothing was rolled back on the replica side.
+    expect(job).toMatchObject({ startDate: day, endDate: '2030-03-05', status: 'Scheduled' });
+    expect(job.shifts?.[0]?.id).toBe('sh_test');
+  });
+});
+
+describe('service location bridge', () => {
+  it('turns a contact service location into a property and uses it for the estimate', () => {
+    let replica = initial();
+    const customer = replica.collections.customers.find((c) => getDb().customers.some((p) => p.id === c.id))!;
+    replica = produce(replica, (d) => {
+      d.collections.customers.find((c) => c.id === customer.id)!.serviceLocations = [
+        { id: 'sl_test1', street: '4410 Lakeshore Blvd', unit: 'Lot 12', city: 'Austin', state: 'TX', zip: '78703', createdAt: '2026-06-10' },
+      ];
+    });
+    replica = applyOps(replica, runSync(replica));
+    const prop = getDb().properties.find((p) => p.id === 'PROP-sl_test1');
+    expect(prop).toMatchObject({ address: '4410 Lakeshore Blvd Lot 12', city: 'Austin', zip: '78703' });
+    expect(prop!.ownership.some((o) => o.customerId === customer.id)).toBe(true);
+    // The primary address is not replaced by the extra location.
+    expect(getDb().properties.some((p) => p.id !== 'PROP-sl_test1' && p.ownership.some((o) => o.customerId === customer.id))).toBe(true);
+  });
+});
+
 describe('calendar bridge', () => {
   it('preserves date-only values without interpreting them as UTC instants', () => {
     expect(dayOf('2026-06-10')).toBe('2026-06-10');

@@ -18,10 +18,11 @@
   with paint mode on the line rows, Change Orders (24) and Paint &
   Materials with the Preliminary List (18).
 */
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import { ExternalLink, FileQuestion, Grid, Plus } from 'lucide-react';
+import { Columns3, ExternalLink, FileQuestion, Grid, Plus } from 'lucide-react';
+import { RowMenu } from '@/components/ui/menu';
 import type { AreaTemplate, Estimate, EstimateLineItem, SurfaceRate } from '@/lib/types';
 import { PageShell } from '@/components/Navigation';
 import { EmptyState, ListSkeleton } from '@/components/ui/display';
@@ -47,7 +48,10 @@ import {
 import { act } from '@/features/lib/store';
 import { amendEstimate } from '@/features/lib/store/actions/estimates';
 import { publicEstimateHref } from '@/features/lib/hrefs';
-import { areaFromTemplate, materialPricePerUnit, newLine, priceLine, quantityFromDimensions } from '@/components/estimates/estimate-utils';
+import { areaFromTemplate, newLine, priceLine, quantityFromDimensions, sendBlocker } from '@/components/estimates/estimate-utils';
+import { materialPerUnit } from '@/lib/estimating';
+import { TableColumnsModal } from '@/components/estimates/TableColumnsModal';
+import { ScopeTotals } from '@/components/estimates/ScopeTotals';
 
 export default function EstimateBuilderPage() {
   const { id } = useParams<{ id: string }>();
@@ -82,6 +86,15 @@ export default function EstimateBuilderPage() {
   const [creatingCo, setCreatingCo] = useState(false);
   const amending = proto.est?.status === 'AMENDED_DRAFT';
   const painting = !!paintColourId && proto.editable;
+  // A colour typed on a line that hasn't reached the colour card yet: saved first, assigned once the line syncs.
+  const [pendingColour, setPendingColour] = useState<{ lineId: string; colourId: string } | null>(null);
+  const assignRef = useRef<(lineId: string, colourId: string) => void>(undefined);
+  useEffect(() => {
+    if (pendingColour && lineColours.inScope.has(pendingColour.lineId)) {
+      assignRef.current?.(pendingColour.lineId, pendingColour.colourId);
+      setPendingColour(null);
+    }
+  }, [pendingColour, lineColours]);
 
   // Links like /estimates/X#section-paint-card: scroll once the builder has rendered.
   useEffect(() => {
@@ -103,7 +116,11 @@ export default function EstimateBuilderPage() {
     if (stored && !dirty) setDraft(stored);
   }, [stored, dirty]);
 
-  const ctx = useMemo(() => ({ surfaceRates: c.surfaceRates, tiers: c.difficultyTiers }), [c.surfaceRates, c.difficultyTiers]);
+  const ctx = useMemo(
+    () => ({ surfaceRates: c.surfaceRates, tiers: c.difficultyTiers, tableColumns: c.tableColumns, paints: c.paintProducts }),
+    [c.surfaceRates, c.difficultyTiers, c.tableColumns, c.paintProducts],
+  );
+  const [columnsOpen, setColumnsOpen] = useState(false);
   const totals = useMemo(() => (draft ? estimateTotals(draft) : null), [draft]);
 
   const edit = useCallback((fn: (e: Estimate) => Estimate) => {
@@ -153,7 +170,8 @@ export default function EstimateBuilderPage() {
       lineItems: e.lineItems.map((l) => {
         if (l.id !== lineId) return l;
         let next = { ...l, ...patch };
-        if (Object.keys(patch).every((key) => key === 'optional' || key === 'selected')) return next;
+        // Location, sheen and scope state don't change the numbers.
+        if (Object.keys(patch).every((key) => ['optional', 'selected', 'location', 'sheen'].includes(key))) return next;
         if ('heightTierId' in patch || 'accessTierId' in patch) next.difficultyMultiplier = 1;
         const sr = c.surfaceRates.find((s) => s.name === next.surfaceType);
         if (patch.surfaceType && sr) {
@@ -161,10 +179,13 @@ export default function EstimateBuilderPage() {
           const area = e.areas.find((a) => a.id === l.areaId);
           if (area && !l.quantityManual) next.quantity = quantityFromDimensions(sr, area) || l.quantity;
         }
-        if (patch.paintProductId !== undefined || 'paintProductId' in patch || patch.coats || patch.surfaceType) {
+        const materialInputs: (keyof EstimateLineItem)[] = ['paintProductId', 'coats', 'surfaceType', 'condition', 'unit', 'coatingAreaSqft', 'quantity'];
+        if (materialInputs.some((k) => k in patch)) {
           const paint = look.paint(next.paintProductId);
           next.paintName = paint?.name;
-          next.unitPrice = materialPricePerUnit(sr, paint, next.coats);
+          // A new product brings its finish unless a sheen was chosen for this surface.
+          if ('paintProductId' in patch && paint && !l.sheen) next.sheen = paint.finish;
+          next.unitPrice = materialPerUnit(next, paint);
         }
         next = priceLine(next, { ...ctx, profitMargin: e.profitMargin });
         return next;
@@ -188,7 +209,7 @@ export default function EstimateBuilderPage() {
 
   const addAreaFromTemplate = (tpl: AreaTemplate) =>
     edit((e) => {
-      const r = areaFromTemplate({ tpl, surfaceRates: c.surfaceRates, paint: defaultPaint, laborRate, profitMargin: e.profitMargin, tiers: c.difficultyTiers, heightTierId: e.heightTierId, accessTierId: e.accessTierId });
+      const r = areaFromTemplate({ tpl, surfaceRates: c.surfaceRates, paint: defaultPaint, laborRate, profitMargin: e.profitMargin, tiers: c.difficultyTiers, heightTierId: e.heightTierId, accessTierId: e.accessTierId, tableColumns: c.tableColumns, paints: c.paintProducts });
       return { ...e, areas: [...e.areas, r.area], lineItems: [...e.lineItems, ...r.lines] };
     });
 
@@ -197,7 +218,7 @@ export default function EstimateBuilderPage() {
   const addSurface = (areaId: string, sr: SurfaceRate) =>
     edit((e) => {
       const area = e.areas.find((a) => a.id === areaId)!;
-      const line = newLine({ area, sr, paint: defaultPaint, laborRate, profitMargin: e.profitMargin, tiers: c.difficultyTiers, heightTierId: e.heightTierId, accessTierId: e.accessTierId });
+      const line = newLine({ area, sr, paint: defaultPaint, laborRate, profitMargin: e.profitMargin, tiers: c.difficultyTiers, heightTierId: e.heightTierId, accessTierId: e.accessTierId, tableColumns: c.tableColumns, paints: c.paintProducts });
       return { ...e, lineItems: [...e.lineItems, line] };
     });
 
@@ -235,6 +256,16 @@ export default function EstimateBuilderPage() {
     return true;
   };
 
+  const openSend = () => {
+    if (!validate()) return;
+    const blocked = sendBlocker(draft, customer);
+    if (blocked) {
+      toast(blocked, 'error');
+      return;
+    }
+    setSendOpen(true);
+  };
+
   const save = () => {
     if (!validate()) return;
     actions.save(draft, draft.status === 'Draft' ? 'Draft saved' : 'Estimate updated');
@@ -254,7 +285,44 @@ export default function EstimateBuilderPage() {
     router.push(`/jobs/${job.id}`);
   };
 
+  /* ---------- Colour card on the rows (patent 3, 6) ---------- */
+
+  /** Copies the colour's specification (product, sheen, coats) onto the replica line. */
+  const applyCardToLine = (lineId: string, colourId: string) => {
+    const cc = lineColours.card.find((x) => x.id === colourId);
+    if (!cc) return;
+    const norm = (s?: string) => (s ?? '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+    const wanted = norm(cc.product || cc.productLine);
+    const brandIds = new Set(c.brands.filter((b) => norm(b.name) === norm(cc.manufacturer)).map((b) => b.id));
+    const paint = wanted
+      ? c.paintProducts.find((p) => (!brandIds.size || brandIds.has(p.brandId)) && (norm(p.name) === wanted || wanted.includes(norm(p.name)) || norm(p.name).includes(wanted)))
+      : undefined;
+    const patch: Partial<EstimateLineItem> = {};
+    if (cc.sheen) patch.sheen = cc.sheen;
+    if (cc.coats) patch.coats = cc.coats;
+    if (paint) patch.paintProductId = paint.id;
+    if (Object.keys(patch).length) updateLine(lineId, patch);
+  };
+
+  const assignColour = (lineId: string, colourId: string) => {
+    if (!lineColours.inScope.has(lineId)) {
+      // The line reaches the colour card on save; assign right after.
+      actions.save(draft, 'Draft saved');
+      setDirty(false);
+      setPendingColour({ lineId, colourId });
+      toast('Saving the estimate to link this line to the colour card…', 'info');
+      return;
+    }
+    assignLineColour(draft.id, lineId, colourId, true);
+    applyCardToLine(lineId, colourId);
+  };
+  assignRef.current = assignColour;
+
   const areaLines = (areaId: string) => draft.lineItems.filter((l) => l.areaId === areaId);
+  const locationOptions = Array.from(new Set([
+    ...draft.areas.map((a) => a.name), ...draft.lineItems.map((l) => l.location ?? ''),
+    ...(draft.estimateType === 'Exterior' ? ['Front Exterior', 'Rear Elevation', 'Left Side', 'Right Side'] : ['Living Rm', 'Kitchen', 'Hallway', 'Master Bedroom']),
+  ].filter(Boolean)));
 
   return (
     <PageShell title={draft.estimateNumber} breadcrumbs={[{ label: 'Estimates', href: '/estimates' }]} backHref="/estimates">
@@ -295,10 +363,7 @@ export default function EstimateBuilderPage() {
               }
               setEditOverride(true);
             },
-            onSend: () => {
-              if (!validate()) return;
-              setSendOpen(true);
-            },
+            onSend: openSend,
             onApprove: () => {
               if (!validate()) return;
               actions.markApproved(draft);
@@ -310,9 +375,16 @@ export default function EstimateBuilderPage() {
               setDeclineOpen(true);
             },
             onConvert: convert,
-            onPreview: () => router.push(`/estimates/${draft.id}/preview`),
+            // Unsaved edits go with you into Client Preview.
+            onPreview: () => {
+              if (dirty && !readOnly && validate()) {
+                actions.save(draft, 'Draft saved');
+                setDirty(false);
+              }
+              router.push(`/estimates/${draft.id}/preview`);
+            },
             onPrint: () => router.push(`/estimates/${draft.id}/preview?print=1`),
-            onClientView: () => router.push(`/estimates/${draft.id}/client-view`),
+            onClientView: () => router.push(`/estimates/${draft.id}/client-view?preview=1`),
             onHistory: () => router.push(`/estimates/${draft.id}/history`),
             onDuplicate: () => {
               const copy = actions.duplicate(draft);
@@ -346,7 +418,11 @@ export default function EstimateBuilderPage() {
                 <div className="flex h-12 w-12 items-center justify-center rounded-full border border-primary-100 bg-primary-50">
                   <Grid className="h-6 w-6 text-primary-600" />
                 </div>
-                <h3 className="font-heading text-2xl font-bold text-gray-900">Area &amp; Line Items</h3>
+                <h3 className="flex-1 font-heading text-2xl font-bold text-gray-900">Area &amp; Line Items</h3>
+                <RowMenu
+                  className="h-10 w-10"
+                  items={[{ label: 'Table Columns', icon: <Columns3 />, onClick: () => setColumnsOpen(true) }]}
+                />
               </div>
               <div className="space-y-8">
                 {draft.areas.length === 0 && draft.extras.length === 0 && (
@@ -362,6 +438,9 @@ export default function EstimateBuilderPage() {
                     paints={c.paintProducts}
                     brands={c.brands}
                     tiers={c.difficultyTiers}
+                    columns={c.tableColumns}
+                    locations={locationOptions}
+                    onOpenColumns={() => setColumnsOpen(true)}
                     onRename={(name) => edit((e) => ({ ...e, areas: e.areas.map((x) => (x.id === a.id ? { ...x, name } : x)) }))}
                     onDimension={(k, v) => updateDimension(a.id, k, v)}
                     onDuplicate={() => duplicateArea(a.id)}
@@ -369,9 +448,22 @@ export default function EstimateBuilderPage() {
                     onAddLine={() => setSurfaceFor(a.id)}
                     onUpdateLine={updateLine}
                     onDeleteLine={(lid) => edit((e) => ({ ...e, lineItems: e.lineItems.filter((l) => l.id !== lid) }))}
-                    colourCell={lineColours.linked ? (l) => <LineColourCell colour={lineColours.colours.get(l.id)} painting={painting} saved={lineColours.inScope.has(l.id)} /> : undefined}
+                    colourCell={lineColours.linked ? (l) => (
+                      <LineColourCell
+                        colour={lineColours.colours.get(l.id)}
+                        painting={painting}
+                        saved={lineColours.inScope.has(l.id)}
+                        editable={!readOnly && proto.editable}
+                        card={lineColours.card}
+                        onAssign={(colourId) => assignColour(l.id, colourId)}
+                      />
+                    ) : undefined}
                     painting={painting}
-                    onPaintLine={(lid) => paintColourId && assignLineColour(draft.id, lid, paintColourId, lineColours.inScope.has(lid))}
+                    onPaintLine={(lid) => {
+                      if (!paintColourId) return;
+                      assignLineColour(draft.id, lid, paintColourId, lineColours.inScope.has(lid));
+                      if (lineColours.inScope.has(lid)) applyCardToLine(lid, paintColourId);
+                    }}
                   />
                 ))}
                 <ExtrasBlock
@@ -380,6 +472,7 @@ export default function EstimateBuilderPage() {
                   onUpdate={(xid, patch) => edit((e) => ({ ...e, extras: e.extras.map((x) => (x.id === xid ? { ...x, ...patch } : x)) }))}
                   onDelete={(xid) => edit((e) => ({ ...e, extras: e.extras.filter((x) => x.id !== xid) }))}
                 />
+                {(draft.lineItems.length > 0 || draft.extras.length > 0) && <ScopeTotals estimate={draft} totals={totals} />}
               </div>
               {!readOnly && (
                 <div className="mt-6 border-t border-gray-200 pt-6">
@@ -423,7 +516,7 @@ export default function EstimateBuilderPage() {
             {!readOnly && (
               <div className="flex justify-end gap-3 border-t border-gray-100 pt-6">
                 <Button variant="secondary" onClick={save}>Save Draft</Button>
-                {draft.status !== 'Approved' && <Button onClick={() => validate() && setSendOpen(true)}>{amending ? 'Send for Re-approval' : 'Send Estimate'}</Button>}
+                {draft.status !== 'Approved' && <Button onClick={openSend}>{amending ? 'Send for Re-approval' : 'Send Estimate'}</Button>}
               </div>
             )}
           </div>
@@ -449,6 +542,7 @@ export default function EstimateBuilderPage() {
           })
         }
       />
+      <TableColumnsModal open={columnsOpen} onOpenChange={setColumnsOpen} />
       <SurfacePickerModal
         open={!!surfaceFor}
         onOpenChange={(o) => !o && setSurfaceFor(null)}

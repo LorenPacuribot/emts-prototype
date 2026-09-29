@@ -9,8 +9,8 @@
     list items (one item per line, "Title: description").
 */
 import {
-  Award, Building2, FileSignature, FileText, Image as ImageIcon, LayoutTemplate, ListOrdered, Paintbrush, Shield, Star, Users,
-  type LucideIcon,
+  Award, Building2, ClipboardList, DollarSign, FileSignature, FileText, Home, Image as ImageIcon, LayoutTemplate, ListOrdered, ListPlus, Paintbrush, Palette, Shield,
+  Star, Users, type LucideIcon,
 } from 'lucide-react';
 import type { Presentation, PresentationSection, PresentationSectionType } from '@/lib/types';
 import { uid } from '@/lib/utils';
@@ -99,7 +99,16 @@ export const SECTION_META: Record<PresentationSectionType, SectionMeta> = {
     label: 'About Company', icon: Building2, title: 'About Our Company',
     content: 'Share your company story here. Tell clients about your mission, the quality of work you deliver, the areas you serve, and what sets your team apart.',
   },
+  /* Estimate-driven blocks: the content is filled from the linked estimate in Client Preview. */
+  property: { label: 'Property & Customer', icon: Home, title: 'Your Property', content: 'Customer name, job-site address and estimate details from the linked estimate.' },
+  scope: { label: 'Surface Scope', icon: ClipboardList, title: 'Scope of Work', content: 'Every included surface with its location, colour, product, sheen, coats and preparation.' },
+  specs: { label: 'Paint Specifications', icon: Palette, title: 'Paint Specifications', content: 'The project colour card: manufacturer, colour, product, sheen and coats.' },
+  optional: { label: 'Optional Items', icon: ListPlus, title: 'Optional Items', content: 'Optional work, priced separately from the base scope.' },
+  pricing: { label: 'Pricing', icon: DollarSign, title: 'Investment', content: 'Base scope total, optional items, tax and deposit from the linked estimate.' },
 };
+
+/** Blocks whose content comes from the linked estimate. */
+export const ESTIMATE_BLOCKS: PresentationSectionType[] = ['property', 'scope', 'specs', 'optional', 'pricing'];
 
 /** Block types shown in the "Blocks" tab, in the live order. Cover and Estimate are fixed. */
 export const ADDABLE_TYPES: PresentationSectionType[] = ['services', 'gallery', 'testimonials', 'about', 'custom', 'team', 'process', 'warranty'];
@@ -113,11 +122,17 @@ export function newSection(type: PresentationSectionType, variant: 1 | 2 | 3 = 1
   return { id: uid('sec'), type, title: m.title, subtitle: m.subtitle, content: m.content, enabled: true, variant };
 }
 
-/** Starter sections for a new presentation (matches the live default page). */
+/**
+ * Starter sections for a new presentation: the cover, the estimate content
+ * blocks Client Preview fills in (property, scope, specs, optional items,
+ * pricing), then the company blocks.
+ */
 export function defaultSections(company: string): PresentationSection[] {
   const about = newSection('about');
   about.title = `About ${company}`;
-  return [newSection('cover'), newSection('estimate'), newSection('services'), newSection('gallery'), newSection('testimonials'), about];
+  const estimate = newSection('estimate');
+  estimate.enabled = false;
+  return [newSection('cover'), ...ESTIMATE_BLOCKS.map((t) => newSection(t)), newSection('services'), newSection('gallery'), newSection('testimonials'), about, estimate];
 }
 
 /** Splits "Title: description" lines into items. Lines without ":" become titles. */

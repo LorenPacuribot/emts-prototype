@@ -21,6 +21,35 @@ import { Checkbox, Field, Input } from '@/components/ui/form';
 import { useToast } from '@/components/ui/toast';
 import { COVER_GRADIENTS, defaultSections } from './presentation-utils';
 
+/**
+ * Estimate templates a presentation is used for (Client Preview picks it for
+ * estimates made from these templates), grouped by estimate type.
+ */
+export function EstimateTemplateChecklist({ value, onChange }: { value: string[]; onChange: (ids: string[]) => void }) {
+  const { items: types } = useCollection('estimateTypes');
+  const { items: templates } = useCollection('estimateTemplates');
+  const toggle = (id: string) => onChange(value.includes(id) ? value.filter((x) => x !== id) : [...value, id]);
+  if (!templates.length) return <p className="py-2 text-sm text-gray-400">No estimate templates yet. Add them in Settings › Estimate Templates.</p>;
+  return (
+    <div className="max-h-56 space-y-3 overflow-y-auto rounded-xl border border-gray-200 p-2">
+      {[...types].sort((a, b) => a.sortOrder - b.sortOrder).map((t) => {
+        const list = templates.filter((x) => x.estimateTypeId === t.id);
+        if (!list.length) return null;
+        return (
+          <div key={t.id}>
+            <div className="px-2 pb-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">{t.name}</div>
+            {list.map((x) => (
+              <div key={x.id} className={cn('rounded-lg p-2', value.includes(x.id) ? 'bg-primary-50' : 'hover:bg-gray-50')}>
+                <Checkbox checked={value.includes(x.id)} onChange={() => toggle(x.id)} label={<span className="font-medium">{x.name}</span>} />
+              </div>
+            ))}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 export function CreatePresentationModal({ open, onOpenChange }: { open: boolean; onOpenChange: (o: boolean) => void }) {
   return (
     <Modal open={open} onOpenChange={onOpenChange} title="New Presentation" size="lg">
@@ -33,29 +62,31 @@ function CreateForm({ onDone }: { onDone: () => void }) {
   const router = useRouter();
   const { toast } = useToast();
   const { items: types } = useCollection('estimateTypes');
+  const { items: templates } = useCollection('estimateTemplates');
   const { items: all, add } = useCollection('presentations');
   const [biz] = useSingleton('businessProfile');
   const [name, setName] = useState('');
   const [selected, setSelected] = useState<string[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const toggle = (n: string) => setSelected((s) => (s.includes(n) ? s.filter((x) => x !== n) : [...s, n]));
-
   const create = () => {
     const e: Record<string, string> = {};
     if (!name.trim()) e.name = 'Presentation name is required';
-    if (selected.length === 0) e.types = 'Select at least one estimate type';
+    if (selected.length === 0) e.types = 'Select at least one estimate template';
     setErrors(e);
     if (Object.keys(e).length) return;
     const now = new Date().toISOString();
+    const chosen = templates.filter((t) => selected.includes(t.id));
     const saved = add(
       {
         title: name.trim(),
         description: '',
         status: 'Draft',
         theme: 'blue',
-        isTemplate: false,
-        scopes: types.filter((t) => selected.includes(t.name)).map((t) => t.name),
+        // A presentation used in Client Preview is a template for its estimates.
+        isTemplate: true,
+        templateIds: chosen.map((t) => t.id),
+        scopes: types.filter((t) => chosen.some((x) => x.estimateTypeId === t.id)).map((t) => t.name),
         cover: COVER_GRADIENTS[all.length % COVER_GRADIENTS.length]!,
         sections: defaultSections(biz.companyName),
         views: 0,
@@ -76,28 +107,19 @@ function CreateForm({ onDone }: { onDone: () => void }) {
         <Input placeholder="e.g. Smith Residence Proposal" value={name} onChange={(e) => setName(e.target.value)} invalid={!!errors.name} onClear={() => setName('')} />
       </Field>
       <div>
-        <Field label="Estimate Template Source" required error={errors.types}>
+        <Field label="Used for Estimate Templates" required error={errors.types}>
           {selected.length > 0 && (
             <div className="mb-2 flex flex-wrap gap-2">
-              {selected.map((n) => (
-                <span key={n} className="inline-flex items-center gap-1 rounded-lg border border-blue-100 bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-700">
-                  {n}
-                  <button onClick={() => toggle(n)} className="rounded-full p-0.5 hover:bg-blue-100" aria-label={`Remove ${n}`}><X className="h-3 w-3" /></button>
+              {selected.map((id) => (
+                <span key={id} className="inline-flex items-center gap-1 rounded-lg border border-blue-100 bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-700">
+                  {templates.find((t) => t.id === id)?.name ?? id}
+                  <button onClick={() => setSelected((s) => s.filter((x) => x !== id))} className="rounded-full p-0.5 hover:bg-blue-100" aria-label={`Remove ${templates.find((t) => t.id === id)?.name ?? id}`}><X className="h-3 w-3" /></button>
                 </span>
               ))}
             </div>
           )}
-          {types.length === 0 ? (
-            <p className="py-2 text-sm text-gray-400">No estimate types available.</p>
-          ) : (
-            <div className="max-h-48 space-y-1 overflow-y-auto rounded-xl border border-gray-200 p-2">
-              {types.map((t) => (
-                <div key={t.id} className={cn('rounded-lg p-2.5', selected.includes(t.name) ? 'bg-primary-50' : 'hover:bg-gray-50')}>
-                  <Checkbox checked={selected.includes(t.name)} onChange={() => toggle(t.name)} label={<span className="font-medium">{t.name}</span>} />
-                </div>
-              ))}
-            </div>
-          )}
+          <EstimateTemplateChecklist value={selected} onChange={setSelected} />
+          <p className="mt-1.5 text-xs text-gray-500">Client Preview offers this presentation for estimates made from these templates.</p>
         </Field>
       </div>
       <div className="flex justify-end gap-3 border-t border-gray-100 pt-4">

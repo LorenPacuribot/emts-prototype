@@ -15,7 +15,7 @@ import { cn } from '@/lib/utils';
 import { useMobileMenu } from './Sidebar';
 import { Avatar } from './ui/display';
 import { DropdownMenu } from './ui/menu';
-import { useToast } from './ui/toast';
+import { useSignOut } from './auth/AuthGate';
 
 export interface Crumb {
   label: string;
@@ -27,7 +27,7 @@ export function AppHeader({ title, breadcrumbs = [], backHref }: { title: string
   const { setOpen } = useMobileMenu();
   const [hasHistory, setHasHistory] = useState(false);
   const user = useCurrentUser();
-  const { toast } = useToast();
+  const signOut = useSignOut();
 
   useEffect(() => setHasHistory(window.history.length > 1), []);
   const canGoBack = hasHistory || !!backHref;
@@ -75,7 +75,7 @@ export function AppHeader({ title, breadcrumbs = [], backHref }: { title: string
         items={[
           { label: 'My Profile', icon: <User />, onClick: () => router.push('/settings/my-profile') },
           { label: 'Settings', icon: <Settings />, onClick: () => router.push('/settings') },
-          { label: 'Logout', icon: <LogOut />, separatorBefore: true, onClick: () => toast('Logout is disabled in this replica (no authentication).', 'info') },
+          { label: 'Logout', icon: <LogOut />, separatorBefore: true, onClick: signOut },
         ]}
         trigger={
           <button className="flex items-center gap-2 rounded-full p-1 hover:bg-gray-100" aria-label="User menu">

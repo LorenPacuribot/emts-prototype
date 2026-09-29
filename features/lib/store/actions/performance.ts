@@ -248,7 +248,7 @@ export function requestCorrection(db: Database, actor: User, jobId: string, fiel
   if (Number.isNaN(newValue) || newValue < 0) return fail("Enter the corrected value.", "value");
   if (!note.trim()) return fail("Explain the correction.", "note");
   const c = {
-    id: nextId(db, "pcr", "PCR-"), jobId, field, oldValue: rec.actual[field], newValue, code, note: note.trim(), requestedBy: actor.id, requestedAt: now(), requires,
+    id: nextId(db, "pcr", "PCR-"), jobId, field, oldValue: rec.actual[field] ?? 0, newValue, code, note: note.trim(), requestedBy: actor.id, requestedAt: now(), requires,
     approvals: [{ role: actor.role as "office_manager" | "owner", by: actor.id, at: now() }], status: "pending" as const,
   };
   db.performanceCorrections.unshift(c);

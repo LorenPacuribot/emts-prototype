@@ -186,6 +186,7 @@ export default function EstimatesPage() {
               setCreateOpen(false);
               router.push(`/estimates/${id}`);
             }}
+            onSaved={() => setCreateOpen(false)}
           />
         )}
       </Modal>

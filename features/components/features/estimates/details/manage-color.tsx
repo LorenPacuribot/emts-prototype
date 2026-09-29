@@ -20,6 +20,7 @@ import { Banner, Button, Checkbox, Field, Input, LiveLabel, Modal, NewBadge, Sel
 import { MANUFACTURERS, PRIMERS, SHEENS, TINT_BASES } from "@/features/components/features/color-card/constants";
 import { PalettePicker } from "@/features/components/features/color-card/palette-picker";
 import { specLifespanDefault } from "@/features/lib/rules/lifespan";
+import { useDb as useReplicaDb } from "@/lib/store";
 
 interface Form {
   name: string;
@@ -27,12 +28,15 @@ interface Form {
   hex: string;
   manufacturer: string;
   product: string;
+  productLine: string;
   sheen: Sheen | "";
   coats: number;
   primer: string;
   tintBase: string;
   customMatch: boolean;
   sampleRef: string;
+  /** Expected useful life of this coating, in years (repaint interval, patent 3 and 27). Blank = library default. */
+  lifeYears: string;
 }
 
 export function ManageColorModal({ open, onOpenChange, job, colour, colorNumber, onRemove }: {
@@ -44,8 +48,10 @@ export function ManageColorModal({ open, onOpenChange, job, colour, colorNumber,
   onRemove?: () => void;
 }) {
   const db = useDb((d) => d);
+  // Settings > Brands and Settings > Paint Library live in the replica store.
+  const replica = useReplicaDb().collections;
   const spec = colour && db.specs.find((s) => s.colourId === colour.id && s.state !== "superseded");
-  const blank: Form = { name: "", number: "", hex: "#D1CBC1", manufacturer: "Sherwin-Williams", product: "", sheen: "", coats: 2, primer: "", tintBase: "", customMatch: false, sampleRef: "" };
+  const blank: Form = { name: "", number: "", hex: "#D1CBC1", manufacturer: "Sherwin-Williams", product: "", productLine: "", sheen: "", coats: 2, primer: "", tintBase: "", customMatch: false, sampleRef: "", lifeYears: "" };
   const [f, setF] = useState<Form>(blank);
   const [error, setError] = useState<{ field?: string; message: string }>();
 
@@ -55,21 +61,50 @@ export function ManageColorModal({ open, onOpenChange, job, colour, colorNumber,
     setF(
       colour
         ? {
-            name: colour.name, number: colour.number, hex: colour.hex, manufacturer: colour.manufacturer, product: spec?.product ?? "", sheen: spec?.sheen ?? "",
+            name: colour.name, number: colour.number, hex: colour.hex, manufacturer: colour.manufacturer, product: spec?.product ?? "", productLine: spec?.productLine ?? "", sheen: spec?.sheen ?? "",
             coats: spec?.coats ?? 2, primer: spec?.primer ?? "", tintBase: spec?.tintBase ?? "", customMatch: colour.customMatch, sampleRef: colour.sampleRef ?? "",
+            lifeYears: spec?.lifespanYears ? String(spec.lifespanYears) : "",
           }
         : blank,
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, colour?.id]);
 
+  const brands = useMemo(
+    () => Array.from(new Set([...[...replica.brands].sort((a, b) => a.sortOrder - b.sortOrder).map((b) => b.name), ...MANUFACTURERS, ...(f.manufacturer ? [f.manufacturer] : [])])),
+    [replica.brands, f.manufacturer],
+  );
   const products = useMemo(() => db.catalog.filter((c) => c.manufacturer === f.manufacturer), [db.catalog, f.manufacturer]);
+  // Paint Library products of this brand, then catalogue products not already listed.
+  const libraryProducts = useMemo(() => {
+    const brandIds = new Set(replica.brands.filter((b) => b.name.toLowerCase() === f.manufacturer.toLowerCase()).map((b) => b.id));
+    return replica.paintProducts.filter((p) => brandIds.has(p.brandId) && p.isActive);
+  }, [replica.brands, replica.paintProducts, f.manufacturer]);
+  const productOptions = useMemo(
+    () => Array.from(new Set([...libraryProducts.map((p) => p.name), ...products.map((p) => p.product)])),
+    [libraryProducts, products],
+  );
+  const lines = useMemo(() => Array.from(new Set(products.map((p) => p.productLine).filter(Boolean))), [products]);
   const product = products.find((p) => p.product === f.product);
+  const libraryProduct = libraryProducts.find((p) => p.name === f.product);
   const set = <K extends keyof Form>(k: K, v: Form[K]) => setF((x) => ({ ...x, [k]: v }));
+  const pickProduct = (name: string) => {
+    const cat = products.find((p) => p.product === name);
+    const lib = libraryProducts.find((p) => p.name === name);
+    setF((x) => ({
+      ...x,
+      product: name,
+      productLine: cat?.productLine ?? x.productLine,
+      sheen: x.sheen || ((lib?.finish as Sheen | undefined) ?? ""),
+    }));
+  };
+  const defaultLife = specLifespanDefault(db, spec?.surfaceIds ?? [], { manufacturer: f.manufacturer, productLine: f.productLine || product?.productLine, product: f.product });
 
   function save() {
     if (!f.name.trim()) return setError({ field: "name", message: "Color name is required" });
     if (!f.number.trim()) return setError({ field: "number", message: "Colour code is required" });
+    const life = f.lifeYears.trim() ? Number(f.lifeYears) : undefined;
+    if (life !== undefined && !(Number.isFinite(life) && life > 0 && life <= 50)) return setError({ field: "life", message: "Enter an expected life between 1 and 50 years" });
     const colourDraft = { manufacturer: f.manufacturer, name: f.name.trim(), number: f.number.trim(), hex: f.hex, customMatch: f.customMatch, sampleRef: f.sampleRef || undefined };
     let colourId = colour?.id;
     if (colour) {
@@ -83,16 +118,18 @@ export function ManageColorModal({ open, onOpenChange, job, colour, colorNumber,
     // The product fields live on the colour's first specification line.
     const fresh = getDb();
     const current = fresh.specs.find((s) => s.colourId === colourId && s.state !== "superseded");
-    const wantsSpec = f.product || f.sheen || current;
+    const wantsSpec = f.product || f.sheen || f.productLine || life || current;
     if (wantsSpec && colourId) {
+      const productLine = f.productLine || product?.productLine || current?.productLine || "";
       const draft: SpecDraft = {
         sheen: f.sheen || undefined,
         coats: f.coats,
         primer: f.primer,
         coatSequence: current?.coatSequence?.length ? current.coatSequence : Array.from({ length: f.coats }, (_, i) => `Finish coat ${i + 1}`),
         surfaceIds: current?.surfaceIds ?? [],
-        lifespanYears: current?.lifespanYears ?? specLifespanDefault(fresh, job.surfaceIds, { manufacturer: f.manufacturer, productLine: product?.productLine, product: f.product }),
-        productLine: product?.productLine ?? current?.productLine ?? "",
+        lifespanYears: life ?? current?.lifespanYears ?? specLifespanDefault(fresh, job.surfaceIds, { manufacturer: f.manufacturer, productLine, product: f.product }),
+        ...(current && life !== undefined && life !== current.lifespanYears ? { lifespanReason: "Expected life set in the Paint Color dialog" } : {}),
+        productLine,
         product: f.product,
         tintBase: f.tintBase,
       };
@@ -177,25 +214,29 @@ export function ManageColorModal({ open, onOpenChange, job, colour, colorNumber,
         <div>
           <div className="mb-3 flex items-center justify-between">
             <LiveLabel>Product Specification</LiveLabel>
-            {product?.cost.gal !== undefined && <span className="rounded-full bg-green-50 px-2.5 py-0.5 text-xs font-bold text-green-700">${product.cost.gal.toFixed(2)}/gal</span>}
+            {(product?.cost.gal ?? libraryProduct?.pricePerGallon) !== undefined && (
+              <span className="rounded-full bg-green-50 px-2.5 py-0.5 text-xs font-bold text-green-700">${(product?.cost.gal ?? libraryProduct!.pricePerGallon).toFixed(2)}/gal</span>
+            )}
           </div>
-          <div className="grid gap-4 sm:grid-cols-3">
-            <Field label="Brand">
-              <Select value={f.manufacturer} onChange={(e) => { set("manufacturer", e.target.value); set("product", ""); }}>
-                {MANUFACTURERS.map((m) => (
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field label="Manufacturer" hint="From Settings › Brands">
+              <Select value={f.manufacturer} onChange={(e) => setF((x) => ({ ...x, manufacturer: e.target.value, product: "", productLine: "" }))}>
+                {brands.map((m) => (
                   <option key={m}>{m}</option>
                 ))}
               </Select>
             </Field>
+            <Field label="Product" hint={libraryProducts.length ? "Pick from Settings › Paint Library, or type a new one" : "Type the product, or add it to Settings › Paint Library"}>
+              <Input list="colour-products" value={f.product} onChange={(e) => pickProduct(e.target.value)} placeholder="e.g. SuperPaint Interior" disabled={!f.manufacturer} />
+              <datalist id="colour-products">
+                {productOptions.map((p) => <option key={p} value={p} />)}
+              </datalist>
+            </Field>
             <Field label="Product Line">
-              <Select value={f.product} onChange={(e) => set("product", e.target.value)} disabled={!f.manufacturer}>
-                <option value="">{f.manufacturer ? "Select Product..." : "Select Brand first"}</option>
-                {products.map((p) => (
-                  <option key={p.id} value={p.product}>
-                    {p.product}{p.cost.gal !== undefined ? ` - $${p.cost.gal.toFixed(2)}/gal` : ""}
-                  </option>
-                ))}
-              </Select>
+              <Input list="colour-lines" value={f.productLine} onChange={(e) => set("productLine", e.target.value)} placeholder={lines[0] ?? "e.g. Duration"} />
+              <datalist id="colour-lines">
+                {lines.map((l) => <option key={l} value={l} />)}
+              </datalist>
             </Field>
             <Field label="Finish / Sheen">
               <Select value={f.sheen} onChange={(e) => set("sheen", e.target.value as Sheen)}>
@@ -204,6 +245,13 @@ export function ManageColorModal({ open, onOpenChange, job, colour, colorNumber,
                   <option key={s}>{s}</option>
                 ))}
               </Select>
+            </Field>
+            <Field
+              label="Expected life (years)"
+              error={error?.field === "life" ? error.message : undefined}
+              hint={`Repaint interval for this coating. Blank uses the library default (${defaultLife} yrs).`}
+            >
+              <Input type="number" min={1} max={50} value={f.lifeYears} placeholder={String(defaultLife)} onChange={(e) => set("lifeYears", e.target.value)} invalid={error?.field === "life"} />
             </Field>
           </div>
         </div>

@@ -7,17 +7,20 @@
   Steps (same order as the live CreateEstimateModal, with a client step first):
     1. Client   - pick a lead, an existing contact, or add a quick new contact
     2. Type     - Interior / Exterior / Cabinets (Settings > Estimate Types)
-    3. Template - blank or a template from Settings > Estimate Templates
+    3. Template - blank or a template from Settings > Estimate Templates; "Create"
+    4. Details  - property (the saved address fills in), project name, estimate
+                  type, estimator (defaults to you), estimate date, expiration
+                  date and notes; "Save" or "Save & Continue" (patent 2)
 
   The template pre-fills areas (from Area Templates), default paint, terms,
-  profit margin and extra line items. The estimate is saved as a Draft and
-  the builder opens.
+  profit margin and extra line items. The estimate is saved as a Draft;
+  "Save & Continue" opens the builder.
 */
 import React, { useMemo, useState } from 'react';
 import { ArrowLeft, Box, Building2, Home, LayoutTemplate, Mail, MapPin, Phone, Search, Sun, User, UserPlus, Users } from 'lucide-react';
 import type { Customer, Estimate, EstimateArea, EstimateLineItem, Lead } from '@/lib/types';
 import { Button } from '@/components/ui/button';
-import { Field, Input } from '@/components/ui/form';
+import { Field, Input, NativeSelect, Textarea } from '@/components/ui/form';
 import { Tabs } from '@/components/ui/display';
 import { useToast } from '@/components/ui/toast';
 import { useCollection, useCurrentUser, useDb, useLogActivity, useNextNumber, useSingleton } from '@/lib/store';
@@ -25,7 +28,7 @@ import { estimateTotals, round2 } from '@/lib/calculations';
 import { cn, fullName, uid } from '@/lib/utils';
 import { addDays, areaFromTemplate } from './estimate-utils';
 
-type Step = 'client' | 'type' | 'template';
+type Step = 'client' | 'type' | 'template' | 'details';
 type ClientPick = { kind: 'lead'; lead: Lead } | { kind: 'customer'; customer: Customer };
 
 function iconFor(name: string) {
@@ -86,7 +89,7 @@ function ClientStep({ onPick }: { onPick: (p: ClientPick) => void }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-sm text-gray-500">ClientPick the lead or contact this estimate is for.</p>
+      <p className="text-sm text-gray-500">Pick the lead or contact this estimate is for. Their saved property address fills in automatically.</p>
       <Tabs
         value={tab}
         onChange={(v) => setTab(v as typeof tab)}
@@ -192,9 +195,42 @@ function ClientStep({ onPick }: { onPick: (p: ClientPick) => void }) {
 
 /* ---------- Wizard ---------- */
 
+/** A property the estimate can be for: the primary address, a saved service location, or the lead's address. */
+interface PropertyOption { key: string; label: string; address: string; zip: string; serviceLocationId?: string }
+
+function propertyOptions(pick: ClientPick, customers: Customer[]): PropertyOption[] {
+  const customer = pick.kind === 'customer' ? pick.customer : customers.find((c) => c.id === pick.lead.customerId);
+  const out: PropertyOption[] = [];
+  const add = (o: PropertyOption) => {
+    if (!o.address || out.some((x) => x.address.toLowerCase() === o.address.toLowerCase())) return;
+    out.push(o);
+  };
+  if (pick.kind === 'lead') add({ key: 'lead', label: `Lead address (${pick.lead.leadNumber})`, address: addressOf(pick.lead), zip: pick.lead.zip });
+  if (customer) {
+    add({ key: 'primary', label: 'Primary address', address: addressOf(customer), zip: customer.zip });
+    for (const l of customer.serviceLocations ?? []) {
+      add({ key: l.id, label: l.label || 'Service location', address: addressOf({ street: [l.street, l.unit].filter(Boolean).join(' '), city: l.city, state: l.state }), zip: l.zip, serviceLocationId: l.id });
+    }
+  }
+  return out;
+}
+
+const dayInput = (iso: string) => iso.slice(0, 10);
+const fromDayInput = (d: string) => new Date(`${d}T12:00:00`).toISOString();
+
 export function CreateEstimateWizard({
-  initialLeadId, initialCustomerId, onCreated, onCancel,
-}: { initialLeadId?: string; initialCustomerId?: string; onCreated: (id: string) => void; onCancel?: () => void }) {
+  initialLeadId, initialCustomerId, initialLocationId, onCreated, onSaved, onCancel,
+}: {
+  initialLeadId?: string;
+  initialCustomerId?: string;
+  /** Pre-selects a saved service location of the customer. */
+  initialLocationId?: string;
+  /** "Save & Continue": open the builder. */
+  onCreated: (id: string) => void;
+  /** "Save": stay where you are (defaults to onCreated). */
+  onSaved?: (id: string) => void;
+  onCancel?: () => void;
+}) {
   const db = useDb();
   const c = db.collections;
   const estimatesCol = useCollection('estimates');
@@ -218,13 +254,43 @@ export function CreateEstimateWizard({
   const [step, setStep] = useState<Step>(initialPick ? 'type' : 'client');
   const [typeId, setTypeId] = useState<string | null>(null);
   const [templateId, setTemplateId] = useState<string | null>(null);
+  const [details, setDetails] = useState<{ propertyKey: string; title: string; estimatorId: string; date: string; validUntil: string; notes: string }>({
+    propertyKey: '', title: '', estimatorId: user.id, date: '', validUntil: '', notes: '',
+  });
+  const [detailErrors, setDetailErrors] = useState<Record<string, string>>({});
 
   const types = [...c.estimateTypes].sort((a, b) => a.sortOrder - b.sortOrder);
   const type = types.find((t) => t.id === typeId);
   const templates = c.estimateTemplates.filter((t) => t.estimateTypeId === typeId);
+  const properties = pick ? propertyOptions(pick, c.customers) : [];
 
-  const create = () => {
+  /** "Create" on the template step: fill in the details, then Save or Save & Continue. */
+  const openDetails = () => {
+    if (!type || !templateId) return;
+    const tpl = c.estimateTemplates.find((t) => t.id === templateId);
+    const now = new Date().toISOString();
+    const preferred = properties.find((p) => p.serviceLocationId && p.serviceLocationId === initialLocationId) ?? properties[0];
+    setDetails({
+      propertyKey: preferred?.key ?? '',
+      title: tpl?.name ?? `${type.name} Estimate`,
+      estimatorId: user.id,
+      date: dayInput(now),
+      validUntil: dayInput(addDays(now, 30)),
+      notes: '',
+    });
+    setDetailErrors({});
+    setStep('details');
+  };
+
+  const create = (continueToBuilder: boolean) => {
     if (!pick || !type || !templateId) return;
+    const e: Record<string, string> = {};
+    if (!details.title.trim()) e.title = 'Enter a project name';
+    if (!details.date) e.date = 'Choose the estimate date';
+    if (!details.validUntil) e.validUntil = 'Choose the expiration date';
+    else if (details.date && details.validUntil < details.date) e.validUntil = 'The expiration date is before the estimate date';
+    setDetailErrors(e);
+    if (Object.keys(e).length) return;
     const now = new Date().toISOString();
 
     // Resolve the customer (a lead without a contact gets one created).
@@ -246,14 +312,16 @@ export function CreateEstimateWizard({
     const tpl = c.estimateTemplates.find((t) => t.id === templateId);
     const margin = tpl?.profitMargin ?? goals.profitMargin ?? 20;
     const paint = c.paintProducts.find((p) => p.id === tpl?.defaultPaintProductId);
+    const property = properties.find((p) => p.key === details.propertyKey) ?? properties[0];
+    const zip = property?.zip || customer.zip;
     const tax =
-      c.taxRegions.find((r) => r.zipCodes.includes(customer.zip)) ?? c.taxRegions.find((r) => r.isDefault) ?? c.taxRegions[0];
+      c.taxRegions.find((r) => r.zipCodes.includes(zip)) ?? c.taxRegions.find((r) => r.isDefault) ?? c.taxRegions[0];
     const areas: EstimateArea[] = [];
     const lines: EstimateLineItem[] = [];
     for (const atId of tpl?.areaTemplateIds ?? []) {
       const at = c.areaTemplates.find((a) => a.id === atId);
       if (!at) continue;
-      const r = areaFromTemplate({ tpl: at, surfaceRates: c.surfaceRates, paint, laborRate: type.hourlyRate, profitMargin: margin, tiers: c.difficultyTiers });
+      const r = areaFromTemplate({ tpl: at, surfaceRates: c.surfaceRates, paint, laborRate: type.hourlyRate, profitMargin: margin, tiers: c.difficultyTiers, tableColumns: c.tableColumns, paints: c.paintProducts });
       areas.push(r.area);
       lines.push(...r.lines);
     }
@@ -267,15 +335,16 @@ export function CreateEstimateWizard({
       // The number is the id, shared with the feature prototype (lib/bridge).
       id: number,
       estimateNumber: number,
-      title: tpl?.name ?? `${type.name} Estimate`,
+      title: details.title.trim(),
       customerId: customer.id,
       leadId: lead?.id,
       estimateTemplateId: tpl?.id,
       estimateType: type.name,
       status: 'Draft',
-      date: now,
-      validUntil: addDays(now, 30),
-      address: addressOf(customer),
+      date: fromDayInput(details.date),
+      validUntil: fromDayInput(details.validUntil),
+      address: property?.address ?? addressOf(customer),
+      serviceLocationId: property?.serviceLocationId,
       areas,
       lineItems: lines,
       extras,
@@ -285,10 +354,10 @@ export function CreateEstimateWizard({
       taxRate: tax?.salesTaxRate ?? 0,
       profitMargin: margin,
       termsId: tpl?.termsId ?? c.termsConditions.find((t) => t.isDefault)?.id,
-      notes: '',
+      notes: details.notes.trim(),
       internalNotes: '',
       createdBy: user.id,
-      estimatorId: user.id,
+      estimatorId: details.estimatorId || user.id,
       createdAt: now,
       updatedAt: now,
       signature: null,
@@ -299,8 +368,9 @@ export function CreateEstimateWizard({
     estimatesCol.add(draft, { atStart: true });
     if (lead) leadsCol.update(lead.id, { estimateId: draft.id, updatedAt: now });
     log(`${number} created for ${fullName(customer)}`, 'estimate', draft.id);
-    toast(`Estimate ${number} created`);
-    onCreated(draft.id);
+    toast(`Estimate ${number} saved as a draft`);
+    if (continueToBuilder) onCreated(draft.id);
+    else (onSaved ?? onCreated)(draft.id);
   };
 
   const who = pick ? (pick.kind === 'lead' ? fullName(pick.lead) : fullName(pick.customer)) : '';
@@ -398,7 +468,60 @@ export function CreateEstimateWizard({
           </div>
           <div className="mt-6 flex gap-3 border-t border-gray-100 pt-6">
             <Button variant="secondary" className="flex-1" onClick={() => setStep('type')} icon={<ArrowLeft className="h-4 w-4" />}>Back</Button>
-            <Button className="flex-[2]" disabled={!templateId} onClick={create}>Create Estimate</Button>
+            <Button className="flex-[2]" disabled={!templateId} onClick={openDetails}>Create</Button>
+          </div>
+        </div>
+      )}
+
+      {step === 'details' && type && pick && (
+        <div className="space-y-4">
+          {chip(pick.kind === 'lead' ? 'Lead' : 'Customer', who, User, () => setStep('client'))}
+          <Field label="Property / Job-site address" hint={properties.length > 1 ? 'Saved addresses for this customer. Add more with "Add Service Location" on the contact.' : 'The saved address fills in automatically.'}>
+            {properties.length ? (
+              <NativeSelect value={details.propertyKey} onChange={(e) => setDetails({ ...details, propertyKey: e.target.value })} aria-label="Property">
+                {properties.map((p) => <option key={p.key} value={p.key}>{p.address} · {p.label}</option>)}
+              </NativeSelect>
+            ) : (
+              <p className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-700">This customer has no address yet. Add one on the contact record.</p>
+            )}
+          </Field>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Field label="Project Name" required error={detailErrors.title}>
+              <Input value={details.title} invalid={!!detailErrors.title} onChange={(e) => setDetails({ ...details, title: e.target.value })} />
+            </Field>
+            <Field label="Estimate Type (Scope)">
+              <NativeSelect
+                value={type.id}
+                onChange={(e) => { setTypeId(e.target.value); setTemplateId('blank'); }}
+                aria-label="Estimate type"
+              >
+                {types.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
+              </NativeSelect>
+            </Field>
+            <Field label="Estimator">
+              <NativeSelect value={details.estimatorId} onChange={(e) => setDetails({ ...details, estimatorId: e.target.value })} aria-label="Estimator">
+                {c.team.filter((m) => m.status !== 'Inactive' || m.id === details.estimatorId).map((m) => (
+                  <option key={m.id} value={m.id}>{fullName(m)}{m.id === user.id ? ' (you)' : ''} · {m.role}</option>
+                ))}
+              </NativeSelect>
+            </Field>
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Estimate Date" required error={detailErrors.date}>
+                <Input type="date" value={details.date} invalid={!!detailErrors.date} onChange={(e) => setDetails({ ...details, date: e.target.value })} />
+              </Field>
+              <Field label="Expiration Date" required error={detailErrors.validUntil}>
+                <Input type="date" value={details.validUntil} min={details.date} invalid={!!detailErrors.validUntil} onChange={(e) => setDetails({ ...details, validUntil: e.target.value })} />
+              </Field>
+            </div>
+          </div>
+          <Field label="Project Notes" hint="Shown to the customer on the proposal. Internal notes can be added in the builder.">
+            <Textarea rows={3} value={details.notes} onChange={(e) => setDetails({ ...details, notes: e.target.value })} placeholder="e.g. Customer wants the work done before the holidays." />
+          </Field>
+          <div className="flex flex-wrap gap-3 border-t border-gray-100 pt-5">
+            <Button variant="secondary" onClick={() => setStep('template')} icon={<ArrowLeft className="h-4 w-4" />}>Back</Button>
+            <div className="flex-1" />
+            <Button variant="secondary" onClick={() => create(false)}>Save</Button>
+            <Button onClick={() => create(true)}>Save &amp; Continue</Button>
           </div>
         </div>
       )}

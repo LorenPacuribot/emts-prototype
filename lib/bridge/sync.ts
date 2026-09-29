@@ -180,20 +180,48 @@ const customers: Entity<Customer> = {
     },
     {
       name: 'address', dir: 'both',
-      readP: (p, id) => { const pr = M.currentProperty(p, id); return { street: pr?.address ?? '', city: pr?.city ?? '', state: pr?.state ?? '', zip: pr?.zip ?? '' }; },
+      readP: (p, id) => { const pr = M.currentProperty(p, id, { primaryOnly: true }); return { street: pr?.address ?? '', city: pr?.city ?? '', state: pr?.state ?? '', zip: pr?.zip ?? '' }; },
       readR: (r) => ({ street: r.street ?? '', city: r.city ?? '', state: r.state ?? '', zip: r.zip ?? '' }),
       writeR: (v) => v as Partial<Customer>,
       writeP: (v, id) => {
         const a = v as { street: string; city: string; state: string; zip: string };
         pWrite((d) => {
-          const pr = M.currentProperty(d, id);
+          const pr = M.currentProperty(d, id, { primaryOnly: true });
           if (pr) Object.assign(pr, { address: a.street, city: a.city, state: a.state, zip: a.zip });
           else if (a.street) addProperty(d, `PROP-${id}`, id, { address: a.street, city: a.city, state: a.state, zip: a.zip });
         });
       },
     },
+    {
+      // Extra service locations become prototype properties (id PROP-<location id>), so paint history,
+      // repaint alerts and the QR record work per property.
+      name: 'locations', dir: 'toP',
+      readP: (p, id) => p.properties
+        .filter((pr) => M.isServiceLocationProperty(pr) && pr.ownership.some((o) => o.customerId === id))
+        .map((pr) => [pr.id.slice(5), pr.address, pr.city, pr.state, pr.zip])
+        .sort((a, b) => a[0]!.localeCompare(b[0]!)),
+      readR: (r) => locationRows(r),
+      writeP: (v, id) => {
+        const rows = v as string[][];
+        pWrite((d) => {
+          for (const [lid, street, city, state, zip] of rows) {
+            const pr = byId(d.properties, `PROP-${lid}`);
+            if (pr) Object.assign(pr, { address: street, city, state: state || pr.state, zip });
+            else addProperty(d, `PROP-${lid}`, id, { address: street!, city: city!, state: state!, zip: zip! });
+          }
+        });
+      },
+    },
   ],
 };
+
+/** Service locations as [id, street, city, state, zip] rows (property id is PROP-<id>). */
+function locationRows(r: Pick<Customer, 'serviceLocations'>): string[][] {
+  return (r.serviceLocations ?? [])
+    .filter((l) => l.street.trim())
+    .map((l) => [l.id, [l.street, l.unit].filter(Boolean).join(' '), l.city, l.state, l.zip])
+    .sort((a, b) => a[0]!.localeCompare(b[0]!));
+}
 
 function addProperty(d: P.Database, id: string, customerId: string, a: { address: string; city: string; state: string; zip: string }) {
   if (d.properties.some((p) => p.id === id)) return id;
@@ -366,8 +394,10 @@ const estimates: Entity<Estimate> = {
     if (!byId(p.customers, r.customerId)) return false;
     const rLead = byId(rdb.collections.leads, r.leadId);
     const pLead = byId(p.leads, r.leadId);
+    const loc = r.serviceLocationId ? byId(rdb.collections.customers, r.customerId)?.serviceLocations?.find((l) => l.id === r.serviceLocationId) : undefined;
     pWrite((d) => {
-      const propertyId = (pLead?.propertyId && byId(d.properties, pLead.propertyId)?.id)
+      const propertyId = (loc && addProperty(d, `PROP-${loc.id}`, r.customerId, { address: [loc.street, loc.unit].filter(Boolean).join(' '), city: loc.city, state: loc.state, zip: loc.zip }))
+        ?? (pLead?.propertyId && byId(d.properties, pLead.propertyId)?.id)
         ?? M.currentProperty(d, r.customerId)?.id
         ?? addProperty(d, `PROP-${r.id}`, r.customerId, { address: r.address || rLead?.street || 'Address not set', city: rLead?.city ?? '', state: rLead?.state ?? '', zip: rLead?.zip ?? '' });
       const y = new Date().getFullYear();
@@ -570,32 +600,12 @@ const jobs: Entity<Job> = {
       readR: (r) => r.estimatedHours,
       writeR: (v) => ({ estimatedHours: v as number }),
     },
-    {
-      name: 'status', dir: 'both',
-      readP: (p, id) => M.JOB_STATUS_R[byId(p.jobs, id)!.status as Exclude<P.JobStatus, 'estimating'>] ?? 'Unscheduled',
-      readR: (r) => r.status,
-      writeR: (v) => ({ status: v as Job['status'] }),
-      writeP: (v, id) => {
-        const to = M.JOB_STATUS_P[v as Job['status']];
-        // Marketing and Cancelled are replica-only stages: keep them on the replica side.
-        if (!to || to === 'marketing') return 'keep';
-        act(setJobStage, id, to);
-      },
-    },
-    {
-      name: 'schedule', dir: 'both',
-      readP: (p, id) => M.jobSchedule(p, byId(p.jobs, id)!),
-      readR: (r) => ({ startDate: r.startDate, endDate: r.endDate, startTime: r.startTime, endTime: r.endTime }),
-      writeR: (v) => v as Partial<Job>,
-      writeP: (v, id) => {
-        const x = v as { startDate?: string; endDate?: string; startTime?: string; endTime?: string };
-        const p = getDb();
-        const wo = p.workOrders.find((w) => w.jobId === id);
-        if (wo && x.startDate && x.endDate) act(scheduleWorkOrder, wo.id, { startDate: x.startDate, endDate: x.endDate, startTime: x.startTime, endTime: x.endTime });
-        else if (wo && !x.startDate && wo.status === 'SCHEDULED') act(markUnscheduled, wo.id);
-        else if (!wo) pWrite((d) => { const j = byId(d.jobs, id); if (j) { j.scheduleStart = x.startDate ? iso(x.startDate, 8) : undefined; j.scheduleEnd = x.endDate ? iso(x.endDate, 17) : undefined; } });
-      },
-    },
+    /*
+      Order matters: crew and shifts go across before the schedule, so the
+      prototype checks the new dates against the new crew hours (not the old
+      ones); status comes after the schedule, because scheduling the work
+      order is what makes the job Scheduled on the prototype side.
+    */
     {
       name: 'crew', dir: 'both',
       readP: (p, id) => M.jobCrew(p, id).sort((a, b) => a.memberId.localeCompare(b.memberId)),
@@ -616,6 +626,53 @@ const jobs: Entity<Job> = {
             wo.shifts.push({ id: `SH-${id}`, name: 'Crew', startDate: start, endDate: r.endDate ?? start, startTime: r.startTime ?? '08:00', endTime: r.endTime ?? '16:00', memberIds: empIds });
           }
         });
+      },
+    },
+    {
+      // Named shifts from the scheduling panel become the work order's shifts (same shape).
+      name: 'shifts', dir: 'toP',
+      readP: (p, id) => {
+        const wo = p.workOrders.find((w) => w.jobId === id);
+        const userOf = (emp: string) => p.employees?.find((e) => e.id === emp)?.userId ?? emp;
+        return (wo?.shifts ?? []).map((s) => ({ ...s, memberIds: s.memberIds.map(userOf) }));
+      },
+      readR: (r) => r.shifts ?? [],
+      writeP: (v, id) => {
+        const shifts = v as NonNullable<Job['shifts']>;
+        // A job scheduled without shifts keeps the crew facet's single shift.
+        if (!shifts.length) return 'keep';
+        pWrite((d) => {
+          const wo = d.workOrders.find((w) => w.jobId === id);
+          if (!wo) return;
+          const empOf = (m: string) => d.employees?.find((e) => e.userId === m)?.id ?? m;
+          wo.shifts = shifts.map((s) => ({ id: s.id, name: s.name, startDate: s.startDate, endDate: s.endDate, startTime: s.startTime, endTime: s.endTime, memberIds: s.memberIds.map(empOf) }));
+        });
+      },
+    },
+    {
+      name: 'schedule', dir: 'both',
+      readP: (p, id) => M.jobSchedule(p, byId(p.jobs, id)!),
+      readR: (r) => ({ startDate: r.startDate, endDate: r.endDate, startTime: r.startTime, endTime: r.endTime }),
+      writeR: (v) => v as Partial<Job>,
+      writeP: (v, id) => {
+        const x = v as { startDate?: string; endDate?: string; startTime?: string; endTime?: string };
+        const p = getDb();
+        const wo = p.workOrders.find((w) => w.jobId === id);
+        if (wo && x.startDate && x.endDate) act(scheduleWorkOrder, wo.id, { startDate: x.startDate, endDate: x.endDate, startTime: x.startTime, endTime: x.endTime });
+        else if (wo && !x.startDate && wo.status === 'SCHEDULED') act(markUnscheduled, wo.id);
+        else if (!wo) pWrite((d) => { const j = byId(d.jobs, id); if (j) { j.scheduleStart = x.startDate ? iso(x.startDate, 8) : undefined; j.scheduleEnd = x.endDate ? iso(x.endDate, 17) : undefined; } });
+      },
+    },
+    {
+      name: 'status', dir: 'both',
+      readP: (p, id) => M.JOB_STATUS_R[byId(p.jobs, id)!.status as Exclude<P.JobStatus, 'estimating'>] ?? 'Unscheduled',
+      readR: (r) => r.status,
+      writeR: (v) => ({ status: v as Job['status'] }),
+      writeP: (v, id) => {
+        const to = M.JOB_STATUS_P[v as Job['status']];
+        // Marketing and Cancelled are replica-only stages: keep them on the replica side.
+        if (!to || to === 'marketing') return 'keep';
+        act(setJobStage, id, to);
       },
     },
     {
@@ -817,7 +874,17 @@ export function runSync(rdb: RDb, opts: { baseline?: boolean } = {}): BridgeOp[]
           continue;
         }
         // The replica changed it: push across.
+        const before = new Map(ent.facets.map((g) => [g.name, JSON.stringify(g.readP(getDb(), r.id) ?? null)]));
         const res = f.writeP?.(vr, r.id, r);
+        // A push can change other facets of the same record (new shifts change the
+        // schedule's daily times; scheduling changes the job status). Those changes
+        // came from this push, not from the prototype, so their snapshots move too.
+        for (const g of ent.facets) {
+          if (g === f) continue;
+          const gk = `${k}:${g.name}`;
+          const now = JSON.stringify(g.readP(getDb(), r.id) ?? null);
+          if (now !== before.get(g.name) && snapshots.get(gk) === before.get(g.name)) snapshots.set(gk, now);
+        }
         const vp2 = f.readP(getDb(), r.id);
         if (eq(vp2, vr) || res === 'keep' || !f.writeR || f.dir === 'toP') {
           snapshots.set(sk, JSON.stringify(vp2 ?? null));

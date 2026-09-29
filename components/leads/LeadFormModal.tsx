@@ -22,6 +22,7 @@ import { useToast } from '@/components/ui/toast';
 import { SERVICE_TYPES } from '@/lib/constants';
 import { cn, fullName } from '@/lib/utils';
 import { COMMON_SOURCES, EMAIL_RE, ZIP_RE, appendNote, formatPhone, formatPhoneInput, isValidPhone } from './leadHelpers';
+import { useLeadActions } from './useLeadActions';
 
 interface FormState {
   firstName: string; lastName: string; companyName: string;
@@ -55,6 +56,7 @@ export function LeadFormModal({
   const nextNumber = useNextNumber();
   const log = useLogActivity();
   const { toast } = useToast();
+  const { sendStageMessages } = useLeadActions();
 
   const [s, setS] = useState<FormState>(EMPTY);
   const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({});
@@ -188,6 +190,8 @@ export function LeadFormModal({
       );
       log(`New lead ${created.leadNumber} added for ${fullName(created)}`, 'lead', created.id);
       toast('Lead created successfully');
+      // The "New Leads" stage message (Settings > Automated Messages), once per lead.
+      sendStageMessages(created, 'New');
       onSaved?.(created);
     }
     onOpenChange(false);
@@ -206,7 +210,7 @@ export function LeadFormModal({
       footer={
         <div className="grid w-full grid-cols-2 gap-3">
           <Button variant="secondary" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button onClick={submit}>{mode === 'add' ? 'Create Lead' : 'Save Changes'}</Button>
+          <Button onClick={submit}>{mode === 'add' ? 'Save Lead' : 'Save Changes'}</Button>
         </div>
       }
     >

@@ -30,6 +30,7 @@ import { CONTACT_TYPE_COLORS, statsFor } from '@/components/contacts/contactStat
 import { useDeleteContact } from '@/components/contacts/useDeleteContact';
 import { ConversationsTab, EstimatesTab, InvoicesTab, JobHistoryTab, LeadsTab } from '@/components/contacts/ContactTabs';
 import { LocationPaintChips, PaintHistoryHost } from '@/components/contacts/ContactFeatures';
+import { PropertyMapCard, ServiceLocationModal, useAddServiceLocation } from '@/components/contacts/ServiceLocations';
 import { NewBadge } from '@/features/components/ui';
 
 type TabKey = 'leads' | 'estimates' | 'invoices' | 'jobs' | 'conversations' | 'notes' | 'paint-history';
@@ -68,6 +69,9 @@ function ContactDetail() {
   const [editOpen, setEditOpen] = useState(false);
   const [scheduleOpen, setScheduleOpen] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [locationOpen, setLocationOpen] = useState(false);
+  const [locationToRemove, setLocationToRemove] = useState<string | null>(null);
+  const addLocation = useAddServiceLocation();
 
   const tabParam = params.get('tab') as TabKey | null;
   const tab: TabKey = tabParam && TABS.some((t) => t.key === tabParam) ? tabParam : 'leads';
@@ -96,14 +100,21 @@ function ContactDetail() {
   const rating = customer.rating ?? 0;
   const address = [customer.street, customer.city, `${customer.state} ${customer.zip}`.trim()].filter(Boolean).join(', ') || '-';
 
-  // Service locations: the contact's own address plus any different lead addresses.
+  // Service locations: the primary address, locations added with "Add Service Location", then any other lead addresses.
+  const seen = new Set<string>();
+  const addrKey = (street: string, zip: string) => `${street}|${zip}`.toLowerCase().replace(/\s+/g, ' ').trim();
   const locations = [
-    { key: 'primary', street: customer.street, line2: `${customer.city}, ${customer.state} ${customer.zip}`, label: 'Primary' },
-    ...related.leads
-      .filter((l) => `${l.street}|${l.zip}`.toLowerCase() !== `${customer.street}|${customer.zip}`.toLowerCase())
-      .filter((l, i, arr) => arr.findIndex((x) => `${x.street}|${x.zip}` === `${l.street}|${l.zip}`) === i)
-      .map((l) => ({ key: l.id, street: l.street, line2: `${l.city}, ${l.state} ${l.zip}`, label: l.leadNumber })),
-  ];
+    { key: 'primary', street: customer.street, unit: '', city: customer.city, state: customer.state, zip: customer.zip, label: 'Primary', lat: undefined as number | undefined, lng: undefined as number | undefined, removable: false },
+    ...(customer.serviceLocations ?? []).map((l) => ({ key: l.id, street: l.street, unit: l.unit ?? '', city: l.city, state: l.state, zip: l.zip, label: l.label || 'Service location', lat: l.lat, lng: l.lng, removable: true })),
+    ...related.leads.map((l) => ({ key: l.id, street: l.street, unit: '', city: l.city, state: l.state, zip: l.zip, label: l.leadNumber, lat: undefined, lng: undefined, removable: false })),
+  ].filter((l) => {
+    // The primary card always shows (even with no street); other addresses show once each.
+    if (l.key !== 'primary' && !l.street) return false;
+    const k = addrKey(l.street, l.zip);
+    if (l.key !== 'primary' && seen.has(k)) return false;
+    seen.add(k);
+    return true;
+  });
 
   // Activity for this contact: feed items about their leads, estimates, jobs or invoices.
   const ids = new Set([...related.leads, ...related.estimates, ...related.jobs, ...related.invoices].map((x) => x.id));
@@ -176,20 +187,34 @@ function ContactDetail() {
         {/* Left column */}
         <div className="space-y-8">
           <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-            <div className="mb-6 flex items-center justify-between">
+            <div className="mb-6 flex items-center justify-between gap-2">
               <h3 className="font-heading text-lg font-bold text-gray-900">Service Locations</h3>
-              <button type="button" title="Edit address" onClick={() => setEditOpen(true)} className="text-primary-600 hover:text-primary-700"><Plus className="h-5 w-5" /></button>
+              <Button size="sm" variant="secondary" icon={<Plus className="h-4 w-4" />} onClick={() => setLocationOpen(true)}>Add Service Location</Button>
             </div>
             <div className="space-y-3">
               {locations.map((loc) => (
                 <div key={loc.key} className="group relative rounded-xl border border-gray-100 bg-gray-50 p-4">
                   <div className="flex items-start gap-3">
                     <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-400"><MapPin className="h-4 w-4" /></div>
-                    <div className="flex-1">
-                      <div className="text-sm font-bold text-gray-900">{loc.street || '-'}</div>
-                      <div className="text-xs text-gray-500">{loc.line2}</div>
-                      <div className="mt-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">{loc.label}</div>
+                    <div className="min-w-0 flex-1">
+                      <div className="text-sm font-bold text-gray-900">{[loc.street, loc.unit].filter(Boolean).join(' ') || '-'}</div>
+                      <div className="text-xs text-gray-500">{[loc.city, [loc.state, loc.zip].filter(Boolean).join(' ')].filter(Boolean).join(', ')}</div>
+                      <div className="mt-1 flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                        {loc.label}
+                        {loc.street && (
+                          <Link
+                            href={`/estimates/new?customerId=${customer.id}${loc.removable ? `&locationId=${loc.key}` : ''}`}
+                            className="normal-case tracking-normal text-primary-600 hover:underline"
+                          >
+                            Create Estimate
+                          </Link>
+                        )}
+                        {loc.removable && (
+                          <button type="button" onClick={() => setLocationToRemove(loc.key)} className="normal-case tracking-normal text-gray-400 hover:text-red-600">Remove</button>
+                        )}
+                      </div>
                       <LocationPaintChips customerId={customer.id} street={loc.street} />
+                      {loc.street && <PropertyMapCard address={loc} known={{ lat: loc.lat, lng: loc.lng }} compact={loc.key !== 'primary'} />}
                     </div>
                   </div>
                 </div>
@@ -271,6 +296,22 @@ function ContactDetail() {
         </div>
       </div>
 
+      <ServiceLocationModal
+        open={locationOpen}
+        onOpenChange={setLocationOpen}
+        onSave={(d) => addLocation(customer, d)}
+      />
+      <ConfirmDialog
+        open={!!locationToRemove}
+        onOpenChange={(v) => !v && setLocationToRemove(null)}
+        title="Remove Service Location"
+        message="Remove this address from the contact? Estimates and jobs already made for it keep their address."
+        confirmLabel="Remove"
+        onConfirm={() => {
+          customers.update(customer.id, { serviceLocations: (customer.serviceLocations ?? []).filter((l) => l.id !== locationToRemove) });
+          toast('Service location removed');
+        }}
+      />
       <ContactFormModal open={editOpen} onOpenChange={setEditOpen} customer={customer} />
       <ContactScheduleModal open={scheduleOpen} onOpenChange={setScheduleOpen} customer={customer} />
       <ConfirmDialog

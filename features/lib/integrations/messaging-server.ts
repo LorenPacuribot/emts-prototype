@@ -214,8 +214,9 @@ export function rateLimiter(limit: number, windowMs: number) {
   return (key: string, at = Date.now()): { ok: boolean; retryAfter: number } => {
     const h = hits.get(key);
     if (!h || at - h.start >= windowMs) {
+      // Drop only expired windows when the map grows, so a flood of keys cannot reset live limits.
+      if (hits.size >= 5000) for (const [k, v] of hits) if (at - v.start >= windowMs) hits.delete(k);
       hits.set(key, { start: at, count: 1 });
-      if (hits.size > 5000) hits.clear();
       return { ok: true, retryAfter: 0 };
     }
     h.count += 1;

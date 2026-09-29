@@ -16,7 +16,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import { ArrowLeft, Ban, Briefcase, CreditCard, Download, ExternalLink, History, Pencil, Send, Trash2, User } from 'lucide-react';
+import { ArrowLeft, Ban, Briefcase, CheckCheck, CreditCard, Download, ExternalLink, History, Pencil, Plus, Send, Trash2, User } from 'lucide-react';
 import { PageShell } from '@/components/Navigation';
 import { ConfirmDialog } from '@/components/Modals/Modal';
 import { Button } from '@/components/ui/button';
@@ -68,6 +68,13 @@ export default function InvoiceDetailPage() {
 
   const openModal = (m: typeof modal) => (open: boolean) => setModal(open ? m : null);
 
+  /** Delivered another way: Draft -> Sent without an email. */
+  const markSent = () => {
+    save(invoice.id, { status: 'Sent', sentAt: new Date().toISOString() }, 'Marked as sent (delivered another way)');
+    log(`${invoice.invoiceNumber} marked as sent`, 'invoice', invoice.id);
+    toast('Invoice marked as sent');
+  };
+
   return (
     <PageShell title="Invoice Details" breadcrumbs={[{ label: 'Invoices', href: '/invoices' }]} backHref="/invoices" contentClassName="bg-gray-100/50 pb-32">
       {/* Toolbar */}
@@ -88,13 +95,14 @@ export default function InvoiceDetailPage() {
           {!closed &&
             (status === 'Draft' ? (
               <>
-                <Button variant="secondary" icon={<CreditCard className="h-4 w-4" />} onClick={() => setModal('pay')}>Record Payment</Button>
+                <Button variant="secondary" icon={<Plus className="h-4 w-4" />} onClick={() => setModal('pay')}>Add Payment</Button>
+                <Button variant="secondary" icon={<CheckCheck className="h-4 w-4" />} onClick={markSent} title="Delivered another way (in person, by post)">Mark as Sent</Button>
                 <Button icon={<Send className="h-4 w-4" />} onClick={() => setModal('send')}>Send Invoice</Button>
               </>
             ) : (
               <>
                 <Button variant="secondary" icon={<Send className="h-4 w-4" />} onClick={() => setModal('send')}>Resend Invoice</Button>
-                <Button icon={<CreditCard className="h-4 w-4" />} onClick={() => setModal('pay')}>Record Payment</Button>
+                <Button icon={<Plus className="h-4 w-4" />} onClick={() => setModal('pay')}>Add Payment</Button>
               </>
             ))}
           <RowMenu

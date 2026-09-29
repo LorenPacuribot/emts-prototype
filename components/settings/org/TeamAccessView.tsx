@@ -19,6 +19,7 @@ import { fullName, initials } from '@/lib/utils';
 import type { TeamMember } from '@/lib/types';
 import { formatPhone } from '@/components/settings/config/ui';
 import { MemberFormModal } from './MemberFormModal';
+import { SignInAccounts } from './SignInAccounts';
 
 export function TeamAccessView() {
   const { items: team, remove } = useCollection('team');
@@ -106,6 +107,8 @@ export function TeamAccessView() {
           ))}
         </div>
       )}
+
+      <SignInAccounts />
 
       {modal && (
         <MemberFormModal

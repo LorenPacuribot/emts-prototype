@@ -17,13 +17,15 @@ function NewEstimate() {
   return (
     <div className="mx-auto max-w-2xl">
       <h1 className="mb-2 font-heading text-3xl font-bold tracking-tight text-gray-900">Start New Estimate</h1>
-      <p className="mb-8 text-gray-500">Pick a client, a project type and a template. The estimate is saved as a draft.</p>
+      <p className="mb-8 text-gray-500">Pick a client, a project type and a template, then fill in the estimate details. The estimate is saved as a draft.</p>
       <Card className="p-6">
         <CreateEstimateWizard
           initialLeadId={params.get('leadId') ?? undefined}
           initialCustomerId={params.get('customerId') ?? undefined}
+          initialLocationId={params.get('locationId') ?? undefined}
           onCancel={() => router.push('/estimates')}
           onCreated={(id) => router.replace(`/estimates/${id}`)}
+          onSaved={() => router.push('/estimates')}
         />
       </Card>
     </div>

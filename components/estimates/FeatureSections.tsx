@@ -60,13 +60,17 @@ export function PaintCardSection({ estimateId, paintColourId, onPaint }: { estim
 /** Colour, colour number and gallons per line item (line id == prototype surface id). */
 export interface LineColour { hex: string; name: string; number: number; gal: number }
 
+/** A colour on the card with its number and first specification (product, sheen, coats). */
+export interface CardColour { id: string; number: number; name: string; manufacturer: string; hex: string; product?: string; productLine?: string; sheen?: string; coats?: number }
+
 export function useLineColours(estimateId: string) {
   const { db, job } = useProtoEstimate(estimateId);
   return useMemo(() => {
     const colours = new Map<string, LineColour>();
-    if (!job) return { colours, inScope: new Set<string>(), linked: false };
+    if (!job) return { colours, inScope: new Set<string>(), linked: false, card: [] as CardColour[] };
     const gal = new Map<string, number>();
-    for (const spec of db.specs.filter((s) => s.jobId === job.id && s.state !== 'superseded')) {
+    const specs = db.specs.filter((s) => s.jobId === job.id && s.state !== 'superseded');
+    for (const spec of specs) {
       const line = specDemand(db, spec);
       for (const p of line.parts) gal.set(p.surfaceId, (gal.get(p.surfaceId) ?? 0) + p.baseNeedGal * (1 + line.waste));
     }
@@ -76,24 +80,67 @@ export function useLineColours(estimateId: string) {
       const c = spec && ordered.find((x) => x.id === spec.colourId);
       if (c) colours.set(sid, { hex: c.hex, name: c.name, number: ordered.indexOf(c) + 1, gal: gal.get(sid) ?? 0 });
     }
-    return { colours, inScope: new Set(job.surfaceIds), linked: true };
+    const card: CardColour[] = ordered.map((c, i) => {
+      const s = specs.find((x) => x.colourId === c.id);
+      return { id: c.id, number: i + 1, name: c.name, manufacturer: c.manufacturer, hex: c.hex, product: s?.product, productLine: s?.productLine, sheen: s?.sheen, coats: s?.coats };
+    });
+    return { colours, inScope: new Set(job.surfaceIds), linked: true, card };
   }, [db, job]);
 }
 
-/** COLOR cell on a replica line row: the assigned colour, or "Click to paint" in paint mode. */
-export function LineColourCell({ colour, painting, saved }: { colour?: LineColour; painting: boolean; saved: boolean }) {
+/**
+ * COLOR cell on a replica line row: the assigned colour, or "Click to paint"
+ * in paint mode. Typing a colour number from the card assigns that colour
+ * (patent 6: manufacturer, colour, product and sheen come from the card).
+ */
+export function LineColourCell({ colour, painting, saved, editable, card, onAssign }: {
+  colour?: LineColour;
+  painting: boolean;
+  saved: boolean;
+  editable?: boolean;
+  card?: CardColour[];
+  onAssign?: (colourId: string) => void;
+}) {
+  const [text, setText] = useState('');
+  const [error, setError] = useState('');
   if (painting && !saved) return <span className="text-[11px] italic text-amber-600" title="Save the estimate; a line needs an amount to reach the colour card">Save first</span>;
+  const commit = () => {
+    const n = Number(text.replace('#', '').trim());
+    if (!text.trim()) return;
+    const hit = card?.find((c) => c.number === n);
+    if (!hit) {
+      setError(card?.length ? `Card has colours 1–${card.length}` : 'Add a colour to the card first');
+      return;
+    }
+    setError('');
+    setText('');
+    onAssign?.(hit.id);
+  };
   return (
-    <div className="flex flex-col items-center gap-0.5">
+    <div className="flex flex-col items-center gap-0.5" onClick={(e) => editable && !painting && e.stopPropagation()}>
       {colour ? (
         <span className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-2 py-0.5 text-xs font-semibold text-gray-700" title={colour.name}>
           <Swatch hex={colour.hex} size="sm" /> #{colour.number}
         </span>
       ) : painting ? (
         <span className="inline-flex items-center gap-1 text-xs font-semibold text-green-700"><PaintBucket className="h-3.5 w-3.5" /> Click to paint</span>
-      ) : (
+      ) : !editable ? (
         <span className="text-xs italic text-gray-400">None</span>
+      ) : null}
+      {editable && !painting && (
+        <input
+          value={text}
+          onChange={(e) => { setText(e.target.value); setError(''); }}
+          onBlur={commit}
+          onKeyDown={(e) => e.key === 'Enter' && (e.currentTarget as HTMLInputElement).blur()}
+          placeholder={colour ? 'Change #' : 'Color #'}
+          inputMode="numeric"
+          aria-label="Colour number from the colour card"
+          title={card?.length ? card.map((c) => `#${c.number} ${c.name}`).join('\n') : 'Add colours to the Paint Color Card first'}
+          className="h-7 w-20 rounded-md border border-gray-200 bg-white px-1.5 text-center text-xs focus:border-primary-400 focus:outline-none"
+        />
       )}
+      {error && <span className="text-[10px] font-semibold text-red-600">{error}</span>}
       {colour && colour.gal > 0 && <span className="text-[10px] font-semibold text-blue-600">{colour.gal.toFixed(2)} gal</span>}
     </div>
   );

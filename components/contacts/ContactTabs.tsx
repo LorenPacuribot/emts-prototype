@@ -102,12 +102,28 @@ export function LeadsTab({ leads }: { leads: Lead[] }) {
 export function EstimatesTab({ estimates }: { estimates: Estimate[] }) {
   const [sort, setSort] = useState<Sort>('DateNewest');
   const rows = useSorted(estimates, sort, (e) => e.createdAt, (e) => estimateTotals(e).total);
+  // Grouped by property, so a new estimate sits alongside earlier ones for the same address.
+  const groups = new Map<string, { address: string; rows: Estimate[] }>();
+  for (const e of rows) {
+    const address = e.address?.trim() || 'No address';
+    const key = address.toLowerCase().replace(/\s+/g, ' ');
+    const g = groups.get(key) ?? { address, rows: [] };
+    g.rows.push(e);
+    groups.set(key, g);
+  }
   return (
     <div>
       <SortMenu value={sort} onChange={setSort} />
       {rows.length === 0 ? <Empty text="No estimates found for this customer." /> : (
-        <div className="space-y-4">
-          {rows.map((e) => (
+        <div className="space-y-6">
+          {Array.from(groups.values()).map((g) => (
+            <section key={g.address} aria-label={`Estimates for ${g.address}`}>
+              <div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gray-500">
+                <MapPin className="h-3.5 w-3.5" /> {g.address}
+                <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] text-gray-600">{g.rows.length} estimate{g.rows.length === 1 ? '' : 's'}</span>
+              </div>
+              <div className="space-y-4">
+          {g.rows.map((e) => (
             <Link key={e.id} href={`/estimates/${e.id}`} className={cardCls}>
               <div className="mb-3 flex items-start justify-between gap-3">
                 <div className="min-w-0">
@@ -125,6 +141,9 @@ export function EstimatesTab({ estimates }: { estimates: Estimate[] }) {
                 <div className="text-xl font-bold text-gray-900">{money(estimateTotals(e).total)}</div>
               </div>
             </Link>
+          ))}
+              </div>
+            </section>
           ))}
         </div>
       )}

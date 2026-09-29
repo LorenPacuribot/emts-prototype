@@ -33,6 +33,7 @@ import { ScheduleEstimateModal } from '@/components/leads/ScheduleEstimateModal'
 import { PipelineStatusBar } from '@/components/leads/PipelineStatusBar';
 import { NotesSection } from '@/components/leads/NotesSection';
 import { FollowUpLockNote, LeadSourceChip, RepaintFollowUpHost, useFollowUpLocks } from '@/components/leads/leadFeatures';
+import { PropertyMapCard, ServiceLocationModal, useAddServiceLocation } from '@/components/contacts/ServiceLocations';
 
 export default function LeadDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -238,28 +239,61 @@ function ContactInfoCard({ lead, customerHref }: { lead: Lead; customerHref?: st
   );
 }
 
+/*
+  Job Location: the lead's property on an interactive map with directions.
+  "Add Service Location" sets the lead's address when it has none; otherwise
+  it attaches another property to the lead's customer (patent 1).
+*/
 function JobLocationCard({ lead }: { lead: Lead }) {
+  const leads = useCollection('leads');
+  const customers = useCollection('customers');
+  const addLocation = useAddServiceLocation();
+  const { toast } = useToast();
+  const [open, setOpen] = useState(false);
+  const customer = customers.get(lead.customerId);
+  const firstProperty = !lead.street;
+
+  const save = (d: { label: string; street: string; unit: string; city: string; state: string; zip: string }) => {
+    if (firstProperty || !customer) {
+      const address = { street: [d.street, d.unit].filter(Boolean).join(' '), city: d.city, state: d.state, zip: d.zip };
+      leads.update(lead.id, { ...address, updatedAt: new Date().toISOString() });
+      // A contact with no address takes the lead's property as its primary address.
+      if (customer && !customer.street) customers.update(customer.id, address);
+      toast('Property attached to the lead');
+      return;
+    }
+    addLocation(customer, d);
+  };
+
   return (
     <div className={card}>
-      <div className={cardHead}><MapPin className="h-4 w-4" /><span className={cardHeadLabel}>Job Location</span></div>
-      <div className="mb-6 rounded-xl border border-gray-100 bg-gray-50 p-5">
+      <div className={cn(cardHead, 'justify-between')}>
+        <span className="flex items-center gap-2"><MapPin className="h-4 w-4" /><span className={cardHeadLabel}>Job Location</span></span>
+        <Button size="sm" variant="secondary" onClick={() => setOpen(true)}>Add Service Location</Button>
+      </div>
+      <div className="mb-4 rounded-xl border border-gray-100 bg-gray-50 p-5">
         <div className="mb-1 text-lg font-bold text-gray-900">{lead.street || 'No address provided'}</div>
-        <div className="text-gray-500">{lead.city}, {lead.state} {lead.zip}</div>
+        <div className="text-gray-500">{[lead.city, [lead.state, lead.zip].filter(Boolean).join(' ')].filter(Boolean).join(', ')}</div>
+        {lead.street && <PropertyMapCard address={{ street: lead.street, city: lead.city, state: lead.state, zip: lead.zip }} />}
       </div>
-      {/* Map placeholder: the replica has no network access, so draw a simple street grid with a pin. */}
-      <div className="relative mb-6 h-48 w-full overflow-hidden rounded-xl border border-gray-200 bg-gray-100">
-        <svg className="absolute inset-0 h-full w-full text-gray-300" aria-hidden>
-          <defs>
-            <pattern id="streets" width="48" height="48" patternUnits="userSpaceOnUse">
-              <path d="M48 0H0V48" fill="none" stroke="currentColor" strokeWidth="6" />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#streets)" />
-        </svg>
-        <div className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-full flex-col items-center">
-          <MapPin className="h-9 w-9 fill-red-500 text-white drop-shadow" />
+      {customer && (customer.serviceLocations?.length ?? 0) > 0 && (
+        <div className="mb-4 space-y-2">
+          <div className="text-[11px] font-bold uppercase tracking-wider text-gray-400">Other service locations</div>
+          {customer.serviceLocations!.map((l) => (
+            <div key={l.id} className="rounded-lg border border-gray-100 bg-white px-3 py-2 text-sm">
+              <div className="font-semibold text-gray-800">{[l.street, l.unit].filter(Boolean).join(' ')}</div>
+              <div className="text-xs text-gray-500">{l.city}, {l.state} {l.zip}{l.label ? ` · ${l.label}` : ''}</div>
+              <PropertyMapCard address={l} known={{ lat: l.lat, lng: l.lng }} compact />
+            </div>
+          ))}
         </div>
-      </div>
+      )}
+      <ServiceLocationModal
+        open={open}
+        onOpenChange={setOpen}
+        title={firstProperty || !customer ? 'Add Service Location' : 'Add Another Service Location'}
+        onSave={save}
+      />
       <div className="flex items-center justify-between border-t border-gray-100 pt-4">
         <span className="text-sm font-medium text-gray-500">Auto-ID</span>
         <span className="rounded bg-gray-100 px-2 py-1 font-mono text-xs font-bold text-gray-600">{lead.leadNumber}</span>

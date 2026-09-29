@@ -312,7 +312,7 @@ export function PaintColors({ job, editable, paintColourId, onPaint }: {
 
       {canCard && (
         <button onClick={() => setManage({ open: true })} className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-gray-200 py-4 text-sm font-bold text-primary-600 hover:border-primary-300 hover:bg-primary-50/40">
-          <Plus className="h-4 w-4" /> Add New Color
+          <Plus className="h-4 w-4" /> Add Paint Color
         </button>
       )}
 

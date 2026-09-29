@@ -17,8 +17,8 @@ import { Field, Input, Select, Switch } from '@/components/ui/form';
 import { useToast } from '@/components/ui/toast';
 import { useCollection } from '@/lib/store';
 import { PERMISSION_GROUPS } from '@/lib/sampleData';
-import { cn, fullName, toISODate } from '@/lib/utils';
-import type { TeamMember, TeamRole } from '@/lib/types';
+import { cn, fullName, toISODate, uid } from '@/lib/utils';
+import type { MemberTimeOff, TeamMember, TeamRole } from '@/lib/types';
 import { digitsOnly, formatPhone, readImageFile, SegmentedToggle } from '@/components/settings/config/ui';
 
 type Day = { start: string; end: string; working: boolean };
@@ -77,6 +77,25 @@ export function MemberFormModal({
   const thisWeek = useMemo(() => sundayOf(new Date()), []);
   const [weekStart, setWeekStart] = useState(thisWeek);
   const [schedule, setSchedule] = useState<Record<string, Day[]>>(() => structuredClone(member?.schedule ?? {}));
+  // Scheduler availability (lib/scheduling memberDayAvailability): default working days and time off.
+  const [workingDays, setWorkingDays] = useState<number[] | undefined>(member?.workingDays ? [...member.workingDays] : undefined);
+  const [timeOff, setTimeOff] = useState<MemberTimeOff[]>(() => structuredClone(member?.timeOff ?? []));
+  const [offDraft, setOffDraft] = useState({ startDate: '', endDate: '', reason: '' });
+  const [offError, setOffError] = useState('');
+  const toggleWorkingDay = (i: number) =>
+    setWorkingDays((w) => {
+      const cur = w ?? [0, 1, 2, 3, 4, 5, 6];
+      const next = cur.includes(i) ? cur.filter((x) => x !== i) : [...cur, i].sort();
+      return next.length === 7 ? undefined : next;
+    });
+  const addTimeOff = () => {
+    const { startDate, endDate, reason } = offDraft;
+    if (!startDate || !endDate) return setOffError('Choose the first and last day off');
+    if (endDate < startDate) return setOffError('The last day is before the first day');
+    setTimeOff((t) => [...t, { id: uid('to'), startDate, endDate, reason: reason.trim() || 'Time off' }].sort((a, b) => a.startDate.localeCompare(b.startDate)));
+    setOffDraft({ startDate: '', endDate: '', reason: '' });
+    setOffError('');
+  };
   const weekKey = toISODate(weekStart);
   const prevKey = toISODate(addDays(weekStart, -7));
   const week = schedule[weekKey] ?? defaultWeek();
@@ -134,6 +153,8 @@ export function MemberFormModal({
       role: roleLabel,
       photoUrl: state.photo || undefined,
       schedule,
+      workingDays,
+      timeOff,
       capacityHours: capacity,
       isCrew: /crew|painter|apprentice|foreman/i.test(role!.name),
     };
@@ -319,6 +340,44 @@ export function MemberFormModal({
             );
           })}
           <p className="text-right text-xs text-gray-500">{hoursOf(week).toFixed(1)} hours this week</p>
+
+          <div className="border-t border-gray-100 pt-4">
+            <div className="mb-1 text-xs font-bold uppercase tracking-widest text-gray-500">Default working days</div>
+            <p className="mb-2 text-xs text-gray-500">Used by the scheduler for weeks without saved hours above. All days on = any day can be scheduled.</p>
+            <div className="flex flex-wrap gap-1.5">
+              {DAY_NAMES.map((n, i) => {
+                const on = !workingDays || workingDays.includes(i);
+                return (
+                  <button key={n} type="button" aria-pressed={on} onClick={() => toggleWorkingDay(i)}
+                    className={cn('rounded-lg px-3 py-1.5 text-xs font-bold', on ? 'bg-primary-600 text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200')}>
+                    {n}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="border-t border-gray-100 pt-4">
+            <div className="mb-1 text-xs font-bold uppercase tracking-widest text-gray-500">Time off</div>
+            <p className="mb-2 text-xs text-gray-500">The scheduler won&apos;t put hours on these days.</p>
+            {timeOff.length > 0 && (
+              <ul className="mb-3 divide-y divide-gray-100 rounded-xl border border-gray-200">
+                {timeOff.map((t) => (
+                  <li key={t.id} className="flex items-center justify-between gap-3 px-3 py-2 text-sm">
+                    <span><b className="text-gray-900">{t.startDate === t.endDate ? t.startDate : `${t.startDate} → ${t.endDate}`}</b> <span className="text-gray-500">· {t.reason}</span></span>
+                    <button type="button" onClick={() => setTimeOff((all) => all.filter((x) => x.id !== t.id))} className="rounded p-1 text-gray-300 hover:bg-red-50 hover:text-red-500" aria-label={`Remove time off ${t.startDate}`}><Trash2 className="h-4 w-4" /></button>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-[1fr_1fr_1.3fr_auto]">
+              <Input type="date" aria-label="First day off" value={offDraft.startDate} onChange={(e) => setOffDraft((d) => ({ ...d, startDate: e.target.value, endDate: d.endDate || e.target.value }))} />
+              <Input type="date" aria-label="Last day off" value={offDraft.endDate} min={offDraft.startDate} onChange={(e) => setOffDraft((d) => ({ ...d, endDate: e.target.value }))} />
+              <Input aria-label="Reason" placeholder="Vacation, appointment…" value={offDraft.reason} onChange={(e) => setOffDraft((d) => ({ ...d, reason: e.target.value }))} />
+              <Button variant="secondary" onClick={addTimeOff}>Add</Button>
+            </div>
+            {offError && <p className="mt-1 text-xs text-red-600">{offError}</p>}
+          </div>
         </div>
       )}
     </Modal>

@@ -10,7 +10,7 @@
 */
 import { useCallback } from 'react';
 import { useCollection, useLogActivity } from '@/lib/store';
-import type { CrewAssignment, Job, JobBreak, JobNote, JobStatus } from '@/lib/types';
+import type { CrewAssignment, Job, JobBreak, JobNote, JobShift, JobStatus } from '@/lib/types';
 import { shortDate, uid } from '@/lib/utils';
 import { scheduleError } from '@/lib/scheduling';
 import { useToast } from '@/components/ui/toast';
@@ -58,7 +58,8 @@ export function useJobActions() {
     (id: string, s: ScheduleInput) => {
       const job = get(id);
       if (!job) return;
-      const patch: Partial<Job> = { ...s };
+      // The required hours this schedule is planned against (patent 15 shows later changes).
+      const patch: Partial<Job> = { ...s, scheduleBasisHours: job.scheduleBasisHours ?? job.estimatedHours };
       if (job.scheduleProtected) { toast('Unprotect the schedule before moving this job', 'error'); return false; }
       const error = scheduleError({ ...job, ...patch }, items, team);
       if (error) { toast(error, 'error'); return false; }
@@ -66,6 +67,32 @@ export function useJobActions() {
       const verb = job.startDate ? 'Rescheduled' : 'Scheduled';
       change(id, patch, `${verb} for ${shortDate(s.startDate)} - ${shortDate(s.endDate)}`);
       log(`${job.jobNumber} ${verb.toLowerCase()} for ${shortDate(s.startDate)}`, 'job', id);
+      return true;
+    },
+    [get, change, log, items, team, toast],
+  );
+
+  /**
+   * The scheduling panel's "Save Shift": dates, shifts and per-day crew hours
+   * together, checked against every member's availability before saving
+   * (lib/scheduling scheduleError). The schedule basis is the current required
+   * hours, so a later change order shows up as a change (patent 15).
+   */
+  const saveSchedule = useCallback(
+    (id: string, s: ScheduleInput & { shifts: JobShift[]; crew: CrewAssignment[] }) => {
+      const job = get(id);
+      if (!job) return false;
+      if (job.scheduleProtected && (job.startDate !== s.startDate || job.endDate !== s.endDate)) {
+        toast('Unprotect the schedule before moving this job', 'error');
+        return false;
+      }
+      const patch: Partial<Job> = { ...s, scheduleBasisHours: job.estimatedHours };
+      const error = scheduleError({ ...job, ...patch }, items, team);
+      if (error) { toast(error, 'error'); return false; }
+      if (job.status === 'Unscheduled' || job.status === 'Confirmed') patch.status = 'Scheduled';
+      const hours = s.crew.reduce((n, c) => n + c.hours, 0);
+      change(id, patch, `Scheduled ${shortDate(s.startDate)} - ${shortDate(s.endDate)}: ${s.shifts.length} shift${s.shifts.length === 1 ? '' : 's'}, ${Math.round(hours * 10) / 10} crew hours`);
+      log(`${job.jobNumber} ${job.startDate ? 'rescheduled' : 'scheduled'} for ${shortDate(s.startDate)}`, 'job', id);
       return true;
     },
     [get, change, log, items, team, toast],
@@ -165,5 +192,5 @@ export function useJobActions() {
     [get, remove, log],
   );
 
-  return { change, setStatus, setSchedule, applySchedulePlan, cancelSchedule, setCrew, addBreak, removeBreak, addNote, removeNote, deleteJob };
+  return { change, setStatus, setSchedule, saveSchedule, applySchedulePlan, cancelSchedule, setCrew, addBreak, removeBreak, addNote, removeNote, deleteJob };
 }

@@ -11,10 +11,11 @@
   calls lineTotal().
 */
 import type {
-  AreaTemplate, DifficultyTier, Estimate, EstimateArea, EstimateLineItem, EstimateStatus,
-  PaintProduct, SurfaceRate,
+  AreaTemplate, Customer, DifficultyTier, Estimate, EstimateArea, EstimateLineItem, EstimateStatus,
+  PaintProduct, SurfaceRate, TableColumn,
 } from '@/lib/types';
-import { laborHoursFor, lineTotal, round2 } from '@/lib/calculations';
+import { estimateTotals, includedLine, lineTotal, round2 } from '@/lib/calculations';
+import { deriveLine, materialPerUnit } from '@/lib/estimating';
 import { uid } from '@/lib/utils';
 
 /* ---------- Status display ---------- */
@@ -46,14 +47,17 @@ export function addDays(iso: string, days: number) {
 /* ---------- Line pricing ---------- */
 
 /**
- * Material price per unit for a surface painted with a product.
- * Same rule as the sample data: gallons needed per unit x price per gallon.
+ * Material price per unit for a surface painted with a product: gallons
+ * needed per unit (per-coat coverage and the surface condition) x price per
+ * gallon (lib/estimating.ts).
  */
-export function materialPricePerUnit(sr: Pick<SurfaceRate, 'unit'> | undefined, paint: PaintProduct | undefined, coats: number) {
-  if (!paint) return 0;
-  const c = Math.max(coats, 1);
-  if (sr?.unit === 'sqft' || !sr) return round2((paint.pricePerGallon * c) / (paint.coverageCoat1 || 350));
-  return round2((paint.pricePerGallon * c) / 1000);
+export function materialPricePerUnit(
+  sr: Pick<SurfaceRate, 'unit'> | undefined,
+  paint: PaintProduct | undefined,
+  coats: number,
+  line?: Pick<EstimateLineItem, 'quantity' | 'coatingAreaSqft' | 'condition'>,
+) {
+  return materialPerUnit({ unit: sr?.unit ?? 'sqft', quantity: line?.quantity ?? 0, coatingAreaSqft: line?.coatingAreaSqft, coats, condition: line?.condition }, paint);
 }
 
 /** Multiplier = height tier x access tier (1 when none is picked). */
@@ -82,16 +86,25 @@ export function quantityFromDimensions(sr: SurfaceRate | undefined, area: Pick<E
   return round2(2 * (L + W) * H);
 }
 
-/** Recalculates labor hours, multiplier and total for one line. */
-export function priceLine(
-  line: EstimateLineItem,
-  ctx: { surfaceRates: SurfaceRate[]; tiers: DifficultyTier[]; profitMargin: number },
-): EstimateLineItem {
-  const sr = ctx.surfaceRates.find((s) => s.name === line.surfaceType);
-  const laborHours = sr ? laborHoursFor(line.quantity, line.coats, sr.rateCoat1) : line.laborHours;
+export interface PriceCtx {
+  surfaceRates: SurfaceRate[];
+  tiers: DifficultyTier[];
+  profitMargin: number;
+  /** Settings > Table Columns: custom columns are the preparation activities. */
+  tableColumns?: TableColumn[];
+  /** Settings > Paint Library, for the gallons per line. */
+  paints?: PaintProduct[];
+}
+
+/**
+ * Recalculates one line: application hours (per-coat rates), preparation
+ * hours, gallons, difficulty multiplier and total (lib/estimating.ts).
+ */
+export function priceLine(line: EstimateLineItem, ctx: PriceCtx): EstimateLineItem {
+  const derived = deriveLine(line, ctx);
   const difficultyMultiplier =
     line.heightTierId || line.accessTierId ? tierMultiplier(ctx.tiers, line.heightTierId, line.accessTierId) : line.difficultyMultiplier || 1;
-  const next = { ...line, laborHours, difficultyMultiplier };
+  const next = { ...derived, difficultyMultiplier };
   return { ...next, total: lineTotal(next, ctx.profitMargin) };
 }
 
@@ -105,6 +118,8 @@ export function newLine(o: {
   tiers: DifficultyTier[];
   heightTierId?: string;
   accessTierId?: string;
+  tableColumns?: TableColumn[];
+  paints?: PaintProduct[];
 }): EstimateLineItem {
   const coats = o.sr.defaultCoats || 2;
   const quantity = quantityFromDimensions(o.sr, o.area);
@@ -113,8 +128,11 @@ export function newLine(o: {
     areaId: o.area.id,
     description: o.sr.name,
     surfaceType: o.sr.name,
+    // The area name is the default location ("Living Room", "Front Elevation").
+    location: o.area.name || undefined,
     paintProductId: o.paint?.id,
     paintName: o.paint?.name,
+    sheen: o.paint?.finish,
     quantity,
     unit: o.sr.unit,
     unitPrice: materialPricePerUnit(o.sr, o.paint, coats),
@@ -126,7 +144,7 @@ export function newLine(o: {
     heightTierId: o.heightTierId,
     accessTierId: o.accessTierId,
   };
-  return priceLine(base, { surfaceRates: [o.sr], tiers: o.tiers, profitMargin: o.profitMargin });
+  return priceLine(base, { surfaceRates: [o.sr], tiers: o.tiers, profitMargin: o.profitMargin, tableColumns: o.tableColumns, paints: o.paints ?? (o.paint ? [o.paint] : undefined) });
 }
 
 /** Creates an area (and its default surfaces) from an Area Template. */
@@ -139,6 +157,8 @@ export function areaFromTemplate(o: {
   tiers: DifficultyTier[];
   heightTierId?: string;
   accessTierId?: string;
+  tableColumns?: TableColumn[];
+  paints?: PaintProduct[];
 }) {
   const area: EstimateArea = { id: uid('ar'), name: o.tpl.name, areaTemplateId: o.tpl.id };
   const lines = o.tpl.surfaceRateIds
@@ -146,6 +166,21 @@ export function areaFromTemplate(o: {
     .filter((s): s is SurfaceRate => !!s)
     .map((sr) => newLine({ ...o, area, sr }));
   return { area, lines };
+}
+
+/* ---------- Sending ---------- */
+
+/**
+ * Why the estimate can't go to the customer yet, or undefined. Same rules the
+ * prototype applies when it records the send (features sendEstimate), checked
+ * first so the screen never reports a send that is then refused.
+ */
+export function sendBlocker(e: Estimate, customer?: Pick<Customer, 'email'>): string | undefined {
+  if (!e.title.trim()) return 'Enter a project name before sending.';
+  if (!e.lineItems.some((l) => includedLine(l) && l.quantity > 0)) return 'Add at least one measured line item (an amount above 0) before sending.';
+  if (!(estimateTotals(e).total > 0)) return 'The estimate has no total yet.';
+  if (!customer?.email?.trim()) return 'The customer has no email address. Add one on the contact first.';
+  return undefined;
 }
 
 /* ---------- Versions ---------- */

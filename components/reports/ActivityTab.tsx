@@ -16,6 +16,7 @@ import { Pagination, usePagination } from '@/components/ui/display';
 import { useToast } from '@/components/ui/toast';
 import { ACTIVITY_ENTITY_OPTIONS, ACTIVITY_TYPE_COLOR, activityRow, downloadCsv, inDateRange, type DateRange } from './data';
 import { DateRangeInputs, ExportButton, MultiSelect, ReportCard, TD, TH } from './shared';
+import { InteractionPanel } from './InteractionPanel';
 
 type Row = ReturnType<typeof activityRow>;
 
@@ -67,6 +68,7 @@ export function ActivityLogTab({ range, setRange }: { range: DateRange; setRange
 
   return (
     <ReportCard>
+      <InteractionPanel />
       <div className="space-y-4 border-b border-gray-200 px-6 py-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h3 className="text-lg sm:whitespace-nowrap font-bold text-gray-900">Activity Log</h3>

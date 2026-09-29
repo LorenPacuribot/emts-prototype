@@ -162,6 +162,7 @@ export function SurfaceRatesView() {
                         <th className="w-1/3 px-6 py-3">Item Name</th>
                         <th className="px-6 py-3">Unit</th>
                         <th className="px-6 py-3">Base Rate (1st Coat)</th>
+                        <th className="px-6 py-3">Coats 2 / 3 / 4</th>
                         <th className="px-6 py-3 text-right">Actions</th>
                       </tr>
                     </thead>
@@ -175,6 +176,14 @@ export function SurfaceRatesView() {
                           <td className="px-6 py-4 text-sm font-medium text-gray-900">
                             {r.rateCoat1 || 0} <span className="text-xs text-gray-400">/hr</span>
                           </td>
+                          <td className="px-6 py-4 text-sm text-gray-700" title="A blank coat uses the nearest earlier coat's rate">
+                            {[r.rateCoat2, r.rateCoat3, r.rateCoat4].map((v, i) => (
+                              <span key={i}>
+                                {i > 0 && <span className="text-gray-300"> / </span>}
+                                {v ? v : <span className="text-xs italic text-gray-400">= coat {coatRateSource([r.rateCoat1, r.rateCoat2, r.rateCoat3, r.rateCoat4], i + 2)}</span>}
+                              </span>
+                            ))}
+                          </td>
                           <td className="px-6 py-4 text-right">
                             <CardKebab onEdit={() => { setEditingRate(r); setRateOpen(true); }} onDelete={() => setDeletingRate(r)} />
                           </td>
@@ -182,7 +191,7 @@ export function SurfaceRatesView() {
                       ))}
                       {list.length === 0 && (
                         <tr>
-                          <td colSpan={4} className="px-6 py-8 text-center text-sm italic text-gray-400">No surface rates found in this group.</td>
+                          <td colSpan={5} className="px-6 py-8 text-center text-sm italic text-gray-400">No surface rates found in this group.</td>
                         </tr>
                       )}
                     </tbody>
@@ -318,10 +327,9 @@ function SurfaceRateModal({
     if (!(form.rateCoat1 > 0)) e.rateCoat1 = 'Rate must be greater than 0';
     setErrors(e);
     if (Object.keys(e).length) return;
-    const c2 = num(coats[0]!, form.rateCoat1);
-    const c3 = num(coats[1]!, c2);
-    const c4 = num(coats[2]!, c3);
-    onSave({ ...form, name: form.name.trim(), rateCoat2: c2, rateCoat3: c3, rateCoat4: c4, useMultipliers: form.useMultipliers });
+    // A blank coat stays 0: estimates then use the nearest earlier coat's rate (lib/estimating.ts coatRate).
+    const [c2, c3, c4] = coats.map((c) => num(c!, 0));
+    onSave({ ...form, name: form.name.trim(), rateCoat2: c2!, rateCoat3: c3!, rateCoat4: c4!, useMultipliers: form.useMultipliers });
   };
 
   return (
@@ -399,7 +407,7 @@ function SurfaceRateModal({
               {['2nd Coat', '3rd Coat', '4th Coat'].map((label, i) => (
                 <div key={label}>
                   <Label>{label}</Label>
-                  <Input type="number" min={0} value={coats[i]} onChange={(e) => setCoats((c) => c.map((x, j) => (j === i ? e.target.value : x)))} placeholder="Optional" />
+                  <Input type="number" min={0} value={coats[i]} onChange={(e) => setCoats((c) => c.map((x, j) => (j === i ? e.target.value : x)))} placeholder={`Same as coat ${i + 1}`} aria-label={`${label} rate`} />
                 </div>
               ))}
             </div>
@@ -418,6 +426,12 @@ function SurfaceRateModal({
       </div>
     </Modal>
   );
+}
+
+/** Which coat's rate a blank coat falls back to (1-based). */
+function coatRateSource(rates: number[], coat: number) {
+  for (let i = coat - 2; i >= 0; i--) if (rates[i]! > 0) return i + 1;
+  return 1;
 }
 
 function blankRate(group: string): RateForm {

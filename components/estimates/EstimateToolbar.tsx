@@ -50,9 +50,8 @@ export function EstimateToolbar({
   estimate: e, lead, readOnly, canEdit, dirty, a, f = {},
 }: { estimate: Estimate; lead?: Lead; readOnly: boolean; canEdit: boolean; dirty: boolean; a: ToolbarActions; f?: ToolbarFeatures }) {
   const menu: MenuItem[] = [
-    { label: 'Client Preview', icon: <Eye />, onClick: a.onPreview },
-    { label: 'Print / PDF', icon: <Printer />, onClick: a.onPrint },
-    { label: 'Open Client View', icon: <ExternalLink />, onClick: a.onClientView },
+    { label: 'Download PDF', icon: <Printer />, onClick: a.onPrint },
+    { label: 'Open Customer View', icon: <ExternalLink />, onClick: a.onClientView },
     { label: 'History', icon: <History />, onClick: a.onHistory },
     ...(f.menu ?? []),
     { label: 'Duplicate', icon: <Copy />, onClick: a.onDuplicate },
@@ -105,6 +104,7 @@ export function EstimateToolbar({
         {!readOnly && (
           <Button variant="secondary" onClick={a.onSave} icon={<Save className="h-5 w-5" />}>Save</Button>
         )}
+        <Button variant="secondary" onClick={a.onPreview} icon={<Eye className="h-5 w-5" />} title="Generate the customer presentation from this estimate">Client Preview</Button>
         {isOpen(e.status) && !f.hideApprove && (
           <Button onClick={a.onApprove} icon={<CheckCircle2 className="h-5 w-5" />} title="Mark as approved without sending to the client">Mark Approved</Button>
         )}

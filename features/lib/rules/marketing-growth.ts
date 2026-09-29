@@ -352,7 +352,7 @@ export function leadFacts(db: Database, nowIso: string): LeadFact[] {
     const job = leadJob(db, lead, est);
     const prop = (db.properties ?? []).find((p) => p.id === (lead.propertyId ?? est?.propertyId ?? job?.propertyId));
     const cust = (db.customers ?? []).find((c) => c.id === lead.customerId);
-    const earlierJob = (db.jobs ?? []).some((j) => j.customerId === lead.customerId && isWonJob(j) && j.id !== job?.id && (j.contractSignedAt ?? "") < lead.createdAt);
+    const earlierJob = (db.jobs ?? []).some((j) => j.customerId === lead.customerId && isWonJob(j) && j.id !== job?.id && !!j.contractSignedAt && j.contractSignedAt < lead.createdAt);
     return {
       leadId: lead.id, at: lead.createdAt, customerId: lead.customerId, customerName: cust?.name ?? lead.name ?? "—", sourceKey: a.sourceKey, source: a.source, channel: a.channel,
       campaignId: a.campaignId, platform: a.platform, adId: a.adId, promotionId: a.promotionId, promoCode: a.promoCode, landingPageId: a.landingPageId, referral: a.referralCode,
@@ -509,7 +509,8 @@ export const ENGAGED_WINDOW_DAYS = 90;
 function optedOut(db: Database, channel: "email" | "sms", address?: string) {
   if (!address) return false;
   const a = channel === "email" ? normEmail(address) : normPhone(address);
-  return (db.mktOptOuts ?? []).some((o) => o.channel === channel && o.address === a);
+  // Stored addresses may be E.164 (+15551234567) or bare digits; compare both normalised.
+  return (db.mktOptOuts ?? []).some((o) => o.channel === channel && (channel === "email" ? normEmail(o.address) : normPhone(o.address)) === a);
 }
 
 export function audienceMembers(db: Database, nowIso: string): AudienceMember[] {
@@ -1176,7 +1177,7 @@ export function trendAlerts(db: Database, nowIso: string): TrendAlert[] {
     const lastYear = Number(nowIso.slice(0, 4)) - 1;
     const hist = (db.jobs ?? []).filter((j) => isWonJob(j) && season.services.includes(jobService(j)) && (j.scheduleStart ?? j.contractSignedAt ?? "").startsWith(String(lastYear)) && season.months.includes(Number((j.scheduleStart ?? j.contractSignedAt ?? "").slice(5, 7))));
     const hasCampaign = (db.mktCampaigns ?? []).some((c) => c.status !== "completed" && c.services.some((s) => season.services.includes(s)) && (!c.endDate || c.endDate >= day(nowIso)));
-    if (!hasCampaign && (hist.length >= 1 || season.months.length)) {
+    if (!hasCampaign && hist.length >= 1) {
       out.push({ key: `season:${season.name}:${nowIso.slice(0, 4)}`, kind: "seasonal_opportunity", severity: "info", title: `${season.name} starts soon`, detail: `${hist.length} ${season.services.map((s) => SERVICE_LABEL[s].toLowerCase()).join("/")} jobs ran in the same months last year and there's no campaign for them yet.`, href: "/marketing/campaigns" });
     }
   }
@@ -1310,7 +1311,7 @@ export function recommendations(db: Database, nowIso: string): Recommendation[] 
   const cap = crewCapacity(db, nowIso);
   if (cap.crews && cap.open >= 5 && cap.utilisation < 0.7) {
     const bySvc = groupBy(facts.filter((f) => f.job && f.service), (f) => f.service!);
-    const top = Array.from(bySvc.entries()).sort((a, b) => sum(b[1].map((f) => f.revenue)) - sum(a[1].map((f) => f.revenue)))[0]?.[0] ?? "interior_repaint";
+    const top: MarketingService = (Array.from(bySvc.entries()).sort((a, b) => sum(b[1].map((f) => f.revenue)) - sum(a[1].map((f) => f.revenue)))[0]?.[0] as MarketingService | undefined) ?? "interior_repaint";
     const has = activeCampaigns.some((c) => c.objective === "bookings" && c.services.includes(top));
     if (!has) out.push({
       key: `capacity:${day(nowIso)}`, kind: "capacity_campaign", title: `Fill ${cap.open} open crew-days with a ${SERVICE_LABEL[top].toLowerCase()} campaign`,

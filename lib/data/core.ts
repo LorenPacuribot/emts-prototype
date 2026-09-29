@@ -10,7 +10,8 @@ import type {
   Activity, CalendarEvent, Customer, Estimate, EstimateArea, EstimateLineItem, EstimateStatus,
   Invoice, Job, Lead, Message, Presentation, Task, TeamMember, WorkOrder,
 } from '../types';
-import { estimateTotals, laborHoursFor, lineTotal, round2 } from '../calculations';
+import { estimateTotals, lineTotal, round2 } from '../calculations';
+import { applicationHours, lineGallons, materialPerUnit } from '../estimating';
 import { areaTemplates, estimateTypes, paintProducts, surfaceRates } from './settings-library';
 
 /* ============ TEAM ============ */
@@ -141,12 +142,16 @@ function buildEstimate(o: {
         const sr = surfaceRates.find((s) => s.id === srId)!;
         const quantity = Math.max(1, Math.round(qty * scale));
         const coats = sr.defaultCoats;
-        const laborHours = laborHoursFor(quantity, coats, sr.rateCoat1);
-        const unitPrice = sr.unit === 'sqft' ? round2((paint.pricePerGallon * coats) / paint.coverageCoat1) : round2((paint.pricePerGallon * coats) / 1000);
+        const unit = sr.unit === 'each' ? 'each' : sr.unit;
+        // Same engine as the builder (lib/estimating.ts): per-coat rates and coverage.
+        const laborHours = applicationHours({ quantity, coats }, sr);
+        const unitPrice = materialPerUnit({ unit, quantity, coats }, paint);
         const base = { laborHours, laborRate: et.hourlyRate, difficultyMultiplier: 1, quantity, unitPrice };
         lines.push({
           id: `${areaId}_l${si + 1}`, areaId, description: sr.name, surfaceType: sr.name, paintProductId: paint.id, paintName: paint.name,
-          quantity, unit: sr.unit === 'each' ? 'each' : sr.unit, unitPrice, laborHours, laborRate: et.hourlyRate, coats, difficultyMultiplier: 1,
+          location: spec.area, sheen: paint.finish,
+          quantity, unit, unitPrice, laborHours, applicationHours: laborHours, prepHours: 0, gallons: lineGallons({ unit, quantity, coats }, paint),
+          laborRate: et.hourlyRate, coats, difficultyMultiplier: 1,
           total: lineTotal(base, margin),
         });
       });
@@ -311,12 +316,18 @@ export const invoices: Invoice[] = [
 
 const sections = (company = 'our team'): Presentation['sections'] => [
   { id: 's1', type: 'cover', title: 'Cover', content: 'Your Home, Beautifully Painted', enabled: true },
+  // Estimate content, filled from the estimate in Client Preview (patent 11).
+  { id: 's8', type: 'property', title: 'Your Property', content: '', enabled: true },
+  { id: 's9', type: 'scope', title: 'Scope of Work', subtitle: 'Every surface, with its colour, product, sheen, coats and preparation.', content: '', enabled: true },
+  { id: 's10', type: 'specs', title: 'Paint Specifications', content: '', enabled: true },
+  { id: 's11', type: 'optional', title: 'Optional Items', content: '', enabled: true },
+  { id: 's12', type: 'pricing', title: 'Investment', content: '', enabled: true },
   { id: 's2', type: 'about', title: 'About Us', content: `Family-owned and operated, ${company} has painted over 1,200 homes across Central Texas.`, enabled: true },
   { id: 's3', type: 'process', title: 'Our Process', content: '1. Walkthrough & color consult\n2. Protect & prep\n3. Two coats of premium paint\n4. Final walkthrough', enabled: true },
   { id: 's4', type: 'gallery', title: 'Recent Work', content: 'Before and after photos from recent projects.', enabled: true },
   { id: 's5', type: 'testimonials', title: 'What Clients Say', content: 'Customer reviews are pulled from your Google Business profile.', enabled: false },
   { id: 's6', type: 'warranty', title: 'Warranty', content: '2-year labor warranty against peeling, blistering and flaking.', enabled: true },
-  { id: 's7', type: 'estimate', title: 'Your Estimate', content: 'Linked estimate summary and approve button.', enabled: true },
+  { id: 's7', type: 'estimate', title: 'Your Estimate', content: 'Linked estimate summary and approve button.', enabled: false },
 ];
 
 const COVERS = {

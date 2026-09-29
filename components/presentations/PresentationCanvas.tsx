@@ -13,10 +13,14 @@
 import React from 'react';
 import Link from 'next/link';
 import { CheckCircle2, ImageIcon, Mail, MapPin, Phone, Quote, Shield, Star } from 'lucide-react';
-import type { Presentation, PresentationSection } from '@/lib/types';
+import type { Estimate, EstimatePresentationSettings, Presentation, PresentationSection } from '@/lib/types';
 import { estimateTotals } from '@/lib/calculations';
 import { useCollection, useLookups, useSingleton } from '@/lib/store';
 import { cn, fullName, initials, longDate, money } from '@/lib/utils';
+import { pickImage } from '@/lib/image';
+import { customerLines } from '@/lib/proposal';
+import { useToast } from '@/components/ui/toast';
+import { ProposalCustomer, ProposalOptional, ProposalPricing, ProposalScope, ProposalSpecs, useProposalData } from '@/components/estimates/ProposalParts';
 import { THEMES, parseItems, primaryColorOf, SECTION_META } from './presentation-utils';
 
 interface CanvasProps {
@@ -31,6 +35,14 @@ interface CanvasProps {
   selectedId?: string;
   onSelect?: (id: string) => void;
   className?: string;
+  /**
+   * Client Preview / customer view: the estimate the template is generated for.
+   * Its estimate blocks (property, scope, specs, optional, pricing) are filled
+   * from it, and sections hidden with the gear icon are left out.
+   */
+  estimate?: Estimate;
+  /** Client Preview: per-line ⋯ menus on the scope and optional blocks. */
+  onEstimateSettings?: (s: EstimatePresentationSettings) => void;
 }
 
 interface SectionCtx {
@@ -40,12 +52,15 @@ interface SectionCtx {
   dark: boolean;
   edit: boolean;
   set: (patch: Partial<PresentationSection>) => void;
+  estimate?: Estimate;
+  onEstimateSettings?: (s: EstimatePresentationSettings) => void;
 }
 
-export function PresentationCanvas({ presentation: p, edit = false, onSectionChange, toolbarFor, onlySectionId, selectedId, onSelect, className }: CanvasProps) {
+export function PresentationCanvas({ presentation: p, edit = false, onSectionChange, toolbarFor, onlySectionId, selectedId, onSelect, className, estimate, onEstimateSettings }: CanvasProps) {
   const color = primaryColorOf(p);
   const dark = THEMES[p.theme].dark;
-  const visible = p.sections.filter((s) => s.enabled || edit);
+  const hiddenByEstimate = new Set(estimate?.presentation?.hiddenSections ?? []);
+  const visible = p.sections.filter((s) => (s.enabled || edit) && !hiddenByEstimate.has(s.id));
   const shown = onlySectionId ? visible.filter((s) => s.id === onlySectionId) : visible;
 
   return (
@@ -60,7 +75,7 @@ export function PresentationCanvas({ presentation: p, edit = false, onSectionCha
         </div>
       )}
       {shown.map((s, i) => {
-        const ctx: SectionCtx = { p, s, color, dark, edit, set: (patch) => onSectionChange?.(s.id, patch) };
+        const ctx: SectionCtx = { p, s, color, dark, edit, set: (patch) => onSectionChange?.(s.id, patch), estimate, onEstimateSettings };
         return (
           <div
             key={s.id}
@@ -190,8 +205,109 @@ function SectionBody({ ctx }: { ctx: SectionCtx }) {
     case 'team': return <Owner ctx={ctx} />;
     case 'process': return <WhyUs ctx={ctx} />;
     case 'warranty': return <Terms ctx={ctx} />;
+    case 'property':
+    case 'scope':
+    case 'specs':
+    case 'optional':
+    case 'pricing':
+      return <EstimatePart ctx={ctx} />;
     default: return <Custom ctx={ctx} />;
   }
+}
+
+/** The estimate the canvas shows: the one being previewed, else the presentation's linked estimate. */
+function useCanvasEstimate(ctx: SectionCtx): Estimate | undefined {
+  const look = useLookups();
+  return ctx.estimate ?? look.estimate(ctx.p.estimateId);
+}
+
+/* ---------------- Estimate-driven blocks (patent 11) ---------------- */
+
+function EstimatePart({ ctx }: { ctx: SectionCtx }) {
+  const est = useCanvasEstimate(ctx);
+  return (
+    <section className={cn(pad, shell(ctx))}>
+      <Heading ctx={ctx} />
+      {est ? (
+        <div className="rounded-2xl bg-white p-6 text-gray-900 shadow-sm @3xl:p-8">
+          <EstimatePartBody type={ctx.s.type} est={est} onSettings={ctx.onEstimateSettings} />
+          {/* Viewed on its own (not inside Client View, which has its own Accept bar). */}
+          {ctx.s.type === 'pricing' && !ctx.estimate && (
+            <Link href={`/estimates/${est.id}/client-view`} onClick={(e) => ctx.edit && e.preventDefault()} className="mt-6 ml-auto flex w-full max-w-sm items-center justify-center gap-2 rounded-xl py-3 font-bold text-white" style={{ backgroundColor: ctx.color }}>
+              <CheckCircle2 className="h-4 w-4" /> Review & Approve
+            </Link>
+          )}
+        </div>
+      ) : (
+        <div className="rounded-2xl border border-dashed border-gray-300 p-10 text-center text-sm text-gray-400">
+          {ctx.edit
+            ? `${SECTION_META[ctx.s.type].label}: filled from the estimate when this template is used in Client Preview.`
+            : 'This part of your proposal will appear here.'}
+        </div>
+      )}
+    </section>
+  );
+}
+
+function EstimatePartBody({ type, est, onSettings }: { type: PresentationSection['type']; est: Estimate; onSettings?: (s: EstimatePresentationSettings) => void }) {
+  const d = useProposalData(est);
+  switch (type) {
+    case 'property': return <ProposalCustomer e={est} d={d} />;
+    case 'scope': return <ProposalScope e={est} d={d} onSettings={onSettings} bare />;
+    case 'specs': return <ProposalSpecs e={est} d={d} bare />;
+    case 'optional': return <ProposalOptional e={est} d={d} onSettings={onSettings} bare />;
+    case 'pricing': return <ProposalPricing e={est} d={d} />;
+    default: return null;
+  }
+}
+
+/* ---------------- Swappable images ---------------- */
+
+/** An image area. In edit mode a click (or the button) replaces the picture. */
+function ImageSlot({ src, fallback, edit, onChange, className, children, label = 'image', clickArea = true }: {
+  src?: string | null;
+  fallback: string;
+  edit: boolean;
+  onChange: (dataUrl: string | undefined) => void;
+  className?: string;
+  children?: React.ReactNode;
+  label?: string;
+  /** False when the area holds editable text: only the button swaps the image. */
+  clickArea?: boolean;
+}) {
+  const { toast } = useToast();
+  const pick = async (ev: React.MouseEvent) => {
+    ev.stopPropagation();
+    try {
+      const img = await pickImage();
+      if (img) onChange(img.dataUrl);
+    } catch (e) {
+      toast(e instanceof Error ? e.message : 'Could not use that image', 'error');
+    }
+  };
+  return (
+    <div
+      className={cn('relative overflow-hidden', edit && clickArea && 'cursor-pointer', className)}
+      style={{ background: fallback }}
+      onClick={edit && clickArea ? pick : undefined}
+      title={edit && clickArea ? `Click to replace the ${label}` : undefined}
+    >
+      {src && <span className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${src})` }} aria-hidden />}
+      {children}
+      {edit && (
+        <span className="absolute bottom-3 right-3 z-40 flex gap-1.5">
+          <button type="button" onClick={pick} className="flex items-center gap-1 rounded-lg bg-white/90 px-2 py-1 text-[11px] font-bold text-gray-700 shadow hover:bg-white" aria-label={`${src ? 'Swap' : 'Add'} ${label}`}>
+            <ImageIcon className="h-3.5 w-3.5" /> {src ? 'Swap image' : 'Add image'}
+          </button>
+          {src && (
+            <button type="button" onClick={(e) => { e.stopPropagation(); onChange(undefined); }} className="rounded-lg bg-white/90 px-2 py-1 text-[11px] font-bold text-red-600 shadow" aria-label={`Remove ${label}`}>
+              Remove
+            </button>
+          )}
+        </span>
+      )}
+    </div>
+  );
 }
 
 /** Section background by variant: 1 = base, 2 = dark, 3 = soft gray. */
@@ -218,14 +334,15 @@ function Cover({ ctx }: { ctx: SectionCtx }) {
           <p className="mt-4 text-lg text-gray-500"><Editable edit={edit} value={s.subtitle ?? ''} onChange={(subtitle) => set({ subtitle })} placeholder="Subtitle" /></p>
           {customer && <p className="mt-6 text-sm font-bold uppercase tracking-widest text-gray-400">Prepared for {fullName(customer)}</p>}
         </div>
-        <div className="aspect-[4/3] rounded-3xl shadow-xl" style={{ background: p.cover }} />
+        <ImageSlot src={s.imageUrl ?? p.coverImage} fallback={p.cover} edit={edit} onChange={(imageUrl) => set({ imageUrl })} label="cover image" className="aspect-[4/3] rounded-3xl shadow-xl" />
       </section>
     );
   }
+  const image = s.imageUrl ?? p.coverImage;
   return (
-    <section className="relative flex min-h-[460px] items-center overflow-hidden text-white" style={{ background: p.cover }}>
+    <ImageSlot src={image} fallback={p.cover} edit={edit} onChange={(imageUrl) => set({ imageUrl })} label="cover image" clickArea={false} className="flex min-h-[460px] items-center text-white">
       <div className="absolute inset-0 bg-slate-950/40" />
-      <ImageIcon className="absolute -right-10 -top-10 h-72 w-72 text-white/5" />
+      {!image && <ImageIcon className="absolute -right-10 -top-10 h-72 w-72 text-white/5" />}
       <div className={cn('relative z-10 w-full', pad, v === 1 ? 'text-center' : '')}>
         <div className={cn(v === 2 && 'max-w-xl border-l-4 bg-slate-900/80 p-8 shadow-2xl')} style={v === 2 ? { borderColor: color } : undefined}>
           {customer && <p className="mb-4 text-xs font-bold uppercase tracking-[0.3em] text-white/70">Prepared for {fullName(customer)}</p>}
@@ -238,14 +355,14 @@ function Cover({ ctx }: { ctx: SectionCtx }) {
           <span className="mt-8 inline-block rounded-full px-6 py-3 text-sm font-bold text-white shadow-lg" style={{ backgroundColor: color }}>View Proposal</span>
         </div>
       </div>
-    </section>
+    </ImageSlot>
   );
 }
 
 function EstimateBlock({ ctx }: { ctx: SectionCtx }) {
   const { p, color, edit } = ctx;
   const look = useLookups();
-  const est = look.estimate(p.estimateId);
+  const est = useCanvasEstimate(ctx);
   const customer = look.customer(est?.customerId ?? p.customerId);
   if (!est) {
     return (
@@ -268,7 +385,8 @@ function EstimateBlock({ ctx }: { ctx: SectionCtx }) {
       </div>
       <div className="space-y-6">
         {est.areas.map((a) => {
-          const rows = est.lineItems.filter((l) => l.areaId === a.id);
+          const rows = customerLines(est, a.id);
+          if (!rows.length) return null;
           const total = rows.reduce((sum, l) => sum + l.total, 0);
           return (
             <div key={a.id} className="overflow-hidden rounded-2xl border border-gray-200 bg-white text-gray-900">
@@ -364,21 +482,27 @@ const TILE_GRADIENTS = [
 function Gallery({ ctx }: { ctx: SectionCtx }) {
   const items = parseItems(ctx.s.content);
   const v = ctx.s.variant ?? 1;
+  const setImage = (i: number, url: string | undefined) => {
+    const next = [...(ctx.s.itemImages ?? [])];
+    while (next.length <= i) next.push(null);
+    next[i] = url ?? null;
+    ctx.set({ itemImages: next });
+  };
   return (
     <section className={cn(pad, shell(ctx))}>
       <Heading ctx={ctx} center />
       <div className={cn('grid gap-6', v === 2 ? '@3xl:grid-cols-3' : '@lg:grid-cols-2')}>
         {items.map((it, i) => (
           <figure key={i} className="group/tile overflow-hidden rounded-2xl">
-            <div className="relative aspect-[4/3]" style={{ background: TILE_GRADIENTS[i % TILE_GRADIENTS.length] }}>
-              <ImageIcon className="absolute left-1/2 top-1/2 h-12 w-12 -translate-x-1/2 -translate-y-1/2 text-white/40" />
+            <ImageSlot src={ctx.s.itemImages?.[i]} fallback={TILE_GRADIENTS[i % TILE_GRADIENTS.length]!} edit={ctx.edit} onChange={(u) => setImage(i, u)} label={`${it.title || 'gallery'} image`} className="aspect-[4/3]">
+              {!ctx.s.itemImages?.[i] && <ImageIcon className="absolute left-1/2 top-1/2 h-12 w-12 -translate-x-1/2 -translate-y-1/2 text-white/40" />}
               {v !== 3 && (
                 <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-5 text-white">
                   <div className="font-heading text-lg font-bold">{it.title}</div>
                   {it.text && <div className="text-sm text-white/80">{it.text}</div>}
                 </figcaption>
               )}
-            </div>
+            </ImageSlot>
             {v === 3 && (
               <figcaption className="pt-3">
                 <div className="font-heading font-bold">{it.title}</div>
@@ -416,8 +540,9 @@ function About({ ctx }: { ctx: SectionCtx }) {
   const [biz] = useSingleton('businessProfile');
   return (
     <section className={cn('grid items-center gap-12 @3xl:grid-cols-2', pad, shell(ctx))}>
-      <div className={cn('relative aspect-square rounded-3xl', s.variant === 3 && '@3xl:order-2')} style={{ background: p.cover }}>
-        <div className="absolute -bottom-6 left-6 rounded-2xl bg-white p-5 text-gray-900 shadow-xl">
+      <div className={cn('relative aspect-square', s.variant === 3 && '@3xl:order-2')}>
+        <ImageSlot src={s.imageUrl} fallback={p.cover} edit={edit} onChange={(imageUrl) => set({ imageUrl })} label="photo" className="absolute inset-0 rounded-3xl" />
+        <div className="absolute -bottom-6 left-6 z-10 rounded-2xl bg-white p-5 text-gray-900 shadow-xl">
           <div className="flex items-center gap-2 text-sm font-bold"><Shield className="h-4 w-4" style={{ color }} /> Fully Licensed & Insured</div>
           <div className="text-xs text-gray-500">License #{biz.licenseNumber}</div>
         </div>
