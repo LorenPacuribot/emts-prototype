@@ -95,6 +95,21 @@ describe('remote state', () => {
     expect(puts).toEqual([]);
   });
 
+  it('works locally and never saves when the server refuses (no sign-in, no valid link)', async () => {
+    store.set('emts-replica-db-v2', 'mine');
+    const puts: unknown[] = [];
+    vi.stubGlobal('fetch', vi.fn(async (_u: string, init?: RequestInit) => {
+      if (init?.method === 'PUT') puts.push(init.body);
+      return Response.json({ error: 'Sign in' }, { status: 401 });
+    }));
+    const m = await load();
+    expect(await m.loadRemoteState()).toBe('local');
+    m.remoteSave('emts-replica-db-v2', 'changed');
+    await vi.runAllTimersAsync();
+    expect(puts).toEqual([]);
+    expect(store.get('emts-replica-db-v2')).toBe('mine');
+  });
+
   it('merges instead of overwriting when someone else saved first', async () => {
     const baseDb = { collections: { leads: [{ id: 'L-1', stage: 'new' }, { id: 'L-2', stage: 'new' }] } };
     const { rows, otherSaves } = mockServer({ 'emts-replica-db-v2': JSON.stringify(baseDb) });

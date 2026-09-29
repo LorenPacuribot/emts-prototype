@@ -278,6 +278,27 @@ export interface Estimate {
   viewLog?: string[];
   /** Client Preview / customer output settings (template, hidden sections and line parts). */
   presentation?: EstimatePresentationSettings;
+  /** Every "Send to Customer" attempt, oldest first (lib/estimate-email.ts). Missing on older data = none. */
+  deliveries?: EstimateDelivery[];
+}
+
+/**
+ * One message of a "Send to Customer" attempt, as reported by /api/messaging.
+ * delivered = the email/SMS provider accepted it; sandbox = the server has no
+ * email keys, so nothing left the server; failed = not sent (see error).
+ */
+export interface EstimateDelivery {
+  id: ID;
+  /** Same for every recipient of one send, so the latest attempt can be shown together. */
+  sendId: ID;
+  at: string;
+  to: string;
+  channel: 'email' | 'sms';
+  status: 'delivered' | 'sandbox' | 'failed';
+  error?: string;
+  /** Message id returned by the provider (or the sandbox "SBX-" id). */
+  providerMessageId?: string;
+  subject?: string;
 }
 
 /** Content blocks of the customer output that the gear panel can show or hide. */

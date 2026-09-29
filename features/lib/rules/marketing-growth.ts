@@ -1051,7 +1051,7 @@ export function analysisTable(rows: AnalysisRow[], dim: Dimension): ReportTable 
 
 export interface SearchQuery { text?: string; customerId?: string; campaignId?: string; platform?: string; service?: string; location?: string; from?: string; to?: string; source?: string; adId?: string; promotionId?: string }
 
-export interface SearchHit { kind: "lead" | "campaign" | "promotion" | "expense" | "submission" | "link"; id: string; label: string; detail: string; at?: string; href: string }
+export interface SearchHit { kind: "lead" | "campaign" | "promotion" | "expense" | "submission" | "link" | "post" | "ad" | "landing_page" | "message"; id: string; label: string; detail: string; at?: string; href: string }
 
 export function searchMarketing(db: Database, nowIso: string, q: SearchQuery): SearchHit[] {
   const text = (q.text ?? "").trim().toLowerCase();
@@ -1069,7 +1069,7 @@ export function searchMarketing(db: Database, nowIso: string, q: SearchQuery): S
     if (q.adId && f.adId !== q.adId) continue;
     if (q.promotionId && f.promotionId !== q.promotionId) continue;
     if (!has(f.customerName, f.leadId, f.source, f.promoCode, f.location)) continue;
-    hits.push({ kind: "lead", id: f.leadId, label: `${f.leadId} — ${f.customerName}`, detail: `${f.source}${f.service ? ` · ${SERVICE_LABEL[f.service]}` : ""}${f.location ? ` · ${f.location}` : ""}${f.job ? ` · won ${f.revenue ? `$${f.revenue}` : ""}` : ""}`, at: f.at, href: `/marketing/leads?lead=${f.leadId}` });
+    hits.push({ kind: "lead", id: f.leadId, label: `${f.leadId} — ${f.customerName}`, detail: `${f.source}${f.service ? ` · ${SERVICE_LABEL[f.service]}` : ""}${f.location ? ` · ${f.location}` : ""}${f.job ? ` · won ${f.revenue ? `$${f.revenue}` : ""}` : ""}`, at: f.at, href: `/leads/${f.leadId}` });
   }
   const onlyLeadFilters = q.customerId || q.source || q.adId;
   if (!onlyLeadFilters) {
@@ -1099,7 +1099,7 @@ export function searchMarketing(db: Database, nowIso: string, q: SearchQuery): S
       if (q.promotionId) continue;
       if (!within(e.date, q.from, q.to)) continue;
       if (!has(e.vendor, e.description, e.id)) continue;
-      hits.push({ kind: "expense", id: e.id, label: `${e.vendor} — $${e.amount.toFixed(2)}`, detail: `${EXPENSE_LABEL[e.category]} · ${e.description}`, at: e.date, href: `/marketing/expenses?id=${e.id}` });
+      hits.push({ kind: "expense", id: e.id, label: `${e.vendor} — $${e.amount.toFixed(2)}`, detail: `${EXPENSE_LABEL[e.category]} · ${e.description}`, at: e.date, href: e.campaignId ? `/marketing/campaigns?id=${e.campaignId}` : "/marketing/campaigns" });
     }
     for (const l of db.mktLinks ?? []) {
       if (q.campaignId && l.campaignId !== q.campaignId) continue;
@@ -1107,7 +1107,47 @@ export function searchMarketing(db: Database, nowIso: string, q: SearchQuery): S
       if (q.promotionId && l.promotionId !== q.promotionId) continue;
       if (q.service || q.location) continue;
       if (!has(l.name, l.code, l.target)) continue;
-      hits.push({ kind: "link", id: l.id, label: `/r/${l.code} — ${l.name}`, detail: `${l.kind === "qr" ? "QR code" : "Link"} · ${l.clicks.length} clicks`, at: l.createdAt, href: `/marketing/links?id=${l.id}` });
+      hits.push({ kind: "link", id: l.id, label: `/r/${l.code} — ${l.name}`, detail: `${l.kind === "qr" ? "QR code" : "Link"} · ${l.clicks.length} clicks`, at: l.createdAt, href: l.campaignId ? `/marketing/campaigns?id=${l.campaignId}` : "/marketing/campaigns" });
+    }
+    const postCampaign = (id: string) => (db.mktCampaigns ?? []).find((c) => c.postIds.includes(id))?.id;
+    for (const p of db.marketingPosts ?? []) {
+      const cid = p.tags?.campaignId ?? postCampaign(p.id);
+      if (q.campaignId && cid !== q.campaignId) continue;
+      if (q.platform && !p.platforms.some((x) => x === q.platform || (q.platform === "google" && x === "google_business"))) continue;
+      if (q.promotionId && p.tags?.promotionId !== q.promotionId) continue;
+      if (q.service && p.tags?.serviceType !== q.service) continue;
+      if (q.location && !loc(p.tags?.location)) continue;
+      const at = p.schedule?.utc ?? p.versions[0]?.at;
+      if ((q.from || q.to) && !within(at, q.from, q.to)) continue;
+      if (!has(p.title, p.copy, p.id)) continue;
+      hits.push({ kind: "post", id: p.id, label: `${p.id} — ${p.title}`, detail: `${p.state.replace(/_/g, " ")} · ${p.platforms.map(titleWord).join(", ")}`, at, href: `/marketing/posts?id=${p.id}` });
+    }
+    for (const a of db.socialAds ?? []) {
+      if (q.campaignId && a.campaignId !== q.campaignId) continue;
+      if (q.platform && a.platform !== q.platform) continue;
+      if (q.promotionId && a.promotionId !== q.promotionId) continue;
+      if (q.location && !a.audience.locations.some((l) => l.toLowerCase() === q.location!.toLowerCase())) continue;
+      if (q.service) continue;
+      if (!within(a.schedule.start, q.from, q.to)) continue;
+      if (!has(a.name, a.id, ...a.creatives.flatMap((c) => [c.headline, c.text]))) continue;
+      hits.push({ kind: "ad", id: a.id, label: `${a.id} — ${a.name}`, detail: `${titleWord(a.platform)} ad · ${a.status.replace(/_/g, " ")} · ${a.budget.type} $${a.budget.amount.toFixed(2)}`, at: a.schedule.start, href: `/marketing/ads?id=${a.id}` });
+    }
+    for (const p of db.mktLandingPages ?? []) {
+      if (q.campaignId && p.campaignId !== q.campaignId) continue;
+      if (q.promotionId && p.promotionId !== q.promotionId) continue;
+      if (q.service && p.service !== q.service) continue;
+      if (q.location && !loc(p.location)) continue;
+      if (q.platform) continue;
+      if (!has(p.title, p.slug, p.headline)) continue;
+      hits.push({ kind: "landing_page", id: p.id, label: `/lp/${p.slug} — ${p.title}`, detail: `${p.status} · ${p.views} views · ${(db.mktSubmissions ?? []).filter((s) => s.landingPageId === p.id).length} submissions`, at: p.publishedAt ?? p.createdAt, href: `/marketing/landing-pages?id=${p.id}` });
+    }
+    for (const m of db.socialMessages ?? []) {
+      if (q.campaignId && m.attribution?.campaignId !== q.campaignId) continue;
+      if (q.platform && m.platform !== q.platform) continue;
+      if (q.promotionId || q.service || q.location) continue;
+      if (!within(m.at, q.from, q.to)) continue;
+      if (!has(m.author.name, m.author.handle, m.text, m.id)) continue;
+      hits.push({ kind: "message", id: m.id, label: `${m.author.name} — ${titleWord(m.platform)} ${m.kind === "dm" ? "message" : m.kind}`, detail: m.text.length > 90 ? `${m.text.slice(0, 90)}…` : m.text, at: m.at, href: `/marketing/inbox?id=${m.id}` });
     }
   }
   return hits.sort((a, b) => (b.at ?? "").localeCompare(a.at ?? ""));
@@ -1141,7 +1181,7 @@ export function trendAlerts(db: Database, nowIso: string): TrendAlert[] {
   const prior28 = inquiriesAt.filter((a) => inWindow(a, nowIso, 35, 7)).length;
   const weeklyAvg = prior28 / 4;
   if (last7 >= 5 && last7 >= 2 * Math.max(weeklyAvg, 1)) {
-    out.push({ key: `inquiries:${day(nowIso)}`, kind: "many_inquiries", severity: "info", title: `${last7} inquiries in the last 7 days`, detail: `That's ${weeklyAvg ? `${(last7 / weeklyAvg).toFixed(1)}×` : "well above"} the weekly average of ${weeklyAvg.toFixed(1)}. Make sure the office can answer them all quickly.`, href: "/marketing/leads" });
+    out.push({ key: `inquiries:${day(nowIso)}`, kind: "many_inquiries", severity: "info", title: `${last7} inquiries in the last 7 days`, detail: `That's ${weeklyAvg ? `${(last7 / weeklyAvg).toFixed(1)}×` : "well above"} the weekly average of ${weeklyAvg.toFixed(1)}. Make sure the office can answer them all quickly.`, href: "/leads" });
   }
 
   const facts = leadFacts(db, nowIso);
@@ -1150,7 +1190,7 @@ export function trendAlerts(db: Database, nowIso: string): TrendAlert[] {
     const leads = Math.max(fs.length, ad.performance?.leads ?? 0);
     const booked = fs.filter((f) => f.appointment || f.job).length;
     if (leads >= 5 && booked / leads < 0.2) {
-      out.push({ key: `adbook:${ad.id}`, kind: "ad_leads_few_bookings", severity: "warning", title: `${ad.name}: ${leads} leads but ${booked} booked`, detail: `Only ${Math.round((booked / leads) * 100)}% of this ad's leads became appointments. Check the targeting, the offer and how fast leads are followed up.`, href: "/marketing/analytics?report=ad-performance" });
+      out.push({ key: `adbook:${ad.id}`, kind: "ad_leads_few_bookings", severity: "warning", title: `${ad.name}: ${leads} leads but ${booked} booked`, detail: `Only ${Math.round((booked / leads) * 100)}% of this ad's leads became appointments. Check the targeting, the offer and how fast leads are followed up.`, href: `/marketing/ads?id=${ad.id}` });
     }
   }
 
@@ -1160,7 +1200,7 @@ export function trendAlerts(db: Database, nowIso: string): TrendAlert[] {
     const recent = sum(ps.filter((s) => inWindow(s.at, nowIso, 30, 0)).map((s) => engagementOf(s.metrics)));
     const before = sum(ps.filter((s) => inWindow(s.at, nowIso, 60, 30)).map((s) => engagementOf(s.metrics)));
     if (before >= 20 && recent <= before * 0.7) {
-      out.push({ key: `eng:${platform}:${day(nowIso).slice(0, 7)}`, kind: "declining_engagement", severity: "warning", title: `${titleWord(platform)} engagement down ${Math.round((1 - recent / before) * 100)}%`, detail: `${recent} interactions in the last 30 days against ${before} the 30 days before.`, href: "/marketing/analytics?report=engagement-by-platform" });
+      out.push({ key: `eng:${platform}:${day(nowIso).slice(0, 7)}`, kind: "declining_engagement", severity: "warning", title: `${titleWord(platform)} engagement down ${Math.round((1 - recent / before) * 100)}%`, detail: `${recent} interactions in the last 30 days against ${before} the 30 days before.`, href: "/marketing/reports" });
     }
   }
 
@@ -1169,7 +1209,7 @@ export function trendAlerts(db: Database, nowIso: string): TrendAlert[] {
   const rBefore = reviews.filter((r) => inWindow(r.at, nowIso, 60, 30));
   if (rNow.length >= 3 && rNow.length >= Math.max(1, rBefore.length) * 1.5) {
     const avg = sum(rNow.map((r) => r.rating)) / rNow.length;
-    out.push({ key: `reviews:${day(nowIso).slice(0, 7)}`, kind: "review_increase", severity: "info", title: `${rNow.length} new reviews this month (was ${rBefore.length})`, detail: `Average rating ${avg.toFixed(1)}. Good moment to share the best ones as testimonials.`, href: "/marketing/analytics?report=reviews" });
+    out.push({ key: `reviews:${day(nowIso).slice(0, 7)}`, kind: "review_increase", severity: "info", title: `${rNow.length} new reviews this month (was ${rBefore.length})`, detail: `Average rating ${avg.toFixed(1)}. Good moment to share the best ones as testimonials.`, href: "/marketing/reviews" });
   }
 
   const nextMonth = Number(addDays(nowIso, 30).slice(5, 7));

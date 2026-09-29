@@ -44,6 +44,8 @@ export interface ToolbarFeatures {
   sendLabel?: string;
   /** An open amendment is re-sent, not marked approved. */
   hideApprove?: boolean;
+  /** Set = Send is disabled and this explains why and how to fix it (e.g. the customer has no email). */
+  sendDisabledReason?: string;
 }
 
 export function EstimateToolbar({
@@ -120,7 +122,18 @@ export function EstimateToolbar({
           <Button onClick={a.onApprove} icon={<CheckCircle2 className="h-5 w-5" />} title="Mark as approved without sending to the client">Mark Approved</Button>
         )}
         {isOpen(e.status) && (
-          <Button onClick={a.onSend} icon={<Send className="h-5 w-5" />} data-tour="send-estimate">{f.sendLabel ?? (e.status === 'Draft' ? 'Send' : 'Resend')}</Button>
+          <span title={f.sendDisabledReason} className="inline-flex">
+            <Button
+              onClick={a.onSend}
+              icon={<Send className="h-5 w-5" />}
+              data-tour="send-estimate"
+              disabled={!!f.sendDisabledReason}
+              aria-describedby={f.sendDisabledReason ? 'toolbar-send-disabled-reason' : undefined}
+            >
+              {f.sendLabel ?? (e.status === 'Draft' ? 'Send' : 'Resend')}
+            </Button>
+            {f.sendDisabledReason && <span id="toolbar-send-disabled-reason" className="sr-only">{f.sendDisabledReason}</span>}
+          </span>
         )}
         {e.status === 'Approved' &&
           (e.jobId ? (

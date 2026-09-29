@@ -1,12 +1,20 @@
 import { REMOTE_KEYS } from '@/lib/remote-state';
 import { appStateConfig as config } from '@/lib/app-state-server';
+import { sessionFrom } from '@/lib/auth/server';
+import { featureDbOf, guestAllowed } from '@/lib/guest-access';
 
 // Vercel rejects request bodies over 4.5 MB.
 const MAX_VALUE_CHARS = 4_000_000;
 
 type Row = { key: string; value: string; updated_at: string };
 
-export async function GET() {
+const FEATURE_KEY = 'emts-features-db-v1';
+const DENIED = { error: 'Sign in to see this data, or open the link you were sent.' };
+
+/** A customer page's own address (path + query), sent by lib/remote-state.ts. */
+const pageOf = (req: Request) => req.headers.get('x-emts-page');
+
+export async function GET(req: Request) {
   const cfg = config();
   if (!cfg) return Response.json({ enabled: false });
   const res = await fetch(`${cfg.table}?select=key,value,updated_at&key=in.(${REMOTE_KEYS.join(",")})`, { headers: cfg.headers, cache: 'no-store' });
@@ -15,6 +23,10 @@ export async function GET() {
     return Response.json({ error: 'Could not read shared data' }, { status: 502 });
   }
   const rows = (await res.json()) as Row[];
+  // Staff need a session; a customer page needs a valid token in its link.
+  if (!sessionFrom(req) && !guestAllowed(pageOf(req), featureDbOf(rows.find((r) => r.key === FEATURE_KEY)?.value))) {
+    return Response.json(DENIED, { status: 401 });
+  }
   return Response.json({
     enabled: true,
     entries: Object.fromEntries(rows.map((r) => [r.key, r.value])),
@@ -47,6 +59,12 @@ export async function PUT(req: Request) {
   const legacy = !('baseVersion' in body);
   const base = body.baseVersion;
   if (!legacy && base !== null && typeof base !== 'string') return Response.json({ error: 'baseVersion must be a string or null' }, { status: 400 });
+
+  if (!sessionFrom(req)) {
+    const cur = await fetch(`${cfg.table}?select=value&key=eq.${FEATURE_KEY}`, { headers: cfg.headers, cache: 'no-store' });
+    const [row] = cur.ok ? ((await cur.json()) as { value: string }[]) : [];
+    if (!guestAllowed(pageOf(req), featureDbOf(row?.value))) return Response.json(DENIED, { status: 401 });
+  }
 
   const byKey = `key=eq.${encodeURIComponent(key)}`;
   const onBase = typeof base === 'string' ? `&updated_at=eq.${encodeURIComponent(base)}` : '';

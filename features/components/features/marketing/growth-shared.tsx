@@ -1,11 +1,11 @@
 "use client";
 /** Shared pieces for the campaign and growth screens (patent §34 part 2). */
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import type { CampaignStatus } from "@/features/types/marketing-growth";
 import type { ReportTable } from "@/features/lib/rules/marketing-growth";
 import { CAMPAIGN_STATUS_LABEL } from "@/features/lib/rules/marketing-growth";
 import { money } from "@/features/lib/format";
-import { Badge, Button, Card, Table, TD, TH, THead, Tooltip, TR, type ButtonProps } from "@/features/components/ui";
+import { Badge, Button, Card, ConfirmDialog, Table, TD, TH, THead, Tooltip, TR, type ButtonProps } from "@/features/components/ui";
 import type { Tone } from "@/features/components/ui/badge";
 
 export const cents = (n?: number) => money(n, { cents: true });
@@ -84,3 +84,18 @@ export function Stars({ rating }: { rating: number }) {
     </span>
   );
 }
+
+/** A confirmation that lists what will change before anything reaches customers or other records. */
+export type Confirm = { title: string; body: ReactNode; label: string; tone?: "danger" | "primary"; run: () => void };
+
+export function useConfirm() {
+  const [confirm, setConfirm] = useState<Confirm>();
+  const dialog = (
+    <ConfirmDialog open={!!confirm} onOpenChange={(v) => !v && setConfirm(undefined)} title={confirm?.title ?? ""} body={confirm?.body} confirmLabel={confirm?.label} tone={confirm?.tone ?? "primary"} onConfirm={() => { confirm?.run(); setConfirm(undefined); }} />
+  );
+  return { setConfirm, dialog };
+}
+
+/** Field error lookup for the { field, message } error returned by a store action. */
+export type FieldErr = { field?: string; message: string };
+export const errFor = (err: FieldErr | undefined, k: string) => (err?.field === k ? err.message : undefined);

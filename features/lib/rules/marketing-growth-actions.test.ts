@@ -108,10 +108,10 @@ describe("§34 campaigns", () => {
     expect(bad.result).toMatchObject({ ok: false, field: "amount" });
     const { db: after, result } = run(db, "U-OFFICE", logMarketingExpense, { date: today(), category: "ads", vendor: "Meta", description: "Ads", amount: 1200, campaignId: "CMP-2" });
     expect(result).toMatchObject({ ok: true, value: { overBudget: true } });
-    expect(campaignResults(after, "CMP-2", now()).spend).toBeCloseTo(185 + 320.5 + 275 + 1200, 2);
+    expect(campaignResults(after, "CMP-2", now()).spend).toBeCloseTo(185 + 320.5 + 275 + 142.6 + 1200, 2); // expenses + SAD-1 ad spend
     const id = val<{ id: string }>(result).id;
     const del = run(after, "U-OFFICE", deleteMarketingExpense, id);
-    expect(campaignResults(del.db, "CMP-2", now()).spend).toBeCloseTo(780.5, 2);
+    expect(campaignResults(del.db, "CMP-2", now()).spend).toBeCloseTo(780.5 + 142.6, 2);
   });
 
   it("creates a tracked link / QR code with UTM tags and counts each click once", () => {

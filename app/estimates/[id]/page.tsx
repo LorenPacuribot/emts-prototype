@@ -32,7 +32,7 @@ import { ConfirmDialog, Modal } from '@/components/Modals/Modal';
 import { useToast } from '@/components/ui/toast';
 import { useDb, useLookups, useSingleton } from '@/lib/store';
 import { estimateTotals, round2 } from '@/lib/calculations';
-import { uid } from '@/lib/utils';
+import { longDate, uid } from '@/lib/utils';
 import { EstimateToolbar } from '@/components/estimates/EstimateToolbar';
 import { ClientInfo, DocHeader } from '@/components/estimates/EstimateInfo';
 import { AreaBlock } from '@/components/estimates/AreaBlock';
@@ -40,6 +40,9 @@ import { AddToEstimateModal, SurfacePickerModal } from '@/components/estimates/A
 import { ExtrasBlock, LaborSummary, NotesSection } from '@/components/estimates/BuilderSections';
 import { FinalizeSection } from '@/components/estimates/FinalizeSection';
 import { SendEstimateModal } from '@/components/estimates/SendEstimateModal';
+import { DeliveryBadges } from '@/components/estimates/DeliveryBadges';
+import { useSendEstimateEmail } from '@/components/estimates/useSendEstimateEmail';
+import { customerLinkFor } from '@/lib/estimate-email';
 import { useEstimateActions } from '@/components/estimates/useEstimateActions';
 import {
   ApprovedEstimateActions, ChangeOrdersBlock, FromHistoryBlock, LineColourCell, PaintCardSection, PaintMaterialsSection,
@@ -61,6 +64,7 @@ export default function EstimateBuilderPage() {
   const look = useLookups();
   const [bp] = useSingleton('businessProfile');
   const actions = useEstimateActions();
+  const mailer = useSendEstimateEmail();
   const { toast } = useToast();
 
   const stored = c.estimates.find((e) => e.id === id);
@@ -296,6 +300,15 @@ export default function EstimateBuilderPage() {
     setEditOverride(false);
   };
 
+  /** The secure customer link that goes in the email (same as Client Preview's Copy Link). */
+  const linkCtx = () => {
+    const token = proto.est?.publicToken;
+    return {
+      link: customerLinkFor(window.location.origin, draft.id, token),
+      linkExpires: token && proto.est?.validUntil ? longDate(proto.est.validUntil) : undefined,
+    };
+  };
+
   const convert = () => {
     const job = actions.convertToJob(draft);
     toast(`Job ${job.jobNumber} created`);
@@ -383,8 +396,17 @@ export default function EstimateBuilderPage() {
                 {(proto.est?.amendmentNumber ?? 0) > 0 && (
                   <span className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-700">Amendment #{proto.est!.amendmentNumber}</span>
                 )}
+                <DeliveryBadges
+                  estimate={draft}
+                  retrying={mailer.sending}
+                  onRetry={async () => {
+                    await mailer.retry(draft, linkCtx());
+                    afterStatus();
+                  }}
+                />
               </>
             ),
+            sendDisabledReason: customer?.email?.trim() ? undefined : 'The customer has no email address. Add one on the contact page, then send.',
             menu: proto.est?.publicToken
               ? [{ label: 'Customer Page (NEW)', icon: <ExternalLink />, onClick: () => window.open(publicEstimateHref(proto.est!.publicToken!), '_blank') }]
               : [],
@@ -600,10 +622,9 @@ export default function EstimateBuilderPage() {
           setDirty(false);
           router.push(`/estimates/${draft.id}/preview`);
         }}
-        onSend={(to) => {
-          actions.send(draft, to);
+        onSend={async (p) => {
+          await mailer.send(draft, p, linkCtx());
           afterStatus();
-          toast(`Estimate sent to ${to}`);
         }}
       />
       <ConfirmDialog

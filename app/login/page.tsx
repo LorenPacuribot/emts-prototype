@@ -51,7 +51,8 @@ function LoginForm() {
       return;
     }
     setUser(result.session.userId);
-    router.replace(next);
+    // A full load, so the shared data (refused before sign-in) loads with the new session.
+    window.location.replace(next);
   }
 
   return (

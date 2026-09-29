@@ -118,6 +118,11 @@ export interface SocialMessage {
   sandbox: boolean;
   status: "open" | "replied" | "closed";
   replies: SocialReply[];
+  /** Staff member working the conversation (patent §34 social inbox). */
+  assignedTo?: ID;
+  /** Marked done (status "closed") by whom and when. */
+  doneAt?: ISODate;
+  doneBy?: ID;
   intent?: "quote_request" | "question" | "general";
   customerId?: ID;
   leadId?: ID;

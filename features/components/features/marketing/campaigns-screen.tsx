@@ -88,7 +88,7 @@ function Campaigns() {
             <EmptyState icon={<Target />} title={`No ${filter === "all" ? "" : CAMPAIGN_STATUS_LABEL[filter as CampaignStatus].toLowerCase()} campaigns`} body="Choose another status above to see the rest." action={<Button className={TAP} onClick={() => setFilter("all")}>Show all campaigns</Button>} />
           ) : (
             <Card className="p-0">
-              <Table className="rounded-2xl border-0">
+              <Table className="relative rounded-2xl border-0">
                 <THead><tr><TH>Campaign</TH><TH>Status</TH><TH className="text-right">Budget</TH><TH className="text-right">Spend</TH><TH className="text-right">Leads</TH><TH className="text-right">Jobs won</TH><TH className="text-right">Revenue</TH><TH className="text-right">ROI</TH></tr></THead>
                 <tbody>
                   {shown.map(({ c, r }) => (
@@ -347,7 +347,7 @@ function CampaignDrawer({ id, onClose, onEdit }: { id: string; onClose: () => vo
       <section>
         <SectionTitle right={<GatedButton allowed={canEdit} reason={reason} size="sm" onClick={() => setExpense(true)}><Plus className="h-3.5 w-3.5" /> Log expense</GatedButton>}>Spend ({att.expenses.length})</SectionTitle>
         {att.expenses.length === 0 ? <p className="text-[12.5px] text-slate-500">No spend logged. Log printing, ads, photography and other costs so CAC and ROI are right.</p> : (
-          <Table>
+          <Table className="relative">
             <THead><tr><TH>Date</TH><TH>Expense</TH><TH className="text-right">Amount</TH>{canEdit && <TH><span className="sr-only">Actions</span></TH>}</tr></THead>
             <tbody>
               {att.expenses.map((x) => (

@@ -83,10 +83,20 @@ function emit(c: RemoteChange) {
   }
 }
 
-type StateBody = { enabled: boolean; entries?: Record<string, string>; versions?: Record<string, string> };
+type StateBody = { enabled: boolean; denied?: boolean; entries?: Record<string, string>; versions?: Record<string, string> };
+
+/** Customer pages have no staff session; their link's token is what grants access (lib/guest-access.ts). */
+function pageHeader(): Record<string, string> {
+  try {
+    return { 'X-EMTS-Page': window.location.pathname + window.location.search };
+  } catch {
+    return {};
+  }
+}
 
 async function fetchState(signal?: AbortSignal): Promise<StateBody | undefined> {
-  const res = await fetch('/api/state', { cache: 'no-store', signal });
+  const res = await fetch('/api/state', { cache: 'no-store', signal, headers: pageHeader() });
+  if (res.status === 401) return { enabled: true, denied: true };
   if (!res.ok) return undefined;
   return (await res.json()) as StateBody;
 }
@@ -98,7 +108,8 @@ export async function loadRemoteState(): Promise<RemoteStatus> {
   try {
     const body = await fetchState(ctrl.signal);
     if (!body) return 'offline';
-    if (!body.enabled) return 'local';
+    // Not signed in and no valid customer link: nothing is loaded or shared.
+    if (!body.enabled || body.denied) return 'local';
     const entries = body.entries ?? {};
     const versions = body.versions ?? {};
     if (Object.keys(entries).length === 0) {
@@ -170,7 +181,7 @@ async function saveKey(key: RemoteKey, value: string | null, keepalive: boolean)
       const body = JSON.stringify({ key, value: mine, baseVersion: known.version });
       res = await fetch('/api/state', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...pageHeader() },
         body,
         // keepalive requests are capped at 64 KB by browsers.
         keepalive: keepalive && body.length < 60000,
@@ -223,7 +234,7 @@ export async function refreshRemoteState(): Promise<void> {
   } catch {
     return;
   }
-  if (!body?.enabled) return;
+  if (!body?.enabled || body.denied) return;
   for (const k of REMOTE_KEYS) {
     const version = body.versions?.[k] ?? null;
     const value = body.entries?.[k] ?? null;

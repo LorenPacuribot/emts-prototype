@@ -124,7 +124,7 @@ To connect a real backend later, replace the inside of these hooks with API call
 
 - The logo and presentation cover photos are placeholders (SVG and gradients), because the live image files were not in the source export.
 - These are not built: file attachments, CSV contact import, rich-text email editing, and estimate packages (Good/Better/Best) inside the estimate builder. Package templates can still be managed in Settings.
-- Payment gateway, email and SMS sending are simulated. Configured supplier integrations can send real requests from the server.
+- The payment gateway is simulated. Email and SMS run in sandbox until their keys are set (see [Email and SMS](#email-and-sms)). Configured supplier integrations can send real requests from the server.
 
 ## Sign-in
 
@@ -142,12 +142,27 @@ The owner or office manager sets passwords in Settings › Team Access. Anyone c
 
 **Two people editing at once.** Each save names the version it started from. If someone else saved first, `/api/state` refuses it and the browser merges the two copies record by record (`lib/json-merge.ts`). Where both changed the same field, the other person's value is kept and a notice names the item. Other people's saves are picked up when the tab regains focus.
 
-**Not covered yet.** `/api/state` is still readable and writable without a session, because customer pages (estimate approval, paint record) run on the shared copy. Moving those pages onto their own narrow endpoints is the next step before real customer data.
+**Who can reach the shared data.** `/api/state` answers signed-in staff, and customer pages whose link carries a valid token: an estimate's customer token, a QR paint record or passport that isn't revoked, an active tracked link, or a published landing page (`lib/guest-access.ts`). Everyone else gets 401 and the page works on its own browser copy without saving.
+
+**Not covered yet.** A customer holding a valid link still receives the whole shared copy, because the customer pages (for example estimate acceptance, which creates the job, work order and invoice) run on it in the browser. Before real customer data, move those actions onto the server and send customers only their own records. The demo seed's tokens are also public in the app's code, so they must not be used for real customers.
 
 ## Supplier access
 
 Copy `.env.example` to `.env.local` for local development and set a unique `SUPPLIER_ADMIN_PASSWORD` of at least 24 characters. Keep all supplier credentials server-side. In production use the hosting provider's private environment settings and HTTPS. The supplier routes return 503 until the password is configured, and 401 until authenticated.
 
 Open Settings > Suppliers > **Sign in for live supplier access**, then use username `supplier-admin` and the configured password. This shared administrator gate protects supplier connection, order and inbox routes; it is not application-wide authentication. Supplier webhooks retain their separate signature verification.
+
+## Email and SMS
+
+Estimates' **Send to Customer** (Client Preview and the builder) and the lead stage messages go through `/api/messaging` (`features/lib/integrations/messaging-server.ts`). A channel runs in **sandbox** until all three of its variables are set on the server: the message is only recorded (id `SBX-…`) and nothing reaches the customer. The estimate then shows "Sandbox — not really sent: email keys not set".
+
+| Variable | What it does |
+| --- | --- |
+| `MESSAGING_EMAIL_ENDPOINT_URL` | https endpoint that accepts `{ from, to, subject, body, tag }` and returns `{ messageId }` or `{ id }` |
+| `MESSAGING_EMAIL_API_KEY` | Sent as `Authorization: Bearer <key>` |
+| `MESSAGING_FROM_EMAIL` | Sender address |
+| `MESSAGING_SMS_ENDPOINT_URL`, `MESSAGING_SMS_API_KEY`, `MESSAGING_FROM_PHONE` | The same for SMS (`{ from, to, body, tag }`, sender in E.164) |
+
+A live channel also needs the supplier administrator sign-in above (`SUPPLIER_ADMIN_PASSWORD`), so the route can't be used as an open relay. Each estimate send is saved on the estimate (`Estimate.deliveries`: time, recipient, channel, `delivered` / `sandbox` / `failed`, error, provider message id), logged in Activity, and shown as a badge next to the status. The estimate becomes Sent only when a message was delivered or sandboxed. A failed send keeps the status and shows the reason with a Retry button.
 
 See [the code gap review](docs/CODE_GAP_REVIEW.md) for the implemented fixes, verification and remaining production work.

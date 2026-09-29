@@ -94,7 +94,7 @@ function Promotions() {
             <Stat label="Rewards due" value={due.length} hint={due.length ? cents(due.reduce((a, x) => a + x.amount, 0)) : "None waiting"} tone={due.length ? "warn" : "default"} />
           </StatStrip>
           <Card className="mb-4 p-0">
-            <Table className="rounded-2xl border-0">
+            <Table className="relative rounded-2xl border-0">
               <THead><tr><TH>Code</TH><TH>Offer</TH><TH>Discount</TH><TH>Valid</TH><TH className="text-right">Redeemed</TH><TH>Status</TH>{canEdit && <TH><span className="sr-only">Actions</span></TH>}</tr></THead>
               <tbody>
                 {promos.map((p) => {
@@ -135,7 +135,7 @@ function Promotions() {
                     <SectionTitle right={<GatedButton allowed={canEdit} reason={reason} size="sm" onClick={() => setCodeFor(p.id)}><Plus className="h-3.5 w-3.5" /> New referral code</GatedButton>}>Referral programme · {p.code}</SectionTitle>
                     <div className="mb-3 text-[12.5px] text-slate-600"><b className="text-ink">{p.name}.</b> The friend gets {cents(rw.refereeReward)} off; the referrer gets {cents(rw.referrerReward)} ({rw.rewardType.replace("_", " ")}) once the {rw.qualifyOn === "job_completed" ? "job is completed" : "estimate is accepted"}.</div>
                     {codes.length === 0 ? <p className="text-[12.5px] text-slate-500">No referrer codes yet. Give a happy customer their own code.</p> : (
-                      <Table>
+                      <Table className="relative">
                         <THead><tr><TH>Code</TH><TH>Referrer</TH><TH className="text-right">Referrals</TH><TH className="text-right">Qualified</TH><TH className="text-right">Rewarded</TH><TH className="text-right">Rewards given</TH>{canEdit && <TH><span className="sr-only">Actions</span></TH>}</tr></THead>
                         <tbody>
                           {codes.map((r) => {
@@ -398,7 +398,7 @@ function Reviews() {
       <Card className="mt-6 p-4">
         <SectionTitle>Review requests</SectionTitle>
         {requests.length === 0 ? <p className="text-[12.5px] text-slate-500">None sent yet. Each customer can be asked once every {REVIEW_REQUEST_COOLDOWN_DAYS} days.</p> : (
-          <Table>
+          <Table className="relative">
             <THead><tr><TH>Sent</TH><TH>Customer</TH><TH>By</TH><TH>Platform</TH><TH>Status</TH></tr></THead>
             <tbody>
               {requests.map((q) => (
@@ -608,7 +608,7 @@ function Messages() {
       {tab === "messages" ? (
         messages.length === 0 ? <EmptyState icon={<Mail />} title="No email or SMS campaigns yet" body={segments.length ? "Write a message to one of your audience segments." : "Save an audience segment first, then write a message to it."} action={newMessage} /> : (
           <Card className="p-0">
-            <Table className="rounded-2xl border-0">
+            <Table className="relative rounded-2xl border-0">
               <THead><tr><TH>Message</TH><TH>Channel</TH><TH>Audience</TH><TH>Status</TH><TH className="text-right">Recipients</TH></tr></THead>
               <tbody>
                 {messages.map((m) => {
@@ -699,7 +699,7 @@ function MessageDrawer({ id, onClose, onEdit }: { id: string; onClose: () => voi
       ) : (
         <section>
           <SectionTitle>Send log ({m.sends.length})</SectionTitle>
-          <Table>
+          <Table className="relative">
             <THead><tr><TH>Recipient</TH><TH>To</TH><TH>Result</TH><TH>Message ID</TH></tr></THead>
             <tbody>{m.sends.map((s) => <TR key={s.memberKey}><TD>{s.name}</TD><TD>{s.to ?? "—"}</TD><TD><Badge tone={s.status === "sandbox" || s.status === "sent" ? "green" : s.status === "failed" ? "red" : "gray"}>{SEND_LABEL[s.status]}</Badge></TD><TD className="font-mono text-[11px]">{s.messageId ?? "—"}</TD></TR>)}</tbody>
           </Table>

@@ -9,7 +9,9 @@
   - Gear icon: show or hide content blocks (property, scope, specs, optional
     items, pricing, ...) or the template's own sections.
   - ⋯ on each line: hide the line, or hide parts of it (colour, product, price...).
-  - Send to Customer (email; marks the estimate Sent), Copy Link (the
+  - Send to Customer (emails the secure link through /api/messaging after a
+    confirmation; marks the estimate Sent only when it was delivered or
+    sandboxed, and shows Delivered / Sandbox / Failed + Retry), Copy Link (the
     customer's page) and Download PDF (print to PDF).
   Choices are saved on the estimate (Estimate.presentation), so the
   customer's page and the PDF show exactly this.
@@ -32,12 +34,14 @@ import { ProposalDocument } from '@/components/estimates/ProposalDocument';
 import { PrintPortal } from '@/components/estimates/PrintPortal';
 import { SendEstimateModal } from '@/components/estimates/SendEstimateModal';
 import { EstimateStatusBadge } from '@/components/estimates/StatusBadge';
-import { useEstimateActions } from '@/components/estimates/useEstimateActions';
+import { useSendEstimateEmail } from '@/components/estimates/useSendEstimateEmail';
+import { DeliveryBadges } from '@/components/estimates/DeliveryBadges';
 import { sendBlocker } from '@/components/estimates/estimate-utils';
 import { PresentationCanvas } from '@/components/presentations/PresentationCanvas';
 import { SECTION_META } from '@/components/presentations/presentation-utils';
 import { useProtoEstimate } from '@/components/estimates/FeatureSections';
-import { publicEstimateHref } from '@/features/lib/hrefs';
+import { contactHref } from '@/features/lib/hrefs';
+import { customerLinkFor } from '@/lib/estimate-email';
 import { longDate } from '@/lib/utils';
 
 function Preview() {
@@ -48,7 +52,7 @@ function Preview() {
   const { items: presentations } = useCollection('presentations');
   const look = useLookups();
   const [bp] = useSingleton('businessProfile');
-  const actions = useEstimateActions();
+  const mailer = useSendEstimateEmail();
   const { toast } = useToast();
   const [sendOpen, setSendOpen] = useState(false);
   const [gearOpen, setGearOpen] = useState(false);
@@ -80,8 +84,16 @@ function Preview() {
   const save = (s: EstimatePresentationSettings) => update(e.id, { presentation: s });
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
   const token = proto.est?.publicToken;
-  const customerLink = `${origin}${token ? publicEstimateHref(token) : `/estimates/${e.id}/client-view`}`;
+  const customerLink = customerLinkFor(origin, e.id, token);
   const linkExpires = token ? proto.est?.validUntil : undefined;
+  const linkCtx = { link: customerLink, linkExpires: linkExpires ? longDate(linkExpires) : undefined };
+  const customer = look.customer(e.customerId);
+  // No address = nothing to send to: the button is disabled and says how to fix it.
+  const noEmailReason = customer?.email?.trim()
+    ? undefined
+    : customer
+      ? `${`${customer.firstName} ${customer.lastName}`.trim() || 'This customer'} has no email address. Add one on the contact page, then come back to send.`
+      : 'This estimate has no customer with an email address. Pick a customer in the estimate builder, then send.';
 
   const copyLink = async () => {
     try {
@@ -130,18 +142,33 @@ function Preview() {
         <div className="flex flex-wrap items-center gap-2">
           <Button variant="secondary" icon={<Link2 className="h-4 w-4" />} onClick={copyLink}>Copy Link</Button>
           <Button variant="secondary" icon={<Download className="h-4 w-4" />} onClick={downloadPdf}>Download PDF</Button>
-          <Button
-            icon={<Send className="h-4 w-4" />}
-            onClick={() => {
-              const blocked = sendBlocker(e, look.customer(e.customerId));
-              if (blocked) toast(blocked, 'error');
-              else setSendOpen(true);
-            }}
-          >
-            Send to Customer
-          </Button>
+          {/* The wrapper carries the tooltip: disabled buttons don't show one in every browser. */}
+          <span title={noEmailReason} className="inline-flex">
+            <Button
+              icon={<Send className="h-4 w-4" />}
+              disabled={!!noEmailReason}
+              loading={mailer.sending}
+              aria-describedby={noEmailReason ? 'send-disabled-reason' : undefined}
+              onClick={() => {
+                const blocked = sendBlocker(e, customer);
+                if (blocked) toast(blocked, 'error');
+                else setSendOpen(true);
+              }}
+            >
+              Send to Customer
+            </Button>
+          </span>
+          {noEmailReason && <span id="send-disabled-reason" className="sr-only">{noEmailReason}</span>}
         </div>
       </div>
+      {((noEmailReason && customer) || !!e.deliveries?.length) && (
+        <div className="-mt-2 mb-4 flex flex-wrap items-center justify-end gap-2 print:hidden">
+          {noEmailReason && customer && (
+            <Link href={contactHref(customer.id)} className="text-xs font-semibold text-primary-600 hover:underline">Add an email address to {customer.firstName || 'the contact'}</Link>
+          )}
+          <DeliveryBadges estimate={e} retrying={mailer.sending} onRetry={() => void mailer.retry(e, linkCtx)} />
+        </div>
+      )}
 
       <div className="mb-6 flex flex-wrap items-center gap-3 rounded-2xl border border-gray-200 bg-white p-3 shadow-sm print:hidden">
         <span className="flex items-center gap-2 text-sm font-bold text-gray-700"><PresentationIcon className="h-4 w-4 text-primary-600" /> Presentation</span>
@@ -209,14 +236,11 @@ function Preview() {
         open={sendOpen}
         onOpenChange={setSendOpen}
         estimate={e}
-        customer={look.customer(e.customerId)}
+        customer={customer}
         companyName={bp.companyName}
         customerPageHref={customerLink}
         skipCheck
-        onSend={(to) => {
-          actions.send(e, to);
-          toast(`Estimate sent to ${to}`);
-        }}
+        onSend={(p) => mailer.send(e, p, linkCtx)}
       />
     </div>
   );
