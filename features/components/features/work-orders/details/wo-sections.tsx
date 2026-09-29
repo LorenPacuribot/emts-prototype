@@ -17,7 +17,7 @@ import {
 import { clockIn, clockOut } from "@/features/lib/store/actions/workforce";
 import { jobDemand, lineState } from "@/features/lib/rules/procurement";
 import { formatPacks } from "@/features/lib/rules/materials";
-import { specForSurface, surfaceHours } from "@/features/lib/rules/estimate";
+import { specForSurface, jobSurfaceHours } from "@/features/lib/rules/estimate";
 import { openSegment } from "@/features/lib/rules/payroll";
 import { byId, surfaceLabel } from "@/features/lib/selectors";
 import { can } from "@/features/lib/permissions";
@@ -321,7 +321,7 @@ export function JobDetailsSection({ wo, job }: { wo: WorkOrder; job: Job }) {
       <div className="space-y-5">
         {areas.map((a) => {
           const rows = surfaces.filter((s) => s.areaId === a.id);
-          const est = rows.reduce((x, s) => x + surfaceHours(s, specForSurface(db, job.id, s.id)?.coats ?? 2), 0);
+          const est = rows.reduce((x, s) => x + jobSurfaceHours(db, job.id, s), 0);
           const ren = rows.reduce((x, s) => x + (rendered.get(s.id) ?? 0), 0);
           return (
             <div key={a.id} className="overflow-hidden rounded-xl border border-gray-200">
@@ -351,7 +351,7 @@ export function JobDetailsSection({ wo, job }: { wo: WorkOrder; job: Job }) {
                         {colour ? <div className="text-xs text-gray-700"><b>#{n}</b> {colour.name} · {spec?.product} · {spec?.sheen}</div> : <span className="text-xs text-gray-400">None assigned</span>}
                       </div>
                       <div className="flex items-center gap-3 md:col-span-2 md:justify-end">
-                        <div className="text-right"><LiveLabel>Total Hrs</LiveLabel><div className="text-sm font-bold">{surfaceHours(s, spec?.coats ?? 2).toFixed(2)}</div></div>
+                        <div className="text-right"><LiveLabel>Total Hrs</LiveLabel><div className="text-sm font-bold">{jobSurfaceHours(db, job.id, s).toFixed(2)}</div></div>
                         <div><LiveLabel>Rendered</LiveLabel>
                           <Input type="number" step={0.5} min={0} key={rendered.get(s.id) ?? 0} defaultValue={rendered.get(s.id) ?? 0} disabled={!canLog} onBlur={(e) => blurRendered(s.id, e.target.value)} className="h-8 w-20 text-right" aria-label={`Rendered hours ${s.name}`} />
                         </div>

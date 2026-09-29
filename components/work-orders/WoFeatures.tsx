@@ -33,7 +33,7 @@ import { markUnscheduled, renderedHoursBySurface, setWorkOrderStatus, WO_STATUS_
 import { jobChangeOrders } from '@/features/lib/store/actions/change-orders';
 import { closeoutRowsFor } from '@/features/lib/store/actions/property';
 import { sendPhotoToMarketing } from '@/features/lib/store/actions/marketing';
-import { specForSurface, surfaceHours } from '@/features/lib/rules/estimate';
+import { specForSurface, jobSurfaceHours } from '@/features/lib/rules/estimate';
 import { Drawer, NewBadge } from '@/features/components/ui';
 import { CloseoutPanel } from '@/features/components/features/closeout/closeout-panel';
 import { MaterialsSections } from '@/features/components/features/materials/materials-sections';
@@ -58,7 +58,7 @@ export const twinStatus = (t: WoTwin) => WO_STATUS_LABEL[t.wo.status] as WODispl
 /** Header figures, same as the live header: estimate hours, shift hours, rendered hours. */
 export function twinHours({ db, wo, job }: WoTwin) {
   const total = job.surfaceIds.map((id) => byId(db.surfaces, id)).filter(Boolean)
-    .reduce((a, s) => a + surfaceHours(s!, specForSurface(db, job.id, s!.id)?.coats ?? 2), 0);
+    .reduce((a, s) => a + jobSurfaceHours(db, job.id, s!), 0);
   const assigned = wo.shifts.reduce((a, s) => {
     const days = Math.max(1, Math.round((Date.parse(s.endDate) - Date.parse(s.startDate)) / 86400000) + 1);
     const [h1, m1] = s.startTime.split(':').map(Number);

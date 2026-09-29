@@ -20,7 +20,7 @@ import { useParam, AppLink, useNav } from "@/features/lib/navigation";
 import { markUnscheduled, renderedHoursBySurface, setWorkOrderStatus, WO_STATUS_LABEL, WO_STATUS_TONE } from "@/features/lib/store/actions/work-orders";
 import { jobChangeOrders } from "@/features/lib/store/actions/change-orders";
 import { closeoutRowsFor } from "@/features/lib/store/actions/property";
-import { specForSurface, surfaceHours } from "@/features/lib/rules/estimate";
+import { specForSurface, jobSurfaceHours } from "@/features/lib/rules/estimate";
 import { byId } from "@/features/lib/selectors";
 import { can } from "@/features/lib/permissions";
 import { estimateHref, leadHref } from "@/features/lib/hrefs";
@@ -108,7 +108,7 @@ function WoHeader({ wo, job, onLogHours, onSchedule, onMarkComplete }: { wo: Wor
   const customer = byId(db.customers, job.customerId);
   const estimate = byId(db.estimates, job.estimateId);
   const rendered = Array.from(renderedHoursBySurface(wo).values()).reduce((a, b) => a + b, 0);
-  const totalHours = job.surfaceIds.map((id) => byId(db.surfaces, id)).filter(Boolean).reduce((a, s) => a + surfaceHours(s!, specForSurface(db, job.id, s!.id)?.coats ?? 2), 0);
+  const totalHours = job.surfaceIds.map((id) => byId(db.surfaces, id)).filter(Boolean).reduce((a, s) => a + jobSurfaceHours(db, job.id, s!), 0);
   const assigned = wo.shifts.reduce((a, s) => {
     const days = Math.max(1, Math.round((Date.parse(s.endDate) - Date.parse(s.startDate)) / 86400000) + 1);
     const [h1, m1] = s.startTime.split(":").map(Number);

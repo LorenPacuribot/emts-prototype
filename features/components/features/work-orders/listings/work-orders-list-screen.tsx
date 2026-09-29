@@ -12,7 +12,7 @@ import { useDb } from "@/features/lib/store";
 import { AppLink } from "@/features/lib/navigation";
 import { workOrderHref } from "@/features/lib/hrefs";
 import { WO_STATUS_LABEL, WO_STATUS_TONE } from "@/features/lib/store/actions/work-orders";
-import { specForSurface, surfaceHours } from "@/features/lib/rules/estimate";
+import { specForSurface, jobSurfaceHours } from "@/features/lib/rules/estimate";
 import { byId, propertyAddress } from "@/features/lib/selectors";
 import { date } from "@/features/lib/format";
 import { Screen } from "@/features/components/layout/screen";
@@ -34,7 +34,7 @@ export function WorkOrdersListScreen() {
   const [filter, setFilter] = useState<Filter>("ALL_ACTIVE");
   const hours = (jobId: string) => {
     const job = byId(db.jobs, jobId);
-    return (job?.surfaceIds ?? []).map((id) => byId(db.surfaces, id)).filter(Boolean).reduce((a, s) => a + surfaceHours(s!, specForSurface(db, jobId, s!.id)?.coats ?? 2), 0);
+    return (job?.surfaceIds ?? []).map((id) => byId(db.surfaces, id)).filter(Boolean).reduce((a, s) => a + jobSurfaceHours(db, jobId, s!), 0);
   };
   const list = db.workOrders
     .filter((w) => (filter === "ALL_ACTIVE" ? w.status !== "COMPLETED" : w.status === filter))

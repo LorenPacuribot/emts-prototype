@@ -18,7 +18,7 @@ import type { AreaKind, Job, RoomType, SurfaceCondition, SurfaceType } from "@/f
 import { act, useDb } from "@/features/lib/store";
 import { addEstimateArea, addScopeSurface, assignSurfaceColour, removeScopeSurface, updateScopeSurface } from "@/features/lib/store/actions/estimates";
 import { specDemand } from "@/features/lib/rules/procurement";
-import { paintSurfaceFor, specForSurface, surfaceHours } from "@/features/lib/rules/estimate";
+import { paintSurfaceFor, specForSurface, jobSurfaceHours } from "@/features/lib/rules/estimate";
 import { labelRoomType } from "@/features/lib/rules/lifespan";
 import { toast } from "@/features/lib/toast";
 import { cn } from "@/features/lib/cn";
@@ -86,7 +86,7 @@ export function ScopeOfWork({ estimateId, job, editable, paintColourId, onPainte
         )}
         {areas.map((area) => {
           const rows = scope.filter((s) => s.areaId === area.id);
-          const totalHrs = rows.reduce((a, s) => a + surfaceHours(s, specForSurface(db, job.id, s.id)?.coats ?? 2), 0);
+          const totalHrs = rows.reduce((a, s) => a + jobSurfaceHours(db, job.id, s), 0);
           return (
             <div key={area.id} className="overflow-hidden rounded-xl border border-gray-200">
               <div className="flex flex-wrap items-center gap-3 rounded-t-xl bg-gray-50 px-4 py-3">
@@ -133,7 +133,7 @@ export function ScopeOfWork({ estimateId, job, editable, paintColourId, onPainte
                               <span className={cn("text-xs", paintColourId ? "font-semibold text-green-700" : "italic text-gray-400")}>{paintColourId ? <><PaintBucket className="inline h-3.5 w-3.5" /> Click to paint</> : "None"}</span>
                             )}
                           </td>
-                          <td className="px-2 py-2 text-center text-gray-700">{surfaceHours(s, spec?.coats ?? 2).toFixed(2)}</td>
+                          <td className="px-2 py-2 text-center text-gray-700">{jobSurfaceHours(db, job.id, s).toFixed(2)}</td>
                           <td className="px-2 py-2 text-center font-semibold text-blue-600">{(galBySurface.get(s.id) ?? 0).toFixed(2)}</td>
                           <td className="px-2 py-2 text-center">
                             {editable ? (

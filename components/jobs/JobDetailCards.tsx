@@ -304,7 +304,7 @@ export function BreaksCard({ job }: { job: Job }) {
   const save = () => {
     if (!form.startDate || !form.endDate || !form.reason.trim()) return setError('Start date, end date and reason are required.');
     if (form.endDate < form.startDate) return setError('End date cannot be before start date.');
-    addBreak(job.id, { ...form, reason: form.reason.trim() });
+    if (!addBreak(job.id, { ...form, reason: form.reason.trim() })) return;
     setForm({ startDate: '', endDate: '', reason: '' });
     setError('');
     setAdding(false);
@@ -341,7 +341,7 @@ export function BreaksCard({ job }: { job: Job }) {
                 <div className="text-sm font-bold text-gray-900">{b.reason}</div>
                 <div className="text-xs text-gray-500">{shortDate(b.startDate)} – {shortDate(b.endDate)}</div>
               </div>
-              <button onClick={() => { removeBreak(job.id, b.id); toast('Pause period removed'); }} className="rounded-lg p-1.5 text-gray-300 hover:bg-red-50 hover:text-red-500" aria-label="Remove pause">
+              <button onClick={() => { if (removeBreak(job.id, b.id)) toast('Pause period removed'); }} className="rounded-lg p-1.5 text-gray-300 hover:bg-red-50 hover:text-red-500" aria-label="Remove pause">
                 <Trash2 className="h-4 w-4" />
               </button>
             </div>

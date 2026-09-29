@@ -4,7 +4,7 @@ import type { ActionResult, Database, User } from "@/features/types";
 import { createSeed } from "@/features/data/seed";
 import {
   acceptEstimateByToken, addEstimateArea, addScopeSurface, amendEstimate, assignSurfaceColour, createEstimateFromLead, declineEstimateByToken,
-  markEstimateApproved, openPublicEstimate, saveEstimate, sendEstimate, sendForReapproval,
+  markEstimateApproved, openPublicEstimate, saveEstimate, sendEstimate, sendForReapproval, updateEstimateDetails,
 } from "@/features/lib/store/actions/estimates";
 import { addColour, saveSpec } from "@/features/lib/store/actions/color-card";
 import { PRIMER_NONE_SOUND } from "@/features/types";
@@ -52,6 +52,18 @@ function draftEstimate() {
 }
 
 describe("Estimate flow — lead → estimate → accept → job, work order and draft invoice", () => {
+  it('validates a single date edit against the other saved date', () => {
+    const fixture = draftEstimate();
+    const { estimateId } = fixture;
+    const db = structuredClone(fixture.db);
+    const est = db.estimates.find((e) => e.id === estimateId)!;
+    est.estimateDate = '2026-06-10T15:00:00.000Z';
+    est.validUntil = '2026-06-20';
+    expect(run(db, 'U-EST', updateEstimateDetails, estimateId, { validUntil: '2026-06-09' }).result.ok).toBe(false);
+    expect(run(db, 'U-EST', updateEstimateDetails, estimateId, { estimateDate: '2026-06-21' }).result.ok).toBe(false);
+    expect(run(db, 'U-EST', updateEstimateDetails, estimateId, { validUntil: '2026-06-10' }).result.ok).toBe(true);
+  });
+
   it("an estimate needs a Scheduled lead with no estimate yet", () => {
     const db = createSeed(NOW);
     expect(run(db, "U-EST", createEstimateFromLead, { leadId: "LEAD-2026-3", title: "x", estimatorId: "U-EST" }).result.ok).toBe(false);

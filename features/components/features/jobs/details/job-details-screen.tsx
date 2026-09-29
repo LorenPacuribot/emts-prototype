@@ -18,7 +18,7 @@ import { estimateHref, invoiceHref, leadHref, workOrderHref } from "@/features/l
 import { renderedHoursBySurface, WO_STATUS_LABEL, WO_STATUS_TONE } from "@/features/lib/store/actions/work-orders";
 import { setJobStage } from "@/features/lib/store/actions/jobs";
 import { jobFinancials } from "@/features/lib/store/actions/finance";
-import { specForSurface, surfaceHours } from "@/features/lib/rules/estimate";
+import { specForSurface, jobSurfaceHours } from "@/features/lib/rules/estimate";
 import { date, money } from "@/features/lib/format";
 import { toast } from "@/features/lib/toast";
 import { cn } from "@/features/lib/cn";
@@ -73,7 +73,7 @@ function JobDetails({ job }: { job: Job }) {
   const total = job.contractValue;
   const stageIndex = JOB_STAGES.findIndex((s) => s.status === job.status);
   const display = JOB_STATUS_DISPLAY[job.status] ?? { label: job.status, tone: "gray" as const };
-  const estHours = job.surfaceIds.map((id) => byId(db.surfaces, id)).filter(Boolean).reduce((a, s) => a + surfaceHours(s!, specForSurface(db, job.id, s!.id)?.coats ?? 2), 0);
+  const estHours = job.surfaceIds.map((id) => byId(db.surfaces, id)).filter(Boolean).reduce((a, s) => a + jobSurfaceHours(db, job.id, s!), 0);
   const rendered = wo ? Array.from(renderedHoursBySurface(wo).values()).reduce((a, b) => a + b, 0) : 0;
 
   function change(status: Job["status"] | "marketing") {

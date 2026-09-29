@@ -103,6 +103,8 @@ export interface Lead {
 export type EstimateStatus = 'Draft' | 'Sent' | 'Viewed' | 'Approved' | 'Rejected' | 'Expired';
 
 export interface EstimateLineItem {
+  optional?: boolean;
+  selected?: boolean;
   id: ID;
   areaId: ID;
   description: string;
@@ -124,6 +126,8 @@ export interface EstimateLineItem {
   accessTierId?: ID;
   /** True once the user types a quantity, so dimension changes stop overwriting it */
   quantityManual?: boolean;
+  /** Explicit coating area for lines measured in length, items, hours or gallons. */
+  coatingAreaSqft?: number;
 }
 
 export interface EstimateArea {
@@ -227,6 +231,7 @@ export interface JobNote {
 }
 
 export interface Job {
+  scheduleProtected?: boolean;
   id: ID;
   jobNumber: string; // JOB-2026-4
   title: string;

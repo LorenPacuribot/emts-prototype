@@ -15,6 +15,7 @@ import { Copy, Info, Plus, Trash2 } from 'lucide-react';
 import type { DifficultyTier, EstimateArea, EstimateLineItem, PaintProduct, SurfaceRate, Brand } from '@/lib/types';
 import { RowMenu } from '@/components/ui/menu';
 import { cn, money } from '@/lib/utils';
+import { includedLine } from '@/lib/calculations';
 
 export interface AreaBlockProps {
   area: EstimateArea;
@@ -48,8 +49,8 @@ const num = (v: string) => {
 
 export function AreaBlock(p: AreaBlockProps) {
   const { area, lines, readOnly } = p;
-  const totalHours = lines.reduce((s, l) => s + l.laborHours, 0);
-  const areaTotal = lines.reduce((s, l) => s + l.total, 0);
+  const totalHours = lines.filter(includedLine).reduce((s, l) => s + l.laborHours, 0);
+  const areaTotal = lines.filter(includedLine).reduce((s, l) => s + l.total, 0);
   const hasDims = !!(area.length || area.width || area.height);
   const groups = Array.from(new Set(p.surfaceRates.map((s) => s.rateGroup)));
   const height = p.tiers.filter((t) => t.tierType === 'HEIGHT').sort((a, b) => a.sortOrder - b.sortOrder);
@@ -154,6 +155,10 @@ export function AreaBlock(p: AreaBlockProps) {
                       ))}
                     </select>
                     <div className="px-1.5 text-[10px] uppercase tracking-wider text-gray-400">{l.unit}</div>
+                    {l.unit !== 'sqft' && <label className="block text-xs text-gray-500">Coating area (sq ft)<input type="number" min={0} aria-label="Coating area in square feet" disabled={readOnly} className={cellInput} value={l.coatingAreaSqft ?? ''} onChange={(e) => p.onUpdateLine(l.id, { coatingAreaSqft: num(e.target.value) })} /></label>}
+                    <select aria-label="Scope inclusion" className={cellSelect} disabled={readOnly} value={l.optional ? (l.selected ? 'selected' : 'optional') : 'included'} onChange={(e) => p.onUpdateLine(l.id, { optional: e.target.value !== 'included', selected: e.target.value === 'selected' })}>
+                      <option value="included">Included</option><option value="optional">Optional</option><option value="selected">Optional — selected</option>
+                    </select>
                   </td>
                   <td className="w-24 px-2 py-2">
                     <input

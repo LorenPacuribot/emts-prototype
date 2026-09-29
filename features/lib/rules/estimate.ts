@@ -13,6 +13,7 @@
 import type { Database, Job, SpecLine, Surface, SurfaceCondition, SurfaceType } from "@/features/types";
 import { roundHalfUp, roundMoney } from "./rounding";
 import { specDemand } from "./procurement";
+import { estimateTotals as builderTotals } from '@/lib/calculations';
 
 /** First-coat production rates, sq ft per hour (live Surface Rates `rateCoat1`). */
 export const PRODUCTION_RATES: Record<SurfaceType, number> = {
@@ -52,6 +53,14 @@ export function specForSurface(db: Database, jobId: string, surfaceId: string): 
   return db.specs.find((s) => s.jobId === jobId && s.state !== "superseded" && s.surfaceIds.includes(surfaceId));
 }
 
+/** Read the saved estimating hours before falling back to prototype production rates. */
+export function jobSurfaceHours(db: Database, jobId: string, surface: Surface): number {
+  const job = db.jobs.find((j) => j.id === jobId);
+  const line = db.estimates.find((e) => e.id === job?.estimateId)?.pricingSnapshot?.lineItems.find((l) => l.id === surface.id);
+  if (line) return line.optional && !line.selected ? 0 : line.laborHours;
+  return surfaceHours(surface, specForSurface(db, jobId, surface.id)?.coats ?? 2);
+}
+
 export interface EstimateTotals {
   totalHours: number;
   laborTotal: number;
@@ -65,6 +74,12 @@ export interface EstimateTotals {
 
 /** Totals for a job's scope. Surfaces without a colour count 2 coats and no paint. */
 export function estimateTotals(db: Database, job: Job): EstimateTotals {
+  const snapshot = db.estimates.find((e) => e.id === job.estimateId)?.pricingSnapshot;
+  if (snapshot) {
+    const total = builderTotals(snapshot);
+    const totalGallons = db.specs.filter((s) => s.jobId === job.id && s.state !== 'superseded').reduce((sum, s) => sum + specDemand(db, s).needGal, 0);
+    return { totalHours: total.laborHours, laborTotal: total.laborCost, totalGallons: roundHalfUp(totalGallons, 3), paintTotal: total.materialCost, subtotal: total.taxable, taxRatePct: snapshot.taxRate, taxAmount: total.tax, grandTotal: total.total };
+  }
   const surfaces = job.surfaceIds.map((id) => db.surfaces.find((s) => s.id === id)).filter((s): s is Surface => !!s && !s.removedAt);
   let totalHours = 0;
   for (const s of surfaces) totalHours += surfaceHours(s, specForSurface(db, job.id, s.id)?.coats ?? 2);

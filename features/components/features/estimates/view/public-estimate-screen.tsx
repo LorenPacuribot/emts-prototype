@@ -31,6 +31,7 @@ import { Logo } from "@/features/components/layout/icon-rail";
 import { Banner, Button, ConfirmDialog, Field, Input, Modal, NewBadge, Skeleton, Swatch, Textarea, Toaster, TooltipProvider } from "@/features/components/ui";
 import { CoDocument } from "@/features/components/features/change-orders/co-document";
 import { SignatureCanvas } from "./signature-canvas";
+import { estimateTotals as builderTotals } from '@/lib/calculations';
 
 export function PublicEstimateScreen() {
   const hydrated = useHydrated();
@@ -130,6 +131,7 @@ function PublicEstimate() {
           </div>
 
           {job && <Scope jobId={job.id} />}
+          {!!estimate.pricingSnapshot?.lineItems.some((l) => l.optional && !l.selected) && <section className="my-4 rounded-xl border border-gray-200 p-4"><h3 className="font-bold">Optional work</h3><p className="text-xs text-gray-500">Not included in the current total. You can choose these items when accepting.</p>{estimate.pricingSnapshot.lineItems.filter((l) => l.optional && !l.selected).map((l) => <div key={l.id} className="flex justify-between py-1 text-sm"><span>{l.description}</span><span>{money(l.total, { cents: true })} before tax and discount</span></div>)}</section>}
           {job && <PaintColorsSection jobId={job.id} />}
 
           <div className="mt-8 flex justify-end">
@@ -259,8 +261,12 @@ function AcceptModal({ open, onOpenChange, estimate }: { open: boolean; onOpenCh
   const [signed, setSigned] = useState(false);
   const [clearKey, setClearKey] = useState(0);
   const [error, setError] = useState<{ field?: string; message: string }>();
+  const [selected, setSelected] = useState<string[] | null>(null);
+  const options = estimate.pricingSnapshot?.lineItems.filter((l) => l.optional) ?? [];
+  const selectedIds = selected ?? options.filter((l) => l.selected).map((l) => l.id);
+  const agreedTotal = estimate.pricingSnapshot && options.length ? builderTotals({ ...estimate.pricingSnapshot, lineItems: estimate.pricingSnapshot.lineItems.map((l) => l.optional ? { ...l, selected: selectedIds.includes(l.id) } : l) }).total : estimate.total;
   function accept() {
-    const r = act(acceptEstimateByToken, estimate.publicToken!, { signatureName: name, signed });
+    const r = act(acceptEstimateByToken, estimate.publicToken!, { signatureName: name, signed, selectedOptionalIds: options.length ? selectedIds : undefined });
     if (!r.ok) return setError({ field: r.field, message: r.error });
     toast.success("Estimate accepted", "Thank you! We'll be in touch to schedule your project.");
     onOpenChange(false);
@@ -272,7 +278,7 @@ function AcceptModal({ open, onOpenChange, estimate }: { open: boolean; onOpenCh
         <div className="flex items-center justify-between rounded-xl bg-primary-600 p-4 text-white">
           <div>
             <div className="text-xs font-bold uppercase tracking-widest text-primary-100">Total Agreed Price</div>
-            <div className="font-heading text-2xl font-black">{money(estimate.total, { cents: true })}</div>
+            <div className="font-heading text-2xl font-black">{money(agreedTotal, { cents: true })}</div>
           </div>
           <span className="rounded-full bg-white/20 px-3 py-1 text-xs font-bold">Pending Acceptance</span>
         </div>
@@ -280,6 +286,7 @@ function AcceptModal({ open, onOpenChange, estimate }: { open: boolean; onOpenCh
           <div className="font-bold text-gray-900">Payment &amp; Deposit Terms:</div>
           <div className="text-gray-600">{DEFAULT_DEPOSIT_PERCENT}% deposit due at signing. Balance due on completion.</div>
         </div>
+        {options.length > 0 && <section><h3 className="font-bold">Optional work</h3><p className="text-xs text-gray-500">Select the work to include. Item prices are before tax and discount.</p>{options.map((line) => <label key={line.id} className="flex gap-2 py-2 text-sm"><input type="checkbox" checked={selectedIds.includes(line.id)} onChange={(ev) => setSelected(ev.target.checked ? [...selectedIds, line.id] : selectedIds.filter((id) => id !== line.id))} />{line.description} — {money(line.total, { cents: true })}</label>)}</section>}
         <Field label="Full Name" required error={error?.field === "signatureName" ? error.message : undefined}>
           <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. John Smith" invalid={error?.field === "signatureName"} />
         </Field>

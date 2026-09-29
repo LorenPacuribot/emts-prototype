@@ -12,7 +12,7 @@
 import React from 'react';
 import { FileText, Grid } from 'lucide-react';
 import type { Estimate } from '@/lib/types';
-import { estimateTotals } from '@/lib/calculations';
+import { estimateTotals, includedLine } from '@/lib/calculations';
 import { useDb, useLookups, useSingleton } from '@/lib/store';
 import { cn, fullName, longDate, money, shortDate } from '@/lib/utils';
 import { CompanyBlock } from './EstimateInfo';
@@ -93,7 +93,7 @@ export function ProposalDocument({ estimate: e, className }: { estimate: Estimat
         {e.areas.length === 0 && e.extras.length === 0 && <p className="text-sm text-gray-500">No work items have been added yet.</p>}
         <div className="space-y-8">
           {e.areas.map((a) => {
-            const lines = e.lineItems.filter((l) => l.areaId === a.id);
+            const lines = e.lineItems.filter((l) => l.areaId === a.id && includedLine(l));
             const total = lines.reduce((s, l) => s + l.total, 0);
             return (
               <div key={a.id} className="break-inside-avoid">
@@ -162,6 +162,12 @@ export function ProposalDocument({ estimate: e, className }: { estimate: Estimat
       </div>
 
       {/* Terms */}
+      {e.lineItems.some((l) => !includedLine(l)) && <section className="border-t border-gray-200 px-8 py-8 md:px-12">
+        <h3 className="mb-3 text-xl font-bold">Optional work</h3>
+        <p className="mb-3 text-sm text-gray-600">Not included in the agreed price. Prices below are before tax and discount.</p>
+        {e.lineItems.filter((l) => !includedLine(l)).map((l) => <div key={l.id} className="flex justify-between border-b py-2 text-sm"><span>{e.areas.find((a) => a.id === l.areaId)?.name} · {l.description}</span><span>{money(l.total)}</span></div>)}
+        <p className="mt-3 text-right font-bold">Optional subtotal: {money(t.optionalSubtotal)}</p>
+      </section>}
       {terms && (
         <div className="break-inside-avoid border-t border-gray-100 px-8 py-10 md:px-12">
           <div className="mb-6 flex items-center gap-3">

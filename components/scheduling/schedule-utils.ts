@@ -145,7 +145,7 @@ export function memberBookedHours(jobs: Job[], memberId: string, dayKeys: string
 
 /** Capacity (hours) a member has over a set of days, from weekly capacityHours. */
 export function memberCapacity(m: TeamMember, dayCount: number): number {
-  return round1((m.capacityHours / 7) * dayCount);
+  return round1(Math.min(m.capacityHours, (m.capacityHours / 5) * dayCount));
 }
 
 export const round1 = (n: number) => Math.round(n * 10) / 10;

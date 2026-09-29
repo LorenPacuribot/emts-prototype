@@ -153,6 +153,7 @@ export default function EstimateBuilderPage() {
       lineItems: e.lineItems.map((l) => {
         if (l.id !== lineId) return l;
         let next = { ...l, ...patch };
+        if (Object.keys(patch).every((key) => key === 'optional' || key === 'selected')) return next;
         if ('heightTierId' in patch || 'accessTierId' in patch) next.difficultyMultiplier = 1;
         const sr = c.surfaceRates.find((s) => s.name === next.surfaceType);
         if (patch.surfaceType && sr) {

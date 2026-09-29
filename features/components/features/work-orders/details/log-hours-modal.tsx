@@ -13,7 +13,7 @@ import type { Job, WorkOrder } from "@/features/types";
 import { act, useCurrentUser, useDb } from "@/features/lib/store";
 import { LOG_HOURS_ALLOWED_STATUSES, logWorkOrderHours, renderedHoursBySurface } from "@/features/lib/store/actions/work-orders";
 import { employeeFor } from "@/features/lib/store/actions/workforce";
-import { specForSurface, surfaceHours } from "@/features/lib/rules/estimate";
+import { specForSurface, jobSurfaceHours } from "@/features/lib/rules/estimate";
 import { workDateOf } from "@/features/lib/rules/payroll";
 import { now } from "@/features/lib/clock";
 import { byId } from "@/features/lib/selectors";
@@ -106,7 +106,7 @@ export function LogHoursModal({ open, onOpenChange, wo, job }: { open: boolean; 
         <p className="text-sm text-gray-500">Enter rendered hours for each surface. Only surfaces with hours entered will be logged.</p>
         {areas.map((a) => {
           const rows = surfaces.filter((s) => s.areaId === a.id);
-          const est = rows.reduce((x, s) => x + surfaceHours(s, specForSurface(db, job.id, s.id)?.coats ?? 2), 0);
+          const est = rows.reduce((x, s) => x + jobSurfaceHours(db, job.id, s), 0);
           const ren = rows.reduce((x, s) => x + (rendered.get(s.id) ?? 0), 0);
           return (
             <div key={a.id} className="rounded-xl border border-gray-200">
@@ -120,7 +120,7 @@ export function LogHoursModal({ open, onOpenChange, wo, job }: { open: boolean; 
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <div>
                         <div className="text-sm font-semibold text-gray-900">{s.name}</div>
-                        <div className="text-xs text-gray-500">Est: {surfaceHours(s, specForSurface(db, job.id, s.id)?.coats ?? 2).toFixed(1)}h · Rendered: {(rendered.get(s.id) ?? 0).toFixed(1)}h</div>
+                        <div className="text-xs text-gray-500">Est: {jobSurfaceHours(db, job.id, s).toFixed(1)}h · Rendered: {(rendered.get(s.id) ?? 0).toFixed(1)}h</div>
                       </div>
                       <label className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-gray-400">
                         Log Hours

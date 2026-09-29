@@ -49,6 +49,7 @@ export default function ClientViewPage() {
   const [agree, setAgree] = useState(false);
   const [reason, setReason] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [selectedOptions, setSelectedOptions] = useState<string[] | null>(null);
   const twin = useProtoEstimate(id).est;
 
   // Opening the link counts as "viewed" (once).
@@ -70,8 +71,9 @@ export default function ClientViewPage() {
     );
   }
 
-  const total = estimateTotals(e).total;
-  const canRespond = e.status === 'Sent' || e.status === 'Viewed' || e.status === 'Draft';
+  const canRespond = e.status === 'Sent' || e.status === 'Viewed';
+  const proposal = canRespond && selectedOptions ? { ...e, lineItems: e.lineItems.map((l) => l.optional ? { ...l, selected: selectedOptions.includes(l.id) } : l) } : e;
+  const total = estimateTotals(proposal).total;
 
   const accept = () => {
     const err: Record<string, string> = {};
@@ -80,7 +82,7 @@ export default function ClientViewPage() {
     setErrors(err);
     if (Object.keys(err).length) return;
     const now = new Date().toISOString();
-    actions.setStatus(e, 'Approved', `Signed by ${name.trim()}`, { signature: { name: name.trim(), date: now } }, 'Customer');
+    actions.setStatus(proposal, 'Approved', `Signed by ${name.trim()}`, { signature: { name: name.trim(), date: now } }, 'Customer');
     log(`${e.estimateNumber} approved and signed by ${name.trim()}`, 'estimate', e.id);
     setAcceptOpen(false);
     toast('Estimate accepted. Thank you!');
@@ -138,10 +140,19 @@ export default function ClientViewPage() {
             This estimate has expired. Please contact us for an updated quote.
           </div>
         )}
-        <ProposalDocument estimate={e} className="print:hidden" />
+        {canRespond && e.lineItems.some((l) => l.optional) && <section className="mb-6 rounded-xl bg-white p-5 print:hidden">
+          <h3 className="mb-3 font-bold">Choose optional work</h3>
+          {e.lineItems.filter((l) => l.optional).map((l) => <label key={l.id} className="flex items-center gap-3 py-2">
+            <input type="checkbox" checked={proposal.lineItems.find((p) => p.id === l.id)?.selected ?? false} onChange={(ev) => {
+              const current = selectedOptions ?? e.lineItems.filter((p) => p.optional && p.selected).map((p) => p.id);
+              setSelectedOptions(ev.target.checked ? [...current, l.id] : current.filter((id) => id !== l.id));
+            }} /><span>{l.description} — {money(l.total)} before tax and discount</span>
+          </label>)}
+        </section>}
+        <ProposalDocument estimate={proposal} className="print:hidden" />
       </div>
       <PrintPortal>
-        <ProposalDocument estimate={e} />
+        <ProposalDocument estimate={proposal} />
       </PrintPortal>
 
       {canRespond && (

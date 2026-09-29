@@ -99,6 +99,12 @@ export function specDemand(db: Database, spec: SpecLine): DemandLine {
   const wasteOverride = latest(overrides.filter((o) => o.kind === "waste"));
   const coats = spec.coats ?? 0;
   const blocked: string[] = [];
+  for (const id of spec.surfaceIds) {
+    const surface = db.surfaces.find((s) => s.id === id);
+    if (surface && !surface.removedAt && surface.measurementUnit && surface.measurementUnit !== 'sqft' && !(surface.areaSqft > 0)) {
+      blocked.push(`Enter the coating area in square feet for ${surface.name}; ${surface.measurementUnit} cannot be used as square feet.`);
+    }
+  }
 
   // Coverage precedence: project override > field rate > manufacturer spread rate.
   const soundRate = coverageOverride?.value ?? catalog?.fieldRate ?? catalog?.spreadRate ?? 0;

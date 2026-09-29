@@ -43,7 +43,7 @@ export function CrewModal({ job, open, onOpenChange }: { job: Job; open: boolean
   const totalHours = round1(draft.reduce((s, c) => s + c.hours, 0));
 
   const save = () => {
-    setCrew(job.id, draft, `Crew updated (${draft.length} member${draft.length === 1 ? '' : 's'})`);
+    if (!setCrew(job.id, draft, `Crew updated (${draft.length} member${draft.length === 1 ? '' : 's'})`)) return;
     toast('Crew saved');
     onOpenChange(false);
   };

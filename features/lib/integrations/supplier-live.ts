@@ -36,7 +36,9 @@ export async function pollSupplierInbox(supplierId: string): Promise<number> {
   let data: { cursor: number; messages: SupplierMessage[] };
   try {
     const res = await fetch(`${base(supplierId)}/inbox?after=${cursors.get(supplierId) ?? 0}`, { cache: "no-store" });
+    if (!res.ok) return 0;
     data = await res.json();
+    if (!Array.isArray(data.messages)) return 0;
   } catch {
     return 0;
   }

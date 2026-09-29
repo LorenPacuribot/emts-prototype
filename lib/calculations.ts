@@ -17,6 +17,7 @@
 import type { Estimate, EstimateLineItem, Invoice } from './types';
 
 export const round2 = (n: number) => Math.round((n + Number.EPSILON) * 100) / 100;
+export const includedLine = (line: EstimateLineItem) => !line.optional || !!line.selected;
 
 export function laborHoursFor(quantity: number, coats: number, productionRate: number): number {
   if (!productionRate) return 0;
@@ -37,6 +38,7 @@ export function lineTotal(
 }
 
 export interface EstimateTotals {
+  optionalSubtotal: number;
   subtotal: number;
   discount: number;
   taxable: number;
@@ -52,7 +54,9 @@ export interface EstimateTotals {
 }
 
 export function estimateTotals(e: Pick<Estimate, 'lineItems' | 'extras' | 'discountType' | 'discountValue' | 'taxRate'>): EstimateTotals {
-  const linesSum = e.lineItems.reduce((s, l) => s + l.total, 0);
+  const included = e.lineItems.filter(includedLine);
+  const optionalSubtotal = round2(e.lineItems.filter((l) => !includedLine(l)).reduce((s, l) => s + l.total, 0));
+  const linesSum = included.reduce((s, l) => s + l.total, 0);
   const extrasSum = e.extras.reduce((s, x) => s + x.quantity * x.unitPrice, 0);
   const subtotal = round2(linesSum + extrasSum);
   const discount =
@@ -63,7 +67,7 @@ export function estimateTotals(e: Pick<Estimate, 'lineItems' | 'extras' | 'disco
   let laborCost = 0;
   let materialCost = 0;
   let laborHours = 0;
-  for (const l of e.lineItems) {
+  for (const l of included) {
     const c = lineCost(l);
     laborCost += c.labor;
     materialCost += c.material;
@@ -73,7 +77,7 @@ export function estimateTotals(e: Pick<Estimate, 'lineItems' | 'extras' | 'disco
   const profit = round2(taxable - cost);
   const margin = taxable ? round2((profit / taxable) * 100) : 0;
   return {
-    subtotal, discount, taxable, tax, total,
+    subtotal, discount, taxable, tax, total, optionalSubtotal,
     laborCost: round2(laborCost), materialCost: round2(materialCost), cost, profit, margin,
     laborHours: round2(laborHours),
   };

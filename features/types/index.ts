@@ -112,6 +112,8 @@ export type EstimateStatus = "DRAFT" | "SENT" | "VIEWED" | "ACCEPTED" | "AMENDED
 export const OPEN_ESTIMATE_STATUSES: EstimateStatus[] = ["DRAFT", "SENT", "VIEWED"];
 
 export interface Estimate {
+  /** Saved builder pricing is authoritative for estimates authored in the replica. */
+  pricingSnapshot?: Pick<import('@/lib/types').Estimate, 'lineItems' | 'extras' | 'discountType' | 'discountValue' | 'taxRate'>;
   id: ID; // EST-2026-1 (the live estimateNumber)
   title: string;
   customerId: ID;
@@ -339,6 +341,8 @@ export type SurfaceType = "walls" | "ceiling" | "trim" | "door" | "body" | "sidi
 export type SurfaceCondition = "sound" | "new_drywall" | "rough";
 
 export interface Surface {
+  measurementUnit?: 'sqft' | 'lnft' | 'each' | 'hour' | 'gallon';
+  measuredQuantity?: number;
   id: ID;
   propertyId: ID;
   areaId: ID;
@@ -570,6 +574,8 @@ export type JobStatus =
   | "completed";
 
 export interface Job {
+  scheduleProtected?: boolean;
+  crewAssignments?: import('@/lib/types').CrewAssignment[];
   id: ID; // JOB-2026-1
   name: string;
   propertyId: ID;

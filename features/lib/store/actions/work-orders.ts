@@ -22,6 +22,8 @@ import { byId } from "@/features/lib/selectors";
 import { workDateOf } from "@/features/lib/rules/payroll";
 import { ensureEntry } from "./workforce";
 import { denied, fail, log, nextId, ok } from "../helpers";
+import { shiftCapacityError } from '@/features/lib/rules/scheduling';
+import { addDays, daysInclusive } from '@/components/scheduling/schedule-utils';
 
 const MODULE = "Work Orders";
 
@@ -81,15 +83,30 @@ export function setWorkOrderStatus(db: Database, actor: User, woId: string, to: 
   return ok();
 }
 
-export function scheduleWorkOrder(db: Database, actor: User, woId: string, input: { startDate: string; endDate: string }) {
+export function scheduleWorkOrder(db: Database, actor: User, woId: string, input: { startDate: string; endDate: string; startTime?: string; endTime?: string }) {
   if (!can(actor, "workOrder.manageSchedule")) return denied(db, actor, MODULE, "schedule a work order", whoCan("workOrder.manageSchedule"));
   const wo = byId(db.workOrders, woId);
   if (!wo) return fail("Work order not found.");
+  if (byId(db.jobs, wo.jobId)?.scheduleProtected) return fail('Unprotect the schedule before moving this job.');
   if (wo.status === "PENDING_DEPOSIT") return fail("Confirm the deposit before scheduling.");
   if (wo.status === "COMPLETED") return fail("This work order is completed.");
   if (!input.startDate) return fail("Start Date is required.", "startDate");
   if (!input.endDate) return fail("End Date is required.", "endDate");
   if (input.endDate < input.startDate) return fail("End Date must be on or after Start Date.", "endDate");
+  const duration = daysInclusive(input.startDate, input.endDate);
+  if (!Number.isFinite(duration) || duration > 3660) return fail('Choose a valid date range of at most ten years.');
+  const oldStart = wo.shifts.map((s) => s.startDate).sort()[0];
+  const oldEnd = wo.shifts.map((s) => s.endDate).sort().at(-1);
+  const offset = oldStart ? daysInclusive(oldStart, input.startDate) - 1 : 0;
+  const shifts = wo.shifts.map((s) => ({ ...s,
+    startDate: addDays(s.startDate, offset),
+    endDate: s.startDate === oldStart && s.endDate === oldEnd ? input.endDate : addDays(s.endDate, offset),
+    startTime: input.startTime ?? s.startTime, endTime: input.endTime ?? s.endTime,
+  }));
+  if (shifts.some((s) => s.endDate > input.endDate || s.startDate < input.startDate || s.endDate < s.startDate)) return fail('The job dates must contain all assigned shifts.');
+  const capacityError = shiftCapacityError(db, woId, shifts);
+  if (capacityError) return fail(capacityError);
+  wo.shifts = shifts;
   wo.startDate = new Date(`${input.startDate}T08:00:00`).toISOString();
   wo.endDate = new Date(`${input.endDate}T17:00:00`).toISOString();
   const job = byId(db.jobs, wo.jobId);
@@ -110,9 +127,12 @@ export function markUnscheduled(db: Database, actor: User, woId: string) {
   if (!can(actor, "workOrder.manageSchedule")) return denied(db, actor, MODULE, "unschedule a work order", whoCan("workOrder.manageSchedule"));
   const wo = byId(db.workOrders, woId);
   if (!wo) return fail("Work order not found.");
+  if (byId(db.jobs, wo.jobId)?.scheduleProtected) return fail('Unprotect the schedule before cancelling it.');
   if (wo.status !== "SCHEDULED") return fail(`Only available when status is Scheduled (current: ${WO_STATUS_LABEL[wo.status]})`);
   wo.startDate = undefined;
   wo.endDate = undefined;
+  const job = byId(db.jobs, wo.jobId);
+  if (job) { job.scheduleStart = undefined; job.scheduleEnd = undefined; }
   move(db, actor, wo, "UNSCHEDULED");
   return ok();
 }
@@ -233,7 +253,11 @@ export function addShift(db: Database, actor: User, woId: string, input: { name?
   if (input.endDate < input.startDate) return fail("End Date must be on or after Start Date.", "endDate");
   if (!input.startTime || !input.endTime || input.endTime <= input.startTime) return fail("Default End must be after Default Start.", "endTime");
   if (input.memberIds.length === 0) return fail("No crew members selected. Search above to add.", "memberIds");
+  const capacityError = shiftCapacityError(db, woId, [...wo.shifts, { ...input, id: 'proposed-shift' }], false);
+  if (capacityError) return fail(capacityError, 'memberIds');
   wo.shifts.push({ id: nextId(db, "shift", "SH-"), ...input });
+  const job = byId(db.jobs, wo.jobId);
+  if (job) job.crewAssignments = undefined;
   log(db, actor, MODULE, `Work order ${wo.id} – Shift "${input.name || "Unnamed Shift"}" added by ${actor.name}`);
   return ok();
 }
@@ -243,6 +267,8 @@ export function removeShift(db: Database, actor: User, woId: string, shiftId: st
   const wo = byId(db.workOrders, woId);
   if (!wo) return fail("Work order not found.");
   wo.shifts = wo.shifts.filter((s) => s.id !== shiftId);
+  const job = byId(db.jobs, wo.jobId);
+  if (job) job.crewAssignments = undefined;
   return ok();
 }
 

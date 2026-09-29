@@ -29,8 +29,8 @@ import { acceptEstimateByToken, amendEstimate, deleteEstimate, markEstimateAppro
 import { scheduleLeadEstimate, setLeadStage } from '@/features/lib/store/actions/leads';
 import { setJobStage } from '@/features/lib/store/actions/jobs';
 import { markUnscheduled, scheduleWorkOrder, setWorkOrderStatus } from '@/features/lib/store/actions/work-orders';
-import { recordInvoicePayment, sendInvoice } from '@/features/lib/store/actions/invoices';
-import { estimateTotals as replicaTotals, invoiceTotals, round2 } from '@/lib/calculations';
+import { invoiceBalance, invoicePaid, reconcileInvoicePayments, sendInvoice } from '@/features/lib/store/actions/invoices';
+import { estimateTotals as replicaTotals, includedLine, invoiceTotals, round2 } from '@/lib/calculations';
 import * as M from './map';
 
 /* ---------- replica ops ---------- */
@@ -307,12 +307,13 @@ const leads: Entity<Lead> = {
 
 /* estimates */
 
-type ScopeValue = { areas: [string, string][]; lines: [string, string, P.SurfaceType, number][] };
+type ScopeValue = { areas: [string, string][]; lines: [string, string, P.SurfaceType, number, string, string, number][] };
 
 function replicaScope(r: Estimate): ScopeValue {
   const lines = r.lineItems
-    .map((l) => [l.id, l.areaId, M.surfaceTypeP(l.surfaceType || l.description), Math.round(l.quantity)] as [string, string, P.SurfaceType | undefined, number])
-    .filter((l): l is [string, string, P.SurfaceType, number] => !!l[2] && l[3] > 0)
+    .filter(includedLine)
+    .map((l) => [l.id, l.areaId, M.surfaceTypeP(l.surfaceType || l.description), l.quantity, l.description || l.surfaceType, l.unit, l.unit === 'sqft' ? l.quantity : (l.coatingAreaSqft ?? 0)] as [string, string, P.SurfaceType | undefined, number, string, string, number])
+    .filter((l): l is [string, string, P.SurfaceType, number, string, string, number] => !!l[2] && Number.isFinite(l[3]) && l[3] > 0)
     .sort((a, b) => a[0].localeCompare(b[0]));
   const used = new Set(lines.map((l) => l[1]));
   const areas = r.areas.filter((a) => used.has(a.id)).map((a) => [a.id, a.name] as [string, string]).sort((a, b) => a[0].localeCompare(b[0]));
@@ -324,7 +325,7 @@ function protoScope(p: P.Database, estId: string): ScopeValue {
   const job = M.scopeJob(p, est);
   if (!job) return { areas: [], lines: [] };
   const surfaces = job.surfaceIds.map((id) => byId(p.surfaces, id)).filter((s): s is P.Surface => !!s && !s.removedAt);
-  const lines = surfaces.map((s) => [s.id, s.areaId, s.type, Math.round(s.areaSqft)] as [string, string, P.SurfaceType, number]).sort((a, b) => a[0].localeCompare(b[0]));
+  const lines = surfaces.map((s) => [s.id, s.areaId, s.type, s.measuredQuantity ?? s.areaSqft, s.name, s.measurementUnit ?? 'sqft', s.areaSqft] as [string, string, P.SurfaceType, number, string, string, number]).sort((a, b) => a[0].localeCompare(b[0]));
   const used = [...new Set(lines.map((l) => l[1]))];
   const areas = used.map((id) => [id, byId(p.areas, id)?.name ?? 'Area'] as [string, string]).sort((a, b) => a[0].localeCompare(b[0]));
   return { areas, lines };
@@ -341,6 +342,16 @@ function roomTypeFor(name: string, kind: P.AreaKind): P.RoomType {
 }
 
 const editable = (s?: P.EstimateStatus) => s === 'DRAFT' || s === 'AMENDED_DRAFT';
+
+function canSyncPricing(est: P.Estimate, r: Estimate) {
+  if (editable(est.status)) return true;
+  if (!['SENT', 'VIEWED'].includes(est.status) || !est.pricingSnapshot) return false;
+  const stripSelection = (lines: Estimate['lineItems']) => lines.map(({ selected: _selected, ...line }) => line);
+  const old = est.pricingSnapshot;
+  // Customer selection may change only selection flags on an otherwise frozen quote.
+  return eq(stripSelection(old.lineItems), stripSelection(r.lineItems)) && eq(old.extras, r.extras)
+    && old.taxRate === r.taxRate && old.discountType === r.discountType && old.discountValue === r.discountValue;
+}
 
 const P_EST_STATUS: Record<Estimate['status'], P.EstimateStatus> = {
   Draft: 'DRAFT', Sent: 'SENT', Viewed: 'VIEWED', Approved: 'ACCEPTED', Rejected: 'DECLINED', Expired: 'EXPIRED',
@@ -391,7 +402,7 @@ const estimates: Entity<Estimate> = {
       writeP: (v, id, r) => {
         const x = v as ScopeValue;
         const est = byId(getDb().estimates, id);
-        if (!est || !editable(est.status)) return 'keep';
+        if (!est || !canSyncPricing(est, r)) return 'keep';
         pWrite((d) => {
           const e = byId(d.estimates, id)!;
           const job = byId(d.jobs, e.jobId);
@@ -402,13 +413,16 @@ const estimates: Entity<Estimate> = {
             if (a) a.name = name;
             else d.areas.push({ id: aid, propertyId: job.propertyId, name, kind, roomType: roomTypeFor(name, kind) });
           }
-          for (const [sid, aid, type, qty] of x.lines) {
-            const li = r.lineItems.find((l) => l.id === sid);
+          for (const [sid, aid, type, qty, name, unit, coatingArea] of x.lines) {
             const s = byId(d.surfaces, sid);
-            if (s) Object.assign(s, { areaId: aid, type, areaSqft: qty });
-            else d.surfaces.push({ id: sid, propertyId: job.propertyId, areaId: aid, name: li?.description || li?.surfaceType || type, type, areaSqft: qty, condition: 'sound' });
+            if (s) Object.assign(s, { areaId: aid, type, areaSqft: coatingArea, measuredQuantity: qty, measurementUnit: unit as P.Surface['measurementUnit'], name });
+            else d.surfaces.push({ id: sid, propertyId: job.propertyId, areaId: aid, name: name || type, type, areaSqft: coatingArea, measuredQuantity: qty, measurementUnit: unit as P.Surface['measurementUnit'], condition: 'sound' });
           }
           job.surfaceIds = x.lines.map((l) => l[0]);
+          // Removed scope must no longer contribute to this job's paint demand.
+          for (const spec of d.specs.filter((s) => s.jobId === job.id && s.state !== 'superseded')) {
+            spec.surfaceIds = spec.surfaceIds.filter((sid) => job.surfaceIds.includes(sid));
+          }
         });
       },
     },
@@ -416,10 +430,46 @@ const estimates: Entity<Estimate> = {
       name: 'total', dir: 'toP',
       readP: (p, id) => round2(byId(p.estimates, id)!.total),
       readR: (r) => round2(replicaTotals(r).total),
-      writeP: (v, id) => {
-        if (!editable(byId(getDb().estimates, id)?.status)) return 'keep';
+      writeP: (v, id, r) => {
+        const est = byId(getDb().estimates, id);
+        if (!est || !canSyncPricing(est, r)) return 'keep';
         pWrite((d) => { const e = byId(d.estimates, id); if (e) e.total = v as number; });
       },
+    },
+    {
+      name: 'pricing', dir: 'toP',
+      readP: (p, id) => byId(p.estimates, id)!.pricingSnapshot,
+      readR: (r) => ({ lineItems: r.lineItems, extras: r.extras, discountType: r.discountType, discountValue: r.discountValue, taxRate: r.taxRate }),
+      writeP: (v, id, r) => {
+        const est = byId(getDb().estimates, id);
+        if (!est || !canSyncPricing(est, r)) return 'keep';
+        pWrite((d) => {
+          const e = byId(d.estimates, id)!;
+          e.pricingSnapshot = structuredClone(v) as P.Estimate['pricingSnapshot'];
+          const job = byId(d.jobs, e.jobId);
+          if (job) {
+            job.taxRatePct = r.taxRate;
+            for (const area of r.areas) {
+              if (!byId(d.areas, area.id)) d.areas.push({ id: area.id, propertyId: job.propertyId, name: area.name, kind: 'interior', roomType: 'living_room' });
+            }
+            for (const line of r.lineItems.filter((l) => l.optional)) {
+              const type = M.surfaceTypeP(line.surfaceType || line.description);
+              if (!type) continue;
+              const fields = { areaId: line.areaId, name: line.description, type,
+                areaSqft: line.unit === 'sqft' ? line.quantity : line.coatingAreaSqft ?? 0, measurementUnit: line.unit, measuredQuantity: line.quantity };
+              const existing = byId(d.surfaces, line.id);
+              if (existing) Object.assign(existing, fields);
+              else d.surfaces.push({ id: line.id, propertyId: job.propertyId, ...fields, condition: 'sound' });
+            }
+          }
+        });
+      },
+    },
+    {
+      name: 'approvedPricing', dir: 'toR',
+      readP: (p, id) => { const e = byId(p.estimates, id)!; return e.status === 'ACCEPTED' ? e.pricingSnapshot : undefined; },
+      readR: (r) => ({ lineItems: r.lineItems, extras: r.extras, discountType: r.discountType, discountValue: r.discountValue, taxRate: r.taxRate }),
+      writeR: (v) => v ? v as Partial<Estimate> : {},
     },
     {
       name: 'meta', dir: 'both',
@@ -508,6 +558,19 @@ const jobs: Entity<Job> = {
   project: (p, id) => M.projectJob(p, byId(p.jobs, id)!),
   facets: [
     {
+      name: 'protection', dir: 'both',
+      readP: (p, id) => !!byId(p.jobs, id)!.scheduleProtected,
+      readR: (r) => !!r.scheduleProtected,
+      writeR: (v) => ({ scheduleProtected: v as boolean }),
+      writeP: (v, id) => pWrite((d) => { const j = byId(d.jobs, id); if (j) j.scheduleProtected = v as boolean; }),
+    },
+    {
+      name: 'hours', dir: 'toR',
+      readP: (p, id) => M.projectJob(p, byId(p.jobs, id)!).estimatedHours,
+      readR: (r) => r.estimatedHours,
+      writeR: (v) => ({ estimatedHours: v as number }),
+    },
+    {
       name: 'status', dir: 'both',
       readP: (p, id) => M.JOB_STATUS_R[byId(p.jobs, id)!.status as Exclude<P.JobStatus, 'estimating'>] ?? 'Unscheduled',
       readR: (r) => r.status,
@@ -522,25 +585,28 @@ const jobs: Entity<Job> = {
     {
       name: 'schedule', dir: 'both',
       readP: (p, id) => M.jobSchedule(p, byId(p.jobs, id)!),
-      readR: (r) => ({ startDate: r.startDate, endDate: r.endDate }),
+      readR: (r) => ({ startDate: r.startDate, endDate: r.endDate, startTime: r.startTime, endTime: r.endTime }),
       writeR: (v) => v as Partial<Job>,
       writeP: (v, id) => {
-        const x = v as { startDate?: string; endDate?: string };
+        const x = v as { startDate?: string; endDate?: string; startTime?: string; endTime?: string };
         const p = getDb();
         const wo = p.workOrders.find((w) => w.jobId === id);
-        if (wo && x.startDate && x.endDate) act(scheduleWorkOrder, wo.id, { startDate: x.startDate, endDate: x.endDate < x.startDate ? x.startDate : x.endDate });
+        if (wo && x.startDate && x.endDate) act(scheduleWorkOrder, wo.id, { startDate: x.startDate, endDate: x.endDate, startTime: x.startTime, endTime: x.endTime });
         else if (wo && !x.startDate && wo.status === 'SCHEDULED') act(markUnscheduled, wo.id);
         else if (!wo) pWrite((d) => { const j = byId(d.jobs, id); if (j) { j.scheduleStart = x.startDate ? iso(x.startDate, 8) : undefined; j.scheduleEnd = x.endDate ? iso(x.endDate, 17) : undefined; } });
       },
     },
     {
       name: 'crew', dir: 'both',
-      readP: (p, id) => M.jobCrew(p, id).map((c) => c.memberId).sort(),
-      readR: (r) => [...new Set(r.crew.map((c) => c.memberId))].sort(),
-      writeR: (v, r) => ({ crew: (v as string[]).map((memberId, i) => r.crew.find((c) => c.memberId === memberId) ?? { memberId, role: i === 0 ? 'Crew Lead' : 'Painter', hours: 0 }) }),
+      readP: (p, id) => M.jobCrew(p, id).sort((a, b) => a.memberId.localeCompare(b.memberId)),
+      readR: (r) => [...r.crew].sort((a, b) => a.memberId.localeCompare(b.memberId)),
+      writeR: (v) => ({ crew: v as Job['crew'] }),
       writeP: (v, id, r) => {
-        const ids = v as string[];
+        const crew = v as Job['crew'];
+        const ids = crew.map((c) => c.memberId);
         pWrite((d) => {
+          const j = byId(d.jobs, id);
+          if (j) j.crewAssignments = structuredClone(crew);
           const wo = d.workOrders.find((w) => w.jobId === id);
           if (!wo) return;
           const empIds = ids.map((m) => d.employees?.find((e) => e.userId === m)?.id ?? m);
@@ -622,23 +688,17 @@ const invoices: Entity<Invoice> = {
     },
     {
       name: 'payments', dir: 'both',
-      readP: (p, id) => M.projectPayments(byId(p.invoices, id)!).map((x) => ({ id: x.id, amount: round2(x.amount), method: x.method, date: x.date })).sort((a, b) => a.id.localeCompare(b.id)),
-      readR: (r) => r.payments.map((x) => ({ id: x.id, amount: round2(x.amount), method: x.method, date: x.date.slice(0, 10) })).sort((a, b) => a.id.localeCompare(b.id)),
+      readP: (p, id) => M.projectPayments(byId(p.invoices, id)!).map((x) => ({ id: x.id, amount: round2(x.amount), method: x.method, date: x.date, reference: x.reference ?? '', note: x.note ?? '' })).sort((a, b) => a.id.localeCompare(b.id)),
+      readR: (r) => r.payments.map((x) => ({ id: x.id, amount: round2(x.amount), method: x.method, date: x.date.slice(0, 10), reference: x.reference ?? '', note: x.note ?? '' })).sort((a, b) => a.id.localeCompare(b.id)),
       writeR: (v, r, p) => ({ payments: M.projectPayments(byId(p.invoices, r.id)!).map((x) => ({ ...x, cardLast4: r.payments.find((y) => y.id === x.id)?.cardLast4 })) }),
       writeP: (v, id, r) => {
         const want = v as PayValue;
-        const have = byId(getDb().invoices, id)?.payments ?? [];
-        // Removed on the replica side.
-        const keep = new Set(want.map((x) => x.id));
-        if (have.some((x) => !keep.has(x.id))) pWrite((d) => { const i = byId(d.invoices, id); if (i) i.payments = (i.payments ?? []).filter((x) => keep.has(x.id)); });
-        for (const x of want) {
-          if (have.some((h) => h.id === x.id) || x.id.endsWith(M.SETTLED_SUFFIX)) continue;
-          const src = r.payments.find((y) => y.id === x.id)!;
-          const res = act(recordInvoicePayment, id, { amount: x.amount, method: M.PAY_METHOD_P[src.method], reference: src.reference || x.id, notes: src.note });
-          if (!res.ok) continue;
-          // Keep the replica's payment id and date so both sides match.
-          pWrite((d) => { const i = byId(d.invoices, id); const last = i?.payments?.[i.payments.length - 1]; if (last) { last.id = x.id; last.at = iso(x.date); } });
-        }
+        const prior = byId(getDb().invoices, id)?.payments ?? [];
+        act(reconcileInvoicePayments, id, want.map((x) => {
+          const src = r.payments.find((p) => p.id === x.id)!;
+          return { id: x.id, amount: x.amount, method: M.PAY_METHOD_P[src.method], reference: src.reference,
+            notes: src.note, at: iso(x.date), by: prior.find((p) => p.id === x.id)?.by ?? useStore.getState().currentUserId };
+        }), 'Payment list updated on invoice');
       },
     },
     {
@@ -650,6 +710,11 @@ const invoices: Entity<Invoice> = {
         const i = byId(getDb().invoices, id);
         if (!i) return;
         if (v === 'sent' && i.status === 'draft') act(sendInvoice, id);
+        else if (v === 'paid' || v === 'partial') {
+          // A rejected payment must not be bypassed by the replica's optimistic status.
+          const status = invoicePaid(i) > 0 ? (invoiceBalance(i) <= 0 ? 'paid' : 'partial') : undefined;
+          if (status) pWrite((d) => { const x = byId(d.invoices, id); if (x) x.status = status; });
+        }
         else if (v !== 'sent') pWrite((d) => { const x = byId(d.invoices, id); if (x) x.status = v as P.InvoiceStatus; });
       },
     },
@@ -797,11 +862,13 @@ function syncTeam(rdb: RDb, ops: BridgeOp[]) {
 function syncEvents(rdb: RDb, ops: BridgeOp[]) {
   const p = getDb();
   const events = rdb.collections.events;
+  const activeIds = new Set<string>();
   for (const l of p.leads) {
     if (!l.scheduledAt || !['estimate_scheduled', 'pending'].includes(l.stage)) continue;
     const own = events.find((e) => e.leadId === l.id && e.id !== `ev-${l.id}`);
     if (own) continue;
     const start = new Date(l.scheduledAt);
+    if (Number.isNaN(start.getTime())) continue;
     const end = new Date(start.getTime() + (l.durationMin ?? 60) * 60_000);
     const hhmm = (d: Date) => `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
     const prop = byId(p.properties, l.propertyId);
@@ -810,9 +877,16 @@ function syncEvents(rdb: RDb, ops: BridgeOp[]) {
       startTime: hhmm(start), endTime: hhmm(end), leadId: l.id, customerId: byId(p.customers, l.customerId)?.leadOnly ? undefined : l.customerId,
       assignedTo: l.assignedUserId, address: M.addressLine(prop),
     };
+    activeIds.add(ev.id);
     const have = events.find((e) => e.id === ev.id);
     if (!have) ops.push({ kind: 'upsert', key: 'events', item: ev });
-    else if (have.date !== ev.date || have.startTime !== ev.startTime || have.assignedTo !== ev.assignedTo) ops.push({ kind: 'patch', key: 'events', id: ev.id, patch: { date: ev.date, startTime: ev.startTime, endTime: ev.endTime, assignedTo: ev.assignedTo } });
+    else if (Object.entries(ev).some(([key, value]) => have[key as keyof CalendarEvent] !== value)) ops.push({ kind: 'patch', key: 'events', id: ev.id, patch: ev });
+  }
+  for (const ev of events) {
+    // Only remove bridge-owned events; manually created calendar entries belong to the user.
+    if (ev.leadId && ev.id === `ev-${ev.leadId}` && !activeIds.has(ev.id)) {
+      ops.push({ kind: 'remove', key: 'events', id: ev.id });
+    }
   }
 }
 

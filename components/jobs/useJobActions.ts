@@ -12,6 +12,8 @@ import { useCallback } from 'react';
 import { useCollection, useLogActivity } from '@/lib/store';
 import type { CrewAssignment, Job, JobBreak, JobNote, JobStatus } from '@/lib/types';
 import { shortDate, uid } from '@/lib/utils';
+import { scheduleError } from '@/lib/scheduling';
+import { useToast } from '@/components/ui/toast';
 
 export interface ScheduleInput {
   startDate: string;
@@ -21,7 +23,9 @@ export interface ScheduleInput {
 }
 
 export function useJobActions() {
-  const { get, update, remove } = useCollection('jobs');
+  const { items, get, update, remove, setAll } = useCollection('jobs');
+  const { items: team } = useCollection('team');
+  const { toast } = useToast();
   const log = useLogActivity();
 
   /** Applies a patch and appends a history line. */
@@ -55,12 +59,16 @@ export function useJobActions() {
       const job = get(id);
       if (!job) return;
       const patch: Partial<Job> = { ...s };
+      if (job.scheduleProtected) { toast('Unprotect the schedule before moving this job', 'error'); return false; }
+      const error = scheduleError({ ...job, ...patch }, items, team);
+      if (error) { toast(error, 'error'); return false; }
       if (job.status === 'Unscheduled' || job.status === 'Confirmed') patch.status = 'Scheduled';
       const verb = job.startDate ? 'Rescheduled' : 'Scheduled';
       change(id, patch, `${verb} for ${shortDate(s.startDate)} - ${shortDate(s.endDate)}`);
       log(`${job.jobNumber} ${verb.toLowerCase()} for ${shortDate(s.startDate)}`, 'job', id);
+      return true;
     },
-    [get, change, log],
+    [get, change, log, items, team, toast],
   );
 
   /** Clears dates and moves the job back to the Unscheduled backlog. */
@@ -68,6 +76,7 @@ export function useJobActions() {
     (id: string) => {
       const job = get(id);
       if (!job) return;
+      if (job.scheduleProtected) { toast('Unprotect the schedule before cancelling it', 'error'); return false; }
       change(
         id,
         { startDate: undefined, endDate: undefined, startTime: undefined, endTime: undefined, status: 'Unscheduled' },
@@ -75,30 +84,57 @@ export function useJobActions() {
       );
       log(`${job.jobNumber} schedule cancelled`, 'job', id);
     },
-    [get, change, log],
+    [get, change, log, toast],
   );
 
   const setCrew = useCallback(
-    (id: string, crew: CrewAssignment[], text = 'Crew updated') => change(id, { crew }, text),
-    [change],
+    (id: string, crew: CrewAssignment[], text = 'Crew updated') => {
+      const job = get(id);
+      if (!job) return false;
+      const error = scheduleError({ ...job, crew }, items, team);
+      if (error) { toast(error, 'error'); return false; }
+      change(id, { crew }, text);
+      return true;
+    },
+    [change, get, items, team, toast],
   );
+
+  const applySchedulePlan = (planned: Job[], reason: string) => {
+    const candidates = items.map((j) => planned.find((p) => p.id === j.id) ?? j);
+    for (const job of planned) {
+      if (get(job.id)?.scheduleProtected) { toast('A selected job is protected', 'error'); return false; }
+      const error = scheduleError(job, candidates, team);
+      if (error) { toast(error, 'error'); return false; }
+    }
+    setAll(candidates.map((j) => planned.some((p) => p.id === j.id) ? { ...j, history: [...j.history, { date: new Date().toISOString(), text: `Bulk rescheduled: ${reason}` }] } : j));
+    log(`${planned.length} jobs rescheduled: ${reason}`);
+    return true;
+  };
 
   const addBreak = useCallback(
     (id: string, b: Omit<JobBreak, 'id'>) => {
       const job = get(id);
-      if (!job) return;
-      change(id, { breaks: [...job.breaks, { ...b, id: uid('jb') }] }, `Paused ${shortDate(b.startDate)} - ${shortDate(b.endDate)} (${b.reason})`);
+      if (!job) return false;
+      const breaks = [...job.breaks, { ...b, id: uid('jb') }];
+      const error = scheduleError({ ...job, breaks }, items, team);
+      if (error) { toast(error, 'error'); return false; }
+      change(id, { breaks }, `Paused ${shortDate(b.startDate)} - ${shortDate(b.endDate)} (${b.reason})`);
+      return true;
     },
-    [get, change],
+    [get, change, items, team, toast],
   );
 
   const removeBreak = useCallback(
     (id: string, breakId: string) => {
       const job = get(id);
-      if (!job) return;
-      change(id, { breaks: job.breaks.filter((b) => b.id !== breakId) }, 'Pause period removed');
+      if (!job) return false;
+      const breaks = job.breaks.filter((b) => b.id !== breakId);
+      const error = scheduleError({ ...job, breaks }, items, team);
+      if (error) { toast(error, 'error'); return false; }
+      change(id, { breaks }, 'Pause period removed');
+      return true;
     },
-    [get, change],
+    [get, change, items, team, toast],
   );
 
   const addNote = useCallback(
@@ -129,5 +165,5 @@ export function useJobActions() {
     [get, remove, log],
   );
 
-  return { change, setStatus, setSchedule, cancelSchedule, setCrew, addBreak, removeBreak, addNote, removeNote, deleteJob };
+  return { change, setStatus, setSchedule, applySchedulePlan, cancelSchedule, setCrew, addBreak, removeBreak, addNote, removeNote, deleteJob };
 }

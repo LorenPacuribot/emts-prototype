@@ -22,7 +22,13 @@ import { round2 } from '@/lib/calculations';
 
 /* ---------- small helpers ---------- */
 
-export const dayOf = (iso?: string) => (iso ? localDay(new Date(iso)) : undefined);
+export const dayOf = (iso?: string) => {
+  if (!iso) return undefined;
+  // A calendar date is not a UTC timestamp: parsing it shifts the day west of UTC.
+  if (/^\d{4}-\d{2}-\d{2}$/.test(iso)) return iso;
+  const date = new Date(iso);
+  return Number.isNaN(date.getTime()) ? undefined : localDay(date);
+};
 function localDay(d: Date) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
@@ -222,11 +228,12 @@ export function projectScope(db: P.Database, est: P.Estimate): { areas: Estimate
   const job = scopeJob(db, est);
   if (!job) return { areas: [], lineItems: [], taxRate: 0 };
   const surfaces = job.surfaceIds.map((id) => db.surfaces.find((s) => s.id === id)).filter((s): s is P.Surface => !!s && !s.removedAt);
-  const areaIds = [...new Set(surfaces.map((s) => s.areaId))];
+  const areaIds = [...new Set(est.pricingSnapshot ? est.pricingSnapshot.lineItems.map((l) => l.areaId) : surfaces.map((s) => s.areaId))];
   const areas: EstimateArea[] = areaIds.map((id) => {
     const a = db.areas.find((x) => x.id === id);
     return { id, name: a?.name ?? 'Area' };
   });
+  if (est.pricingSnapshot) return { areas, lineItems: structuredClone(est.pricingSnapshot.lineItems), taxRate: est.pricingSnapshot.taxRate };
   const total = estimateTotal(db, est);
   const preTax = total / (1 + job.taxRatePct / 100);
   const hours = surfaces.map((s) => surfaceHours(s, coatsFor(db, job.id, s.id)));
@@ -257,8 +264,8 @@ export function projectEstimate(db: P.Database, est: P.Estimate): Estimate {
     estimateType: job ? TYPE_R[job.jobType] : 'Interior', status, date: est.estimateDate ?? est.createdAt,
     validUntil: est.validUntil ?? est.createdAt, address: addressLine(prop), areas: scope.areas, lineItems: scope.lineItems,
     // No surface lines (e.g. priced from history): carry the signed amount as one line.
-    extras: scope.lineItems.length || !(total > 0) ? [] : [{ id: est.id + '-basis', name: est.repeatEstimateId ? 'Priced from history' : 'Contract amount', quantity: 1, unitPrice: round2(total / (1 + scope.taxRate / 100)) }],
-    discountType: 'none', discountValue: 0, taxRate: scope.taxRate, profitMargin: 0, notes: est.customerNotes, internalNotes: est.internalNotes,
+    extras: est.pricingSnapshot?.extras ?? (scope.lineItems.length || !(total > 0) ? [] : [{ id: est.id + '-basis', name: est.repeatEstimateId ? 'Priced from history' : 'Contract amount', quantity: 1, unitPrice: round2(total / (1 + scope.taxRate / 100)) }]),
+    discountType: est.pricingSnapshot?.discountType ?? 'none', discountValue: est.pricingSnapshot?.discountValue ?? 0, taxRate: scope.taxRate, profitMargin: 0, notes: est.customerNotes, internalNotes: est.internalNotes,
     createdBy: est.estimatorId ?? 'U-EST', createdAt: est.createdAt, updatedAt: est.lastAmendedAt ?? est.sentAt ?? est.createdAt,
     sentAt: est.sentAt, viewedAt: est.viewedAt, approvedAt: est.acceptedAt,
     signature: est.status === 'ACCEPTED' && est.signatureName ? { name: est.signatureName, date: est.acceptedAt ?? est.createdAt } : null,
@@ -270,6 +277,8 @@ export function projectEstimate(db: P.Database, est: P.Estimate): Estimate {
 /* ---------- jobs ---------- */
 
 export function jobCrew(db: P.Database, jobId: string): Job['crew'] {
+  const saved = db.jobs.find((j) => j.id === jobId)?.crewAssignments;
+  if (saved) return structuredClone(saved);
   const wo = db.workOrders.find((w) => w.jobId === jobId);
   // Scheduled hours per member: weekdays in each shift x the shift's daily hours.
   const hours = new Map<string, number>();
@@ -289,7 +298,8 @@ export function jobCrew(db: P.Database, jobId: string): Job['crew'] {
 
 export function jobSchedule(db: P.Database, job: P.Job) {
   const wo = db.workOrders.find((w) => w.jobId === job.id);
-  return { startDate: dayOf(wo?.startDate ?? job.scheduleStart), endDate: dayOf(wo?.endDate ?? job.scheduleEnd) };
+  const shift = wo?.shifts[0];
+  return { startDate: dayOf(wo?.startDate ?? job.scheduleStart), endDate: dayOf(wo?.endDate ?? job.scheduleEnd), startTime: shift?.startTime, endTime: shift?.endTime };
 }
 
 export function projectJob(db: P.Database, job: P.Job): Job {
@@ -303,6 +313,7 @@ export function projectJob(db: P.Database, job: P.Job): Job {
     id: job.id, jobNumber: job.id, title: job.name, customerId: job.customerId, estimateId: job.estimateId, leadId: job.leadId ?? est?.leadId,
     address: addressLine(prop), status: JOB_STATUS_R[job.status as Exclude<P.JobStatus, 'estimating'>] ?? 'Unscheduled',
     ...sched, startTime: shift?.startTime, endTime: shift?.endTime, estimatedHours: hours, value: job.contractValue || est?.total || 0,
+    scheduleProtected: job.scheduleProtected,
     crew: jobCrew(db, job.id), breaks: [], notes: [], history: [{ date: job.contractSignedAt ?? db.seededAt, text: `Job created from ${job.estimateId ?? 'the feature prototype'}` }],
     createdAt: job.contractSignedAt ?? db.seededAt, completedAt: job.closedAt,
   };

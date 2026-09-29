@@ -6,7 +6,7 @@
 */
 import { useCallback } from 'react';
 import type { Estimate, Invoice, InvoiceLineItem, InvoiceStatus, Payment } from '@/lib/types';
-import { derivedInvoiceStatus, round2 } from '@/lib/calculations';
+import { derivedInvoiceStatus, includedLine, round2 } from '@/lib/calculations';
 import { useCollection } from '@/lib/store';
 import { toISODate, uid } from '@/lib/utils';
 
@@ -59,7 +59,7 @@ export function linesFromEstimate(e: Estimate, fraction = 1): InvoiceLineItem[] 
     id: uid('il'),
     description: `${a.name} — ${e.title}`,
     quantity: 1,
-    rate: round2(e.lineItems.filter((l) => l.areaId === a.id).reduce((s, l) => s + l.total, 0) * fraction),
+    rate: round2(e.lineItems.filter((l) => l.areaId === a.id && includedLine(l)).reduce((s, l) => s + l.total, 0) * fraction),
   }));
   for (const x of e.extras) items.push({ id: uid('il'), description: x.name, quantity: x.quantity, rate: round2(x.unitPrice * fraction) });
   return items;

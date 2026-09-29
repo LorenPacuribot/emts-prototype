@@ -37,7 +37,14 @@ describe("Work order — live status flow", () => {
     const r = run(db, "U-OFFICE", markUnscheduled, "WO-2026-2");
     expect(wo(r.db, "WO-2026-2").status).toBe("UNSCHEDULED");
     expect(run(r.db, "U-OFFICE", scheduleWorkOrder, "WO-2026-2", { startDate: "2026-06-20", endDate: "2026-06-18" }).result.ok).toBe(false);
-    const s = run(r.db, "U-OFFICE", scheduleWorkOrder, "WO-2026-2", { startDate: "2026-06-18", endDate: "2026-06-20" });
+    // The seed shares a painter with another job on these dates; that move is now rejected.
+    expect(run(r.db, 'U-OFFICE', scheduleWorkOrder, 'WO-2026-2', { startDate: '2026-06-18', endDate: '2026-06-20' }).result.ok).toBe(false);
+    const available = produce(r.db, (d) => {
+      for (const w of d.workOrders) if (w.id !== 'WO-2026-2') w.shifts = [];
+      d.workOrders.find((w) => w.id === 'WO-2026-2')!.shifts[0]!.endTime = '16:00';
+    });
+    const s = run(available, "U-OFFICE", scheduleWorkOrder, "WO-2026-2", { startDate: "2026-06-18", endDate: "2026-06-20" });
+    if (!s.result.ok) throw new Error(s.result.error);
     expect(wo(s.db, "WO-2026-2").status).toBe("SCHEDULED");
   });
 

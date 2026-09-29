@@ -64,7 +64,7 @@ export default function JobSchedulingPage() {
     if (!j || j.status === 'Completed') return;
     const len = j.startDate ? daysInclusive(j.startDate, j.endDate ?? j.startDate) : defaultDurationDays(j);
     if (j.startDate === day) return;
-    actions.setSchedule(j.id, { startDate: day, endDate: addDays(day, len - 1), startTime: j.startTime ?? '08:00', endTime: j.endTime ?? '16:30' });
+    if (!actions.setSchedule(j.id, { startDate: day, endDate: addDays(day, len - 1), startTime: j.startTime ?? '08:00', endTime: j.endTime ?? '16:30' })) return;
     toast(`${j.jobNumber} ${j.startDate ? 'moved' : 'scheduled'} to ${shortDate(day)}`);
   };
 

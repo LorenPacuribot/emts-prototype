@@ -11,7 +11,7 @@ import { useParam } from "@/features/lib/navigation";
 import { byId } from "@/features/lib/selectors";
 import { sourceName } from "@/features/lib/store/helpers";
 import { ESTIMATE_STATUS_LABEL, ESTIMATE_STATUS_TONE } from "@/features/lib/rules/estimate-lifecycle";
-import { specForSurface, surfaceHours } from "@/features/lib/rules/estimate";
+import { specForSurface, jobSurfaceHours } from "@/features/lib/rules/estimate";
 import { renderedHoursBySurface } from "@/features/lib/store/actions/work-orders";
 import { downloadCsv } from "@/features/lib/export";
 import { date, dateTime, money } from "@/features/lib/format";
@@ -106,7 +106,7 @@ function JobsToDo() {
   const db = useDb((d) => d);
   const rows = useMemo(() => db.workOrders.filter((w) => w.status !== "COMPLETED").map((w) => {
     const job = byId(db.jobs, w.jobId)!;
-    const budget = job.surfaceIds.map((id) => byId(db.surfaces, id)).filter(Boolean).reduce((a, s) => a + surfaceHours(s!, specForSurface(db, job.id, s!.id)?.coats ?? 2), 0);
+    const budget = job.surfaceIds.map((id) => byId(db.surfaces, id)).filter(Boolean).reduce((a, s) => a + jobSurfaceHours(db, job.id, s!), 0);
     const used = Array.from(renderedHoursBySurface(w).values()).reduce((a, b) => a + b, 0);
     return { job, budget, used, remaining: budget - used, pct: budget ? used / budget : 0 };
   }), [db]);

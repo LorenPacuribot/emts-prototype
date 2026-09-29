@@ -24,6 +24,7 @@ import { useCollection, useCurrentUser, useLookups } from '@/lib/store';
 import type { Job } from '@/lib/types';
 import { cn, fullName, longDate } from '@/lib/utils';
 import { addDays, fmtDay, fmtSpan, fmtTime, workingJobDays } from './schedule-utils';
+import { planReschedule } from '@/lib/scheduling';
 
 const PRIORITIES = ['Low', 'Normal', 'High', 'Urgent'] as const;
 
@@ -165,8 +166,9 @@ export function JobDetailsPanel({
 /* ---------- Bulk reschedule ---------- */
 
 export function BulkRescheduleModal({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
-  const { items: jobs } = useCollection('jobs');
-  const { setSchedule } = useJobActions();
+  const { items: jobs, update } = useCollection('jobs');
+  const { items: team } = useCollection('team');
+  const { applySchedulePlan } = useJobActions();
   const { toast } = useToast();
   const [from, setFrom] = useState('');
   const [shift, setShift] = useState(1);
@@ -182,22 +184,20 @@ export function BulkRescheduleModal({ open, onOpenChange }: { open: boolean; onO
       .sort((a, b) => a.startDate!.localeCompare(b.startDate!)),
     [jobs, from],
   );
-  const chosen = affected.filter((j) => !excluded.includes(j.id));
+  const chosen = affected.filter((j) => !excluded.includes(j.id) && !j.scheduleProtected);
+  const plan = planReschedule(jobs, team, chosen.map((j) => j.id), from, shift);
 
   const apply = () => {
-    for (const j of chosen) {
-      // Jobs already running only have their end pushed; later jobs move whole.
-      const start = j.startDate! >= from ? addDays(j.startDate!, shift) : j.startDate!;
-      setSchedule(j.id, { startDate: start, endDate: addDays(j.endDate ?? j.startDate!, shift), startTime: j.startTime, endTime: j.endTime });
-    }
+    if (plan.error || !applySchedulePlan(plan.jobs, reason)) return;
     toast(`${chosen.length} job${chosen.length === 1 ? '' : 's'} shifted ${shift} day${Math.abs(shift) === 1 ? '' : 's'} (${reason})`);
     onOpenChange(false);
   };
 
   return (
     <Modal open={open} onOpenChange={onOpenChange} size="lg" title="Bulk Reschedule" description="Shift scheduled jobs forward or back by a number of days."
-      footer={<><Button variant="secondary" onClick={() => onOpenChange(false)}>Cancel</Button><Button disabled={!chosen.length || !shift} onClick={apply}>Apply to {chosen.length} job{chosen.length === 1 ? '' : 's'}</Button></>}>
+      footer={<><Button variant="secondary" onClick={() => onOpenChange(false)}>Cancel</Button><Button disabled={!chosen.length || !!plan.error} onClick={apply}>Apply to {chosen.length} job{chosen.length === 1 ? '' : 's'}</Button></>}>
       <div className="space-y-5">
+        {plan.error && <p role="alert" className="text-sm text-red-700">{plan.error}</p>}
         <div className="grid grid-cols-3 gap-3">
           <Field label="From date"><Input type="date" value={from} onChange={(e) => setFrom(e.target.value)} /></Field>
           <Field label="Shift (days)"><Input type="number" value={shift} onChange={(e) => setShift(Number(e.target.value) || 0)} /></Field>
@@ -214,15 +214,16 @@ export function BulkRescheduleModal({ open, onOpenChange }: { open: boolean; onO
           ) : (
             <div className="divide-y divide-gray-100 rounded-xl border border-gray-200">
               {affected.map((j) => {
-                const on = !excluded.includes(j.id);
-                const ns = j.startDate! >= from ? addDays(j.startDate!, shift) : j.startDate!;
+                const on = !excluded.includes(j.id) && !j.scheduleProtected;
+                const proposed = plan.jobs.find((p) => p.id === j.id) ?? j;
                 return (
                   <div key={j.id} className="flex items-center gap-3 px-3 py-2.5">
                     <Checkbox checked={on} onChange={(v) => setExcluded((x) => (v ? x.filter((i) => i !== j.id) : [...x, j.id]))} />
+                    <button type="button" className="text-xs font-bold text-primary-700" onClick={() => update(j.id, { scheduleProtected: !j.scheduleProtected })}>{j.scheduleProtected ? 'Unprotect' : 'Protect'}</button>
                     <div className="min-w-0 flex-1">
                       <div className="truncate text-sm font-bold text-gray-900">{j.title} <span className="font-medium text-gray-400">({j.jobNumber})</span></div>
                       <div className="text-xs text-gray-500">
-                        {fmtSpan(j.startDate, j.endDate)} → <span className={on ? 'font-bold text-primary-600' : ''}>{fmtSpan(ns, addDays(j.endDate ?? j.startDate!, shift))}</span>
+                        {fmtSpan(j.startDate, j.endDate)} → <span className={on ? 'font-bold text-primary-600' : ''}>{fmtSpan(proposed.startDate, proposed.endDate)}</span>
                       </div>
                     </div>
                   </div>

@@ -3,7 +3,7 @@
 A front-end replica of the live Estimate Master app (app.estimate-master.com).
 It reproduces the live screens and workflows using local mock data, so it can be the starting point for new features.
 
-There is no backend and no login. All data lives in the browser and is saved to localStorage, so changes survive a page refresh.
+Application records live in the browser and are saved to localStorage. There is no application login or shared production database. Supplier integration routes run on the server and have a separate access gate.
 
 ## New features (merged from emts-prototype)
 
@@ -125,4 +125,12 @@ To connect a real backend later, replace the inside of these hooks with API call
 - There is no login, and Logout only shows a message.
 - The logo and presentation cover photos are placeholders (SVG and gradients), because the live image files were not in the source export.
 - These are not built: file attachments, CSV contact import, rich-text email editing, and estimate packages (Good/Better/Best) inside the estimate builder. Package templates can still be managed in Settings.
-- Payment gateway, email and SMS sending are simulated. Nothing leaves the browser.
+- Payment gateway, email and SMS sending are simulated. Configured supplier integrations can send real requests from the server.
+
+## Supplier access
+
+Copy `.env.example` to `.env.local` for local development and set a unique `SUPPLIER_ADMIN_PASSWORD` of at least 24 characters. Keep all supplier credentials server-side. In production use the hosting provider's private environment settings and HTTPS. The supplier routes return 503 until the password is configured, and 401 until authenticated.
+
+Open Settings > Suppliers > **Sign in for live supplier access**, then use username `supplier-admin` and the configured password. This shared administrator gate protects supplier connection, order and inbox routes; it is not application-wide authentication. Supplier webhooks retain their separate signature verification.
+
+See [the code gap review](docs/CODE_GAP_REVIEW.md) for the implemented fixes, verification and remaining production work.

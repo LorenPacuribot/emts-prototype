@@ -20,6 +20,7 @@ import { now } from "@/features/lib/clock";
 import { byId } from "@/features/lib/selectors";
 import { addDays } from "@/features/lib/rules/dates";
 import { estimateTotals } from "@/features/lib/rules/estimate";
+import { estimateTotals as builderTotals } from '@/lib/calculations';
 import {
   amendBlockedReason, customerCanAccept, DEFAULT_DEPOSIT_PERCENT, depositAmount, firstWorkOrderStatus, isEditable, leadEligibleForEstimate,
 } from "@/features/lib/rules/estimate-lifecycle";
@@ -55,6 +56,7 @@ function history(db: Database, est: Estimate, trigger: string, by: EstimateHisto
 export function draftTotal(db: Database, est: Estimate, job: Job): number {
   const rep = est.repeatEstimateId ? byId(db.repeatEstimates, est.repeatEstimateId) : undefined;
   if (rep) return repPricing(db, rep).totals.total;
+  if (est.pricingSnapshot) return builderTotals(est.pricingSnapshot).total;
   return estimateTotals(db, job).grandTotal;
 }
 
@@ -121,7 +123,9 @@ export function updateEstimateDetails(db: Database, actor: User, id: string, pat
   const g = guardScope(db, actor, id, "edit this estimate");
   if (g.error) return g.error;
   if (patch.title !== undefined && !patch.title.trim()) return fail("Enter a project name.", "title");
-  if (patch.validUntil && patch.estimateDate && patch.validUntil < patch.estimateDate) return fail("Valid Until must be on or after the estimate date.", "validUntil");
+  const estimateDate = patch.estimateDate ?? g.est.estimateDate ?? g.est.createdAt;
+  const validUntil = patch.validUntil ?? g.est.validUntil;
+  if (validUntil && validUntil.slice(0, 10) < estimateDate.slice(0, 10)) return fail("Valid Until must be on or after the estimate date.", "validUntil");
   Object.assign(g.est, patch);
   if (patch.title) g.job.name = patch.title.trim();
   if (patch.estimatorId) g.job.estimatorId = patch.estimatorId;
@@ -340,7 +344,7 @@ export function openPublicEstimate(db: Database, _actor: User, token: string) {
   return ok(est.id);
 }
 
-export function acceptEstimateByToken(db: Database, actor: User, token: string, input: { signatureName: string; signed: boolean }) {
+export function acceptEstimateByToken(db: Database, actor: User, token: string, input: { signatureName: string; signed: boolean; selectedOptionalIds?: string[] }) {
   const est = db.estimates.find((e) => e.publicToken === token);
   if (!est) return fail("This link is not valid.");
   const job = est.jobId ? byId(db.jobs, est.jobId) : undefined;
@@ -348,6 +352,16 @@ export function acceptEstimateByToken(db: Database, actor: User, token: string, 
   if (!customerCanAccept(est.status)) return fail("This estimate can no longer be accepted.");
   if (!input.signatureName.trim()) return fail("Please enter your full name", "signatureName");
   if (!input.signed) return fail("Please sign above before accepting", "signature");
+  if (input.selectedOptionalIds) {
+    const snapshot = est.pricingSnapshot;
+    if (!snapshot || input.selectedOptionalIds.some((id) => !snapshot.lineItems.some((l) => l.id === id && l.optional))) return fail('An optional item is no longer available. Refresh the estimate.');
+    const lines = snapshot.lineItems.map((l) => l.optional ? { ...l, selected: input.selectedOptionalIds!.includes(l.id) } : l);
+    const includedIds = lines.filter((l) => !l.optional || l.selected).map((l) => l.id);
+    if (includedIds.some((id) => !db.surfaces.some((s) => s.id === id))) return fail('The selected scope needs review by the estimator.');
+    snapshot.lineItems = lines;
+    job.surfaceIds = includedIds;
+    est.total = builderTotals(snapshot).total;
+  }
   accept(db, actor, est, job, { trigger: "ACCEPTED", by: "CLIENT", signer: input.signatureName.trim() });
   return ok();
 }

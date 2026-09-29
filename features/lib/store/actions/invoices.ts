@@ -12,12 +12,56 @@ import type { Database, FinanceRecord, Invoice, User } from "@/features/types";
 import { can, whoCan } from "@/features/lib/permissions";
 import { now } from "@/features/lib/clock";
 import { byId } from "@/features/lib/selectors";
-import { periodOf } from "@/features/lib/rules/finance";
+import { periodOf, postingPeriod } from "@/features/lib/rules/finance";
 import { roundMoney } from "@/features/lib/rules/rounding";
 import { queue } from "./finance";
 import { denied, fail, log, nextId, ok } from "../helpers";
 
 const MODULE = "Invoices";
+
+/** One atomic correction, including its accounting adjustment and audit evidence. */
+export function reconcileInvoicePayments(db: Database, actor: User, invoiceId: string, proposed: NonNullable<Invoice['payments']>, reason: string) {
+  if (!can(actor, 'payment.process')) return denied(db, actor, MODULE, 'correct payments', whoCan('payment.process'));
+  const inv = byId(db.invoices, invoiceId);
+  if (!inv || inv.status === 'void') return fail('Invoice is missing or cancelled.');
+  if (!reason.trim()) return fail('Enter a reason for the payment correction.');
+  const ids = new Set<string>();
+  for (const payment of proposed) {
+    if (!payment.id || ids.has(payment.id)) return fail('Each payment needs a unique identifier.');
+    ids.add(payment.id);
+    if (!Number.isFinite(payment.amount) || roundMoney(payment.amount) <= 0) return fail('Enter a payment of at least $0.01.');
+    if (!Number.isFinite(Date.parse(payment.at))) return fail('Enter a valid payment date.');
+    if (!['cash', 'check', 'credit_card', 'bank_transfer', 'other'].includes(payment.method)) return fail('Choose a payment method.');
+    if (['check', 'bank_transfer'].includes(payment.method) && !payment.reference?.trim()) return fail('Enter the check number or bank reference.');
+  }
+  const rows = proposed.map((p) => ({ ...p, amount: roundMoney(p.amount), by: inv.payments?.find((old) => old.id === p.id)?.by ?? actor.id }));
+  const total = roundMoney(rows.reduce((sum, p) => sum + p.amount, 0));
+  if (total > inv.amount) return fail('Payments cannot exceed the invoice total.');
+  const before = invoicePaid(inv);
+  const delta = roundMoney(total - before);
+  const evidence = JSON.stringify({ before: inv.payments ?? [], after: rows });
+  const record = invoiceRecord(db, actor, inv);
+  inv.payments = rows;
+  inv.status = total > 0 ? (total >= inv.amount ? 'paid' : 'partial') : inv.sentAt ? 'sent' : 'draft';
+  const job = byId(db.jobs, inv.jobId);
+  if (job) job.depositsCollected = roundMoney(job.depositsCollected + delta);
+  record.amountPaid = total;
+  record.paymentStatus = total > 0 ? (inv.status === 'paid' ? 'paid' : 'partial') : 'unpaid';
+  record.paymentDate = rows.length ? rows[rows.length - 1]!.at : undefined;
+  if (delta !== 0) {
+    const at = now();
+    const adjustment: FinanceRecord = {
+      id: nextId(db, 'fin', 'FIN-'), type: 'payment', ref: `${invoiceId}-CORRECTION`, party: record.party,
+      amount: delta, date: at, period: postingPeriod(at, db.financeSettings.closedPeriods).period,
+      jobId: inv.jobId, invoiceId, origin: 'estimate_master',
+    };
+    db.financeRecords.unshift(adjustment);
+    queue(db, actor, adjustment, `Payment adjustment: ${reason.trim()}`);
+  }
+  queue(db, actor, record, `Payment balance updated: ${reason.trim()}`);
+  log(db, actor, MODULE, `Invoice ${invoiceId} payments corrected by ${actor.name}: ${reason.trim()}. ${evidence}`);
+  return ok();
+}
 
 export function invoicePaid(inv: Invoice): number {
   return roundMoney((inv.payments ?? []).reduce((a, p) => a + p.amount, 0) + (inv.status === "paid" && !inv.payments?.length ? inv.amount : 0));
@@ -61,26 +105,27 @@ export function recordInvoicePayment(db: Database, actor: User, invoiceId: strin
   if (!inv) return fail("Invoice not found.");
   if (inv.status === "void") return fail("This invoice is cancelled.");
   const balance = invoiceBalance(inv);
-  if (!(input.amount > 0)) return fail("Enter the payment amount.", "amount");
-  if (input.amount > balance + 0.005) return fail(`Maximum: $${balance.toFixed(2)}`, "amount");
+  const amount = roundMoney(input.amount);
+  if (!Number.isFinite(input.amount) || !(amount > 0)) return fail("Enter a payment of at least $0.01.", "amount");
+  if (amount > balance) return fail(`Maximum: $${balance.toFixed(2)}`, "amount");
   if ((input.method === "check" || input.method === "bank_transfer") && !input.reference?.trim()) return fail("Enter the check number or reference.", "reference");
   const t = now();
-  inv.payments = [...(inv.payments ?? []), { id: nextId(db, "pay", "PAY-"), amount: roundMoney(input.amount), method: input.method, reference: input.reference?.trim() || undefined, notes: input.notes?.trim() || undefined, at: t, by: actor.id }];
+  inv.payments = [...(inv.payments ?? []), { id: nextId(db, "pay", "PAY-"), amount, method: input.method, reference: input.reference?.trim() || undefined, notes: input.notes?.trim() || undefined, at: t, by: actor.id }];
   inv.status = invoiceBalance(inv) <= 0.005 ? "paid" : "partial";
   const job = byId(db.jobs, inv.jobId);
-  if (job) job.depositsCollected = roundMoney(job.depositsCollected + input.amount);
+  if (job) job.depositsCollected = roundMoney(job.depositsCollected + amount);
 
   // NEW (33): the payment goes to QuickBooks against the invoice's record.
   const invRec = invoiceRecord(db, actor, inv);
-  invRec.amountPaid = roundMoney((invRec.amountPaid ?? 0) + input.amount);
+  invRec.amountPaid = roundMoney((invRec.amountPaid ?? 0) + amount);
   invRec.paymentStatus = inv.status === "paid" ? "paid" : "partial";
   invRec.paymentDate = t;
   const pay: FinanceRecord = {
-    id: nextId(db, "fin", "FIN-"), type: "payment", ref: input.reference?.trim() || `${inv.id}-PAY`, party: invRec.party, amount: roundMoney(input.amount), date: t, period: periodOf(t),
+    id: nextId(db, "fin", "FIN-"), type: "payment", ref: input.reference?.trim() || `${inv.id}-PAY`, party: invRec.party, amount, date: t, period: periodOf(t),
     jobId: inv.jobId, invoiceId: inv.id, origin: "estimate_master",
   };
   db.financeRecords.unshift(pay);
   queue(db, actor, pay, `Payment on ${inv.id}`);
-  log(db, actor, MODULE, `Payment $${input.amount.toFixed(2)} (${input.method}) recorded on invoice ${inv.id} by ${actor.name}. Queued for QuickBooks.`);
+  log(db, actor, MODULE, `Payment $${amount.toFixed(2)} (${input.method}) recorded on invoice ${inv.id} by ${actor.name}. Queued for QuickBooks.`);
   return ok();
 }

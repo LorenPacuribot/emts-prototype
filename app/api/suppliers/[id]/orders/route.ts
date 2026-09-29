@@ -3,8 +3,11 @@
  * and API key come from the server environment, not the request.
  */
 import { transmitOrder, validatePayload } from "@/features/lib/integrations/supplier-server";
+import { requireSupplierAccess } from '@/features/lib/integrations/supplier-access';
 
 export async function POST(req: Request, ctx: { params: Promise<{ id: string }> }) {
+  const denied = requireSupplierAccess(req);
+  if (denied) return denied;
   const { id } = await ctx.params;
   const body = await req.json().catch(() => undefined);
   const checked = validatePayload(body, id);

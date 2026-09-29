@@ -49,8 +49,8 @@ function RecordPaymentForm({ invoice, balance, onDone }: { invoice: Invoice; bal
 
   const submit = () => {
     const e: Record<string, string> = {};
-    if (!amount || amount < 1) e.amount = 'Minimum amount is $1';
-    else if (amount > balance + 0.001) e.amount = `Cannot exceed balance due (${usd(balance)})`;
+    if (!Number.isFinite(amount) || round2(amount) < 0.01) e.amount = 'Minimum amount is $0.01';
+    else if (round2(amount) > balance) e.amount = `Cannot exceed balance due (${usd(balance)})`;
     if (mode === 'Credit Card') {
       const digits = card.number.replace(/\s/g, '');
       if (!/^\d{13,19}$/.test(digits)) e.number = 'Enter a valid card number';
@@ -102,7 +102,7 @@ function RecordPaymentForm({ invoice, balance, onDone }: { invoice: Invoice; bal
 
       <div className="grid gap-4 md:grid-cols-2">
         <Field label="Payment Amount ($)" required error={errors.amount} hint={`Maximum: ${usd(balance)}`}>
-          <Input type="number" step="0.01" value={amount} max={balance} onChange={(e) => setAmount(Number(e.target.value))} invalid={!!errors.amount} />
+          <Input type="number" step="0.01" min={0.01} value={amount} max={balance} onChange={(e) => setAmount(Number(e.target.value))} invalid={!!errors.amount} />
         </Field>
         <Field label="Payment Date" required>
           <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
@@ -193,8 +193,8 @@ function SendInvoiceForm({ invoice, onDone }: { invoice: Invoice; onDone: () => 
     if (!/^\S+@\S+\.\S+$/.test(to)) e.to = 'Enter a valid email address';
     if (!subject.trim()) e.subject = 'Subject is required';
     if (!message.trim()) e.message = 'Message is required';
-    if (!amount || amount < 1) e.amount = 'Minimum amount is $1';
-    else if (amount > t.balance + 0.001) e.amount = `Amount cannot exceed balance due (${usd(t.balance)})`;
+    if (!Number.isFinite(amount) || round2(amount) < 0.01) e.amount = 'Minimum amount is $0.01';
+    else if (round2(amount) > t.balance) e.amount = `Amount cannot exceed balance due (${usd(t.balance)})`;
     setErrors(e);
     if (Object.keys(e).length) return;
     const now = new Date().toISOString();
@@ -217,7 +217,7 @@ function SendInvoiceForm({ invoice, onDone }: { invoice: Invoice; onDone: () => 
         <Textarea rows={8} value={message} onChange={(e) => setMessage(e.target.value)} invalid={!!errors.message} />
       </Field>
       <Field label="Requested Amount" required error={errors.amount} hint={`Balance due: ${usd(t.balance)}`}>
-        <Input type="number" step="0.01" min={1} max={t.balance} value={amount} onChange={(e) => setAmount(Number(e.target.value))} leftIcon={<span className="text-sm font-medium">$</span>} invalid={!!errors.amount} />
+        <Input type="number" step="0.01" min={0.01} max={t.balance} value={amount} onChange={(e) => setAmount(Number(e.target.value))} leftIcon={<span className="text-sm font-medium">$</span>} invalid={!!errors.amount} />
       </Field>
       <div className="flex items-start gap-3 rounded-xl border border-blue-100 bg-blue-50 p-4">
         <div className="mt-0.5 rounded-lg bg-blue-100 p-1.5 text-blue-600"><Mail className="h-4 w-4" /></div>

@@ -71,7 +71,7 @@ export function ScheduleJobModal({
     if (startTime && endTime && endTime <= startTime) e.endTime = 'End time must be after start time';
     setErrors(e);
     if (Object.keys(e).length) return;
-    setSchedule(job.id, { startDate: start, endDate: end, startTime, endTime });
+    if (!setSchedule(job.id, { startDate: start, endDate: end, startTime, endTime })) return;
     toast(job.startDate ? 'Schedule updated successfully' : 'Job scheduled');
     onOpenChange(false);
   };
