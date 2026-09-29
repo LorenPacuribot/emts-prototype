@@ -12,7 +12,7 @@
   - A crew assignment's `hours` is the member's total hours on that job. It is
     spread evenly over the job's days when we need per-day or per-week numbers.
 */
-import type { Job, JobStatus, TeamMember } from '@/lib/types';
+import type { CrewAssignment, Job, JobShift, JobStatus, TeamMember } from '@/lib/types';
 import { toISODate } from '@/lib/utils';
 
 /* ---------- Day keys ---------- */
@@ -122,12 +122,35 @@ export function workingJobDays(j: Job): string[] {
   return jobDays(j).filter((d) => !off.has(d));
 }
 
-/** Hours per working day for one crew member on one job. */
+/** Days a shift (portion) covers, minus the job's break periods. */
+export function workingShiftDays(j: Job, shift: JobShift): string[] {
+  const off = new Set(j.breaks.flatMap((b) => dayRange(b.startDate, b.endDate)));
+  return dayRange(shift.startDate, shift.endDate).filter((d) => !off.has(d));
+}
+
+/** The days one crew entry's hours are spread over: its shift's days, else the job's. */
+export function entryDays(j: Job, c: CrewAssignment): string[] {
+  const shift = c.shiftId ? j.shifts?.find((s) => s.id === c.shiftId) : undefined;
+  return shift ? workingShiftDays(j, shift) : workingJobDays(j);
+}
+
+/** Hours one member works on one day of a job: dated entries count on their day, undated ones spread evenly. */
+export function memberDayHours(j: Job, memberId: string, day: string): number {
+  return j.crew.filter((c) => c.memberId === memberId).reduce((sum, c) => {
+    const days = entryDays(j, c);
+    if (!days.includes(day)) return sum;
+    return sum + (c.date ? (c.date === day ? c.hours : 0) : c.hours / days.length);
+  }, 0);
+}
+
+/** Total hours assigned to a job across every crew entry. */
+export const assignedTotal = (j: Pick<Job, 'crew'>) => round1(j.crew.reduce((s, c) => s + (Number.isFinite(c.hours) ? c.hours : 0), 0));
+
+/** Average hours per working day for one crew member on one job. */
 export function memberHoursPerDay(j: Job, memberId: string): number {
-  const a = j.crew.find((c) => c.memberId === memberId);
-  const days = workingJobDays(j).length;
-  if (!a || days === 0) return 0;
-  return a.hours / days;
+  const days = workingJobDays(j);
+  if (!days.length) return 0;
+  return days.reduce((s, d) => s + memberDayHours(j, memberId, d), 0) / days.length;
 }
 
 /** Hours a member is booked on the given days across all scheduled jobs. */
@@ -136,9 +159,8 @@ export function memberBookedHours(jobs: Job[], memberId: string, dayKeys: string
   let total = 0;
   for (const j of jobs) {
     if (j.id === excludeJobId || !isScheduled(j) || j.status === 'Completed') continue;
-    const perDay = memberHoursPerDay(j, memberId);
-    if (!perDay) continue;
-    total += workingJobDays(j).filter((d) => set.has(d)).length * perDay;
+    if (!j.crew.some((c) => c.memberId === memberId)) continue;
+    for (const d of set) total += memberDayHours(j, memberId, d);
   }
   return round1(total);
 }

@@ -21,6 +21,7 @@ import { byId } from "@/features/lib/selectors";
 import { addDays } from "@/features/lib/rules/dates";
 import { estimateTotals } from "@/features/lib/rules/estimate";
 import { estimateTotals as builderTotals } from '@/lib/calculations';
+import { appendView } from '@/lib/estimate-views';
 import {
   amendBlockedReason, customerCanAccept, DEFAULT_DEPOSIT_PERCENT, depositAmount, firstWorkOrderStatus, isEditable, leadEligibleForEstimate,
 } from "@/features/lib/rules/estimate-lifecycle";
@@ -336,11 +337,15 @@ export function sendForReapproval(db: Database, actor: User, id: string) {
 export function openPublicEstimate(db: Database, _actor: User, token: string) {
   const est = db.estimates.find((e) => e.publicToken === token);
   if (!est) return fail("This link is not valid.");
+  // Every open is recorded (count and returns); viewedAt stays the first open.
+  const at = now();
+  est.viewLog = appendView(est.viewLog ?? (est.viewedAt ? [est.viewedAt] : []), at);
   if (est.status === "SENT") {
     est.status = "VIEWED";
-    est.viewedAt = now();
+    est.viewedAt = at;
     history(db, est, "VIEWED", "CLIENT");
   }
+  log(db, _actor, MODULE, `Estimate ${est.id} opened by the customer (view ${est.viewLog.length})`);
   return ok(est.id);
 }
 
@@ -404,12 +409,17 @@ function accept(db: Database, actor: User, est: Estimate, job: Job, opts: { trig
     };
     db.workOrders.push(wo);
     if (pct > 0) {
-      db.invoices.push({ id: nextId(db, "invoice", `INV-${year()}-`), jobId: job.id, kind: "standard", status: "draft", amount: depositAmount(est.total, pct), createdAt: t });
+      // The draft references the accepted estimate and its lead (estimate and lead numbers are their ids).
+      db.invoices.push({ id: nextId(db, "invoice", `INV-${year()}-`), jobId: job.id, estimateId: est.id, leadId: est.leadId, kind: "standard", status: "draft", amount: depositAmount(est.total, pct), createdAt: t });
     }
   } else {
     // Live: a draft invoice is updated in place when the amendment is re-signed.
     const draft = db.invoices.find((i) => i.jobId === job.id && i.status === "draft" && i.kind === "standard");
-    if (draft) draft.amount = depositAmount(est.total, db.financialSettings?.depositPercent ?? DEFAULT_DEPOSIT_PERCENT);
+    if (draft) {
+      draft.amount = depositAmount(est.total, db.financialSettings?.depositPercent ?? DEFAULT_DEPOSIT_PERCENT);
+      draft.estimateId ??= est.id;
+      draft.leadId ??= est.leadId;
+    }
   }
 
   // NEW (feature 3): the signature is the approval evidence for every

@@ -143,6 +143,8 @@ export interface Estimate {
   publicToken?: string;
   sentAt?: ISODate;
   viewedAt?: ISODate;
+  /** Every open of the public link (oldest first); viewedAt stays the first one. */
+  viewLog?: ISODate[];
   acceptedAt?: ISODate;
   declinedAt?: ISODate;
   signatureName?: string;
@@ -251,6 +253,9 @@ export interface Invoice {
   amount: number;
   createdAt: ISODate;
   changeOrderId?: ID;
+  /** Estimate and lead the invoice came from (set on the draft deposit invoice at acceptance). */
+  estimateId?: ID;
+  leadId?: ID;
   sentAt?: ISODate;
   /** Live Record Payment (RecordPaymentDto) entries. */
   payments?: { id: ID; amount: number; method: "check" | "cash" | "bank_transfer" | "credit_card" | "other"; reference?: string; notes?: string; at: ISODate; by: ID }[];
@@ -2232,7 +2237,8 @@ export interface RateDecision {
 /* Phase 2 — Social media and marketing (feature 34)                   */
 /* ------------------------------------------------------------------ */
 
-export type SocialPlatform = "facebook" | "instagram";
+/** Data-driven list and capabilities: SOCIAL_PLATFORMS in lib/rules/marketing-social. */
+export type SocialPlatform = "facebook" | "instagram" | "google_business" | "linkedin" | "tiktok" | "youtube" | "x";
 
 /** MEDIA_ASSETS: job media with its release evidence. The original is kept when cropped. */
 export interface MediaAsset {
@@ -2430,6 +2436,19 @@ export interface Database {
   accountMappings: AccountMapping[];
   migrationTotals: MigrationTotal[];
   financeSettings: FinanceSettings;
+  /** Feature 33 books (features/types/finance.ts). Optional: older saved data gets them from the seed. */
+  otherIncome?: import("./finance").OtherIncome[];
+  financeVehicles?: import("./finance").FleetVehicle[];
+  financeEquipment?: import("./finance").FleetEquipment[];
+  financeDocuments?: import("./finance").FinanceDocument[];
+  bankAccounts?: import("./finance").BankAccount[];
+  checkRegister?: import("./finance").RegisterEntry[];
+  feedTransactions?: import("./finance").FeedTransaction[];
+  recurringExpenses?: import("./finance").RecurringExpense[];
+  recurringOccurrences?: import("./finance").RecurringOccurrence[];
+  financeAlertRules?: import("./finance").FinanceAlertRule[];
+  financeNotices?: import("./finance").FinanceNotice[];
+  payrollRuns?: import("./finance").PayrollSyncRun[];
   /** Features 21 and 30 */
   completedJobs: CompletedJobRecord[];
   estimateBaselines: EstimateBaseline[];
@@ -2444,6 +2463,33 @@ export interface Database {
   mediaAssets: MediaAsset[];
   marketingPosts: MarketingPost[];
   socialAccounts: SocialAccount[];
+  /** Feature 34 part 1 — social platforms and content (types in ./marketing-social). */
+  socialTemplates?: import("./marketing-social").SocialTemplate[];
+  socialMetrics?: import("./marketing-social").SocialMetricSnapshot[];
+  socialMessages?: import("./marketing-social").SocialMessage[];
+  socialReviews?: import("./marketing-social").SocialReview[];
+  reviewRequests?: import("./marketing-social").ReviewRequest[];
+  employeeMediaConsents?: import("./marketing-social").EmployeeMediaConsent[];
+  socialAds?: import("./marketing-social").SocialAdCampaign[];
+  /** Feature 34 part 2 — campaigns and growth (types in ./marketing-growth). */
+  mktCampaigns?: import("./marketing-growth").MarketingCampaign[];
+  mktPromotions?: import("./marketing-growth").Promotion[];
+  mktReferralCodes?: import("./marketing-growth").ReferralCode[];
+  mktLinks?: import("./marketing-growth").TrackLink[];
+  mktLandingPages?: import("./marketing-growth").LandingPage[];
+  mktSubmissions?: import("./marketing-growth").FormSubmission[];
+  mktAppointmentRequests?: import("./marketing-growth").AppointmentRequest[];
+  mktContacts?: import("./marketing-growth").MarketingContact[];
+  mktSegments?: import("./marketing-growth").AudienceSegment[];
+  mktMessageCampaigns?: import("./marketing-growth").MessageCampaign[];
+  mktAutomations?: import("./marketing-growth").MarketingAutomation[];
+  mktAutomationRuns?: import("./marketing-growth").AutomationRun[];
+  mktExpenses?: import("./marketing-growth").MarketingExpense[];
+  mktAttributions?: import("./marketing-growth").LeadAttributionRecord[];
+  mktCommunications?: import("./marketing-growth").CommEntry[];
+  mktOptOuts?: import("./marketing-growth").MarketingOptOut[];
+  mktSettings?: import("./marketing-growth").MarketingGrowthSettings;
+  mktRecommendationLog?: import("./marketing-growth").RecommendationLogEntry[];
   activity: ActivityEntry[];
   tasks: Task[];
   counters: Record<string, number>;

@@ -30,6 +30,16 @@ export interface TeamMember {
   photoUrl?: string;
   /** Weekly availability keyed by week start (Sunday, YYYY-MM-DD). 7 days, Sun..Sat. */
   schedule?: Record<string, { start: string; end: string; working: boolean }[]>;
+  /** Default working weekdays (0 = Sun .. 6 = Sat) for weeks without a saved schedule. Unset: every day is schedulable. */
+  workingDays?: number[];
+  /** Time off / unavailable dates. The scheduler refuses hours on these days. */
+  timeOff?: MemberTimeOff[];
+}
+export interface MemberTimeOff {
+  id: ID;
+  startDate: string;
+  endDate: string;
+  reason: string;
 }
 
 /* ---------- Customers / Contacts ---------- */
@@ -193,6 +203,30 @@ export interface Estimate {
   depositTerms?: string;
   /** Reason the customer gave when declining */
   declineReason?: string;
+  /** Every time the customer opened the estimate link (ISO timestamps, oldest first). */
+  viewLog?: string[];
+  /** Client Preview / customer output settings (template, hidden sections and line parts). */
+  presentation?: EstimatePresentationSettings;
+}
+
+/** Content blocks of the customer output that the gear panel can show or hide. */
+export type ProposalSectionKey =
+  | 'customer' | 'scope' | 'linePrices' | 'areaTotals' | 'specs' | 'optional' | 'pricing' | 'notes' | 'terms' | 'signature';
+
+/** Parts of one scope line that the per-line ⋯ menu can hide. */
+export type ProposalLinePart = 'price' | 'prep' | 'colour' | 'product' | 'sheen' | 'coats' | 'quantity' | 'location';
+
+export interface EstimatePresentationSettings {
+  /** Presentation template used by Client Preview. Missing = the only matching template, else the proposal. */
+  templateId?: ID;
+  /** True = always use the plain proposal, even when a template matches. */
+  useProposal?: boolean;
+  /** Hidden content blocks (ProposalSectionKey) and hidden template section ids. */
+  hiddenSections?: string[];
+  /** Lines left out of the customer output entirely. */
+  hiddenLines?: ID[];
+  /** Per line: the parts not shown to the customer. */
+  hiddenLineParts?: Record<ID, ProposalLinePart[]>;
 }
 
 /* ---------- Jobs ---------- */
@@ -213,6 +247,18 @@ export interface CrewAssignment {
   role: string; // Crew Lead, Painter, Helper
   hours: number;
   date?: string; // specific day, if split
+  /** The job shift (portion) these hours belong to. Unset: the job's own dates and daily window. */
+  shiftId?: ID;
+}
+/** A named shift or portion of a job with its own dates, daily window and crew (same shape as the feature WorkOrderShift). */
+export interface JobShift {
+  id: ID;
+  name?: string;
+  startDate: string;
+  endDate: string;
+  startTime: string;
+  endTime: string;
+  memberIds: ID[];
 }
 
 export interface JobBreak {
@@ -232,6 +278,10 @@ export interface JobNote {
 
 export interface Job {
   scheduleProtected?: boolean;
+  /** Named shifts / portions scheduled separately (synced with the work order's shifts). */
+  shifts?: JobShift[];
+  /** Required hours the current schedule was planned against; differs from estimatedHours after a change order or amendment. */
+  scheduleBasisHours?: number;
   id: ID;
   jobNumber: string; // JOB-2026-4
   title: string;
@@ -330,7 +380,13 @@ export type PresentationSectionType =
   | 'warranty'
   | 'team'
   | 'estimate'
-  | 'custom';
+  | 'custom'
+  /* Estimate-driven blocks, filled from the linked estimate (Client Preview templates). */
+  | 'property'
+  | 'scope'
+  | 'specs'
+  | 'optional'
+  | 'pricing';
 
 export interface PresentationSection {
   id: ID;
@@ -342,6 +398,10 @@ export interface PresentationSection {
   subtitle?: string;
   /** Layout style 1-3 (the live builder's "Style 1/2/3") */
   variant?: 1 | 2 | 3;
+  /** Uploaded block image (data URL). Missing = the gradient placeholder. */
+  imageUrl?: string;
+  /** Per-item images for list blocks (gallery tiles), by item index (data URLs). */
+  itemImages?: (string | null)[];
 }
 
 export interface Presentation {
@@ -355,6 +415,8 @@ export interface Presentation {
   scopes: string[];
   /** CSS gradient used as the cover image */
   cover: string;
+  /** Uploaded cover photo (data URL), shown over the gradient. */
+  coverImage?: string;
   sections: PresentationSection[];
   estimateId?: ID;
   customerId?: ID;
