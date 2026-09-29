@@ -64,7 +64,7 @@ export function ContactsListScreen() {
                   </div>
                 </div>
                 <div className="md:w-44">
-                  <div className="mb-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">Status</div>
+                  <div className="mb-1 text-xxs font-bold uppercase tracking-wider text-gray-400">Status</div>
                   {status ? <StatusPill tone={status.tone}>{status.label}</StatusPill> : <StatusPill tone="gray">No Active Jobs</StatusPill>}
                 </div>
                 <div className="space-y-1 text-sm text-gray-600 md:w-64">

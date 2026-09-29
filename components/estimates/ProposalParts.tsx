@@ -135,7 +135,7 @@ function LineMenu({ l, s, onSettings }: { l: EstimateLineItem; s: EstimatePresen
             <EyeOff className="h-4 w-4" /> {hiddenLine ? 'Show this line' : 'Hide this line'}
           </DM.Item>
           <DM.Separator className="my-1 h-px bg-gray-100" />
-          <DM.Label className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">Show on this line</DM.Label>
+          <DM.Label className="px-3 py-1 text-xxs font-bold uppercase tracking-wider text-gray-400">Show on this line</DM.Label>
           {LINE_PARTS.map((p) => {
             const shown = partShown(s, l.id, p.key);
             return (
@@ -162,7 +162,7 @@ function LineTable({ e, lines, d, onSettings, priceColumn }: { e: Estimate; line
     <div className="overflow-x-auto">
       <table className="w-full text-sm">
         <thead>
-          <tr className="text-left text-[11px] font-bold uppercase tracking-wider text-gray-400">
+          <tr className="text-left text-xs font-bold uppercase tracking-wider text-gray-400">
             <th className="py-2 pr-3">Surface</th>
             {cols.map((c) => <th key={c} className={cn('px-2 py-2', c === 'price' && 'text-right')}>{HEAD[c]}</th>)}
             {onSettings && <th className="w-8 print:hidden" />}
@@ -173,7 +173,7 @@ function LineTable({ e, lines, d, onSettings, priceColumn }: { e: Estimate; line
             <tr key={l.id} className={cn(!lineShown(s, l.id) && 'opacity-40')}>
               <td className="py-2 pr-3 font-semibold text-gray-800">
                 {l.description || l.surfaceType}
-                {!lineShown(s, l.id) && <span className="ml-2 rounded bg-gray-100 px-1.5 py-0.5 text-[10px] font-bold uppercase text-gray-500">Hidden</span>}
+                {!lineShown(s, l.id) && <span className="ml-2 rounded bg-gray-100 px-1.5 py-0.5 text-xxs font-bold uppercase text-gray-500">Hidden</span>}
               </td>
               {cols.map((c) => (
                 <td key={c} className={cn('px-2 py-2 text-gray-600', c === 'price' && 'whitespace-nowrap text-right font-semibold text-gray-900')}>

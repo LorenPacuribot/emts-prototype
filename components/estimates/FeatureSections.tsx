@@ -121,7 +121,7 @@ export function LineColourCell({ colour, painting, saved, editable, card, onAssi
 }) {
   const [text, setText] = useState('');
   const [error, setError] = useState('');
-  if (painting && !saved) return <span className="text-[11px] italic text-amber-600" title="Save the estimate; a line needs an amount to reach the colour card">Save first</span>;
+  if (painting && !saved) return <span className="text-xs italic text-amber-600" title="Save the estimate; a line needs an amount to reach the colour card">Save first</span>;
   const commit = () => {
     const n = Number(text.replace('#', '').trim());
     if (!text.trim()) return;
@@ -158,8 +158,8 @@ export function LineColourCell({ colour, painting, saved, editable, card, onAssi
           className="h-7 w-20 rounded-md border border-gray-200 bg-white px-1.5 text-center text-xs focus:border-primary-400 focus:outline-none"
         />
       )}
-      {error && <span className="text-[10px] font-semibold text-red-600">{error}</span>}
-      {colour && colour.gal > 0 && <span className="text-[10px] font-semibold text-blue-600">{colour.gal.toFixed(2)} gal</span>}
+      {error && <span className="text-xs font-semibold text-red-600">{error}</span>}
+      {colour && colour.gal > 0 && <span className="text-xs font-semibold text-blue-600">{colour.gal.toFixed(2)} gal</span>}
     </div>
   );
 }
@@ -316,7 +316,7 @@ function MaterialsSummary({ estimate, job }: { estimate: PEstimate; job: PJob })
 /** Small NEW-badged link chip used where the replica needs to point at a feature page. */
 export function NewLink({ href, children, className }: { href: string; children: React.ReactNode; className?: string }) {
   return (
-    <a href={href} target="_blank" rel="noreferrer" className={cn('inline-flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-800 hover:bg-emerald-100', className)}>
+    <a href={href} target="_blank" rel="noreferrer" className={cn('inline-flex items-center gap-1.5 rounded-lg border border-green-200 bg-green-50 px-3 py-1.5 text-xs font-bold text-green-800 hover:bg-green-100', className)}>
       {children}
     </a>
   );

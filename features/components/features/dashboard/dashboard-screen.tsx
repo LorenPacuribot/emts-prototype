@@ -83,7 +83,7 @@ function Widget({ icon, title, color = "text-primary-600", href, isNew, feature,
   icon: React.ReactNode; title: string; color?: string; href?: string; isNew?: boolean; feature?: number | number[]; children: React.ReactNode; className?: string; tour?: string;
 }) {
   return (
-    <div className={cn("rounded-2xl border bg-white p-5 shadow-sm", isNew ? "border-emerald-300 ring-1 ring-emerald-100" : "border-gray-200", className)} data-tour={tour}>
+    <div className={cn("rounded-2xl border bg-white p-5 shadow-sm", isNew ? "border-green-300 ring-1 ring-green-100" : "border-gray-200", className)} data-tour={tour}>
       <div className="mb-4 flex items-center justify-between border-b border-gray-100 pb-2">
         <h3 className={cn("flex items-center gap-2 text-xs font-black uppercase tracking-[0.15em] text-gray-500 [&>svg]:h-4 [&>svg]:w-4", `[&>svg]:${color}`)}>
           <span className={color}>{icon}</span> {title} {isNew && <NewBadge feature={feature} />}
@@ -115,7 +115,7 @@ export function DashboardScreen() {
   const goal = 25000;
   const active = liveJobs.filter((j) => j.status !== "completed");
   const stages = ["new_lead", "contacted", "estimate_scheduled", "pending", "sold", "lost"] as const;
-  const stageColor: Record<string, string> = { new_lead: "bg-blue-500", contacted: "bg-purple-500", estimate_scheduled: "bg-orange-500", pending: "bg-amber-400", sold: "bg-emerald-500", lost: "bg-red-500" };
+  const stageColor: Record<string, string> = { new_lead: "bg-blue-500", contacted: "bg-purple-500", estimate_scheduled: "bg-orange-500", pending: "bg-amber-400", sold: "bg-green-500", lost: "bg-red-500" };
 
   // NEW widgets
   const alerts = db.repaintAlerts.filter((a) => alertQueueState(db, a, nowIso).state === "live");
@@ -155,9 +155,9 @@ export function DashboardScreen() {
         {customize && <p className="mb-4 rounded-xl bg-white px-4 py-2 text-sm text-gray-500">Drag widgets anywhere to reorder. Use the Wide/Small button to resize. Click &quot;Done&quot; when finished. (Layout editing is live-app behaviour, not rebuilt in the prototype.)</p>}
 
         {/* Prototype-only demo journey */}
-        <div className="mb-6 rounded-2xl border border-dashed border-emerald-300 bg-gradient-to-r from-emerald-50/80 to-white p-5" data-tour="walkthrough">
+        <div className="mb-6 rounded-2xl border border-dashed border-green-300 bg-gradient-to-r from-green-50/80 to-white p-5" data-tour="walkthrough">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.15em] text-emerald-800"><Sparkles className="h-4 w-4" /> Demo journey <span className="rounded bg-emerald-100 px-1.5 py-0.5 text-[9px] tracking-wider">Prototype only</span></div>
+            <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.15em] text-green-800"><Sparkles className="h-4 w-4" /> Demo journey <span className="rounded bg-green-100 px-1.5 py-0.5 text-xs tracking-wider">Prototype only</span></div>
             <div className="flex gap-2">
               {resumable && <Button size="sm" onClick={() => startTour(true)}>Resume at stop {tourStop + 1}</Button>}
               <Button size="sm" variant="primary" onClick={() => startTour(false)}><Compass className="h-3.5 w-3.5" /> {resumable ? "Start over" : "Start product tour"}</Button>
@@ -167,7 +167,7 @@ export function DashboardScreen() {
             {JOURNEY.map((j, i) => (
               <li key={j.title}>
                 <AppLink href={j.href} className="group flex h-full items-start gap-3 rounded-xl border border-gray-200 bg-white p-3 hover:border-primary-300">
-                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gray-900 text-[11px] font-bold text-white">{i + 1}</span>
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gray-900 text-xs font-bold text-white">{i + 1}</span>
                   <span className="min-w-0 flex-1">
                     <span className="block text-sm font-bold text-gray-900 group-hover:text-primary-700">{j.title}{j.features && <span className="font-medium text-gray-400"> · F{j.features}</span>}</span>
                     <span className="block text-xs text-gray-500">{j.body}</span>
@@ -230,7 +230,7 @@ export function DashboardScreen() {
             </Widget>
             <div className="grid gap-4 sm:grid-cols-2">
               <Widget icon={<Target />} title="Win Rate"><div className="font-heading text-4xl font-black text-gray-900">{Math.round(winRate * 100)}%</div><p className="text-xs text-gray-500">{sold.length} won of {decided.length} decided</p></Widget>
-              <Widget icon={<TrendingUp />} title="Revenue" color="text-emerald-600"><div className="font-heading text-4xl font-black text-gray-900">{money(revenue)}</div><p className="text-xs text-gray-500">collected this period</p></Widget>
+              <Widget icon={<TrendingUp />} title="Revenue" color="text-green-600"><div className="font-heading text-4xl font-black text-gray-900">{money(revenue)}</div><p className="text-xs text-gray-500">collected this period</p></Widget>
             </div>
             {can(user, "co.exceptions") && (
               <Widget icon={<FileDiff />} title="Change Order Exceptions" color="text-amber-600" isNew feature={24} tour="widget-co-exceptions">
@@ -248,11 +248,11 @@ export function DashboardScreen() {
                 </div>
               </Widget>
             )}
-            <Widget icon={<CircleDollarSign />} title="Invoices Due" color="text-emerald-600" href="/invoices">
+            <Widget icon={<CircleDollarSign />} title="Invoices Due" color="text-green-600" href="/invoices">
               <div className="grid gap-3 md:grid-cols-2">
                 {db.invoices.filter((i) => i.status !== "paid" && i.status !== "void").slice(0, 4).map((i) => {
                   const job = byId(db.jobs, i.jobId);
-                  return <div key={i.id} className="rounded-2xl border border-gray-100 p-4"><div className="truncate text-sm font-bold">{byId(db.customers, job?.customerId)?.name}</div><div className="text-[9px] font-black uppercase text-gray-400">{i.status === "draft" ? "Draft" : `Due ${date(i.createdAt)}`}</div><div className="font-bold text-emerald-600">{money(i.amount)}</div></div>;
+                  return <div key={i.id} className="rounded-2xl border border-gray-100 p-4"><div className="truncate text-sm font-bold">{byId(db.customers, job?.customerId)?.name}</div><div className="text-xxs font-black uppercase text-gray-400">{i.status === "draft" ? "Draft" : `Due ${date(i.createdAt)}`}</div><div className="font-bold text-green-600">{money(i.amount)}</div></div>;
                 })}
               </div>
             </Widget>

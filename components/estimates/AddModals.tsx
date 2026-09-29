@@ -157,7 +157,7 @@ export function AddToEstimateModal({
                   <div className="font-bold text-gray-800">{x.name}</div>
                   <div className="truncate text-xs text-gray-500">{x.description}</div>
                 </div>
-                <span className={cn('rounded-full border px-2 py-0.5 text-[10px] font-bold', x.itemType === 'PRICED' ? 'border-green-200 bg-green-50 text-green-700' : 'border-gray-200 bg-gray-50 text-gray-500')}>
+                <span className={cn('rounded-full border px-2 py-0.5 text-xs font-bold', x.itemType === 'PRICED' ? 'border-green-200 bg-green-50 text-green-700' : 'border-gray-200 bg-gray-50 text-gray-500')}>
                   {x.itemType === 'DESCRIPTIVE' ? 'Descriptive' : x.calculationType === 'PERCENT' ? `${x.defaultValue}%` : money(x.defaultValue ?? 0)}
                 </span>
               </button>
@@ -198,7 +198,7 @@ export function SurfacePickerModal({
         {groups.length === 0 && <p className="py-6 text-center text-sm text-gray-500">No surfaces found.</p>}
         {groups.map((g) => (
           <div key={g}>
-            <div className="mb-2 text-[11px] font-bold uppercase tracking-[0.15em] text-gray-500">{g}</div>
+            <div className="mb-2 text-xs font-bold uppercase tracking-[0.15em] text-gray-500">{g}</div>
             <div className="space-y-1.5">
               {list.filter((s) => s.rateGroup === g).map((s) => (
                 <button

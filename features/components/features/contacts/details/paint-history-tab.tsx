@@ -60,10 +60,10 @@ export function PaintHistoryTab({ customer }: { customer: Customer }) {
 
   return (
     <div className="space-y-4" data-tour="paint-history-tab">
-      <div className="rounded-2xl border border-emerald-200 bg-white p-4 shadow-sm">
+      <div className="rounded-2xl border border-green-200 bg-white p-4 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Service location</span>
+            <span className="text-xxs font-bold uppercase tracking-widest text-gray-400">Service location</span>
             {locations.map((p) => (
               <button key={p.id} onClick={() => go({ location: p.id })} className={cn("rounded-xl border px-3 py-1.5 text-sm font-semibold", p.id === property.id ? "border-primary-500 bg-primary-50 text-primary-700" : "border-gray-200 text-gray-600 hover:bg-gray-50")}>
                 {p.address}

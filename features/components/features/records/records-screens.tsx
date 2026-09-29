@@ -17,7 +17,7 @@ import { jobHref } from "@/features/lib/hrefs";
 function SearchBox({ value, onChange, placeholder }: { value: string; onChange: (v: string) => void; placeholder: string }) {
   return (
     <div className="relative xl:w-[336px]">
-      <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+      <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
       <Input placeholder={placeholder} value={value} onChange={(e) => onChange(e.target.value)} className="h-9 pl-10" aria-label={placeholder} />
     </div>
   );
@@ -46,10 +46,10 @@ export function LeadsScreen() {
                   <Badge tone="blue">{titleCase(l.stage)}</Badge>
                   <Badge tone="gray">{titleCase(l.source)}</Badge>
                 </div>
-                <div className="mt-2 font-display text-[16px] font-bold">{c?.name}</div>
-                <div className="mt-1 flex items-center gap-1.5 text-[12px] text-slate-500"><MapPin className="h-3.5 w-3.5" /> {p ? propertyAddress(p) : "No property yet"}</div>
+                <div className="mt-2 font-display text-base font-bold">{c?.name}</div>
+                <div className="mt-1 flex items-center gap-1.5 text-xs text-gray-500"><MapPin className="h-3.5 w-3.5" /> {p ? propertyAddress(p) : "No property yet"}</div>
               </div>
-              <div className="hidden sm:block"><MicroLabel>Created</MicroLabel><div className="text-[13px] font-semibold">{date(l.createdAt)}</div></div>
+              <div className="hidden sm:block"><MicroLabel>Created</MicroLabel><div className="text-sm font-semibold">{date(l.createdAt)}</div></div>
             </Card>
           );
         })}

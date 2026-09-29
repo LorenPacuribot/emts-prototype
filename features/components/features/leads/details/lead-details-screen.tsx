@@ -76,8 +76,8 @@ export function LeadDetailsScreen() {
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-500">
                   <span className="flex items-center gap-1"><MapPin className="h-4 w-4 text-gray-400" /> {d.place}</span>
                   {lead.source === "repaint_alert"
-                    ? <span className="inline-flex items-center gap-1 rounded-full bg-primary-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary-800"><BellRing className="h-3 w-3" /> Repaint alert <NewBadge feature={29} /></span>
-                    : <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-gray-600">{leadSourceLabel(lead)}</span>}
+                    ? <span className="inline-flex items-center gap-1 rounded-full bg-primary-50 px-2 py-0.5 text-xxs font-bold uppercase tracking-wider text-primary-800"><BellRing className="h-3 w-3" /> Repaint alert <NewBadge feature={29} /></span>
+                    : <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xxs font-bold uppercase tracking-wider text-gray-600">{leadSourceLabel(lead)}</span>}
                   <span className="text-gray-400">Created: {date(lead.createdAt)}</span>
                   {lead.scheduledAt && estimator && (
                     <span className="flex items-center gap-1.5 rounded-md border border-primary-100 bg-primary-50 px-2 py-1 text-xs font-medium text-primary-700"><Calendar className="h-3.5 w-3.5" /> {dateTime(lead.scheduledAt)} with {estimator.name}</span>
@@ -164,7 +164,7 @@ function InfoRow({ icon, tint, label, value }: { icon: React.ReactNode; tint: st
     <div className="flex items-center gap-4 rounded-xl bg-gray-50 p-4">
       <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-full", tint)}>{icon}</div>
       <div className="min-w-0">
-        <div className="mb-0.5 text-[10px] font-bold uppercase tracking-widest text-gray-400">{label}</div>
+        <div className="mb-0.5 text-xxs font-bold uppercase tracking-widest text-gray-400">{label}</div>
         <div className="truncate text-lg font-bold text-gray-900">{value}</div>
       </div>
     </div>

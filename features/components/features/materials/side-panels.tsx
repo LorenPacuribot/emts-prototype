@@ -36,16 +36,16 @@ export function PreliminaryListModal({ open, job, lines, onClose }: { open: bool
       <div ref={ref} className="rounded-xl border-2 border-dashed border-amber-300 p-5">
         <div className="mb-3 flex flex-wrap items-start justify-between gap-2 border-b border-line pb-3">
           <div>
-            <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-amber-700">Preliminary — not a purchase order</div>
-            <div className="font-display text-[16px] font-bold text-ink">{job.name}</div>
-            <div className="text-[12px] text-slate-500">{job.id} · {propertyAddress(property, true)}</div>
+            <div className="text-xxs font-bold uppercase tracking-[0.2em] text-amber-700">Preliminary — not a purchase order</div>
+            <div className="font-display text-base font-bold text-ink">{job.name}</div>
+            <div className="text-xs text-gray-500">{job.id} · {propertyAddress(property, true)}</div>
           </div>
-          <div className="text-right text-[11px] text-slate-500">No PO number<br />{dateLong(now())}</div>
+          <div className="text-right text-xs text-gray-500">No PO number<br />{dateLong(now())}</div>
         </div>
-        {printable.length === 0 ? <p className="text-[12.5px] italic text-slate-400">No specifications with a product and surfaces yet.</p> : (
-          <table className="w-full border-collapse text-[12px]">
+        {printable.length === 0 ? <p className="text-xs italic text-gray-400">No specifications with a product and surfaces yet.</p> : (
+          <table className="w-full border-collapse text-xs">
             <thead>
-              <tr className="text-left text-[10px] uppercase tracking-wider text-slate-400">
+              <tr className="text-left text-xxs uppercase tracking-wider text-gray-400">
                 <th className="border-b py-1">Product</th><th className="border-b py-1">Colour</th><th className="border-b py-1">Sheen</th><th className="border-b py-1 text-right">Need</th><th className="border-b py-1">Packs</th><th className="border-b py-1">Status</th>
               </tr>
             </thead>
@@ -63,7 +63,7 @@ export function PreliminaryListModal({ open, job, lines, onClose }: { open: bool
             </tbody>
           </table>
         )}
-        <p className="mt-3 text-[10.5px] text-slate-400">Quantities follow the coverage, waste and packing rules. Prices are not shown on a preliminary list.</p>
+        <p className="mt-3 text-xs text-gray-400">Quantities follow the coverage, waste and packing rules. Prices are not shown on a preliminary list.</p>
       </div>
     </Modal>
   );
@@ -92,8 +92,8 @@ export function RecalcModal({ open, job, lines, snapshot, onClose }: { open: boo
             return (
               <TR key={l.specId} className={changed ? "bg-amber-50/50" : undefined}>
                 <TD className="font-semibold text-ink">{l.specId} · {l.colourName}</TD>
-                <TD>{p && p.rate !== l.rate ? <><s className="text-slate-400">{p.rate}</s> → </> : null}{l.rate} <span className="text-slate-400">({COVERAGE_LABEL[l.source]})</span></TD>
-                <TD>{p && p.waste !== l.waste ? <><s className="text-slate-400">{Math.round(p.waste * 100)}%</s> → </> : null}{Math.round(l.waste * 100)}%</TD>
+                <TD>{p && p.rate !== l.rate ? <><s className="text-gray-400">{p.rate}</s> → </> : null}{l.rate} <span className="text-gray-400">({COVERAGE_LABEL[l.source]})</span></TD>
+                <TD>{p && p.waste !== l.waste ? <><s className="text-gray-400">{Math.round(p.waste * 100)}%</s> → </> : null}{Math.round(l.waste * 100)}%</TD>
                 <TD className="text-right tabular-nums">{l.coatSqft}</TD>
                 <TD className="text-right tabular-nums">{p ? p.adjustedNeedGal.toFixed(3) : "—"}</TD>
                 <TD className="text-right font-semibold tabular-nums">{l.calculatedNeedGal.toFixed(3)}</TD>
@@ -102,7 +102,7 @@ export function RecalcModal({ open, job, lines, snapshot, onClose }: { open: boo
           })}
         </tbody>
       </Table>
-      {snapshot && <p className="mt-2 text-[11.5px] text-slate-500">Previous calculation {dateTime(snapshot.calculatedAt)} by {calcBy}.</p>}
+      {snapshot && <p className="mt-2 text-xs text-gray-500">Previous calculation {dateTime(snapshot.calculatedAt)} by {calcBy}.</p>}
     </Modal>
   );
 }
@@ -133,7 +133,7 @@ export function ApprovalsPanel({ job, onViewOrder }: { job: Job; onViewOrder: (i
       <CardLabel icon={<ClipboardList />}>Waiting for approval</CardLabel>
       <div className="mt-3 space-y-2">
         {adjustments.map((a) => (
-          <div key={a.id} className="flex flex-wrap items-center gap-3 rounded-lg border border-line px-3 py-2 text-[12.5px]">
+          <div key={a.id} className="flex flex-wrap items-center gap-3 rounded-lg border border-line px-3 py-2 text-xs">
             <Badge tone="amber">Adjustment {a.id}</Badge>
             <span><strong>{a.specId}</strong> {a.baselineGal.toFixed(3)} → {a.proposedGal.toFixed(3)} gal ({a.pct >= 0 ? "+" : ""}{(a.pct * 100).toFixed(1)}%) by {userName(db, a.by)} — “{a.note}”</span>
             <span className="ml-auto flex flex-wrap gap-1.5">
@@ -142,12 +142,12 @@ export function ApprovalsPanel({ job, onViewOrder }: { job: Job; onViewOrder: (i
                   <Button size="sm" onClick={() => { setRejecting({ kind: "adj", id: a.id }); setNote(""); setErr(undefined); }}><X className="h-3.5 w-3.5" /> Reject</Button>
                   <Button size="sm" variant="primary" onClick={() => act(decideAdjustment, a.id, true).ok && toast.success("Adjustment approved", "The line now uses the approved quantity.")}><Check className="h-3.5 w-3.5" /> Approve</Button>
                 </>
-              ) : <span className="text-[11.5px] text-slate-500">Owner or office manager to approve — not yet in effect</span>}
+              ) : <span className="text-xs text-gray-500">Owner or office manager to approve — not yet in effect</span>}
             </span>
           </div>
         ))}
         {requests.map((r) => (
-          <div key={r.id} className="flex flex-wrap items-center gap-3 rounded-lg border border-line px-3 py-2 text-[12.5px]">
+          <div key={r.id} className="flex flex-wrap items-center gap-3 rounded-lg border border-line px-3 py-2 text-xs">
             <Badge tone="amber">Request {r.id}</Badge>
             <span>{r.lines.map((l) => `${l.specId} ${formatPacks(l.packs)}`).join(", ")} · {byId(db.branches, r.branchId)?.name} · by {userName(db, r.requestedBy)} · limit {r.limit.estimatorPass ? "pass" : "fail"}{r.limit.needs !== "none" && ` · needs ${r.limit.needs === "owner" ? "owner" : "office manager"}`}</span>
             <span className="ml-auto flex flex-wrap gap-1.5">
@@ -156,7 +156,7 @@ export function ApprovalsPanel({ job, onViewOrder }: { job: Job; onViewOrder: (i
                   <Button size="sm" onClick={() => { setRejecting({ kind: "req", id: r.id }); setNote(""); setErr(undefined); }}><X className="h-3.5 w-3.5" /> Reject</Button>
                   <Button size="sm" variant="primary" disabled={r.limit.needs === "owner" && user.role !== "owner"} onClick={() => generate(r)}><FilePlus2 className="h-3.5 w-3.5" /> Generate priced order</Button>
                 </>
-              ) : <span className="text-[11.5px] text-slate-500">Waiting for the office</span>}
+              ) : <span className="text-xs text-gray-500">Waiting for the office</span>}
             </span>
           </div>
         ))}

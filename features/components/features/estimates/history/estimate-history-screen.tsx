@@ -85,7 +85,7 @@ function HistoryCard({ entry: e }: { entry: EstimateHistoryEntry & { coId?: stri
   const t = TRIGGER[e.trigger] ?? { label: e.trigger, icon: <History /> };
   const actor = e.performedBy === "ORG_USER" ? byId(db.users, e.userId)?.name ?? "Team member" : e.performedBy === "CLIENT" ? e.customerName ?? "Customer" : "System";
   return (
-    <div className={`flex gap-4 rounded-xl border bg-white p-4 ${t.isNew ? "border-emerald-200" : "border-gray-200"}`}>
+    <div className={`flex gap-4 rounded-xl border bg-white p-4 ${t.isNew ? "border-green-200" : "border-gray-200"}`}>
       <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary-50 text-primary-600 [&>svg]:h-4 [&>svg]:w-4">{t.icon}</div>
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center justify-between gap-2">

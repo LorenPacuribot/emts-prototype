@@ -86,7 +86,7 @@ export function FromHistorySection({ estimate, rep }: { estimate: Estimate; rep:
               <CardLabel icon={<FileText />}>Customer quote clause</CardLabel>
               <div className="mt-3 space-y-2">
                 <Checkbox checked={!!rep.clauseIncluded} disabled={readOnly} onCheckedChange={(v) => act(setQuoteClause, rep.id, v)} label={<span className="font-semibold">Include the differing-conditions clause (required)</span>} />
-                <p className="rounded-lg bg-slate-50 p-3 text-[12.5px] text-slate-600">{DIFFERING_CONDITIONS_CLAUSE}</p>
+                <p className="rounded-lg bg-gray-50 p-3 text-xs text-gray-600">{DIFFERING_CONDITIONS_CLAUSE}</p>
               </div>
             </Card>
             {rep.status === "draft" && (
@@ -95,7 +95,7 @@ export function FromHistorySection({ estimate, rep }: { estimate: Estimate; rep:
                 {blockers.length === 0 ? (
                   <Banner tone="success" className="mt-3" title="Ready to send">Inspection recorded, every line reconfirmed and the clause included. Use Send in the toolbar.</Banner>
                 ) : (
-                  <ul className="mt-3 list-disc space-y-1 pl-5 text-[12.5px] text-red-700">{blockers.map((b) => <li key={b}>{b}</li>)}</ul>
+                  <ul className="mt-3 list-disc space-y-1 pl-5 text-xs text-red-700">{blockers.map((b) => <li key={b}>{b}</li>)}</ul>
                 )}
               </Card>
             )}

@@ -116,7 +116,7 @@ export type AgendaType = 'LEAD' | 'WORK' | 'MEETING';
 
 export const AGENDA_TYPE_OPTIONS: { value: AgendaType; label: string; dot: string }[] = [
   { value: 'LEAD', label: 'Lead Visits', dot: 'bg-blue-500' },
-  { value: 'WORK', label: 'Work Orders', dot: 'bg-emerald-500' },
+  { value: 'WORK', label: 'Work Orders', dot: 'bg-green-500' },
   { value: 'MEETING', label: 'Meetings', dot: 'bg-purple-500' },
 ];
 

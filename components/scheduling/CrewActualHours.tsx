@@ -27,7 +27,7 @@ export function CrewActualChip({ memberId, day }: { memberId: string; day: strin
   if (!a || a.hours <= 0) return null;
   return (
     <Tooltip content={a.approved ? 'Approved for payroll' : `Clocked, not approved yet (${a.state ?? 'open'})`}>
-      <div className={cn('rounded-md border px-2 py-0.5 text-[11px] font-bold', a.approved ? 'border-green-200 bg-green-50 text-green-700' : 'border-gray-200 bg-gray-50 text-gray-600')}>
+      <div className={cn('rounded-md border px-2 py-0.5 text-xs font-bold', a.approved ? 'border-green-200 bg-green-50 text-green-700' : 'border-gray-200 bg-gray-50 text-gray-600')}>
         {a.approved ? 'Approved' : 'Clocked'} {a.hours.toFixed(1)}h
       </div>
     </Tooltip>

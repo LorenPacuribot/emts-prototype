@@ -50,7 +50,7 @@ export function CoBuilder({ coId, onClose, onOpenCo }: { coId?: string; onClose:
       title={
         co ? (
           <span className="flex flex-wrap items-center gap-2">
-            {co.id} <span className="font-normal text-slate-400">v{coVersion(co)}</span>
+            {co.id} <span className="font-normal text-gray-400">v{coVersion(co)}</span>
           </span>
         ) : (
           ""
@@ -159,7 +159,7 @@ function BuilderBody({ co, onOpenCo }: { co: ChangeOrder; onOpenCo: (id: string)
           )
         }
       >
-        <p className="mb-3 text-[11.5px] text-slate-500">
+        <p className="mb-3 text-xs text-gray-500">
           Incremental difference only.{canPrice && ` The original contract (${money(job.contractValue)}) is not re-added.`}
         </p>
         {co.lines.length === 0 ? (
@@ -171,8 +171,8 @@ function BuilderBody({ co, onOpenCo }: { co: ChangeOrder; onOpenCo: (id: string)
           />
         ) : (
           <div className="overflow-x-auto rounded-lg border border-line">
-            <table className="w-full min-w-[560px] text-left text-[12.5px]">
-              <thead className="bg-slate-50/80 text-[9.5px] font-bold uppercase tracking-[0.12em] text-slate-400">
+            <table className="w-full min-w-[560px] text-left text-xs">
+              <thead className="bg-gray-50/80 text-xxs font-bold uppercase tracking-[0.12em] text-gray-400">
                 <tr>
                   <th className="px-3 py-2">Change</th>
                   <th className="px-3 py-2">Description</th>
@@ -192,7 +192,7 @@ function BuilderBody({ co, onOpenCo }: { co: ChangeOrder; onOpenCo: (id: string)
                       </td>
                       <td className="px-3 py-2">
                         <div className="font-medium text-ink">{l.description}</div>
-                        <div className="text-[11px] text-slate-500">
+                        <div className="text-xs text-gray-500">
                           {[l.product, l.colour].filter(Boolean).join(" · ")}
                           {l.treatment === "stranded_paint" && " · Nonreturnable tinted paint — billed here once, not again via leftover stock"}
                           {l.treatment === "absorbed_labour" && " · Labour cancelled inside 24 h — absorbed by the contractor"}
@@ -200,10 +200,10 @@ function BuilderBody({ co, onOpenCo }: { co: ChangeOrder; onOpenCo: (id: string)
                       </td>
                       <td className="px-3 py-2 text-right">{l.sqft !== undefined ? `${l.sqft} sq ft` : "—"}</td>
                       {canCost && (
-                        <td className="px-3 py-2 text-right text-slate-500">
+                        <td className="px-3 py-2 text-right text-gray-500">
                           {money(l.cost)}
                           {(l.laborHours !== undefined || l.materialCost !== undefined) && (
-                            <div className="text-[11px] text-slate-400">
+                            <div className="text-xs text-gray-400">
                               {l.laborHours ? `${l.laborHours} h labour` : "no labour"} · {money(l.materialCost ?? 0)} material
                             </div>
                           )}
@@ -228,7 +228,7 @@ function BuilderBody({ co, onOpenCo }: { co: ChangeOrder; onOpenCo: (id: string)
           </div>
         )}
         {!isDraft && canBuild && ["pending_internal", "ready_to_send", "sent"].includes(co.status) && (
-          <p className="mt-3 text-[11.5px] text-slate-500">
+          <p className="mt-3 text-xs text-gray-500">
             Content is locked after submission. To change it,{" "}
             <button className="font-semibold text-brand hover:underline" onClick={() => setNote("reopen")}>reopen as version {coVersion(co) + 1}</button> (any sent link is superseded).
           </p>
@@ -239,19 +239,19 @@ function BuilderBody({ co, onOpenCo }: { co: ChangeOrder; onOpenCo: (id: string)
       {canPrice && (
         <Section title="Pricing" icon={<Receipt />}>
           <div className="grid gap-5 md:grid-cols-2">
-            <div className="space-y-2 text-[12.5px]">
+            <div className="space-y-2 text-xs">
               <PriceRow k="Markup" v={`${co.markupPct}% (original contract)`} />
               <PriceRow k="Tax rate" v={`${rate.ratePct}% effective ${dateLong(rate.effectiveFrom)}`} />
               <PriceRow k="Change-order date" v={`${dateLong(co.taxDate)} (printed on the document)`} />
               <PriceRow k="Rounding" v="Half-up to cents, per line" />
               <PriceRow k="Minimum charge" v="None inside an existing contract" />
               {rate.ratePct !== job.taxRatePct && (
-                <p className="rounded-lg bg-amber-50 px-3 py-2 text-[11.5px] text-amber-800">
+                <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
                   The contract was signed at {job.taxRatePct}%. That rate is obsolete for this change and is not reused.
                 </p>
               )}
               <div className="pt-2">
-                <div className="text-[11.5px] font-semibold text-slate-700">Inherited discount</div>
+                <div className="text-xs font-semibold text-gray-700">Inherited discount</div>
                 {isDraft && canBuild ? (
                   <div className="mt-1 flex items-center gap-2">
                     <Input className="h-8 w-24" type="number" min={0} max={50} step="0.5" value={discountText} onChange={(e) => setDiscountText(e.target.value)} aria-label="Discount percent" placeholder="%" />
@@ -260,12 +260,12 @@ function BuilderBody({ co, onOpenCo }: { co: ChangeOrder; onOpenCo: (id: string)
                     </Button>
                   </div>
                 ) : (
-                  <div className="text-[12px] text-slate-500">{co.discount ? `${co.discount.pct}% · ${co.discount.status === "approved" ? `approved by ${byId(db.users, co.discount.approvedBy)?.name}` : "awaiting owner"}` : "None"}</div>
+                  <div className="text-xs text-gray-500">{co.discount ? `${co.discount.pct}% · ${co.discount.status === "approved" ? `approved by ${byId(db.users, co.discount.approvedBy)?.name}` : "awaiting owner"}` : "None"}</div>
                 )}
-                <p className="mt-1 text-[11px] text-slate-400">No discount is inherited without the owner&apos;s approval.</p>
+                <p className="mt-1 text-xs text-gray-400">No discount is inherited without the owner&apos;s approval.</p>
               </div>
             </div>
-            <div className="space-y-1.5 rounded-lg bg-slate-50 p-4 text-[13px]">
+            <div className="space-y-1.5 rounded-lg bg-gray-50 p-4 text-sm">
               <PriceRow k="Gross addition" v={money(p.grossAddition)} />
               <PriceRow k="Credit" v={p.credit ? money(-p.credit) : money(0)} />
               {(p.discount > 0 || p.pendingDiscount > 0) && <PriceRow k={p.discount ? "Discount (approved)" : "Discount (held, not applied)"} v={money(-(p.discount || p.pendingDiscount))} muted={!p.discount} />}
@@ -284,17 +284,17 @@ function BuilderBody({ co, onOpenCo }: { co: ChangeOrder; onOpenCo: (id: string)
       {(parent || children.length > 0) && (
         <Section title="Dependency" icon={<GitBranch />}>
           {parent && (
-            <div className="flex flex-wrap items-center gap-2 text-[12.5px]">
-              <span className="text-slate-500">Parent</span>
+            <div className="flex flex-wrap items-center gap-2 text-xs">
+              <span className="text-gray-500">Parent</span>
               <button className="font-semibold text-brand hover:underline" onClick={() => onOpenCo(parent.id)}>{parent.id}</button>
               <span>{parent.title}</span>
               <StatusBadge co={parent} />
             </div>
           )}
           {parent && depBlock && <Banner tone="warn" className="mt-3" title="Can be drafted, not sent or approved">{depBlock} If {parent.id} is rejected, this change order returns to draft and is repriced against the last approved scope.</Banner>}
-          {parent && !depBlock && <p className="mt-2 text-[12px] text-emerald-700">Parent resolved ({CO_STATUS[parent.status].label}). This change order can proceed.</p>}
+          {parent && !depBlock && <p className="mt-2 text-xs text-green-700">Parent resolved ({CO_STATUS[parent.status].label}). This change order can proceed.</p>}
           {children.length > 0 && (
-            <div className="mt-2 text-[12.5px] text-slate-600">
+            <div className="mt-2 text-xs text-gray-600">
               Dependent change orders:{" "}
               {children.map((c) => (
                 <button key={c.id} className="mr-2 font-semibold text-brand hover:underline" onClick={() => onOpenCo(c.id)}>{c.id}</button>
@@ -307,12 +307,12 @@ function BuilderBody({ co, onOpenCo }: { co: ChangeOrder; onOpenCo: (id: string)
       {/* ---------- Internal approval ---------- */}
       {!co.emergency && (
         <Section title="Internal approval" icon={<BadgeCheck />}>
-          <div className="space-y-3 text-[12.5px]">
+          <div className="space-y-3 text-xs">
             <div className="flex flex-wrap items-center gap-2">
               {ownerCheck.required || co.depositReview ? <Badge tone="amber">Business owner approval required</Badge> : <Badge tone="gray">Owner approval not required by the threshold</Badge>}
               {co.ownerApprovedBy && <Badge tone="green" icon={<CheckCircle2 className="h-3 w-3" />}>Approved by {byId(db.users, co.ownerApprovedBy)?.name} · {dateTime(co.ownerApprovedAt)}</Badge>}
             </div>
-            <ul className="list-disc space-y-0.5 pl-5 text-slate-600">
+            <ul className="list-disc space-y-0.5 pl-5 text-gray-600">
               {ownerCheck.reasons.map((r) => <li key={r}>{r}</li>)}
               {!ownerCheck.required && <li>Gross addition is not above $2,000.00 and there is no credit. Credits never offset additions.</li>}
             </ul>
@@ -341,7 +341,7 @@ function BuilderBody({ co, onOpenCo }: { co: ChangeOrder; onOpenCo: (id: string)
                   </Button>
                 </>
               )}
-              {co.status === "pending_internal" && !isOwner && <p className="text-[12px] text-amber-700">Waiting for the business owner. Switch role to Business Owner in the demo bar to approve.</p>}
+              {co.status === "pending_internal" && !isOwner && <p className="text-xs text-amber-700">Waiting for the business owner. Switch role to Business Owner in the demo bar to approve.</p>}
             </div>
           </div>
         </Section>
@@ -364,9 +364,9 @@ function BuilderBody({ co, onOpenCo }: { co: ChangeOrder; onOpenCo: (id: string)
             )
           }
         >
-          <div className="space-y-3 text-[12.5px]">
+          <div className="space-y-3 text-xs">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-slate-500">Recipient</span>
+              <span className="text-gray-500">Recipient</span>
               {co.recipientVerified ? (
                 <Badge tone="green" icon={<ShieldCheck className="h-3 w-3" />}>{co.recipientName ?? co.recipient} &lt;{co.recipient}&gt; · verified on customer record</Badge>
               ) : (
@@ -384,10 +384,10 @@ function BuilderBody({ co, onOpenCo }: { co: ChangeOrder; onOpenCo: (id: string)
                 <Button variant="primary" size="sm" disabled={!!block} onClick={() => setSend("send")}>
                   <Send className="h-3.5 w-3.5" /> Send to customer
                 </Button>
-                {block && <span className="text-[12px] text-amber-700">{block}</span>}
+                {block && <span className="text-xs text-amber-700">{block}</span>}
               </div>
             )}
-            {["draft", "pending_internal"].includes(co.status) && block && <p className="text-[12px] text-slate-500">Send: {block}</p>}
+            {["draft", "pending_internal"].includes(co.status) && block && <p className="text-xs text-gray-500">Send: {block}</p>}
 
             {link && co.status === "sent" && linkSt && (
               <LinkStatusBanner co={co} link={link} state={linkSt} canSend={canSend} onReissue={() => setSend("reissue")} onVerify={() => setVerify(true)} />
@@ -395,8 +395,8 @@ function BuilderBody({ co, onOpenCo }: { co: ChangeOrder; onOpenCo: (id: string)
 
             {coLinks(co).length > 0 && (
               <div className="overflow-x-auto rounded-lg border border-line">
-                <table className="w-full min-w-[620px] text-left text-[12px]">
-                  <thead className="bg-slate-50/80 text-[9.5px] font-bold uppercase tracking-[0.12em] text-slate-400">
+                <table className="w-full min-w-[620px] text-left text-xs">
+                  <thead className="bg-gray-50/80 text-xxs font-bold uppercase tracking-[0.12em] text-gray-400">
                     <tr>
                       <th className="px-3 py-2">Link</th>
                       <th className="px-3 py-2">Version</th>
@@ -416,10 +416,10 @@ function BuilderBody({ co, onOpenCo }: { co: ChangeOrder; onOpenCo: (id: string)
                           <td className="px-3 py-2">v{l.version}</td>
                           <td className="px-3 py-2">{dateTime(l.sentAt)} · {l.channel === "portal" ? "Portal" : "Email"}</td>
                           <td className="px-3 py-2">{l.recipientName}</td>
-                          <td className="px-3 py-2">{date(l.expiresAt)} <span className="text-slate-400">({relDays(l.expiresAt, nowIso)})</span></td>
+                          <td className="px-3 py-2">{date(l.expiresAt)} <span className="text-gray-400">({relDays(l.expiresAt, nowIso)})</span></td>
                           <td className="px-3 py-2">
                             <Badge tone={CO_LINK_STATE[st].tone}>{CO_LINK_STATE[st].label}</Badge>
-                            {l.supersededReason && <div className="mt-0.5 max-w-52 text-[10.5px] text-slate-400">{l.supersededReason}</div>}
+                            {l.supersededReason && <div className="mt-0.5 max-w-52 text-xs text-gray-400">{l.supersededReason}</div>}
                           </td>
                           <td className="px-3 py-2">
                             <Button size="sm" variant="ghost" onClick={() => setCustomerLink(l)}>
@@ -435,8 +435,8 @@ function BuilderBody({ co, onOpenCo }: { co: ChangeOrder; onOpenCo: (id: string)
             )}
 
             {co.evidence && co.evidence.channel !== "verbal" && (
-              <div className="rounded-lg border border-emerald-200 bg-emerald-50/50 p-3">
-                <div className="mb-2 text-[10px] font-bold uppercase tracking-[0.14em] text-emerald-700">Approval evidence</div>
+              <div className="rounded-lg border border-green-200 bg-green-50/50 p-3">
+                <div className="mb-2 text-xxs font-bold uppercase tracking-[0.14em] text-green-700">Approval evidence</div>
                 <KV items={[["Version", `v${co.evidence.version}`], ["Signer", co.evidence.signer], ["Channel", co.evidence.channel === "portal" ? "Portal signature" : "Written email reply"], ["Timestamp", dateTime(co.evidence.at)], ["Evidence", co.evidence.ref], ["Recorded by", byId(db.users, co.evidence.recordedBy)?.name]]} />
               </div>
             )}
@@ -447,14 +447,14 @@ function BuilderBody({ co, onOpenCo }: { co: ChangeOrder; onOpenCo: (id: string)
                   <CheckCircle2 className="h-3.5 w-3.5" /> Record customer decision
                 </Button>
               )}
-              {co.status === "sent" && depBlock && <span className="text-[12px] text-amber-700">Blocked: {depBlock}</span>}
+              {co.status === "sent" && depBlock && <span className="text-xs text-amber-700">Blocked: {depBlock}</span>}
               {co.status === "approved" && canDecide && (
                 <Button size="sm" variant="danger" onClick={() => setNote("dispute")}>
                   <XCircle className="h-3.5 w-3.5" /> Mark disputed (payment refused for work done)
                 </Button>
               )}
             </div>
-            {!canSend && ["ready_to_send", "sent"].includes(co.status) && <p className="text-[11.5px] text-slate-400">The office verifies the recipient and sends. Your role can view only.</p>}
+            {!canSend && ["ready_to_send", "sent"].includes(co.status) && <p className="text-xs text-gray-400">The office verifies the recipient and sends. Your role can view only.</p>}
           </div>
         </Section>
       )}
@@ -481,16 +481,16 @@ function BuilderBody({ co, onOpenCo }: { co: ChangeOrder; onOpenCo: (id: string)
               const meta = co.downstreamMeta?.[k];
               return (
                 <div key={k} className="flex flex-wrap items-start gap-3 px-3 py-3">
-                  <span className="mt-0.5 text-slate-400">{DS_ICON[k]}</span>
+                  <span className="mt-0.5 text-gray-400">{DS_ICON[k]}</span>
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="font-semibold text-ink">{DOWNSTREAM_LABEL[k]}</span>
                       <DownstreamBadge state={st} />
                     </div>
-                    {meta?.ref && <div className="text-[11.5px] text-slate-500">{meta.ref}{meta.reconciledNote ? ` — ${meta.reconciledNote}` : ""}</div>}
-                    {st === "failed" && meta?.error && <div className="text-[11.5px] text-red-600">Failed {dateTime(meta.at)}: {meta.error}</div>}
-                    {meta?.at && st === "done" && <div className="text-[10.5px] text-slate-400">{dateTime(meta.at)}</div>}
-                    {k === "scheduler" && <div className="text-[10.5px] text-slate-400">Crews are never rescheduled automatically. Schedule review is confirmed separately from customer approval.</div>}
+                    {meta?.ref && <div className="text-xs text-gray-500">{meta.ref}{meta.reconciledNote ? ` — ${meta.reconciledNote}` : ""}</div>}
+                    {st === "failed" && meta?.error && <div className="text-xs text-red-600">Failed {dateTime(meta.at)}: {meta.error}</div>}
+                    {meta?.at && st === "done" && <div className="text-xs text-gray-400">{dateTime(meta.at)}</div>}
+                    {k === "scheduler" && <div className="text-xs text-gray-400">Crews are never rescheduled automatically. Schedule review is confirmed separately from customer approval.</div>}
                     {k === "billing" && <BillingDetail co={co} canPrice={canPrice} />}
                   </div>
                   {st === "failed" && can(user, "co.exceptions") ? (
@@ -514,10 +514,10 @@ function BuilderBody({ co, onOpenCo }: { co: ChangeOrder; onOpenCo: (id: string)
             })}
           </div>
           {co.downstream.billing === "done" && co.billing?.mode === "account_credit" && co.billing.creditRaisedAt && canDecide && (
-            <div className="mt-3 flex flex-wrap items-end gap-2 rounded-lg border border-line p-3 text-[12px]">
+            <div className="mt-3 flex flex-wrap items-end gap-2 rounded-lg border border-line p-3 text-xs">
               <div className="min-w-0 flex-1">
                 <div className="font-semibold text-ink">Refund or account credit</div>
-                <div className="text-slate-500">
+                <div className="text-gray-500">
                   Credit raised {dateLong(co.billing.creditRaisedAt)}; refund window closes {dateLong(`${co.billing.refundWindowCloses}T12:00:00`)}. Current choice: {co.billing.customerChoice === "refund" ? "Refund" : "Account credit (default)"}.
                 </div>
               </div>
@@ -525,7 +525,7 @@ function BuilderBody({ co, onOpenCo }: { co: ChangeOrder; onOpenCo: (id: string)
               <Button size="sm" onClick={() => act(recordRefundChoice, co.id, "refund", `${refundDate}T12:00:00`).ok && toast.success("Refund recorded")}>
                 Customer requests refund
               </Button>
-              {!refundAllowed(co.billing.creditRaisedAt, `${refundDate}T12:00:00`) && <span className="w-full text-[11.5px] text-amber-700">That date is after the 14-day window. The default account credit stands.</span>}
+              {!refundAllowed(co.billing.creditRaisedAt, `${refundDate}T12:00:00`) && <span className="w-full text-xs text-amber-700">That date is after the 14-day window. The default account credit stands.</span>}
             </div>
           )}
         </Section>
@@ -534,13 +534,13 @@ function BuilderBody({ co, onOpenCo }: { co: ChangeOrder; onOpenCo: (id: string)
       {/* ---------- History ---------- */}
       <Section title="Version and activity history" icon={<History />}>
         {history.length === 0 ? (
-          <p className="text-[12px] italic text-slate-400">No recorded activity.</p>
+          <p className="text-xs italic text-gray-400">No recorded activity.</p>
         ) : (
           <div className="max-h-64 space-y-2 overflow-y-auto">
             {history.map((a) => (
-              <div key={a.id} className="border-l-2 border-line pl-3 text-[12px]">
-                <div className="text-[10px] font-bold uppercase text-slate-400">{dateTime(a.at)} · {byId(db.users, a.userId)?.name}</div>
-                <div className={a.blocked ? "text-red-700" : "text-slate-700"}>{a.message}</div>
+              <div key={a.id} className="border-l-2 border-line pl-3 text-xs">
+                <div className="text-xxs font-bold uppercase text-gray-400">{dateTime(a.at)} · {byId(db.users, a.userId)?.name}</div>
+                <div className={a.blocked ? "text-red-700" : "text-gray-700"}>{a.message}</div>
               </div>
             ))}
           </div>
@@ -604,7 +604,7 @@ function noteCopy(note: NoteKind | null, co: ChangeOrder) {
 
 function PriceRow({ k, v, bold, muted }: { k: string; v: React.ReactNode; bold?: boolean; muted?: boolean }) {
   return (
-    <div className={`flex justify-between gap-4 ${bold ? "font-bold text-ink" : muted ? "text-slate-400" : "text-slate-600"}`}>
+    <div className={`flex justify-between gap-4 ${bold ? "font-bold text-ink" : muted ? "text-gray-400" : "text-gray-600"}`}>
       <span>{k}</span>
       <span className="text-right">{v}</span>
     </div>
@@ -643,8 +643,8 @@ function LinkStatusBanner({ co, link, state, canSend, onReissue, onVerify }: { c
 
 function BillingDetail({ co, canPrice }: { co: ChangeOrder; canPrice: boolean }) {
   return (
-    <div className="mt-1 space-y-0.5 text-[11px] text-slate-500">
-      {co.billing && <div className="font-medium text-slate-700">{BILLING_LABEL[co.billing.mode]}{co.billing.docId ? ` — ${co.billing.docId}` : ""}{canPrice && co.billing.mode !== "none" ? ` · ${money(co.billing.amount)}` : ""}</div>}
+    <div className="mt-1 space-y-0.5 text-xs text-gray-500">
+      {co.billing && <div className="font-medium text-gray-700">{BILLING_LABEL[co.billing.mode]}{co.billing.docId ? ` — ${co.billing.docId}` : ""}{canPrice && co.billing.mode !== "none" ? ` · ${money(co.billing.amount)}` : ""}</div>}
       <div>Rules: draft invoice updated in place · addition to a sent invoice → supplemental invoice · negative change to a sent unpaid invoice → credit note · already paid → account credit by default, refund on request within 14 days. Issued invoices are never edited; original references are kept.</div>
     </div>
   );
@@ -659,8 +659,8 @@ function EmergencyPanel({ co, total, canPrice, canBuild, canDecide, onRaise, onW
     const eligible = emergencyEligible(total);
     return (
       <Section title="Emergency work" icon={<Siren />}>
-        <div className="flex flex-wrap items-center gap-3 text-[12.5px]">
-          <p className="min-w-0 flex-1 text-slate-600">
+        <div className="flex flex-wrap items-center gap-3 text-xs">
+          <p className="min-w-0 flex-1 text-gray-600">
             {eligible
               ? "Urgent work strictly below $500.00 may start on verbal approval, with same-day evidence and written confirmation within two working days."
               : `Not available: the emergency path is only for work strictly below $500.00${canPrice ? ` (this change is ${money(total)})` : ""}. Exactly $500.00 does not qualify.`}
@@ -744,8 +744,8 @@ function ApplyPanel({ co, canDecide, canPrice }: { co: ChangeOrder; canDecide: b
       <div className="divide-y divide-line rounded-lg border border-line">
         {rows.map(([icon, label, text]) => (
           <div key={label} className="flex items-start gap-3 px-3 py-3">
-            <span className="mt-0.5 text-slate-400">{icon}</span>
-            <div className="min-w-0"><div className="font-semibold text-ink">{label}</div><div className="text-[12px] text-slate-500">{text}</div></div>
+            <span className="mt-0.5 text-gray-400">{icon}</span>
+            <div className="min-w-0"><div className="font-semibold text-ink">{label}</div><div className="text-xs text-gray-500">{text}</div></div>
           </div>
         ))}
       </div>
@@ -760,7 +760,7 @@ function ApplyPanel({ co, canDecide, canPrice }: { co: ChangeOrder; canDecide: b
           </Field>
         </div>
       ) : (
-        <p className="mt-3 text-[12px] text-slate-500">The owner or office manager applies approved change orders. Your role can view only.</p>
+        <p className="mt-3 text-xs text-gray-500">The owner or office manager applies approved change orders. Your role can view only.</p>
       )}
     </Section>
   );

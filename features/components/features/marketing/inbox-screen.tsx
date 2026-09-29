@@ -148,11 +148,11 @@ function MessageCard({ m, highlight, staff, setConfirm }: { m: SocialMessage; hi
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <span className="font-semibold text-ink">{m.author.name}</span>
-            {m.author.handle && <span className="text-[12px] text-slate-500">{m.author.handle}</span>}
+            {m.author.handle && <span className="text-xs text-gray-500">{m.author.handle}</span>}
             <Badge tone="gray">{where}</Badge>
             {m.sandbox && <Badge tone="gray">Sandbox</Badge>}
           </div>
-          <div className="text-[11.5px] text-slate-500">
+          <div className="text-xs text-gray-500">
             {dateTime(m.at)} · {m.id}
             {post && <> · on post {post.title}</>}
             {ad && <> · from ad {ad.name}</>}
@@ -165,9 +165,9 @@ function MessageCard({ m, highlight, staff, setConfirm }: { m: SocialMessage; hi
           {m.leadId && <Badge tone="green">Lead {m.leadId}</Badge>}
         </div>
       </div>
-      <p className="mt-2 text-[13px] text-slate-700">&ldquo;{m.text}&rdquo;</p>
+      <p className="mt-2 text-sm text-gray-700">&ldquo;{m.text}&rdquo;</p>
       {m.replies.map((r, i) => (
-        <div key={i} className="mt-2 rounded-lg border border-line bg-slate-50 px-3 py-2 text-[12.5px]">
+        <div key={i} className="mt-2 rounded-lg border border-line bg-gray-50 px-3 py-2 text-xs">
           <b>{byId(db.users, r.by)?.name ?? "Staff"}</b> replied {dateTime(r.at)}{r.externalRef?.startsWith("SBX") ? " (sandbox)" : ""}: {r.text}
         </div>
       ))}
@@ -182,7 +182,7 @@ function MessageCard({ m, highlight, staff, setConfirm }: { m: SocialMessage; hi
         <div className={`mt-3 flex flex-wrap items-end gap-2 ${TAP_SCOPE}`}>
           {m.status !== "closed" && <GatedButton allowed={canPost} reason={postReason} size="sm" variant="primary" onClick={() => { setReplying(true); setErr(undefined); }}><MessageSquare className="h-3.5 w-3.5" /> Reply</GatedButton>}
           {m.leadId ? (
-            <AppLink href={`/leads/${m.leadId}`} className={`inline-flex h-8 items-center rounded-lg border border-line bg-white px-3 text-xs font-semibold text-ink hover:bg-slate-50 ${TAP}`}>Open lead {m.leadId}</AppLink>
+            <AppLink href={`/leads/${m.leadId}`} className={`inline-flex h-8 items-center rounded-lg border border-line bg-white px-3 text-xs font-semibold text-ink hover:bg-gray-50 ${TAP}`}>Open lead {m.leadId}</AppLink>
           ) : (
             <GatedButton allowed={canLead} reason={`Creating leads needs ${whoCan("lead.create")}.`} size="sm" onClick={createLead}><UserPlus className="h-3.5 w-3.5" /> Create lead</GatedButton>
           )}
@@ -190,7 +190,7 @@ function MessageCard({ m, highlight, staff, setConfirm }: { m: SocialMessage; hi
             ? <GatedButton allowed={canPost} reason={postReason} size="sm" variant="ghost" onClick={() => done(false)}><RotateCcw className="h-3.5 w-3.5" /> Reopen</GatedButton>
             : <GatedButton allowed={canPost} reason={postReason} size="sm" variant="ghost" onClick={() => done(true)}><CheckCircle2 className="h-3.5 w-3.5" /> Mark done</GatedButton>}
           <div className="ml-auto min-w-44">
-            <label htmlFor={`asg-${m.id}`} className="mb-1 block text-[11px] font-semibold text-slate-600">Assigned to</label>
+            <label htmlFor={`asg-${m.id}`} className="mb-1 block text-xs font-semibold text-gray-600">Assigned to</label>
             <Select id={`asg-${m.id}`} value={m.assignedTo ?? ""} disabled={!canPost} title={canPost ? undefined : postReason} onChange={(e) => assign(e.target.value)}>
               <option value="">Nobody</option>
               {staff.map((u) => <option key={u.id} value={u.id}>{u.name}</option>)}

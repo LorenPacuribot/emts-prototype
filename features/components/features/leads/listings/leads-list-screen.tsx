@@ -95,7 +95,7 @@ export function LeadsListScreen() {
             <button type="button" onClick={() => setView("website")} title="Website Lead Review" data-tour="leads-website"
               className={cn("flex flex-1 items-center justify-center gap-2 rounded-lg p-2 transition-all lg:flex-none", view === "website" ? "bg-white text-primary-700 shadow-sm" : "text-gray-500 hover:text-gray-700")}>
               <Globe className="h-5 w-5" /><span className="hidden text-xs font-bold uppercase sm:inline">Website</span>
-              {openReviews > 0 && <span className="rounded-full bg-amber-100 px-1.5 text-[10px] font-bold text-amber-700">{openReviews}</span>}
+              {openReviews > 0 && <span className="rounded-full bg-amber-100 px-1.5 text-xs font-bold text-amber-700">{openReviews}</span>}
               <NewBadge feature={34} />
             </button>
           </div>
@@ -181,7 +181,7 @@ function LeadCard({ lead, draggable, onDragStart, onMove }: { lead: Lead; dragga
         <div className="mb-1 pr-6 text-lg font-bold leading-tight text-gray-900">{d.name}</div>
         <div className="flex items-center gap-2 text-xs text-gray-500">
           <span className="flex min-w-0 items-center gap-1"><MapPin className="h-3 w-3 shrink-0" /><span className="max-w-[180px] truncate">{d.place}</span></span>
-          <span className={cn("rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide", life.color)}>{life.label}</span>
+          <span className={cn("rounded-full px-2 py-0.5 text-xxs font-bold uppercase tracking-wide", life.color)}>{life.label}</span>
         </div>
         <div className="mt-1 flex items-center gap-2">
           <span className="whitespace-nowrap text-xxs font-bold text-gray-600">{lead.id}</span>
@@ -195,7 +195,7 @@ function LeadCard({ lead, draggable, onDragStart, onMove }: { lead: Lead; dragga
       <div className="mb-4 flex flex-wrap gap-2">
         <Chip><Calendar className="mr-1 h-3 w-3 text-gray-400" />{date(lead.createdAt)}</Chip>
         {lead.source === "repaint_alert"
-          ? <span className="inline-flex items-center gap-1 rounded border border-primary-200 bg-primary-50 px-2 py-0.5 text-[10px] font-semibold text-primary-800"><BellRing className="h-3 w-3" /> Repaint alert <NewBadge feature={29} /></span>
+          ? <span className="inline-flex items-center gap-1 rounded border border-primary-200 bg-primary-50 px-2 py-0.5 text-xs font-semibold text-primary-800"><BellRing className="h-3 w-3" /> Repaint alert <NewBadge feature={29} /></span>
           : <Chip>{leadSourceLabel(lead)}</Chip>}
         <Chip>{timeAgo(lead.createdAt)}</Chip>
       </div>
@@ -209,7 +209,7 @@ function LeadCard({ lead, draggable, onDragStart, onMove }: { lead: Lead; dragga
         </Tooltip>
       ) : null}
       {fu && (
-        <div className="mb-3 flex items-center gap-1.5 rounded-md border border-primary-100 bg-primary-50/60 px-2 py-1 text-[11px] text-primary-800">
+        <div className="mb-3 flex items-center gap-1.5 rounded-md border border-primary-100 bg-primary-50/60 px-2 py-1 text-xs text-primary-800">
           <BellRing className="h-3 w-3 shrink-0" /> Stage follows repaint follow-up {fu.id}
         </div>
       )}
@@ -234,7 +234,7 @@ function LeadCard({ lead, draggable, onDragStart, onMove }: { lead: Lead; dragga
 }
 
 function Chip({ children }: { children: React.ReactNode }) {
-  return <span className="inline-flex items-center rounded border border-gray-200 bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-600">{children}</span>;
+  return <span className="inline-flex items-center rounded border border-gray-200 bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">{children}</span>;
 }
 
 function LeadsTable({ leads }: { leads: Lead[] }) {
@@ -254,7 +254,7 @@ function LeadsTable({ leads }: { leads: Lead[] }) {
             return (
               <tr key={l.id} className="cursor-pointer hover:bg-gray-50" onClick={() => nav.push(leadHref(l.id))}>
                 <td className={cn(td, "text-xs font-medium text-gray-500")}>{l.id}</td>
-                <td className={td}><div className="text-base font-bold text-gray-900">{d.name}</div><span className={cn("mt-1 inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide", life.color)}>{life.label}</span></td>
+                <td className={td}><div className="text-base font-bold text-gray-900">{d.name}</div><span className={cn("mt-1 inline-flex rounded-full px-2 py-0.5 text-xxs font-bold uppercase tracking-wide", life.color)}>{life.label}</span></td>
                 <td className={td}><StatusPill tone={STATUS_TONE[l.stage]}>{LIVE_LEAD_STATUS[l.stage]}</StatusPill></td>
                 <td className={td}>{l.estimateId ? <AppLink href={estimateHref(l.estimateId)} onClick={(e) => e.stopPropagation()} className="inline-flex items-center gap-1 text-xs font-bold text-primary-700 hover:underline"><FileText className="h-3.5 w-3.5" />{l.estimateId}</AppLink> : "-"}</td>
                 <td className={td}>{d.phone && <div className="flex items-center gap-1.5 text-xs"><Phone className="h-3 w-3 text-gray-400" />{d.phone}</div>}{d.email && <div className="flex items-center gap-1.5 text-xs"><Mail className="h-3 w-3 text-gray-400" />{d.email}</div>}</td>

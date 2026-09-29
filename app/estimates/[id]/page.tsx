@@ -389,7 +389,7 @@ export default function EstimateBuilderPage() {
                 <button
                   type="button"
                   onClick={() => document.getElementById('section-paint-card')?.scrollIntoView({ behavior: 'smooth' })}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700 hover:bg-emerald-100"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-green-200 bg-green-50 px-3 py-1.5 text-xs font-bold text-green-700 hover:bg-green-100"
                 >
                   <Palette className="h-3.5 w-3.5" /> Color Card
                 </button>

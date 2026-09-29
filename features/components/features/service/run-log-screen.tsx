@@ -46,8 +46,8 @@ function RunLog() {
       />
       <RunFailureBanner className="mb-4" />
       <StatStrip className="mb-4">
-        <Stat label="Last run" value={<span className="text-[15px]">{last ? dateTime(last.ranAt) : "—"}</span>} hint={last ? (last.failed ? "Failed" : "Success") : undefined} tone={last?.failed ? "danger" : "default"} />
-        <Stat label="Last successful run" value={<span className="text-[15px]">{lastOk ? dateTime(lastOk.ranAt) : "—"}</span>} />
+        <Stat label="Last run" value={<span className="text-base">{last ? dateTime(last.ranAt) : "—"}</span>} hint={last ? (last.failed ? "Failed" : "Success") : undefined} tone={last?.failed ? "danger" : "default"} />
+        <Stat label="Last successful run" value={<span className="text-base">{lastOk ? dateTime(lastOk.ranAt) : "—"}</span>} />
         <Stat label="Unresolved failures" value={unresolved} tone={unresolved ? "danger" : "good"} />
         <Stat label="Runs recorded" value={runs.length} />
         <Stat label="Customer messages sent by runs" value={0} hint="Alerts are internal only" tone="good" />
@@ -86,7 +86,7 @@ function RunLog() {
                   <TD className="font-semibold text-ink">{r.created}</TD>
                   <TD>{r.skipped}</TD>
                   <TD>{r.failures ?? (r.failed ? 1 : 0)}</TD>
-                  <TD className="max-w-[280px] whitespace-normal text-[12px]">{r.catchUpResult ?? (r.failed ? (runs.find((x) => x.catchUpOf?.includes(r.id)) ? `Caught up by ${runs.find((x) => x.catchUpOf?.includes(r.id))!.id}` : "Pending next run") : "—")}</TD>
+                  <TD className="max-w-[280px] whitespace-normal text-xs">{r.catchUpResult ?? (r.failed ? (runs.find((x) => x.catchUpOf?.includes(r.id)) ? `Caught up by ${runs.find((x) => x.catchUpOf?.includes(r.id))!.id}` : "Pending next run") : "—")}</TD>
                   <TD>{r.unresolved?.length ? <Badge tone="amber">{r.unresolved.length}</Badge> : "—"}</TD>
                   <TD onClick={(e) => e.stopPropagation()}>
                     {r.failed && !r.resolvedAt && can(user, "alerts.queue") && (
@@ -116,14 +116,14 @@ function RunLog() {
             />
             {!!current.details?.length && (
               <Section title="Details">
-                <ul className="list-disc space-y-1 pl-5 text-[12.5px] text-slate-700">
+                <ul className="list-disc space-y-1 pl-5 text-xs text-gray-700">
                   {current.details.map((d, i) => <li key={i}>{d}</li>)}
                 </ul>
               </Section>
             )}
             {!!current.unresolved?.length && (
               <Section title="Unresolved surfaces (data gaps)">
-                <ul className="list-disc space-y-1 pl-5 text-[12.5px] text-amber-800">
+                <ul className="list-disc space-y-1 pl-5 text-xs text-amber-800">
                   {current.unresolved.map((d, i) => <li key={i}>{d}</li>)}
                 </ul>
               </Section>

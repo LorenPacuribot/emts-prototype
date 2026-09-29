@@ -72,9 +72,9 @@ export function approvalStateLabel(co: ChangeOrder): { label: string; tone: "gra
 export function billingStateLabel(co: ChangeOrder, canPrice: boolean): ReactNode {
   const st = co.downstream.billing;
   if (st === "failed") return <Badge tone="red">Billing failed</Badge>;
-  if (co.billing) return <span className="text-[12px]">{BILLING_LABEL[co.billing.mode].split(" (")[0]}{co.billing.docId ? ` · ${co.billing.docId}` : ""}{canPrice && co.billing.mode !== "none" ? ` · ${money(co.billing.amount)}` : ""}</span>;
+  if (co.billing) return <span className="text-xs">{BILLING_LABEL[co.billing.mode].split(" (")[0]}{co.billing.docId ? ` · ${co.billing.docId}` : ""}{canPrice && co.billing.mode !== "none" ? ` · ${money(co.billing.amount)}` : ""}</span>;
   if (co.emergency && !co.emergency.writtenConfirmedAt && co.status === "approved") return <Badge tone="amber">Deferred</Badge>;
-  return <span className="text-slate-400">—</span>;
+  return <span className="text-gray-400">—</span>;
 }
 
 export function coHref(db: Database, co: ChangeOrder) {
@@ -86,7 +86,7 @@ export function Section({ title, icon, right, children, className }: { title: st
   return (
     <section className={`rounded-xl border border-line p-4 ${className ?? ""}`}>
       <div className="mb-3 flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2 text-[10.5px] font-bold uppercase tracking-[0.14em] text-slate-600">
+        <div className="flex items-center gap-2 text-xxs font-bold uppercase tracking-[0.14em] text-gray-600">
           {icon && <span className="text-brand [&>svg]:h-3.5 [&>svg]:w-3.5">{icon}</span>}
           {title}
         </div>

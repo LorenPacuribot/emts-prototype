@@ -34,7 +34,7 @@ function Chip({ item, staffIndex, onOpen, showTime = true }: { item: CalItem; st
         onOpen(item);
       }}
       title={item.title}
-      className={cn('mb-1 block w-full truncate rounded border-l-2 px-1.5 py-1 text-left text-[10px] shadow-sm transition-all hover:brightness-95 md:rounded-lg md:text-xs', colorFor(item, staffIndex))}
+      className={cn('mb-1 block w-full truncate rounded border-l-2 px-1.5 py-1 text-left text-xs shadow-sm transition-all hover:brightness-95 md:rounded-lg md:text-xs', colorFor(item, staffIndex))}
     >
       {showTime && item.kind === 'event' && <span className="mr-1 font-bold">{time12(item.startTime)}</span>}
       <span className={cn(item.kind === 'job' && 'font-bold')}>{item.title}</span>
@@ -93,7 +93,7 @@ export function MonthView({ items, staffIndex, onOpen, onCreate, current, onShow
                       e.stopPropagation();
                       onShowDay(date);
                     }}
-                    className="w-full rounded px-1.5 py-1 text-left text-[10px] font-bold text-gray-500 hover:bg-gray-50"
+                    className="w-full rounded px-1.5 py-1 text-left text-xs font-bold text-gray-500 hover:bg-gray-50"
                   >
                     + {dayItems.length - MAX_MONTH_ITEMS} more...
                   </button>
@@ -132,7 +132,7 @@ export function TimeGridView({ items, staffIndex, onOpen, onCreate, days }: View
         <div className={cn('grid flex-1 divide-x divide-gray-100', gridCols, cols > 1 && 'min-w-[700px]')}>
           {days.map((d) => (
             <div key={dayKey(d)} className={cn('py-3 text-center', sameDay(d, today) && 'bg-blue-50/50')}>
-              <div className={cn('text-[10px] font-bold uppercase tracking-wider', sameDay(d, today) ? 'text-primary-600' : 'text-gray-400')}>
+              <div className={cn('text-xxs font-bold uppercase tracking-wider', sameDay(d, today) ? 'text-primary-600' : 'text-gray-400')}>
                 {d.toLocaleDateString('en-US', { weekday: 'short' })}
               </div>
               <div className={cn('text-lg font-bold', sameDay(d, today) ? 'text-primary-600' : 'text-gray-900')}>{d.getDate()}</div>
@@ -144,7 +144,7 @@ export function TimeGridView({ items, staffIndex, onOpen, onCreate, days }: View
       {/* All-day row: production jobs */}
       {hasAllDay && (
         <div className="flex shrink-0 border-b border-gray-200 pr-2">
-          <div className="flex w-16 shrink-0 items-center justify-end pr-2 text-[10px] font-bold uppercase text-gray-400">All day</div>
+          <div className="flex w-16 shrink-0 items-center justify-end pr-2 text-xxs font-bold uppercase text-gray-400">All day</div>
           <div className={cn('grid flex-1 divide-x divide-gray-100', gridCols, cols > 1 && 'min-w-[700px]')}>
             {days.map((d) => (
               <div key={dayKey(d)} className="p-1">
@@ -161,7 +161,7 @@ export function TimeGridView({ items, staffIndex, onOpen, onCreate, days }: View
           <div className="w-16 shrink-0">
             {Array.from({ length: 24 }, (_, h) => (
               <div key={h} className="relative border-b border-transparent" style={{ height: HOUR_HEIGHT }}>
-                <span className="absolute -top-2 right-2 text-[10px] font-bold text-gray-400">{h > 0 ? hourLabel(h) : ''}</span>
+                <span className="absolute -top-2 right-2 text-xs font-bold text-gray-400">{h > 0 ? hourLabel(h) : ''}</span>
               </div>
             ))}
           </div>
@@ -199,7 +199,7 @@ export function TimeGridView({ items, staffIndex, onOpen, onCreate, days }: View
                         }}
                       >
                         <div className="truncate font-bold">{it.title}</div>
-                        <div className="truncate text-[10px] opacity-75">{time12(it.startTime)} - {time12(it.endTime)}</div>
+                        <div className="truncate text-xs opacity-75">{time12(it.startTime)} - {time12(it.endTime)}</div>
                       </button>
                     );
                   })}
@@ -237,9 +237,9 @@ export function DispatchView({ items, staffIndex, onOpen, onCreate, days, staff 
             <th className="sticky left-0 z-20 min-w-[180px] border-b border-r border-gray-200 bg-gray-50 px-4 py-3 text-xs font-bold uppercase tracking-wider text-gray-400">Employee</th>
             {days.map((d) => (
               <th key={dayKey(d)} className={cn('border-b border-r border-gray-100 px-3 py-2 text-center', colWidth, sameDay(d, today) && 'bg-blue-50/60')}>
-                <div className="text-[10px] font-bold uppercase tracking-wider text-gray-400">{d.toLocaleDateString('en-US', { weekday: 'short' })}</div>
+                <div className="text-xxs font-bold uppercase tracking-wider text-gray-400">{d.toLocaleDateString('en-US', { weekday: 'short' })}</div>
                 <div className="text-sm font-bold text-gray-900">{d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>
-                {sameDay(d, today) && <div className="mt-1 text-[9px] text-primary-600">Today</div>}
+                {sameDay(d, today) && <div className="mt-1 text-xs text-primary-600">Today</div>}
               </th>
             ))}
           </tr>
@@ -252,7 +252,7 @@ export function DispatchView({ items, staffIndex, onOpen, onCreate, days, staff 
                   {row.id !== '_none' && <span className={cn('h-2.5 w-2.5 rounded-full', PERSON_SWATCHES[(staffIndex[row.id] ?? 0) % PERSON_SWATCHES.length])} />}
                   <div>
                     <div className="text-sm font-bold text-gray-900">{row.name}</div>
-                    {row.role && <div className="text-[10px] text-gray-400">{row.role}</div>}
+                    {row.role && <div className="text-xs text-gray-400">{row.role}</div>}
                   </div>
                 </div>
               </td>
@@ -266,7 +266,7 @@ export function DispatchView({ items, staffIndex, onOpen, onCreate, days, staff 
                     className={cn('h-16 cursor-pointer border-b border-r border-gray-100 p-1.5 hover:bg-primary-50/30', sameDay(d, today) && 'bg-blue-50/20')}
                   >
                     {cell.slice(0, 3).map((it) => <Chip key={it.id} item={it} staffIndex={staffIndex} onOpen={onOpen} />)}
-                    {cell.length > 3 && <div className="px-1 text-[10px] font-bold text-gray-500">+ {cell.length - 3} more</div>}
+                    {cell.length > 3 && <div className="px-1 text-xs font-bold text-gray-500">+ {cell.length - 3} more</div>}
                   </td>
                 );
               })}

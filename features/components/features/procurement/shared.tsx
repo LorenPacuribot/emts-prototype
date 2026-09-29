@@ -42,14 +42,14 @@ export function minutesLabel(m: number): string {
 
 /** Four-working-hour acknowledgment clock chip. */
 export function AckClockChip({ po, nowIso }: { po: PurchaseOrder; nowIso: string }) {
-  if (po.ackAt) return <span className="inline-flex items-center gap-1 text-[12px] font-semibold text-emerald-700"><CheckCircle2 className="h-3.5 w-3.5" /> Acknowledged</span>;
+  if (po.ackAt) return <span className="inline-flex items-center gap-1 text-xs font-semibold text-green-700"><CheckCircle2 className="h-3.5 w-3.5" /> Acknowledged</span>;
   const since = po.resentAt ?? po.sentAt;
-  if (po.status !== "sent" || !since) return <span className="text-slate-400">—</span>;
+  if (po.status !== "sent" || !since) return <span className="text-gray-400">—</span>;
   const c = ackClock(since, nowIso);
   return c.overdue ? (
-    <span className="inline-flex items-center gap-1 whitespace-nowrap text-[12px] font-bold text-red-600"><AlertTriangle className="h-3.5 w-3.5" /> Overdue</span>
+    <span className="inline-flex items-center gap-1 whitespace-nowrap text-xs font-bold text-red-600"><AlertTriangle className="h-3.5 w-3.5" /> Overdue</span>
   ) : (
-    <span className="inline-flex items-center gap-1 whitespace-nowrap text-[12px] font-semibold text-slate-700"><AlarmClock className="h-3.5 w-3.5 text-brand" /> {minutesLabel(c.remainingMinutes)} left</span>
+    <span className="inline-flex items-center gap-1 whitespace-nowrap text-xs font-semibold text-gray-700"><AlarmClock className="h-3.5 w-3.5 text-brand" /> {minutesLabel(c.remainingMinutes)} left</span>
   );
 }
 
@@ -65,9 +65,9 @@ export function ReceivedBar({ po }: { po: PurchaseOrder }) {
   const pct = ordered > 0 ? Math.min(100, (received / ordered) * 100) : 0;
   return (
     <div className="min-w-[110px]">
-      <div className="text-[12px] tabular-nums text-slate-700">{received.toFixed(2)} / {ordered.toFixed(2)} gal</div>
-      <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
-        <div className={cn("h-full rounded-full", pct >= 100 ? "bg-emerald-500" : pct > 0 ? "bg-amber-500" : "bg-slate-200")} style={{ width: `${pct}%` }} />
+      <div className="text-xs tabular-nums text-gray-700">{received.toFixed(2)} / {ordered.toFixed(2)} gal</div>
+      <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-gray-100">
+        <div className={cn("h-full rounded-full", pct >= 100 ? "bg-green-500" : pct > 0 ? "bg-amber-500" : "bg-gray-200")} style={{ width: `${pct}%` }} />
       </div>
     </div>
   );
@@ -76,8 +76,8 @@ export function ReceivedBar({ po }: { po: PurchaseOrder }) {
 export function Cell({ label, children, className }: { label: string; children: ReactNode; className?: string }) {
   return (
     <div className={className}>
-      <div className="text-[9px] font-bold uppercase tracking-[0.12em] text-slate-400">{label}</div>
-      <div className="mt-0.5 text-[12.5px] text-slate-700">{children}</div>
+      <div className="text-xxs font-bold uppercase tracking-[0.12em] text-gray-400">{label}</div>
+      <div className="mt-0.5 text-xs text-gray-700">{children}</div>
     </div>
   );
 }

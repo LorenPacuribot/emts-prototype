@@ -134,7 +134,7 @@ function FollowUps() {
       {filter === "unqualified" ? (
         <Card className="p-4" data-tour="followups-table">
           <CardLabel icon={<CheckCircle2 />}>Qualification gate</CardLabel>
-          <p className="mt-1 text-[12px] text-slate-500">An alert alone never starts a contact sequence. Accept or reject each one with a reason.</p>
+          <p className="mt-1 text-xs text-gray-500">An alert alone never starts a contact sequence. Accept or reject each one with a reason.</p>
           {unqualified.length === 0 ? (
             <EmptyState className="mt-4" icon={<Inbox />} title="No alerts waiting" body="New alerts from the nightly run appear here." />
           ) : (
@@ -147,7 +147,7 @@ function FollowUps() {
                   return (
                     <TR key={a.id} className="cursor-pointer" onClick={() => setOpenAlert(a.id)}>
                       <TD><div className="flex items-start gap-2"><IdChip>{a.id}</IdChip><PropertyCell db={db} propertyId={a.propertyId} /></div></TD>
-                      <TD>{date(a.createdAt)} <span className="text-[11px] text-slate-400">· {esc.age} d</span></TD>
+                      <TD>{date(a.createdAt)} <span className="text-xs text-gray-400">· {esc.age} d</span></TD>
                       <TD>{a.surfaces.length}</TD>
                       <TD className="font-semibold text-ink">{date(a.earliestDue)}</TD>
                       <TD><EscalationBadge escalated={esc.escalated} age={esc.age} daysLeft={esc.running ? esc.daysLeft : undefined} /></TD>
@@ -191,9 +191,9 @@ function FollowUps() {
                         {x.driving ? (
                           <div>
                             <Badge tone={x.driving.escalated ? "red" : "blue"}>{x.driving.key === "unassigned" ? "Unassigned 3-day" : x.driving.key === "assigned" ? "Assigned 7-day" : "Alert 14-day"} · day {x.driving.days}</Badge>
-                            <div className="mt-0.5 text-[10.5px] text-slate-400">from {date(x.driving.source)}</div>
+                            <div className="mt-0.5 text-xs text-gray-400">from {date(x.driving.source)}</div>
                           </div>
-                        ) : <span className="text-[11.5px] text-slate-400">Stopped</span>}
+                        ) : <span className="text-xs text-gray-400">Stopped</span>}
                       </TD>
                       <TD><div className="flex flex-wrap gap-1">{p?.optOut ? <OptOutBadge /> : <SuppressionBadge s={sup} />}</div></TD>
                       <TD onClick={(e) => e.stopPropagation()}>
@@ -214,17 +214,17 @@ function FollowUps() {
       {office && (
         <Card className="mt-4 p-4" data-tour="team-availability">
           <CardLabel icon={<UserCog />}>Team availability</CardLabel>
-          <p className="mt-1 text-[12px] text-slate-500">Marking an estimator out of office returns their open follow-ups to the queue at once. No clock pauses or resets.</p>
+          <p className="mt-1 text-xs text-gray-500">Marking an estimator out of office returns their open follow-ups to the queue at once. No clock pauses or resets.</p>
           <div className="mt-3 grid gap-2 sm:grid-cols-2">
             {estimators.map((u) => (
               <div key={u.id} className="flex items-center justify-between gap-3 rounded-lg border border-line px-3 py-2">
-                <div className="text-[12.5px]">
+                <div className="text-xs">
                   <div className="font-semibold text-ink">{u.name}</div>
-                  <div className="text-slate-500">{ROLE_LABEL[u.role]} · {u.area ?? "—"} area · {db.followUps.filter((f) => f.assigneeId === u.id && !followUpFlags(db, f, t).closed).length} open</div>
+                  <div className="text-gray-500">{ROLE_LABEL[u.role]} · {u.area ?? "—"} area · {db.followUps.filter((f) => f.assigneeId === u.id && !followUpFlags(db, f, t).closed).length} open</div>
                 </div>
                 <Switch
                   checked={!!u.outOfOffice}
-                  label={<span className="text-[12px]">{u.outOfOffice ? "Out of office" : "Available"}</span>}
+                  label={<span className="text-xs">{u.outOfOffice ? "Out of office" : "Available"}</span>}
                   onCheckedChange={(v) => {
                     const res = act(setOutOfOffice, u.id, v);
                     if (res.ok) toast.success(v ? `${u.name} is out of office` : `${u.name} is available`, v && (res.value as string[]).length ? `${(res.value as string[]).join(", ")} returned to the queue.` : undefined);

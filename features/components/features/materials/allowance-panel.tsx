@@ -21,18 +21,18 @@ export function ConsumablesPanel({ job }: { job: Job }) {
   return (
     <Card className="p-4">
       <CardLabel icon={<Wrench />}>Consumables allowance</CardLabel>
-      <p className="mt-1 text-[11.5px] text-slate-500">Fixed rates, a separate line from measured paint: $35 per interior repaint room, $55 per never-painted room, exterior $150 per job plus $25 per 1,000 sq ft (prorated, once per job).</p>
-      <div className="mt-3 space-y-1.5 text-[12.5px]">
+      <p className="mt-1 text-xs text-gray-500">Fixed rates, a separate line from measured paint: $35 per interior repaint room, $55 per never-painted room, exterior $150 per job plus $25 per 1,000 sq ft (prorated, once per job).</p>
+      <div className="mt-3 space-y-1.5 text-xs">
         {c.rooms.map((r) => (
           <div key={r.id} className="flex justify-between border-b border-dashed border-line pb-1.5">
-            <span>{r.name} <span className="text-slate-400">· {r.neverPainted ? "new construction" : "interior repaint"}</span></span>
+            <span>{r.name} <span className="text-gray-400">· {r.neverPainted ? "new construction" : "interior repaint"}</span></span>
             <span className="tabular-nums">{money(r.amount)}</span>
           </div>
         ))}
         {c.hasExterior && (
           <>
             <div className="flex justify-between border-b border-dashed border-line pb-1.5"><span>Exterior job base</span><span className="tabular-nums">{money(c.exteriorBase)}</span></div>
-            <div className="flex justify-between border-b border-dashed border-line pb-1.5"><span>Exterior {num(c.exteriorSqft)} sq ft × $25 / 1,000 <span className="text-slate-400">(measured, not coat-adjusted)</span></span><span className="tabular-nums">{money(c.exteriorPerThousand)}</span></div>
+            <div className="flex justify-between border-b border-dashed border-line pb-1.5"><span>Exterior {num(c.exteriorSqft)} sq ft × $25 / 1,000 <span className="text-gray-400">(measured, not coat-adjusted)</span></span><span className="tabular-nums">{money(c.exteriorPerThousand)}</span></div>
           </>
         )}
         {c.rooms.length === 0 && !c.hasExterior && <EmptyState title="No rooms or elevations in scope." />}
@@ -53,7 +53,7 @@ export function RentalsPanel({ job, readOnly }: { job: Job; readOnly: boolean })
   return (
     <Card className="p-4">
       <CardLabel icon={<Truck />} right={canEdit && <Button size="sm" onClick={() => setEdit({ open: true })}><Plus className="h-3.5 w-3.5" /> Add rental</Button>}>Equipment rentals</CardLabel>
-      <p className="mt-1 text-[11.5px] text-slate-500">Entered by hand. Rentals are never calculated automatically.</p>
+      <p className="mt-1 text-xs text-gray-500">Entered by hand. Rentals are never calculated automatically.</p>
       <div className="mt-3">
         {rentals.length === 0 ? <EmptyState icon={<Truck />} title="No rentals on this job." body="Add lifts, sprayers or scaffolding the crew needs." /> : (
           <Table>

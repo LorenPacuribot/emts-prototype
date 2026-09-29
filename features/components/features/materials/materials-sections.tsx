@@ -99,8 +99,8 @@ export function MaterialsSections({ job }: { job: Job }) {
               </DropdownMenu.Trigger>
               <DropdownMenu.Portal>
                 <DropdownMenu.Content align="end" sideOffset={4} className="z-50 min-w-44 rounded-xl border border-line bg-white p-1 shadow-xl">
-                  <DropdownMenu.Item onSelect={exportCsv} className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-[13px] outline-none data-[highlighted]:bg-slate-100"><Download className="h-3.5 w-3.5" /> CSV</DropdownMenu.Item>
-                  <DropdownMenu.Item onSelect={() => printElement(printRef.current, `${job.id} material calculation`)} className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-[13px] outline-none data-[highlighted]:bg-slate-100"><Printer className="h-3.5 w-3.5" /> Print / PDF</DropdownMenu.Item>
+                  <DropdownMenu.Item onSelect={exportCsv} className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm outline-none data-[highlighted]:bg-gray-100"><Download className="h-3.5 w-3.5" /> CSV</DropdownMenu.Item>
+                  <DropdownMenu.Item onSelect={() => printElement(printRef.current, `${job.id} material calculation`)} className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm outline-none data-[highlighted]:bg-gray-100"><Printer className="h-3.5 w-3.5" /> Print / PDF</DropdownMenu.Item>
                 </DropdownMenu.Content>
               </DropdownMenu.Portal>
             </DropdownMenu.Root>
@@ -122,7 +122,7 @@ export function MaterialsSections({ job }: { job: Job }) {
       {user.role === "crew_lead" && <Banner tone="info" className="mb-4">Crew leads can confirm shelf stock and record receipts. Ordering is done by the office.</Banner>}
 
       <StatStrip className="mb-4">
-        <Stat label="Coverage source in use" value={<span className="text-[15px]">{sources.join(" + ") || "—"}</span>} hint={summary.map((l) => `${l.rate}`).join(" / ") + (summary.length ? " sq ft/gal" : "")} />
+        <Stat label="Coverage source in use" value={<span className="text-base">{sources.join(" + ") || "—"}</span>} hint={summary.map((l) => `${l.rate}`).join(" / ") + (summary.length ? " sq ft/gal" : "")} />
         <Stat label="Waste applied" value={wastes.length ? wastes.map((w) => `${w}%`).join(" / ") : "—"} hint="highest match only" />
         <Stat label="Total measured area" value={`${num(measured)} sq ft`} />
         <Stat label="Total coat-adjusted area" value={`${num(coatAdj)} sq ft`} />
@@ -153,15 +153,15 @@ export function MaterialsSections({ job }: { job: Job }) {
         <div ref={printRef}><Card className="p-4" data-tour="demand-table">
           <CardLabel icon={<Calculator />} right={
             perms.editCatalog ? (
-              <label className="flex items-center gap-2 text-[11.5px] text-slate-500">Packing
-                <Select className="h-8 w-auto py-0 text-[12px]" value={strategy} onChange={(e) => act(setPackingStrategy, e.target.value as "least_leftover" | "lowest_price").ok && toast.success("Packing objective changed")}>
+              <label className="flex items-center gap-2 text-xs text-gray-500">Packing
+                <Select className="h-8 w-auto py-0 text-xs" value={strategy} onChange={(e) => act(setPackingStrategy, e.target.value as "least_leftover" | "lowest_price").ok && toast.success("Packing objective changed")}>
                   <option value="least_leftover">Least leftover</option>
                   <option value="lowest_price">Lowest price</option>
                 </Select>
               </label>
-            ) : <span className="text-[11.5px] text-slate-500">Packing: {strategy === "least_leftover" ? "Least leftover" : "Lowest price"}</span>
+            ) : <span className="text-xs text-gray-500">Packing: {strategy === "least_leftover" ? "Least leftover" : "Lowest price"}</span>
           }>Measured demand</CardLabel>
-          <p className="mt-1 text-[11.5px] text-slate-500">Coverage rate, then waste, then container packing — in that order. Full precision is kept; only the adjusted need is rounded, once, to three decimals.</p>
+          <p className="mt-1 text-xs text-gray-500">Coverage rate, then waste, then container packing — in that order. Full precision is kept; only the adjusted need is rounded, once, to three decimals.</p>
           <div className="mt-3">
             {lines.length === 0 ? (
               <EmptyState icon={<Calculator />} title="No colour specifications yet." body="Add specifications on the Color Card. Demand is calculated from approved specifications and their surfaces." />
@@ -171,8 +171,8 @@ export function MaterialsSections({ job }: { job: Job }) {
           </div>
           {blocked.length > 0 && (
             <div className="mt-4 rounded-xl border border-red-200 bg-red-50/50 p-3">
-              <div className="text-[10.5px] font-bold uppercase tracking-[0.14em] text-red-700">Not orderable ({blocked.length})</div>
-              <div className="mt-2 space-y-1 text-[12.5px] text-red-900">
+              <div className="text-xxs font-bold uppercase tracking-[0.14em] text-red-700">Not orderable ({blocked.length})</div>
+              <div className="mt-2 space-y-1 text-xs text-red-900">
                 {blocked.map((l) => <div key={l.specId}><strong>{l.specId} · {l.colourName}</strong> — {l.blocked.join("; ")}</div>)}
               </div>
             </div>

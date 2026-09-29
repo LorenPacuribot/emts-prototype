@@ -42,9 +42,9 @@ export function ComparisonDrawer({ rep, open, onOpenChange }: { rep: RepeatEstim
           <div className="grid grid-cols-3 gap-3">
             <Stat label="Old job(s)" value={money(oldTotal)} />
             <Stat label="New quote" value={money(newTotal)} />
-            <Stat label="Difference" value={`${diff >= 0 ? "+" : ""}${money(diff)}`} tone={diff >= 0 ? "text-emerald-700" : "text-red-600"} />
+            <Stat label="Difference" value={`${diff >= 0 ? "+" : ""}${money(diff)}`} tone={diff >= 0 ? "text-green-700" : "text-red-600"} />
           </div>
-          <div className="space-y-1 text-[12px] text-slate-500">
+          <div className="space-y-1 text-xs text-gray-500">
             {jobs.map((j) => (
               <div key={j.id} className="flex flex-wrap items-center gap-2">
                 <IdChip tone="blue">{j.id}</IdChip> {j.name} · completed {dateLong(j.completedAt)}
@@ -80,8 +80,8 @@ export function ComparisonDrawer({ rep, open, onOpenChange }: { rep: RepeatEstim
                       <TD className="text-right">{surface ? num(surface.areaSqft) : "—"}</TD>
                       <TD className={cn("text-right", mDiff !== 0 && "font-semibold text-amber-700")}>{num(l.sqft)}{mDiff !== 0 && ` (${mDiff > 0 ? "+" : ""}${mDiff})`}</TD>
                       <TD className="text-right">{money(op)}</TD>
-                      <TD className="text-right">{l.price !== undefined ? money(l.price) : <span className="italic text-slate-400">Not priced</span>}</TD>
-                      <TD className={cn("text-right", d !== undefined && (d >= 0 ? "text-emerald-700" : "text-red-600"))}>{d !== undefined ? `${d >= 0 ? "+" : ""}${money(d)}` : "—"}</TD>
+                      <TD className="text-right">{l.price !== undefined ? money(l.price) : <span className="italic text-gray-400">Not priced</span>}</TD>
+                      <TD className={cn("text-right", d !== undefined && (d >= 0 ? "text-green-700" : "text-red-600"))}>{d !== undefined ? `${d >= 0 ? "+" : ""}${money(d)}` : "—"}</TD>
                     </TR>
                   );
                 })}
@@ -108,8 +108,8 @@ export function ComparisonDrawer({ rep, open, onOpenChange }: { rep: RepeatEstim
 function Stat({ label, value, tone }: { label: string; value: string; tone?: string }) {
   return (
     <div className="rounded-xl border border-line p-3">
-      <div className="text-[9.5px] font-bold uppercase tracking-[0.12em] text-slate-400">{label}</div>
-      <div className={cn("mt-1 font-display text-[16px] font-bold text-ink", tone)}>{value}</div>
+      <div className="text-xxs font-bold uppercase tracking-[0.12em] text-gray-400">{label}</div>
+      <div className={cn("mt-1 font-display text-base font-bold text-ink", tone)}>{value}</div>
     </div>
   );
 }

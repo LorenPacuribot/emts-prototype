@@ -109,7 +109,7 @@ function DashboardInner() {
             <div className="pointer-events-none absolute inset-0 rounded-2xl ring-2 ring-dashed ring-gray-300" />
           </>
         )}
-        <div className={cn('h-full overflow-hidden rounded-2xl bg-white shadow-sm', isNew && 'border border-emerald-300 ring-1 ring-emerald-100', padding)}>{content}</div>
+        <div className={cn('h-full overflow-hidden rounded-2xl bg-white shadow-sm', isNew && 'border border-green-300 ring-1 ring-green-100', padding)}>{content}</div>
       </div>
     );
   };
@@ -185,7 +185,7 @@ function DashboardInner() {
       {/* Hidden cards bar (edit mode only) */}
       {editMode && (
         <div className="mb-6 rounded-2xl border border-dashed border-gray-300 bg-white/70 p-4">
-          <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.15em] text-gray-500">Hidden cards</p>
+          <p className="mb-2 text-xs font-bold uppercase tracking-[0.15em] text-gray-500">Hidden cards</p>
           {hidden.length === 0 ? (
             <p className="text-xs italic text-gray-400">All cards are showing. Use the eye button on a card to hide it.</p>
           ) : (

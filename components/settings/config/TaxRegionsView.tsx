@@ -71,20 +71,20 @@ export function TaxRegionsView() {
               <div className="mb-5 flex flex-col gap-1 pr-10">
                 <h3 className="flex items-center gap-2 break-words font-heading text-lg font-bold leading-tight text-gray-900">
                   {r.name}
-                  {r.isDefault && <span className="rounded-full border border-primary-200 bg-primary-50 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-primary-700">Default</span>}
+                  {r.isDefault && <span className="rounded-full border border-primary-200 bg-primary-50 px-2 py-0.5 text-xxs font-black uppercase tracking-wider text-primary-700">Default</span>}
                 </h3>
-                <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400">{r.zipCodes.length} Zip Codes</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-gray-400">{r.zipCodes.length} Zip Codes</span>
               </div>
               <div className="mb-5 flex divide-x divide-gray-200 overflow-hidden rounded-xl border border-gray-100 bg-gray-50">
                 {[['Sales Tax', r.salesTaxRate], ['Service Tax', r.serviceTaxRate]].map(([l, v]) => (
                   <div key={l as string} className="flex-1 p-3 text-center">
-                    <div className="mb-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">{l}</div>
+                    <div className="mb-1 text-xxs font-bold uppercase tracking-wider text-gray-400">{l}</div>
                     <div className="text-lg font-extrabold text-gray-900">{(v as number).toFixed(2)}%</div>
                   </div>
                 ))}
               </div>
               <div className="mt-auto">
-                <div className="mb-3 flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-gray-400"><MapIcon className="h-3 w-3" /> Covered Zip Codes</div>
+                <div className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-gray-400"><MapIcon className="h-3 w-3" /> Covered Zip Codes</div>
                 <div className="flex max-h-24 flex-wrap gap-1.5 overflow-y-auto">
                   {r.zipCodes.slice(0, 8).map((z) => (
                     <span key={z} className="rounded-md border border-gray-200 bg-white px-2 py-1 text-xs font-bold text-gray-600 shadow-sm">{z}</span>

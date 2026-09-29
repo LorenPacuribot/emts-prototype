@@ -51,9 +51,9 @@ function Unallocated() {
                 {list.map((r) => (
                   <TR key={r.id}>
                     <TD><TypeBadge type={r.type} /></TD>
-                    <TD className="font-semibold">{r.ref}<div className="text-[11px] font-normal text-slate-400">{r.externalRef}</div></TD>
+                    <TD className="font-semibold">{r.ref}<div className="text-xs font-normal text-gray-400">{r.externalRef}</div></TD>
                     <TD className="max-w-[260px] whitespace-normal">{r.party}</TD>
-                    <TD className="text-right tabular-nums">{money(r.amount)}{r.purchaseTax ? <div className="text-[10.5px] text-slate-400">+ {money(r.purchaseTax)} tax</div> : null}</TD>
+                    <TD className="text-right tabular-nums">{money(r.amount)}{r.purchaseTax ? <div className="text-xs text-gray-400">+ {money(r.purchaseTax)} tax</div> : null}</TD>
                     <TD>{dateLong(r.date)}</TD>
                     <TD>{can(user, "finance.code") && <Button size="sm" variant="primary" onClick={() => setCoding(r.id)}>Code</Button>}</TD>
                   </TR>
@@ -66,12 +66,12 @@ function Unallocated() {
       <Card className="p-4">
         <CardLabel>Recent allocations</CardLabel>
         <div className="mt-3 space-y-2">
-          {coded.length === 0 && <p className="text-[12.5px] italic text-slate-400">No allocations yet.</p>}
+          {coded.length === 0 && <p className="text-xs italic text-gray-400">No allocations yet.</p>}
           {coded.map((r) => (
-            <div key={r.id} className="rounded-lg border border-line px-3 py-2 text-[12.5px]">
+            <div key={r.id} className="rounded-lg border border-line px-3 py-2 text-xs">
               <div className="flex flex-wrap items-center gap-2"><strong>{r.ref}</strong> · {money(r.amount)} · {r.costCode}</div>
-              <div className="mt-1 flex flex-wrap gap-1">{r.allocations!.map((a, i) => <span key={i} className="rounded-md bg-slate-100 px-1.5 py-0.5 text-[11px] font-semibold text-slate-600">{a.overhead ? "Overhead" : a.jobId} {money(a.amount)}</span>)}</div>
-              {r.residual && <div className="mt-1 text-[11.5px] text-slate-500">Residual {money(r.residual.amount)} went to {r.residual.jobId} ({r.residual.rule === "lowest_job_number" ? "tie — lowest job number" : "largest allocation"}).</div>}
+              <div className="mt-1 flex flex-wrap gap-1">{r.allocations!.map((a, i) => <span key={i} className="rounded-md bg-gray-100 px-1.5 py-0.5 text-xs font-semibold text-gray-600">{a.overhead ? "Overhead" : a.jobId} {money(a.amount)}</span>)}</div>
+              {r.residual && <div className="mt-1 text-xs text-gray-500">Residual {money(r.residual.amount)} went to {r.residual.jobId} ({r.residual.rule === "lowest_job_number" ? "tie — lowest job number" : "largest allocation"}).</div>}
             </div>
           ))}
         </div>
@@ -146,11 +146,11 @@ function AllocationModal({ record, onClose }: { record?: FinanceRecord; onClose:
           <Button size="sm" onClick={() => setRows([...rows, { key: Math.max(...rows.map((r) => r.key)) + 1, jobId: jobs[rows.length % jobs.length]?.id, amount: 0 }])}><Plus className="h-3.5 w-3.5" /> Add row</Button>
           {splitJobs.length > 1 && <Button size="sm" onClick={splitEvenly}><Split className="h-3.5 w-3.5" /> Preview even split</Button>}
         </div>
-        <div className={`rounded-lg px-3 py-2 text-[12.5px] font-semibold ${diff === 0 ? "bg-emerald-50 text-emerald-800" : "bg-red-50 text-red-700"}`}>
+        <div className={`rounded-lg px-3 py-2 text-xs font-semibold ${diff === 0 ? "bg-green-50 text-green-800" : "bg-red-50 text-red-700"}`}>
           Running total {money(amount - diff)} of {money(amount)} {diff === 0 ? "— balanced" : `— out of balance by ${money(diff)}. Save is disabled.`}
         </div>
-        {err && <p className="text-[12px] font-medium text-red-600">{err}</p>}
-        <p className="text-[11.5px] text-slate-500">Accounting source references are kept on every row. No allocation creates a second expense. <Badge tone="gray">Rule 5</Badge> residual to the largest allocation, then the lowest job number.</p>
+        {err && <p className="text-xs font-medium text-red-600">{err}</p>}
+        <p className="text-xs text-gray-500">Accounting source references are kept on every row. No allocation creates a second expense. <Badge tone="gray">Rule 5</Badge> residual to the largest allocation, then the lowest job number.</p>
       </div>
     </Modal>
   );

@@ -72,13 +72,13 @@ function Mileage() {
                     const s = STATUS[c.status];
                     return (
                       <TR key={c.id}>
-                        <TD className="font-semibold">{c.id}<div className="max-w-[180px] truncate text-[11px] font-normal text-slate-400" title={c.purpose}>{c.purpose}</div></TD>
+                        <TD className="font-semibold">{c.id}<div className="max-w-[180px] truncate text-xs font-normal text-gray-400" title={c.purpose}>{c.purpose}</div></TD>
                         <TD>{byId(db.employees, c.employeeId)?.name}</TD>
                         <TD>{dayLabel(c.date.slice(0, 10), false)}</TD>
-                        <TD className="text-[12px]">{c.evidence.kind === "odometer" ? `Odometer ${c.evidence.start.toLocaleString()} → ${c.evidence.end.toLocaleString()}` : `${c.evidence.from} → ${c.evidence.to}`}</TD>
+                        <TD className="text-xs">{c.evidence.kind === "odometer" ? `Odometer ${c.evidence.start.toLocaleString()} → ${c.evidence.end.toLocaleString()}` : `${c.evidence.from} → ${c.evidence.to}`}</TD>
                         <TD className="text-right tabular-nums">{c.miles}</TD>
-                        <TD className="text-right tabular-nums">{c.amount !== undefined ? <>{money(c.amount)}<div className="text-[10.5px] text-slate-400">{c.centsPerMile}¢/mi</div></> : "—"}</TD>
-                        <TD><Badge tone={s.tone}>{s.label}</Badge>{c.rejectedReason && <div className="mt-0.5 text-[11px] text-red-700">{c.rejectedReason}</div>}{c.reviewedBy && <div className="mt-0.5 text-[11px] text-slate-400">Reviewed by {userName(db, c.reviewedBy)}</div>}</TD>
+                        <TD className="text-right tabular-nums">{c.amount !== undefined ? <>{money(c.amount)}<div className="text-xs text-gray-400">{c.centsPerMile}¢/mi</div></> : "—"}</TD>
+                        <TD><Badge tone={s.tone}>{s.label}</Badge>{c.rejectedReason && <div className="mt-0.5 text-xs text-red-700">{c.rejectedReason}</div>}{c.reviewedBy && <div className="mt-0.5 text-xs text-gray-400">Reviewed by {userName(db, c.reviewedBy)}</div>}</TD>
                         <TD>
                           <div className="flex gap-1">
                             {c.status === "submitted" && can(user, "mileage.approve") && <Button size="sm" onClick={() => act(approveMileage, c.id).ok && toast.success("Claim approved", "Sent to the office for review.")}><CheckCircle2 className="h-3.5 w-3.5" /> Approve</Button>}
@@ -119,7 +119,7 @@ function RateCard({ year, current, setBy }: { year: number; current?: number; se
     <Card className="p-4">
       <CardLabel>IRS mileage rate</CardLabel>
       {current !== undefined ? (
-        <div className="mt-3"><div className="font-display text-2xl font-bold text-ink">{current}¢ <span className="text-[13px] font-medium text-slate-500">per mile, {year}</span></div><div className="text-[11.5px] text-slate-500">Set by {setBy}</div></div>
+        <div className="mt-3"><div className="font-display text-2xl font-bold text-ink">{current}¢ <span className="text-sm font-medium text-gray-500">per mile, {year}</span></div><div className="text-xs text-gray-500">Set by {setBy}</div></div>
       ) : (
         <Banner tone="danger" className="mt-3" title="Current IRS mileage rate not set. The bookkeeper must set it.">Claims can be entered but not approved until the rate is set.</Banner>
       )}
@@ -132,7 +132,7 @@ function RateCard({ year, current, setBy }: { year: number; current?: number; se
           <Button size="sm" onClick={() => act(setMileageRate, Number(y), Number(value)).ok && toast.success("IRS rate saved")}>Save rate</Button>
         </div>
       ) : (
-        <p className="mt-3 text-[11.5px] text-slate-500">Maintained annually by the bookkeeper. No rate is hard-coded.</p>
+        <p className="mt-3 text-xs text-gray-500">Maintained annually by the bookkeeper. No rate is hard-coded.</p>
       )}
     </Card>
   );
@@ -195,8 +195,8 @@ function ClaimModal({ open, onClose }: { open: boolean; onClose: () => void }) {
             <Field label="Miles" required error={err?.field === "miles" ? err.msg : undefined}><Input type="number" value={miles} onChange={(e) => setMiles(e.target.value)} /></Field>
           </div>
         )}
-        {err?.field === "evidence" && <p className="text-[12px] font-medium text-red-600">{err.msg}</p>}
-        <p className="text-[11.5px] text-slate-500">The rate is read from the bookkeeper's IRS rate record on approval. It is never entered on the claim.</p>
+        {err?.field === "evidence" && <p className="text-xs font-medium text-red-600">{err.msg}</p>}
+        <p className="text-xs text-gray-500">The rate is read from the bookkeeper's IRS rate record on approval. It is never entered on the claim.</p>
       </div>
     </Modal>
   );

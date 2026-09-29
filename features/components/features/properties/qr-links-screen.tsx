@@ -107,12 +107,12 @@ export function QrLinksPanel({ property }: { property: Property }) {
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <code className="rounded-md bg-slate-100 px-2 py-1 font-mono text-[13px] font-semibold text-ink">{active.ref}</code>
+                    <code className="rounded-md bg-gray-100 px-2 py-1 font-mono text-sm font-semibold text-ink">{active.ref}</code>
                     <Button size="sm" onClick={() => copy(active.ref)}><Copy className="h-3.5 w-3.5" /> Copy link</Button>
                     {canRevoke && <Button size="sm" onClick={() => setRegen(true)}><RefreshCw className="h-3.5 w-3.5" /> Regenerate</Button>}
                     {canRevoke && <Button size="sm" onClick={() => setReplace(true)}><PhoneCall className="h-3.5 w-3.5" /> Replace for caller</Button>}
                   </div>
-                  <p className="mt-1 text-[11.5px] text-slate-500">Random reference, not derived from the address or {property.id}. Active links are not rotated, so printed cards keep working.</p>
+                  <p className="mt-1 text-xs text-gray-500">Random reference, not derived from the address or {property.id}. Active links are not rotated, so printed cards keep working.</p>
                   <KV
                     className="mt-4"
                     items={[
@@ -125,7 +125,7 @@ export function QrLinksPanel({ property }: { property: Property }) {
                       ["Last open", active.lastOpenAt ? dateTime(active.lastOpenAt) : "Never opened"],
                     ]}
                   />
-                  {active.verificationNotes && <p className="mt-3 rounded-lg bg-slate-50 px-3 py-2 text-[12px] text-slate-600">Replacement link. Verification: {active.verificationNotes}</p>}
+                  {active.verificationNotes && <p className="mt-3 rounded-lg bg-gray-50 px-3 py-2 text-xs text-gray-600">Replacement link. Verification: {active.verificationNotes}</p>}
                 </div>
               </div>
             )}
@@ -140,10 +140,10 @@ export function QrLinksPanel({ property }: { property: Property }) {
         <div className="space-y-4">
           <Card className="p-5">
             <CardLabel icon={<BadgeCheck />}>Customer contact</CardLabel>
-            <div className="mt-3 text-[13px] font-semibold text-ink">{owner?.name ?? "—"}</div>
-            <div className="mt-1 space-y-0.5 text-[12.5px] text-slate-600">
-              <div className="flex items-center gap-1.5"><Mail className="h-3.5 w-3.5 text-slate-400" /> {owner?.email ?? <span className="italic text-slate-400">No email — printed card and posted PDF</span>}</div>
-              <div className="flex items-center gap-1.5"><MessageSquare className="h-3.5 w-3.5 text-slate-400" /> {owner?.phone ?? <span className="italic text-slate-400">No phone</span>}</div>
+            <div className="mt-3 text-sm font-semibold text-ink">{owner?.name ?? "—"}</div>
+            <div className="mt-1 space-y-0.5 text-xs text-gray-600">
+              <div className="flex items-center gap-1.5"><Mail className="h-3.5 w-3.5 text-gray-400" /> {owner?.email ?? <span className="italic text-gray-400">No email — printed card and posted PDF</span>}</div>
+              <div className="flex items-center gap-1.5"><MessageSquare className="h-3.5 w-3.5 text-gray-400" /> {owner?.phone ?? <span className="italic text-gray-400">No phone</span>}</div>
             </div>
             <div className="mt-3">{owner?.contactVerified ? <Badge tone="green">Verified by {byId(db.users, owner.contactVerifiedBy)?.name ?? "the office"}</Badge> : <Badge tone="amber">Not verified — the link can&apos;t be sent yet</Badge>}</div>
             <div className="mt-3 flex flex-wrap gap-2">
@@ -154,7 +154,7 @@ export function QrLinksPanel({ property }: { property: Property }) {
               )}
               {canGen && owner && <Button size="sm" onClick={() => setContact(true)}>Edit contact</Button>}
             </div>
-            <p className="mt-2 text-[11.5px] text-slate-500">Changing the email or phone resets verification.</p>
+            <p className="mt-2 text-xs text-gray-500">Changing the email or phone resets verification.</p>
           </Card>
 
           <Card className="p-5" data-tour="qr-history">
@@ -164,17 +164,17 @@ export function QrLinksPanel({ property }: { property: Property }) {
               {history.map((l) => {
                 const per = property.ownership.find((o) => o.id === l.ownershipPeriodId);
                 return (
-                  <div key={l.id} className="rounded-lg border border-line px-3 py-2 text-[12px]">
+                  <div key={l.id} className="rounded-lg border border-line px-3 py-2 text-xs">
                     <div className="flex flex-wrap items-center gap-2">
-                      <code className="font-mono text-[12px] text-slate-500 line-through">{l.ref}</code>
+                      <code className="font-mono text-xs text-gray-500 line-through">{l.ref}</code>
                       <Badge tone={l.revokeReason?.startsWith("Sale") ? "purple" : "gray"}>{l.revokeReason?.startsWith("Sale") ? "Superseded by sale" : "Revoked"}</Badge>
                     </div>
-                    <div className="mt-1 text-slate-500">
+                    <div className="mt-1 text-gray-500">
                       {per ? periodLabel(db, per) : l.ownershipPeriodId}
                       <br />
                       Revoked {dateLong(l.revokedAt)} · {l.revokeReason} · {l.openCount} opens
                     </div>
-                    <a href={hrefFor(`/paint-record/view/?token=${l.ref}`)} target="_blank" rel="noreferrer" className="mt-1 inline-flex items-center gap-1 text-[11.5px] font-semibold text-brand hover:underline">
+                    <a href={hrefFor(`/paint-record/view/?token=${l.ref}`)} target="_blank" rel="noreferrer" className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-brand hover:underline">
                       <Eye className="h-3 w-3" /> See what the old code shows
                     </a>
                   </div>
@@ -186,14 +186,14 @@ export function QrLinksPanel({ property }: { property: Property }) {
           {active && (
             <Card className="p-5">
               <CardLabel icon={<Eye />}>Open analytics</CardLabel>
-              <p className="mt-1 text-[11.5px] text-slate-500">Link reference, date and coarse device type only. No IP address, location or personal identifier.</p>
+              <p className="mt-1 text-xs text-gray-500">Link reference, date and coarse device type only. No IP address, location or personal identifier.</p>
               <StatStrip className="mt-3 border-0 p-0 shadow-none">
                 <Stat label="Opens" value={active.openCount} />
-                <Stat label="Last open" value={<span className="text-[13px]">{active.lastOpenAt ? dateLong(active.lastOpenAt) : "—"}</span>} />
+                <Stat label="Last open" value={<span className="text-sm">{active.lastOpenAt ? dateLong(active.lastOpenAt) : "—"}</span>} />
               </StatStrip>
               <div className="mt-3 space-y-1">
                 {(active.opens ?? []).slice(0, 6).map((o, i) => (
-                  <div key={i} className="flex justify-between text-[12px] text-slate-600"><span>{dateTime(o.at)}</span><span className="capitalize text-slate-500">{o.device}</span></div>
+                  <div key={i} className="flex justify-between text-xs text-gray-600"><span>{dateTime(o.at)}</span><span className="capitalize text-gray-500">{o.device}</span></div>
                 ))}
               </div>
             </Card>
@@ -237,9 +237,9 @@ function SendModal({ open, onClose, link }: { open: boolean; onClose: () => void
             <option value="text">Text message</option>
           </Select>
         </Field>
-        <div className="rounded-lg bg-slate-50 px-3 py-2 text-[12.5px] text-slate-700">
+        <div className="rounded-lg bg-gray-50 px-3 py-2 text-xs text-gray-700">
           To: <strong>{recipient ?? "nothing on file"}</strong>
-          <p className="mt-2 text-slate-600">&ldquo;Hi {owner?.name?.split(" ")[0]}, here is the paint record for {property.address}: {recordUrl(link.ref)} — {`Estimate Master Painting`}&rdquo;</p>
+          <p className="mt-2 text-gray-600">&ldquo;Hi {owner?.name?.split(" ")[0]}, here is the paint record for {property.address}: {recordUrl(link.ref)} — {`Estimate Master Painting`}&rdquo;</p>
         </div>
       </div>
     </Modal>
@@ -352,7 +352,7 @@ function ReplaceModal({ open, onClose, property }: { open: boolean; onClose: () 
           <Banner tone={result.passed ? "success" : "warn"} title={result.passed ? "Verification passed" : "Verification failed"}>
             {result.passed ? `Matched ${result.matched.join(" and ")}. Replacement link ${result.ref} issued to the caller and logged.` : `Matched ${result.matched.length ? result.matched.join(", ") : "nothing"} beyond the address. The replacement was not given to the caller. It went to ${result.deliveredTo}.`}
           </Banner>
-          <p className="text-[12px] text-slate-500">The previous link is revoked. Customers with no email receive a printed card and a posted PDF at the address on file.</p>
+          <p className="text-xs text-gray-500">The previous link is revoked. Customers with no email receive a printed card and a posted PDF at the address on file.</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -360,7 +360,7 @@ function ReplaceModal({ open, onClose, property }: { open: boolean; onClose: () 
           <Field label="Name on the original contract"><Input value={f.contractName} onChange={(e) => setF({ ...f, contractName: e.target.value })} /></Field>
           <Field label="Approximate job date or year"><Input value={f.jobYear} onChange={(e) => setF({ ...f, jobYear: e.target.value })} placeholder="e.g. summer 2023" /></Field>
           <Field label="A colour or room from the record"><Input value={f.colourOrRoom} onChange={(e) => setF({ ...f, colourOrRoom: e.target.value })} placeholder="e.g. Repose Gray, or the living room" /></Field>
-          <p className="text-[12px] text-slate-500">{provided} of 3 further details entered. Two must match.</p>
+          <p className="text-xs text-gray-500">{provided} of 3 further details entered. Two must match.</p>
         </div>
       )}
     </Modal>
@@ -380,22 +380,22 @@ function PhotoPanel({ property }: { property: Property }) {
   return (
     <Card className="p-5">
       <CardLabel icon={<Camera />}>Photographs on the customer page</CardLabel>
-      <p className="mt-1 text-[12px] text-slate-500">The office selects photos. Any photo with faces, house numbers, licence plates or a neighbouring property needs the Business Owner&apos;s approval and a job-linked signed release. Without a release, only surface images appear.</p>
+      <p className="mt-1 text-xs text-gray-500">The office selects photos. Any photo with faces, house numbers, licence plates or a neighbouring property needs the Business Owner&apos;s approval and a job-linked signed release. Without a release, only surface images appear.</p>
       <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {photos.length === 0 && <EmptyState className="sm:col-span-3" icon={<ImageIcon />} title="No job photographs" body="Photos attached at closeout appear here." />}
         {photos.map((p) => {
           const shared = photoShareable(p);
           return (
             <div key={p.id} className="rounded-xl border border-line p-3">
-              <div className="flex h-24 items-center justify-center rounded-lg bg-gradient-to-br from-slate-100 to-slate-200 text-slate-400" role="img" aria-label={p.caption}><ImageIcon className="h-6 w-6" /></div>
+              <div className="flex h-24 items-center justify-center rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 text-gray-400" role="img" aria-label={p.caption}><ImageIcon className="h-6 w-6" /></div>
               <div className="mt-2 flex flex-wrap items-center gap-1.5"><IdChip>{p.id}</IdChip>{p.identifying && <Badge tone="red">{p.identifyingReason ?? "Identifying"}</Badge>}</div>
-              <div className="mt-1 text-[12px] font-medium text-ink">{p.caption}</div>
+              <div className="mt-1 text-xs font-medium text-ink">{p.caption}</div>
               <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
-                <Checkbox checked={p.selected} disabled={!canSelect} onCheckedChange={(v) => act(selectPhoto, p.id, v).ok && toast.success(v ? "Selected for sharing" : "Removed from sharing")} label={<span className="text-[12px]">Select</span>} />
+                <Checkbox checked={p.selected} disabled={!canSelect} onCheckedChange={(v) => act(selectPhoto, p.id, v).ok && toast.success(v ? "Selected for sharing" : "Removed from sharing")} label={<span className="text-xs">Select</span>} />
                 {shared ? <Badge tone="green">Shown</Badge> : p.selected ? <Badge tone="amber">Needs approval</Badge> : <Badge tone="gray">Not shared</Badge>}
               </div>
               {p.identifying && (
-                <div className="mt-2 text-[11.5px] text-slate-500">
+                <div className="mt-2 text-xs text-gray-500">
                   {p.ownerApprovedBy ? `Approved by ${byId(db.users, p.ownerApprovedBy)?.name} · Release ${p.releaseRef}` : (
                     <Button size="sm" className="mt-1 w-full justify-center" onClick={() => { setApproving(p.id); setRelease(""); setErr(undefined); }}>Owner approval…</Button>
                   )}
@@ -431,28 +431,28 @@ function TouchUpPanel({ property }: { property: Property }) {
   return (
     <Card className="p-5">
       <CardLabel icon={<PaintBucket />}>Touch-up requests</CardLabel>
-      <p className="mt-1 text-[12px] text-slate-500">Submitted from the customer page. The customer received the automatic acknowledgment; nothing was approved or promised.</p>
+      <p className="mt-1 text-xs text-gray-500">Submitted from the customer page. The customer received the automatic acknowledgment; nothing was approved or promised.</p>
       <div className="mt-3 space-y-2">
         {reqs.length === 0 && <EmptyState icon={<PaintBucket />} title="No touch-up requests" />}
         {reqs.map((r) => (
-          <div key={r.id} className="flex flex-col gap-2 rounded-lg border border-line px-3 py-2.5 text-[12.5px] sm:flex-row sm:items-start">
+          <div key={r.id} className="flex flex-col gap-2 rounded-lg border border-line px-3 py-2.5 text-xs sm:flex-row sm:items-start">
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">
                 <IdChip>{r.id}</IdChip>
                 <span className="font-semibold text-ink">{r.requesterName}</span>
-                <span className="text-slate-500">{r.contact}</span>
+                <span className="text-gray-500">{r.contact}</span>
                 <Badge tone={TOUCHUP_STATUS[r.status].tone}>{TOUCHUP_STATUS[r.status].label}</Badge>
               </div>
-              <div className="mt-1 text-slate-600">{r.surfaceId ? surfaceLabel(db, r.surfaceId) : "No surface chosen"}{r.colourLabel ? ` · ${r.colourLabel}` : ""}</div>
-              {r.note && <div className="mt-0.5 italic text-slate-500">&ldquo;{r.note}&rdquo;</div>}
-              <div className="mt-0.5 text-[11px] text-slate-400">{dateTime(r.createdAt)} · via link {r.linkRef.slice(0, 6)}…</div>
+              <div className="mt-1 text-gray-600">{r.surfaceId ? surfaceLabel(db, r.surfaceId) : "No surface chosen"}{r.colourLabel ? ` · ${r.colourLabel}` : ""}</div>
+              {r.note && <div className="mt-0.5 italic text-gray-500">&ldquo;{r.note}&rdquo;</div>}
+              <div className="mt-0.5 text-xs text-gray-400">{dateTime(r.createdAt)} · via link {r.linkRef.slice(0, 6)}…</div>
             </div>
             <Select
               aria-label={`Status of ${r.id}`}
               value={r.status}
               disabled={!can(user, "qr.touchUps")}
               onChange={(e) => act(setTouchUpStatus, r.id, e.target.value as typeof r.status).ok && toast.success("Request updated", TOUCHUP_STATUS[e.target.value].label)}
-              className="h-8 w-full py-0 text-[12px] sm:w-44"
+              className="h-8 w-full py-0 text-xs sm:w-44"
             >
               {Object.entries(TOUCHUP_STATUS).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
             </Select>

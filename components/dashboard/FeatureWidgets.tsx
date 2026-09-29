@@ -164,11 +164,11 @@ export function DemoWalkthroughCard() {
   const resumable = useTour((s) => !s.active && canResume(s));
   const btn = 'inline-flex h-9 items-center gap-1.5 rounded-xl px-3 text-xs font-bold shadow-sm transition-colors';
   return (
-    <div className="mb-6 rounded-2xl border border-dashed border-emerald-300 bg-gradient-to-r from-emerald-50/80 to-white p-5" data-tour="walkthrough">
+    <div className="mb-6 rounded-2xl border border-dashed border-green-300 bg-gradient-to-r from-green-50/80 to-white p-5" data-tour="walkthrough">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-2 text-xs font-black uppercase tracking-[0.15em] text-emerald-800">
+        <div className="flex flex-wrap items-center gap-2 text-xs font-black uppercase tracking-[0.15em] text-green-800">
           <Sparkles className="h-4 w-4" /> Demo journey
-          <span className="rounded bg-emerald-100 px-1.5 py-0.5 text-[9px] tracking-wider">Prototype only</span>
+          <span className="rounded bg-green-100 px-1.5 py-0.5 text-xs tracking-wider">Prototype only</span>
         </div>
         <div className="flex flex-wrap gap-2">
           {resumable && (
@@ -185,7 +185,7 @@ export function DemoWalkthroughCard() {
         {JOURNEY.map((j, i) => (
           <li key={j.title}>
             <Link href={j.href} className="group flex h-full items-start gap-3 rounded-xl border border-gray-200 bg-white p-3 hover:border-primary-300">
-              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gray-900 text-[11px] font-bold text-white">{i + 1}</span>
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gray-900 text-xs font-bold text-white">{i + 1}</span>
               <span className="min-w-0 flex-1">
                 <span className="block text-sm font-bold text-gray-900 group-hover:text-primary-700">
                   {j.title}

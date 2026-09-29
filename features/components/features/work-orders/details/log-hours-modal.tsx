@@ -81,8 +81,8 @@ export function LogHoursModal({ open, onOpenChange, wo, job }: { open: boolean; 
         {!allowed && (
           <Banner tone="warn">Cannot log time when work order is in {wo.status} status. Allowed statuses: {LOG_HOURS_ALLOWED_STATUSES.join(", ")}.</Banner>
         )}
-        <div className="rounded-xl border border-emerald-200 bg-emerald-50/40 p-4">
-          <div className="mb-3 flex items-center gap-2"><LiveLabel className="text-emerald-800">Who and when</LiveLabel><NewBadge feature={22} /></div>
+        <div className="rounded-xl border border-green-200 bg-green-50/40 p-4">
+          <div className="mb-3 flex items-center gap-2"><LiveLabel className="text-green-800">Who and when</LiveLabel><NewBadge feature={22} /></div>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <Field label="Crew member" error={error?.field === "employeeId" ? error.message : undefined}>
               <Select value={employeeId} onChange={(e) => setEmployeeId(e.target.value)} disabled={!allowed} invalid={error?.field === "employeeId"}>
@@ -122,7 +122,7 @@ export function LogHoursModal({ open, onOpenChange, wo, job }: { open: boolean; 
                         <div className="text-sm font-semibold text-gray-900">{s.name}</div>
                         <div className="text-xs text-gray-500">Est: {jobSurfaceHours(db, job.id, s).toFixed(1)}h · Rendered: {(rendered.get(s.id) ?? 0).toFixed(1)}h</div>
                       </div>
-                      <label className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                      <label className="flex items-center gap-2 text-xxs font-bold uppercase tracking-widest text-gray-400">
                         Log Hours
                         <Input type="number" min={0} step={0.25} placeholder="0" value={hours[s.id] ?? ""} onChange={(e) => setHours({ ...hours, [s.id]: e.target.value })} disabled={!allowed} className="h-9 w-24 text-right" aria-label={`Log hours for ${s.name}`} />
                       </label>

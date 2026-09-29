@@ -67,7 +67,7 @@ export function EstimateToolbar({
         <div className="group">
           <label htmlFor="project-name" className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-gray-500">
             Project Name
-            {!readOnly && <span className="text-[10px] font-medium normal-case tracking-normal text-gray-300 opacity-50 group-hover:opacity-100 md:text-xs">(Click to edit)</span>}
+            {!readOnly && <span className="text-xs font-medium normal-case tracking-normal text-gray-300 opacity-50 group-hover:opacity-100 md:text-xs">(Click to edit)</span>}
           </label>
           <div className="relative w-full">
             <input

@@ -115,12 +115,12 @@ function TourRunner() {
     return () => window.removeEventListener("keydown", onKey);
   });
 
-  const cardBase = "no-print fixed z-[75] rounded-2xl border border-slate-200 bg-white shadow-2xl";
+  const cardBase = "no-print fixed z-[75] rounded-2xl border border-gray-200 bg-white shadow-2xl";
 
   // A dialog or drawer is open: step out of its way.
   if (dialogOpen) {
     return (
-      <div className={cn(cardBase, "left-1/2 top-[72px] flex -translate-x-1/2 items-center gap-2 px-3.5 py-2 text-[12px] text-slate-600")} role="status">
+      <div className={cn(cardBase, "left-1/2 top-[72px] flex -translate-x-1/2 items-center gap-2 px-3.5 py-2 text-xs text-gray-600")} role="status">
         <Compass className="h-3.5 w-3.5 text-brand" /> Tour paused while this window is open.
       </div>
     );
@@ -133,8 +133,8 @@ function TourRunner() {
         <div className="flex items-start gap-3">
           <Compass className="mt-0.5 h-4 w-4 shrink-0 text-brand" />
           <div className="min-w-0 flex-1">
-            <div className="text-[13px] font-bold text-ink">You&apos;ve left the tour route</div>
-            <p className="mt-0.5 text-[12px] text-slate-500">
+            <div className="text-sm font-bold text-ink">You&apos;ve left the tour route</div>
+            <p className="mt-0.5 text-xs text-gray-500">
               Stop {stop + 1} of {TOUR.length}: {stopDef.title}. Explore freely, then jump back when you&apos;re ready.
             </p>
             <div className="mt-3 flex gap-2">
@@ -172,14 +172,14 @@ function TourRunner() {
         aria-live="polite"
       >
         <div className="flex items-center gap-2">
-          {stopDef.feature && <span className="rounded-md bg-ink px-1.5 py-0.5 text-[10px] font-bold text-white">F{stopDef.feature}</span>}
-          <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-400">
+          {stopDef.feature && <span className="rounded-md bg-ink px-1.5 py-0.5 text-xs font-bold text-white">F{stopDef.feature}</span>}
+          <span className="text-xxs font-bold uppercase tracking-[0.14em] text-gray-400">
             Stop {stop + 1} of {TOUR.length} · {stopDef.title}
           </span>
-          <button onClick={() => setShowStops(!showStops)} className="ml-auto rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-ink" aria-label="All stops" aria-expanded={showStops}>
+          <button onClick={() => setShowStops(!showStops)} className="ml-auto rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-ink" aria-label="All stops" aria-expanded={showStops}>
             <List className="h-3.5 w-3.5" />
           </button>
-          <button onClick={exit} className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-ink" aria-label="Exit tour">
+          <button onClick={exit} className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-ink" aria-label="Exit tour">
             <X className="h-3.5 w-3.5" />
           </button>
         </div>
@@ -190,34 +190,34 @@ function TourRunner() {
               <li key={s.id}>
                 <button
                   onClick={() => goTo(i, 0)}
-                  className={cn("flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-[12.5px] hover:bg-slate-50", i === stop && "bg-brand-soft font-semibold text-brand")}
+                  className={cn("flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-xs hover:bg-gray-50", i === stop && "bg-brand-soft font-semibold text-brand")}
                 >
-                  <span className={cn("flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold", completed.includes(s.id) ? "bg-emerald-500 text-white" : "bg-slate-100 text-slate-500")}>
+                  <span className={cn("flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-bold", completed.includes(s.id) ? "bg-green-500 text-white" : "bg-gray-100 text-gray-500")}>
                     {completed.includes(s.id) ? <Check className="h-3 w-3" /> : i + 1}
                   </span>
                   <span className="flex-1">{s.title}</span>
-                  {s.feature && <span className="text-[10.5px] text-slate-400">F{s.feature}</span>}
+                  {s.feature && <span className="text-xs text-gray-400">F{s.feature}</span>}
                 </button>
               </li>
             ))}
           </ol>
         ) : (
           <>
-            <h2 className="mt-2 font-display text-[15px] font-bold leading-snug text-ink">{stepDef.title}</h2>
-            <p className="mt-1 text-[12.5px] leading-relaxed text-slate-600">{stepDef.body}</p>
+            <h2 className="mt-2 font-display text-base font-bold leading-snug text-ink">{stepDef.title}</h2>
+            <p className="mt-1 text-xs leading-relaxed text-gray-600">{stepDef.body}</p>
             {stepDef.bullets && (
-              <ul className="mt-2 list-disc space-y-1 pl-4 text-[12px] leading-relaxed text-slate-600">
+              <ul className="mt-2 list-disc space-y-1 pl-4 text-xs leading-relaxed text-gray-600">
                 {stepDef.bullets.map((b) => <li key={b}>{b}</li>)}
               </ul>
             )}
             {stepDef.tryIt && (
-              <div className="mt-3 flex gap-2 rounded-lg bg-brand-soft/60 px-3 py-2 text-[12px] text-blue-900">
+              <div className="mt-3 flex gap-2 rounded-lg bg-brand-soft/60 px-3 py-2 text-xs text-blue-900">
                 <MousePointerClick className="mt-0.5 h-3.5 w-3.5 shrink-0" />
                 <span><strong>Try it:</strong> {stepDef.tryIt}</span>
               </div>
             )}
             {roleUser && role && (
-              <div className="mt-3 flex items-center gap-2 rounded-lg bg-amber-50 px-3 py-2 text-[12px] text-amber-900">
+              <div className="mt-3 flex items-center gap-2 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-900">
                 <UserRound className="h-3.5 w-3.5 shrink-0" />
                 <span className="flex-1">Best seen as {ROLE_LABEL[role]}.</span>
                 <Button
@@ -233,10 +233,10 @@ function TourRunner() {
               </div>
             )}
             {stepDef.action === "pin_clock" && (
-              <div className="mt-3 flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2 text-[12px] text-slate-700">
+              <div className="mt-3 flex items-center gap-2 rounded-lg bg-gray-50 px-3 py-2 text-xs text-gray-700">
                 <Clock className="h-3.5 w-3.5 shrink-0" />
                 {clockMode === "business_hours" ? (
-                  <span className="flex-1 font-semibold text-emerald-700">Clock pinned to 10:30 a.m. on a weekday.</span>
+                  <span className="flex-1 font-semibold text-green-700">Clock pinned to 10:30 a.m. on a weekday.</span>
                 ) : (
                   <>
                     <span className="flex-1">Clock is on real time.</span>
@@ -246,7 +246,7 @@ function TourRunner() {
               </div>
             )}
             {missing && (
-              <p className="mt-3 text-[11.5px] italic text-slate-400">
+              <p className="mt-3 text-xs italic text-gray-400">
                 The highlighted area isn&apos;t showing right now. It can depend on your role or on changes made to the demo data.
               </p>
             )}
@@ -256,7 +256,7 @@ function TourRunner() {
         <div className="mt-4 flex items-center gap-2">
           <div className="flex gap-1" aria-label={`Step ${step + 1} of ${stopDef.steps.length}`}>
             {stopDef.steps.map((_, j) => (
-              <button key={j} onClick={() => go(stop, j)} className={cn("h-1.5 rounded-full transition-all", j === step ? "w-4 bg-brand" : "w-1.5 bg-slate-200 hover:bg-slate-300")} aria-label={`Step ${j + 1}`} />
+              <button key={j} onClick={() => go(stop, j)} className={cn("h-1.5 rounded-full transition-all", j === step ? "w-4 bg-brand" : "w-1.5 bg-gray-200 hover:bg-gray-300")} aria-label={`Step ${j + 1}`} />
             ))}
           </div>
           <div className="ml-auto flex gap-1.5">

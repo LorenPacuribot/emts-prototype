@@ -138,10 +138,10 @@ function LocationCard({ property, customerId }: { property: Property; customerId
       <div className="font-semibold text-gray-900">{property.address}</div>
       <div className="text-sm text-gray-500">{property.city}, {property.state} {property.zip}</div>
       <div className="mt-2 flex flex-wrap items-center gap-1.5">
-        <AppLink href={contactHref(customerId, "paint-history", { location: property.id })} className="inline-flex items-center gap-1 rounded-md border border-emerald-200 bg-white px-1.5 py-0.5 text-[11px] font-semibold text-emerald-700 hover:bg-emerald-50">
+        <AppLink href={contactHref(customerId, "paint-history", { location: property.id })} className="inline-flex items-center gap-1 rounded-md border border-green-200 bg-white px-1.5 py-0.5 text-xs font-semibold text-green-700 hover:bg-green-50">
           {apps} paint records <NewBadge feature={25} />
         </AppLink>
-        {qr && <span className="inline-flex items-center gap-1 rounded-md border border-gray-200 bg-white px-1.5 py-0.5 text-[11px] font-semibold text-gray-600"><QrCode className="h-3 w-3" /> QR link active</span>}
+        {qr && <span className="inline-flex items-center gap-1 rounded-md border border-gray-200 bg-white px-1.5 py-0.5 text-xs font-semibold text-gray-600"><QrCode className="h-3 w-3" /> QR link active</span>}
       </div>
     </div>
   );
@@ -185,7 +185,7 @@ function LeadsTab({ customerId }: { customerId: string }) {
                 {p && <span className="rounded-md bg-gray-100 px-2 py-0.5 text-gray-600">{p.city}, {p.state}</span>}
                 <span className="rounded-md bg-gray-100 px-2 py-0.5 text-gray-600">{l.source === "repaint_alert" ? "Repaint alert" : l.source === "existing_customer" ? "Existing Client" : l.source === "website" ? "Website" : "Referral"}</span>
                 <span className="rounded-md bg-gray-100 px-2 py-0.5 text-gray-600">{date(l.createdAt)}</span>
-                {fu && <span className="inline-flex items-center gap-1 rounded-md border border-emerald-200 bg-emerald-50 px-2 py-0.5 font-semibold text-emerald-700">Repaint follow-up {fu.id} <NewBadge feature={29} /></span>}
+                {fu && <span className="inline-flex items-center gap-1 rounded-md border border-green-200 bg-green-50 px-2 py-0.5 font-semibold text-green-700">Repaint follow-up {fu.id} <NewBadge feature={29} /></span>}
               </div>
               <div className="mt-2 text-xs font-bold text-primary-700">View Lead →</div>
             </AppLink>
@@ -208,7 +208,7 @@ function EstimatesTab({ customerId }: { customerId: string }) {
         {list.map((e) => (
           <AppLink key={e.id} href={estimateHref(e.id)} className="flex items-center justify-between gap-3 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm hover:shadow-md">
             <div>
-              <div className="flex flex-wrap items-center gap-2"><span className="font-bold text-gray-900">{e.id}</span><StatusPill tone={ESTIMATE_STATUS_TONE[e.status]}>{ESTIMATE_STATUS_LABEL[e.status]}</StatusPill>{e.repeatEstimateId && <span className="rounded-md bg-indigo-50 px-1.5 py-0.5 text-[10px] font-bold text-indigo-700">From history</span>}</div>
+              <div className="flex flex-wrap items-center gap-2"><span className="font-bold text-gray-900">{e.id}</span><StatusPill tone={ESTIMATE_STATUS_TONE[e.status]}>{ESTIMATE_STATUS_LABEL[e.status]}</StatusPill>{e.repeatEstimateId && <span className="rounded-md bg-indigo-50 px-1.5 py-0.5 text-xs font-bold text-indigo-700">From history</span>}</div>
               <div className="text-sm text-gray-600">{e.title}</div>
               <div className="text-xs text-gray-400">{date(e.createdAt)}</div>
               <div className="mt-1 text-xs font-bold text-primary-700">View Estimate →</div>
@@ -238,7 +238,7 @@ function InvoicesTab({ customerId }: { customerId: string }) {
               <div className="text-xs text-gray-500">{i.jobId}</div>
               <div className="text-xs text-gray-400">{date(i.createdAt)} • Total: {money(i.amount, { cents: true })}</div>
             </div>
-            <div className="text-right"><div className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Balance Due</div><div className="font-black">{money(i.status === "paid" ? 0 : i.amount, { cents: true })}</div></div>
+            <div className="text-right"><div className="text-xxs font-bold uppercase tracking-widest text-gray-400">Balance Due</div><div className="font-black">{money(i.status === "paid" ? 0 : i.amount, { cents: true })}</div></div>
           </AppLink>
         ))}
       </div>
@@ -321,7 +321,7 @@ function ActivityTab({ customer }: { customer: Customer }) {
       <LiveCard>
         <CardTitle icon={<History />}>Activity Log</CardTitle>
         {entries.length === 0 ? <p className="text-sm text-gray-400">No activity yet.</p> : (
-          <div className="space-y-2">{entries.map((a) => <div key={a.id} className="border-l-2 border-gray-200 pl-3 text-sm"><div className="text-[11px] font-bold uppercase text-gray-400">{dateTime(a.at)}</div><div className={a.blocked ? "text-red-700" : "text-gray-700"}>{a.message}</div></div>)}</div>
+          <div className="space-y-2">{entries.map((a) => <div key={a.id} className="border-l-2 border-gray-200 pl-3 text-sm"><div className="text-xs font-bold uppercase text-gray-400">{dateTime(a.at)}</div><div className={a.blocked ? "text-red-700" : "text-gray-700"}>{a.message}</div></div>)}</div>
         )}
       </LiveCard>
     </div>

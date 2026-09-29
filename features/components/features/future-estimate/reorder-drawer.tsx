@@ -83,7 +83,7 @@ function Body({ r, onClose }: { r: TouchUpReorder; onClose: () => void }) {
       {r.status === "fulfilled" && (
         <section className="space-y-2">
           <CardLabel icon={<PackageCheck />}>Fulfilled</CardLabel>
-          <p className="text-[12.5px] text-slate-600">Handed over {dateTime(r.fulfilledAt)}. No application history was created; the repaint schedule for {surfaceLabel(db, app.surfaceId)} is unchanged.</p>
+          <p className="text-xs text-gray-600">Handed over {dateTime(r.fulfilledAt)}. No application history was created; the repaint schedule for {surfaceLabel(db, app.surfaceId)} is unchanged.</p>
           {canAct && <Button size="sm" onClick={() => setWorkOpen(true)}><UserRound className="h-3.5 w-3.5" /> Log customer-applied work (Unverified)</Button>}
         </section>
       )}
@@ -140,7 +140,7 @@ function QuantityPanel({ r, editable, available }: { r: TouchUpReorder; editable
       <CardLabel icon={<PaintBucket />}>Quantity</CardLabel>
       <KV items={[["Requested", `${r.requestedGal ?? r.gallons} gal`], ["Order", `${formatPacks(r.packs)} (${r.gallons} gal)`], ["Purpose", r.purpose === "non_touch_up" ? "Other small order" : "Touch-up"]]} />
       {(r.excessGal ?? 0) > 0 && (
-        <p className="text-[12px] text-slate-500">{r.excessGal} gal over the request because of pack sizes{r.purpose === "non_touch_up" ? "; the excess goes to shelf stock on fulfilment." : "; it goes to the customer with the order."}</p>
+        <p className="text-xs text-gray-500">{r.excessGal} gal over the request because of pack sizes{r.purpose === "non_touch_up" ? "; the excess goes to shelf stock on fulfilment." : "; it goes to the customer with the order."}</p>
       )}
       {editable && (
         <div className="space-y-2 rounded-xl border border-line p-3">
@@ -149,7 +149,7 @@ function QuantityPanel({ r, editable, available }: { r: TouchUpReorder; editable
             <Input type="number" min={0} step={0.25} className="w-24" value={qty} onChange={(e) => setQty(e.target.value)} invalid={!q.ok} aria-label="Quantity in gallons" />
             {QTY_PRESETS.map((p) => <Button key={p.label} size="sm" variant={Number(qty) === p.gal ? "dark" : "secondary"} onClick={() => setQty(String(p.gal))}>{p.label}</Button>)}
           </div>
-          {!q.ok ? <p className="text-[11.5px] font-medium text-red-600">{q.error}</p> : q.note && <p className="text-[11.5px] text-amber-700">{q.note}</p>}
+          {!q.ok ? <p className="text-xs font-medium text-red-600">{q.error}</p> : q.note && <p className="text-xs text-amber-700">{q.note}</p>}
           <Button size="sm" disabled={!changed} onClick={() => act(updateReorderQuantity, r.id, Number(qty), purpose).ok && toast.success("Quantity updated")}>Set quantity</Button>
         </div>
       )}
@@ -246,12 +246,12 @@ function StockPanel({ r, editable }: { r: TouchUpReorder; editable: boolean }) {
       <CardLabel icon={<FlaskConical />}>Stock check</CardLabel>
       <KV items={[["Supply", r.supply === "company_stock" ? `Company shelf stock ${sc?.stockId ?? ""}` : r.supply === "customer_cans" ? "Customer-owned cans (not company stock)" : "New order, tinted from the colour record"]]} />
       {sc && (
-        <div className={cn("rounded-xl border p-3 text-[12.5px]", sc.ok ? "border-emerald-200 bg-emerald-50" : "border-red-200 bg-red-50")}>
-          <div className={cn("flex items-center gap-1.5 font-semibold", sc.ok ? "text-emerald-800" : "text-red-800")}>
+        <div className={cn("rounded-xl border p-3 text-xs", sc.ok ? "border-green-200 bg-green-50" : "border-red-200 bg-red-50")}>
+          <div className={cn("flex items-center gap-1.5 font-semibold", sc.ok ? "text-green-800" : "text-red-800")}>
             {sc.ok ? <CheckCircle2 className="h-4 w-4" /> : <Ban className="h-4 w-4" />} {sc.ok ? "Usable" : "Rematch required"}
           </div>
-          <div className="mt-1 text-slate-700">Brand {sc.brand}, code {sc.code}, sheen {sc.sheen}, tint date {sc.tintDate ? dateLong(sc.tintDate) : "none"}. {sc.ok ? "" : `Failed: ${sc.note}. This stock can't be issued; the surface must be rematched.`}</div>
-          <div className="mt-1 text-[11px] text-slate-500">Checked {dateTime(sc.checkedAt)} by {byId(db.users, sc.checkedBy)?.name}</div>
+          <div className="mt-1 text-gray-700">Brand {sc.brand}, code {sc.code}, sheen {sc.sheen}, tint date {sc.tintDate ? dateLong(sc.tintDate) : "none"}. {sc.ok ? "" : `Failed: ${sc.note}. This stock can't be issued; the surface must be rematched.`}</div>
+          <div className="mt-1 text-xs text-gray-500">Checked {dateTime(sc.checkedAt)} by {byId(db.users, sc.checkedBy)?.name}</div>
         </div>
       )}
       {editable && (
@@ -267,7 +267,7 @@ function StockPanel({ r, editable }: { r: TouchUpReorder; editable: boolean }) {
                 <option value="">Choose…</option>
                 {matching.map((s) => <option key={s.id} value={s.id}>{s.id} · {s.product} {s.colourName} {s.sheen} · {s.containerSize} · tinted {dateLong(s.tintDate)}</option>)}
               </Select>
-              {matching.length === 0 && <p className="text-[11.5px] italic text-slate-400">No unreserved shelf stock in this colour.</p>}
+              {matching.length === 0 && <p className="text-xs italic text-gray-400">No unreserved shelf stock in this colour.</p>}
             </Field>
           )}
           {supply === "customer_cans" && (
@@ -277,7 +277,7 @@ function StockPanel({ r, editable }: { r: TouchUpReorder; editable: boolean }) {
           )}
           {supply !== "new_order" && (
             <>
-              <p className="text-[11.5px] text-slate-500">Read these off the can itself. Physical check required before issuing existing paint.</p>
+              <p className="text-xs text-gray-500">Read these off the can itself. Physical check required before issuing existing paint.</p>
               <div className="grid gap-3 sm:grid-cols-2">
                 <Field label="Brand" required htmlFor="sb" error={err?.field === "brand" ? err.msg : undefined}><Input id="sb" value={brand} onChange={(e) => setBrand(e.target.value)} /></Field>
                 <Field label="Colour code" required htmlFor="sc" error={err?.field === "code" ? err.msg : undefined}><Input id="sc" value={code} onChange={(e) => setCode(e.target.value)} /></Field>
@@ -313,7 +313,7 @@ function RefundPanel({ r, canAct }: { r: TouchUpReorder; canAct: boolean }) {
     return (
       <section className="space-y-2">
         <CardLabel icon={<Receipt />}>Cancelled</CardLabel>
-        <p className="text-[12.5px] text-slate-600">{r.cancelReason === "unfillable" ? "Unfillable" : "Cancelled"} {dateLong(r.cancelledAt)}. No cleared prepayment was recorded, so no refund is due.</p>
+        <p className="text-xs text-gray-600">{r.cancelReason === "unfillable" ? "Unfillable" : "Cancelled"} {dateLong(r.cancelledAt)}. No cleared prepayment was recorded, so no refund is due.</p>
       </section>
     );
   }
@@ -332,7 +332,7 @@ function RefundPanel({ r, canAct }: { r: TouchUpReorder; canAct: boolean }) {
           action={canAct && <Button size="sm" variant="primary" onClick={() => act(recordRefund, r.id).ok && toast.success("Refund recorded", r.id)}>Refund recorded</Button>}
         >
           {r.cancelReason === "unfillable" ? "Order unfillable." : "Order cancelled."} Refund {r.gallons} gal order to the original method ({r.paymentMethod}) within five working days of {dateLong(r.cancelledAt)}.
-          <span className="mt-1 flex items-center gap-1 text-[11.5px]"><Info className="h-3 w-3" /> The payment itself is made outside Estimate Master; record it here once done.</span>
+          <span className="mt-1 flex items-center gap-1 text-xs"><Info className="h-3 w-3" /> The payment itself is made outside Estimate Master; record it here once done.</span>
         </Banner>
       )}
     </section>

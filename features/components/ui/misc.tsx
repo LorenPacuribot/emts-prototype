@@ -20,13 +20,13 @@ export function PillTabs<T extends string>({ options, value, onChange, className
           aria-selected={value === o.value}
           onClick={() => onChange(o.value)}
           className={cn(
-            "h-9 rounded-xl border px-3.5 text-[12.5px] font-semibold transition-colors",
-            value === o.value ? "border-ink bg-ink text-white" : "border-line bg-white text-slate-700 hover:bg-slate-50",
+            "h-9 rounded-xl border px-3.5 text-xs font-semibold transition-colors",
+            value === o.value ? "border-ink bg-ink text-white" : "border-line bg-white text-gray-700 hover:bg-gray-50",
           )}
         >
           {o.label}
           {o.count !== undefined && (
-            <span className={cn("ml-1.5 rounded-full px-1.5 text-[10.5px]", value === o.value ? "bg-white/20" : "bg-slate-100 text-slate-500")}>{o.count}</span>
+            <span className={cn("ml-1.5 rounded-full px-1.5 text-xs", value === o.value ? "bg-white/20" : "bg-gray-100 text-gray-500")}>{o.count}</span>
           )}
         </button>
       ))}
@@ -36,17 +36,17 @@ export function PillTabs<T extends string>({ options, value, onChange, className
 
 export function EmptyState({ icon, title, body, action, className }: { icon?: ReactNode; title: string; body?: ReactNode; action?: ReactNode; className?: string }) {
   return (
-    <div className={cn("flex flex-col items-center justify-center rounded-xl border border-dashed border-slate-200 px-6 py-10 text-center", className)}>
-      {icon && <div className="mb-3 text-slate-300 [&>svg]:h-8 [&>svg]:w-8">{icon}</div>}
-      <p className="text-[13px] font-semibold text-slate-600">{title}</p>
-      {body && <p className="mt-1 max-w-sm text-[12.5px] italic text-slate-400">{body}</p>}
+    <div className={cn("flex flex-col items-center justify-center rounded-2xl border border-dashed border-gray-200 px-6 py-10 text-center", className)}>
+      {icon && <div className="mb-3 text-gray-300 [&>svg]:h-8 [&>svg]:w-8">{icon}</div>}
+      <p className="text-sm font-semibold text-gray-600">{title}</p>
+      {body && <p className="mt-1 max-w-sm text-xs italic text-gray-400">{body}</p>}
       {action && <div className="mt-4">{action}</div>}
     </div>
   );
 }
 
 export function Skeleton({ className }: { className?: string }) {
-  return <div className={cn("animate-pulse rounded-lg bg-slate-100", className)} />;
+  return <div className={cn("animate-pulse rounded-lg bg-gray-100", className)} />;
 }
 
 type BannerTone = "info" | "warn" | "danger" | "success";
@@ -56,11 +56,11 @@ export function Banner({ tone = "info", title, children, action, className }: { 
     info: "border-blue-200 bg-blue-50 text-blue-900",
     warn: "border-amber-200 bg-amber-50 text-amber-900",
     danger: "border-red-200 bg-red-50 text-red-900",
-    success: "border-emerald-200 bg-emerald-50 text-emerald-900",
+    success: "border-green-200 bg-green-50 text-green-900",
   };
   const Icon = { info: Info, warn: AlertTriangle, danger: OctagonAlert, success: CheckCircle2 }[tone];
   return (
-    <div className={cn("flex items-start gap-3 rounded-xl border px-4 py-3 text-[12.5px]", styles[tone], className)} role={tone === "danger" ? "alert" : "status"}>
+    <div className={cn("flex items-start gap-3 rounded-xl border px-4 py-3 text-xs", styles[tone], className)} role={tone === "danger" ? "alert" : "status"}>
       <Icon className="mt-0.5 h-4 w-4 shrink-0" />
       <div className="min-w-0 flex-1">
         {title && <div className="font-semibold">{title}</div>}
@@ -85,21 +85,21 @@ export function Toaster() {
           key={t.id}
           className={cn(
             "pointer-events-auto flex items-start gap-3 rounded-xl border bg-white px-4 py-3 shadow-xl animate-in-pop",
-            t.kind === "error" ? "border-red-200" : t.kind === "success" ? "border-emerald-200" : "border-line",
+            t.kind === "error" ? "border-red-200" : t.kind === "success" ? "border-green-200" : "border-line",
           )}
         >
           {t.kind === "error" ? (
             <OctagonAlert className="mt-0.5 h-4 w-4 shrink-0 text-red-600" />
           ) : t.kind === "success" ? (
-            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
+            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-green-600" />
           ) : (
             <Info className="mt-0.5 h-4 w-4 shrink-0 text-brand" />
           )}
           <div className="min-w-0 flex-1">
-            <p className="text-[13px] font-semibold text-ink">{t.title}</p>
-            {t.body && <p className="mt-0.5 text-[12px] text-slate-500">{t.body}</p>}
+            <p className="text-sm font-semibold text-ink">{t.title}</p>
+            {t.body && <p className="mt-0.5 text-xs text-gray-500">{t.body}</p>}
           </div>
-          <button onClick={() => dismiss(t.id)} className="text-slate-300 hover:text-slate-600" aria-label="Dismiss">
+          <button onClick={() => dismiss(t.id)} className="text-gray-300 hover:text-gray-600" aria-label="Dismiss">
             <X className="h-3.5 w-3.5" />
           </button>
         </div>
@@ -111,10 +111,10 @@ export function Toaster() {
 /** Key/value row list used in detail panels. */
 export function KV({ items, className }: { items: [ReactNode, ReactNode][]; className?: string }) {
   return (
-    <dl className={cn("grid grid-cols-[minmax(96px,40%)_minmax(0,1fr)] gap-x-4 gap-y-2 text-[12.5px]", className)}>
+    <dl className={cn("grid grid-cols-[minmax(96px,40%)_minmax(0,1fr)] gap-x-4 gap-y-2 text-xs", className)}>
       {items.map(([k, v], i) => (
         <div key={i} className="contents">
-          <dt className="text-slate-500">{k}</dt>
+          <dt className="text-gray-500">{k}</dt>
           <dd className="min-w-0 break-words font-medium text-ink">{v}</dd>
         </div>
       ))}

@@ -113,8 +113,8 @@ export function CorrectionModal({ app, onClose }: { app?: Application; onClose: 
             {CORRECTION_FIELDS.map((f) => <option key={f}>{f}</option>)}
           </Select>
         </Field>
-        <div className="rounded-lg bg-slate-50 px-3 py-2 text-[12.5px]">
-          <span className="text-slate-500">Current value: </span>
+        <div className="rounded-lg bg-gray-50 px-3 py-2 text-xs">
+          <span className="text-gray-500">Current value: </span>
           <span className="font-semibold text-ink">{current[field]}</span>
         </div>
 
@@ -427,7 +427,7 @@ export function AddressModal({ open, onClose, property }: { open: boolean; onClo
         <Field label="Street address" required error={e.errors.address}>
           <Input value={address} invalid={!!e.errors.address} onChange={(ev) => setAddress(ev.target.value)} />
         </Field>
-        <div className="flex items-start gap-2 text-[12px] text-slate-500">
+        <div className="flex items-start gap-2 text-xs text-gray-500">
           <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" /> To combine two records for the same address, use a merge request on Owners &amp; Consent. It needs the Business Owner&apos;s individual approval.
         </div>
       </div>

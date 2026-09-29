@@ -65,7 +65,7 @@ export function PresentationCanvas({ presentation: p, edit = false, onSectionCha
 
   return (
     <div
-      className={cn('@container relative flex flex-col', dark ? 'bg-slate-900 text-white' : 'bg-white text-gray-900', className)}
+      className={cn('@container relative flex flex-col', dark ? 'bg-gray-900 text-white' : 'bg-white text-gray-900', className)}
       style={{ fontFamily: p.branding?.bodyFont }}
     >
       {!onlySectionId && <CanvasHeader p={p} color={color} dark={dark} sections={visible} />}
@@ -89,7 +89,7 @@ export function PresentationCanvas({ presentation: p, edit = false, onSectionCha
             )}
           >
             {edit && !s.enabled && (
-              <span className="absolute left-4 top-4 z-40 rounded-full bg-gray-900 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">Hidden</span>
+              <span className="absolute left-4 top-4 z-40 rounded-full bg-gray-900 px-2 py-0.5 text-xxs font-bold uppercase tracking-wider text-white">Hidden</span>
             )}
             {edit && toolbarFor?.(s, i)}
             <SectionBody ctx={ctx} />
@@ -148,7 +148,7 @@ function CanvasHeader({ p, color, dark, sections }: { p: Presentation; color: st
     : sections.filter((s) => s.type !== 'cover').slice(0, 4).map((s) => ({ label: s.type === 'estimate' ? 'Proposal' : s.title, targetId: s.id }));
   const go = (id: string) => document.getElementById(`sec-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   return (
-    <header className={cn('sticky top-0 z-30 flex items-center justify-between gap-4 border-b px-6 py-4 backdrop-blur', dark ? 'border-white/10 bg-slate-900/90' : 'border-gray-100 bg-white/90')}>
+    <header className={cn('sticky top-0 z-30 flex items-center justify-between gap-4 border-b px-6 py-4 backdrop-blur', dark ? 'border-white/10 bg-gray-900/90' : 'border-gray-100 bg-white/90')}>
       <div className="flex items-center gap-3">
         <span className="flex h-9 w-9 items-center justify-center rounded-lg text-xs font-black text-white" style={{ backgroundColor: color }}>{initials(biz.companyName)}</span>
         <span className="font-heading text-sm font-extrabold" style={{ fontFamily: p.branding?.headingFont }}>{biz.companyName}</span>
@@ -167,7 +167,7 @@ function CanvasHeader({ p, color, dark, sections }: { p: Presentation; color: st
 function CanvasFooter({ p, color }: { p: Presentation; color: string }) {
   const [biz] = useSingleton('businessProfile');
   return (
-    <footer className="mt-auto bg-slate-950 px-8 py-12 text-white">
+    <footer className="mt-auto bg-gray-950 px-8 py-12 text-white">
       <div className="grid gap-8 @3xl:grid-cols-3">
         <div>
           <div className="flex items-center gap-3">
@@ -296,11 +296,11 @@ function ImageSlot({ src, fallback, edit, onChange, className, children, label =
       {children}
       {edit && (
         <span className="absolute bottom-3 right-3 z-40 flex gap-1.5">
-          <button type="button" onClick={pick} className="flex items-center gap-1 rounded-lg bg-white/90 px-2 py-1 text-[11px] font-bold text-gray-700 shadow hover:bg-white" aria-label={`${src ? 'Swap' : 'Add'} ${label}`}>
+          <button type="button" onClick={pick} className="flex items-center gap-1 rounded-lg bg-white/90 px-2 py-1 text-xs font-bold text-gray-700 shadow hover:bg-white" aria-label={`${src ? 'Swap' : 'Add'} ${label}`}>
             <ImageIcon className="h-3.5 w-3.5" /> {src ? 'Swap image' : 'Add image'}
           </button>
           {src && (
-            <button type="button" onClick={(e) => { e.stopPropagation(); onChange(undefined); }} className="rounded-lg bg-white/90 px-2 py-1 text-[11px] font-bold text-red-600 shadow" aria-label={`Remove ${label}`}>
+            <button type="button" onClick={(e) => { e.stopPropagation(); onChange(undefined); }} className="rounded-lg bg-white/90 px-2 py-1 text-xs font-bold text-red-600 shadow" aria-label={`Remove ${label}`}>
               Remove
             </button>
           )}
@@ -313,8 +313,8 @@ function ImageSlot({ src, fallback, edit, onChange, className, children, label =
 /** Section background by variant: 1 = base, 2 = dark, 3 = soft gray. */
 function shell(ctx: SectionCtx) {
   const v = ctx.s.variant ?? 1;
-  if (v === 2) return 'bg-slate-900 text-white';
-  if (v === 3) return ctx.dark ? 'bg-slate-800' : 'bg-gray-50';
+  if (v === 2) return 'bg-gray-900 text-white';
+  if (v === 3) return ctx.dark ? 'bg-gray-800' : 'bg-gray-50';
   return '';
 }
 const pad = 'px-6 py-16 @3xl:px-16 @3xl:py-20';
@@ -341,10 +341,10 @@ function Cover({ ctx }: { ctx: SectionCtx }) {
   const image = s.imageUrl ?? p.coverImage;
   return (
     <ImageSlot src={image} fallback={p.cover} edit={edit} onChange={(imageUrl) => set({ imageUrl })} label="cover image" clickArea={false} className="flex min-h-[460px] items-center text-white">
-      <div className="absolute inset-0 bg-slate-950/40" />
+      <div className="absolute inset-0 bg-gray-950/40" />
       {!image && <ImageIcon className="absolute -right-10 -top-10 h-72 w-72 text-white/5" />}
       <div className={cn('relative z-10 w-full', pad, v === 1 ? 'text-center' : '')}>
-        <div className={cn(v === 2 && 'max-w-xl border-l-4 bg-slate-900/80 p-8 shadow-2xl')} style={v === 2 ? { borderColor: color } : undefined}>
+        <div className={cn(v === 2 && 'max-w-xl border-l-4 bg-gray-900/80 p-8 shadow-2xl')} style={v === 2 ? { borderColor: color } : undefined}>
           {customer && <p className="mb-4 text-xs font-bold uppercase tracking-[0.3em] text-white/70">Prepared for {fullName(customer)}</p>}
           <h1 className={titleCls} style={{ fontFamily: p.branding?.headingFont }}>
             <Editable edit={edit} value={s.content} onChange={(content) => set({ content })} className={v === 1 ? 'text-center' : ''} />
@@ -429,7 +429,7 @@ function EstimateBlock({ ctx }: { ctx: SectionCtx }) {
 function Info({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-xl bg-gray-50 p-4 text-gray-900">
-      <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400">{label}</div>
+      <div className="text-xxs font-bold uppercase tracking-widest text-gray-400">{label}</div>
       <div className="mt-1 font-semibold">{value}</div>
     </div>
   );
@@ -556,7 +556,7 @@ function About({ ctx }: { ctx: SectionCtx }) {
           {[['15+', 'Years Experience'], ['500+', 'Projects Completed']].map(([v, l]) => (
             <div key={l}>
               <div className="font-heading text-4xl font-black" style={{ color }}>{v}</div>
-              <div className="mt-1 text-[10px] font-bold uppercase tracking-widest opacity-60">{l}</div>
+              <div className="mt-1 text-xxs font-bold uppercase tracking-widest opacity-60">{l}</div>
             </div>
           ))}
         </div>

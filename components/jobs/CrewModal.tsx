@@ -59,11 +59,11 @@ export function CrewModal({ job, open, onOpenChange }: { job: Job; open: boolean
         <div className="flex w-full items-center justify-between">
           <div className="flex gap-6">
             <div>
-              <span className="block text-[10px] font-bold uppercase tracking-wider text-gray-400">Total man hours</span>
+              <span className="block text-xxs font-bold uppercase tracking-wider text-gray-400">Total man hours</span>
               <span className="text-xl font-black text-primary-600">{totalHours}h</span>
             </div>
             <div>
-              <span className="block text-[10px] font-bold uppercase tracking-wider text-gray-400">Crew size</span>
+              <span className="block text-xxs font-bold uppercase tracking-wider text-gray-400">Crew size</span>
               <span className="text-xl font-black text-gray-900">{draft.length}</span>
             </div>
           </div>
@@ -87,11 +87,11 @@ export function CrewModal({ job, open, onOpenChange }: { job: Job; open: boolean
                 <Avatar name={fullName(m)} color={m.color} size="sm" />
                 <div className="min-w-0 flex-1">
                   <div className="truncate text-sm font-medium text-gray-800">{fullName(m)}</div>
-                  <div className="truncate text-[11px] text-gray-400">{m.role}{m.status === 'Invited' ? ' · Invited' : ''}</div>
+                  <div className="truncate text-xs text-gray-400">{m.role}{m.status === 'Invited' ? ' · Invited' : ''}</div>
                 </div>
                 <div className="text-right">
                   <div className="text-sm font-black tabular-nums text-gray-900">{booked}<span className="font-bold text-gray-400">/{cap}h</span></div>
-                  <div className={cn('text-[11px] font-bold', left <= 0 ? 'text-red-500' : 'text-green-600')}>{left <= 0 ? 'Fully booked' : `${left}h left`}</div>
+                  <div className={cn('text-xs font-bold', left <= 0 ? 'text-red-500' : 'text-green-600')}>{left <= 0 ? 'Fully booked' : `${left}h left`}</div>
                 </div>
               </div>
             );
@@ -101,7 +101,7 @@ export function CrewModal({ job, open, onOpenChange }: { job: Job; open: boolean
 
         {draft.length > 0 && (
           <div>
-            <div className="mb-2 text-[11px] font-black uppercase tracking-[0.12em] text-gray-400">Role & hours on this job</div>
+            <div className="mb-2 text-xs font-black uppercase tracking-[0.12em] text-gray-400">Role & hours on this job</div>
             <div className="divide-y divide-gray-100 rounded-xl border border-gray-200">
               {draft.map((c) => {
                 const m = team.find((t) => t.id === c.memberId);
@@ -121,7 +121,7 @@ export function CrewModal({ job, open, onOpenChange }: { job: Job; open: boolean
                       <Input type="number" min={0} value={c.hours} suffix="hrs" invalid={over} className="h-9"
                         onChange={(e) => patch(c.memberId, { hours: Math.max(0, Number(e.target.value) || 0) })} />
                     </div>
-                    <div className={cn('w-40 text-[11px] font-medium', over ? 'text-amber-600' : 'text-gray-400')}>
+                    <div className={cn('w-40 text-xs font-medium', over ? 'text-amber-600' : 'text-gray-400')}>
                       {over ? `Over capacity by ${round1(booked + c.hours - cap)}h` : `Available ${round1(cap - booked)} hours`}
                     </div>
                     <button onClick={() => toggle(c.memberId, c.role)} aria-label={`Remove ${fullName(m)}`} className="rounded-lg p-1.5 text-gray-300 hover:bg-red-50 hover:text-red-500">

@@ -78,9 +78,9 @@ export function ReordersPanel({ property }: { property: Property }) {
             {requests.map((t) => (
               <div key={t.id} className="flex flex-wrap items-center gap-3 rounded-lg border border-line p-3">
                 <IdChip>{t.id}</IdChip>
-                <div className="min-w-0 flex-1 text-[12.5px]">
+                <div className="min-w-0 flex-1 text-xs">
                   <div className="font-semibold text-ink">{t.colourLabel ?? "Colour not given"} · {t.requesterName}</div>
-                  <div className="text-slate-500">“{t.note}” · {dateLong(t.createdAt)}</div>
+                  <div className="text-gray-500">“{t.note}” · {dateLong(t.createdAt)}</div>
                 </div>
                 <Badge tone={t.status === "new" ? "blue" : "gray"}>{t.status === "new" ? "New" : "Acknowledged"}</Badge>
                 {canAct && <Button size="sm" variant="primary" onClick={() => setForm({ open: true, requestId: t.id, appId: appForRequest(t.id) })}>Convert to reorder</Button>}
@@ -109,10 +109,10 @@ export function ReordersPanel({ property }: { property: Property }) {
                   return (
                     <TR key={r.id} className="cursor-pointer" onClick={() => setOpenId(r.id)}>
                       <TD><button className="font-semibold text-brand hover:underline">{r.id}</button></TD>
-                      <TD><span className="flex items-center gap-2">{app && <Swatch hex={app.hex} size="sm" />}{app?.colourName} {app?.colourNumber}<span className="text-slate-400">{app?.sheen}</span></span></TD>
+                      <TD><span className="flex items-center gap-2">{app && <Swatch hex={app.hex} size="sm" />}{app?.colourName} {app?.colourNumber}<span className="text-gray-400">{app?.sheen}</span></span></TD>
                       <TD>{formatPacks(r.packs)}</TD>
                       <TD>{r.payment === "prepaid_cleared" ? <Badge tone="green">Prepaid</Badge> : r.payment === "on_account" ? <Badge tone="indigo">On account</Badge> : <Badge tone="red">Unpaid</Badge>}</TD>
-                      <TD className="text-[12px]">{r.supply === "company_stock" ? "Company stock" : r.supply === "customer_cans" ? "Customer's cans" : "New order"}{r.stockCheck && !r.stockCheck.ok && <Badge tone="red" className="ml-1">Rematch</Badge>}</TD>
+                      <TD className="text-xs">{r.supply === "company_stock" ? "Company stock" : r.supply === "customer_cans" ? "Customer's cans" : "New order"}{r.stockCheck && !r.stockCheck.ok && <Badge tone="red" className="ml-1">Rematch</Badge>}</TD>
                       <TD><Badge tone={st.tone}>{st.label}</Badge>{r.refundDueAt && !r.refundRecordedAt && <Badge tone="amber" className="ml-1">Refund due {dateLong(r.refundDueAt)}</Badge>}</TD>
                       <TD>{dateLong(r.createdAt)}</TD>
                     </TR>

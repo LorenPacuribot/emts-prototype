@@ -44,7 +44,7 @@ export function ClientScheduleSection({ wo, job, onEditSchedule }: { wo: WorkOrd
         <LiveLabel className="mb-2">Client</LiveLabel>
         {customer ? (
           <AppLink href={contactHref(customer.id)} className="group block">
-            <div className="flex items-center gap-2 font-bold text-gray-900 group-hover:text-primary-700">{customer.name} <span className="hidden rounded-md bg-primary-50 px-1.5 text-[10px] font-bold text-primary-700 group-hover:inline">View Profile</span></div>
+            <div className="flex items-center gap-2 font-bold text-gray-900 group-hover:text-primary-700">{customer.name} <span className="hidden rounded-md bg-primary-50 px-1.5 text-xs font-bold text-primary-700 group-hover:inline">View Profile</span></div>
             <div className="text-sm text-gray-500">{customer.email}</div>
             <div className="text-sm text-gray-500">{customer.phone}</div>
           </AppLink>
@@ -143,7 +143,7 @@ export function CrewCard({ wo }: { wo: WorkOrder }) {
                 {s.memberIds.length === 0 && <span className="text-xs text-gray-400">No members assigned</span>}
                 {s.memberIds.map((id) => {
                   const e = byId(db.employees, id);
-                  return <span key={id} className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-white py-0.5 pl-0.5 pr-2 text-xs font-semibold text-gray-700"><span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary-100 text-[10px] font-bold text-primary-700">{e?.name[0]}</span>{e?.name.split(" ")[0]}</span>;
+                  return <span key={id} className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-white py-0.5 pl-0.5 pr-2 text-xs font-semibold text-gray-700"><span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary-100 text-xs font-bold text-primary-700">{e?.name[0]}</span>{e?.name.split(" ")[0]}</span>;
                 })}
               </div>
             </div>
@@ -265,7 +265,7 @@ export function WoPaintColorCard({ job }: { job: Job }) {
                     <div className="min-w-0">
                       <div className="flex items-center gap-1.5 text-sm font-bold text-gray-900"><Swatch hex={c.hex} size="sm" /> {c.name}</div>
                       <div className="text-xs text-gray-500">{cl[0]?.spec.product ?? "—"}</div>
-                      <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400">{cl.map((l) => l.spec.sheen).filter(Boolean).join(" / ") || "—"}</div>
+                      <div className="text-xxs font-bold uppercase tracking-widest text-gray-400">{cl.map((l) => l.spec.sheen).filter(Boolean).join(" / ") || "—"}</div>
                     </div>
                   </div>
                   <div className="text-right"><LiveLabel>Gallons</LiveLabel><div className="text-lg font-black text-gray-900">{gallons.toFixed(1)}</div></div>
@@ -340,11 +340,11 @@ export function JobDetailsSection({ wo, job }: { wo: WorkOrder; job: Job }) {
                     <div key={s.id} className="grid gap-3 px-4 py-3 md:grid-cols-12 md:items-center">
                       <div className="md:col-span-4">
                         <div className="text-sm font-semibold text-gray-900">{s.name}</div>
-                        <div className="mt-1 flex flex-wrap gap-1 text-[10px] font-bold"><span className="rounded bg-gray-100 px-1.5 py-0.5 text-gray-600">{s.areaSqft} SQFT</span><span className="rounded bg-gray-100 px-1.5 py-0.5 text-gray-600">COATS {spec?.coats ?? 2}</span></div>
+                        <div className="mt-1 flex flex-wrap gap-1 text-xs font-bold"><span className="rounded bg-gray-100 px-1.5 py-0.5 text-gray-600">{s.areaSqft} SQFT</span><span className="rounded bg-gray-100 px-1.5 py-0.5 text-gray-600">COATS {spec?.coats ?? 2}</span></div>
                       </div>
                       <div className="md:col-span-3">
                         <LiveLabel className="mb-1">Preparation</LiveLabel>
-                        <div className="flex flex-wrap gap-1">{Object.entries(prep).map(([k, v]) => <span key={k} className={cn("inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[10px] font-bold", v ? "bg-green-50 text-green-700" : "bg-gray-100 text-gray-400")}>{v ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}{k}</span>)}</div>
+                        <div className="flex flex-wrap gap-1">{Object.entries(prep).map(([k, v]) => <span key={k} className={cn("inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-xs font-bold", v ? "bg-green-50 text-green-700" : "bg-gray-100 text-gray-400")}>{v ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}{k}</span>)}</div>
                       </div>
                       <div className="md:col-span-3">
                         <LiveLabel className="mb-1">Paint</LiveLabel>
@@ -402,11 +402,11 @@ export function TimeLogSection({ wo, job }: { wo: WorkOrder; job: Job }) {
                 <div className="flex flex-wrap items-center gap-2 text-sm">
                   <span className="font-bold text-gray-900">{who?.name}</span>
                   <span className="text-xs text-gray-400">{dateTime(e.loggedAt)}</span>
-                  {emp && <span className="inline-flex items-center gap-1 rounded-md bg-gray-100 px-1.5 py-0.5 text-[11px] font-semibold text-gray-600"><UserRound className="h-3 w-3" />{emp.name} · {e.workDate && date(e.workDate)} <NewBadge feature={22} /></span>}
+                  {emp && <span className="inline-flex items-center gap-1 rounded-md bg-gray-100 px-1.5 py-0.5 text-xs font-semibold text-gray-600"><UserRound className="h-3 w-3" />{emp.name} · {e.workDate && date(e.workDate)} <NewBadge feature={22} /></span>}
                   {state && <Badge tone={TIME_STATE_TONE[state]}>{TIME_STATE_LABEL[state]}</Badge>}
                   {state === "submitted" && canApprove && emp && (
                     <Tooltip content={`Approves ${emp.name}'s whole day for payroll, across every job that day. Hours stay tagged to this job.`}>
-                      <Button size="sm" variant="primary" className="h-6 px-2 text-[11px]" onClick={() => {
+                      <Button size="sm" variant="primary" className="h-6 px-2 text-xs" onClick={() => {
                         const entry = dayEntry(e.employeeId, e.workDate);
                         if (entry && act(approveEntry, entry.id).ok) toast.success("Day approved", `${emp.name} · ${e.workDate ? date(e.workDate) : ""}`);
                       }}>
@@ -437,7 +437,7 @@ export function TimeLogSection({ wo, job }: { wo: WorkOrder; job: Job }) {
         })}
       </div>
       {segments.length > 0 && (
-        <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50/30 p-3">
+        <div className="mt-4 rounded-xl border border-green-200 bg-green-50/30 p-3">
           <div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-gray-500">Clocked time on this job <NewBadge feature={22} /></div>
           <div className="grid gap-1.5 text-sm">
             {segments.map((s) => {
@@ -547,8 +547,8 @@ export function FieldNotesSection({ wo, extraAttachmentAction }: { wo: WorkOrder
               <div className="flex h-24 items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 text-gray-400">{a.fileType.startsWith("image") ? <ImagePlus className="h-6 w-6" /> : <FileText className="h-6 w-6" />}</div>
               <div className="p-2">
                 <div className="truncate text-xs font-semibold text-gray-800" title={a.caption ? `${a.caption} (${a.fileName})` : a.fileName}>{a.caption ?? a.fileName}</div>
-                {a.surfaceId && <div className="truncate text-[11px] font-medium text-primary-700" title={surfaceLabel(db, a.surfaceId)}>{surfaceLabel(db, a.surfaceId)}</div>}
-                <div className="text-[11px] text-gray-400">{date(a.createdAt)}</div>
+                {a.surfaceId && <div className="truncate text-xs font-medium text-primary-700" title={surfaceLabel(db, a.surfaceId)}>{surfaceLabel(db, a.surfaceId)}</div>}
+                <div className="text-xs text-gray-400">{date(a.createdAt)}</div>
                 {extraAttachmentAction?.(a.id)}
               </div>
             </div>

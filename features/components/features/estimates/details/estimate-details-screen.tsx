@@ -120,7 +120,7 @@ function EstimateHeader({ estimate, job, editable }: { estimate: Estimate; job?:
           </div>
         </div>
         <div className="sm:text-right">
-          <div className="mb-1 text-[10px] font-bold uppercase tracking-widest text-gray-400">Estimator</div>
+          <div className="mb-1 text-xxs font-bold uppercase tracking-widest text-gray-400">Estimator</div>
           {editable ? (
             <Select value={estimate.estimatorId ?? ""} onChange={(e) => act(updateEstimateDetails, estimate.id, { estimatorId: e.target.value })} className="h-10 w-56 rounded-full" aria-label="Estimator">
               <option value="">Select Estimator ▾</option>
@@ -285,7 +285,7 @@ function FinalizeSection({ estimate, job, editable }: { estimate: Estimate; job?
             <span className="rounded-full bg-primary-50 px-2.5 py-0.5 text-xs font-bold text-primary-700">Hourly Model</span>
           </div>
           <p className="text-xs text-gray-500">Review final base bid and calculation logic.</p>
-          {fromHistory && <p className="mt-2 rounded-lg bg-emerald-50 px-2 py-1 text-xs text-emerald-800">Priced from history (feature 28): the pricing basis in the From history section.</p>}
+          {fromHistory && <p className="mt-2 rounded-lg bg-green-50 px-2 py-1 text-xs text-green-800">Priced from history (feature 28): the pricing basis in the From history section.</p>}
           {t && showFinancials && !fromHistory && (
             <div className="mt-4 space-y-1.5 rounded-xl border border-gray-200 bg-white p-3 text-sm">
               <Row label="Labor" value={`${money(t.laborTotal)} · ${t.totalHours.toFixed(2)} hrs`} />
@@ -293,7 +293,7 @@ function FinalizeSection({ estimate, job, editable }: { estimate: Estimate; job?
               <Row label={`Tax (${t.taxRatePct}%)`} value={money(t.taxAmount)} />
             </div>
           )}
-          <div className="mt-4 text-[10px] font-bold uppercase tracking-widest text-gray-400">Base Bid Total</div>
+          <div className="mt-4 text-xxs font-bold uppercase tracking-widest text-gray-400">Base Bid Total</div>
           <div className="font-heading text-4xl font-black text-gray-900">{money(total, { cents: true })}</div>
           {editable && total !== estimate.total && <p className="mt-1 text-xs text-amber-700">Save to update the stored total ({money(estimate.total, { cents: true })}).</p>}
           {estimate.status === "DRAFT" && can(user, "estimate.send") && (

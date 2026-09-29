@@ -41,7 +41,7 @@ export function ProjectToolbar({ estimate, job, onCreateChangeOrder }: { estimat
   return (
     <div className="mb-4 flex flex-col gap-4 md:mb-6 lg:flex-row lg:items-end lg:justify-between" data-tour="estimate-toolbar">
       <div className="min-w-0 flex-1">
-        <div className="mb-1 text-[10px] font-bold uppercase tracking-widest text-gray-400">
+        <div className="mb-1 text-xxs font-bold uppercase tracking-widest text-gray-400">
           Project Name {editable && <span className="normal-case tracking-normal text-gray-300">(Click to edit)</span>}
         </div>
         {editable ? (

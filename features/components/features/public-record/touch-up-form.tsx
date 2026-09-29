@@ -61,9 +61,9 @@ export function TouchUpModal({ prefill, onClose, linkRef, record }: { prefill?: 
     >
       {done ? (
         <div className="space-y-3 text-center">
-          <CheckCircle2 className="mx-auto h-10 w-10 text-emerald-600" />
-          <p className="font-display text-[17px] font-bold text-ink">Thanks — we have your request and the office will be in touch.</p>
-          <p className="text-[13px] text-slate-600">We&apos;ve sent you an automatic acknowledgment. This is a request only: nothing has been ordered or charged, and the office will confirm what is available.</p>
+          <CheckCircle2 className="mx-auto h-10 w-10 text-green-600" />
+          <p className="font-display text-lg font-bold text-ink">Thanks — we have your request and the office will be in touch.</p>
+          <p className="text-sm text-gray-600">We&apos;ve sent you an automatic acknowledgment. This is a request only: nothing has been ordered or charged, and the office will confirm what is available.</p>
         </div>
       ) : limited ? (
         <Banner tone="warn" title="Request limit reached">
@@ -78,7 +78,7 @@ export function TouchUpModal({ prefill, onClose, linkRef, record }: { prefill?: 
             </Select>
           </Field>
           <Field label="Colour" htmlFor="tu-colour" hint="From your record. We can't promise an exact match to aged paint.">
-            <Input id="tu-colour" value={colourLabel || "—"} readOnly className="bg-slate-50" />
+            <Input id="tu-colour" value={colourLabel || "—"} readOnly className="bg-gray-50" />
           </Field>
           <div className="grid gap-3 sm:grid-cols-2">
             <Field label="Your name" required htmlFor="tu-name" error={errors.name}>
@@ -97,7 +97,7 @@ export function TouchUpModal({ prefill, onClose, linkRef, record }: { prefill?: 
           <Field label={`Quick check: ${challenge.question}`} required htmlFor="tu-challenge" error={errors.challenge}>
             <Input id="tu-challenge" inputMode="numeric" value={f.challenge} invalid={!!errors.challenge} onChange={(e) => setF({ ...f, challenge: e.target.value })} className="w-28" />
           </Field>
-          <p className="flex items-center gap-1.5 text-[12px] text-slate-500"><Phone className="h-3.5 w-3.5" /> Prefer to talk? Call {BUSINESS.phone}.</p>
+          <p className="flex items-center gap-1.5 text-xs text-gray-500"><Phone className="h-3.5 w-3.5" /> Prefer to talk? Call {BUSINESS.phone}.</p>
           <button type="submit" className="hidden" />
         </form>
       )}

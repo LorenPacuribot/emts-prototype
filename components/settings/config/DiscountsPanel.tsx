@@ -41,7 +41,7 @@ export function DiscountsPanel({ title = 'Project Discounts' }: { title?: string
             <div key={d.id} className="flex items-center justify-between rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
               <div>
                 <div className="text-sm font-bold text-gray-900">{d.name}</div>
-                <div className="text-[11px] text-gray-500">{discountLabel(d)}</div>
+                <div className="text-xs text-gray-500">{discountLabel(d)}</div>
               </div>
               <RowMenu
                 items={[
@@ -101,7 +101,7 @@ function DiscountFormModal({ discount, nextSort, onClose }: { discount?: Project
           <Input value={name} placeholder="e.g., Senior Discount, Winter Special" invalid={!!errors.name} onChange={(e) => { setName(e.target.value); setErrors({ ...errors, name: '' }); }} />
         </Field>
         <div>
-          <div className="mb-1.5 text-[11px] font-bold uppercase tracking-wide text-gray-600">Type</div>
+          <div className="mb-1.5 text-xs font-bold uppercase tracking-wide text-gray-600">Type</div>
           <SegmentedToggle value={type} onChange={setType} options={[{ value: 'PERCENT', label: 'Percentage' }, { value: 'FLAT_PRICE', label: 'Flat Amount' }]} />
         </div>
         <Field

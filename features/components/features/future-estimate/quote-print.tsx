@@ -40,11 +40,11 @@ export function QuotePrintModal({ rep, open, onOpenChange }: { rep: RepeatEstima
       }
     >
       {!issued && <Banner tone="warn" className="mb-3" title="Draft preview">This quote has not been issued. The PDF is marked DRAFT.</Banner>}
-      <div ref={ref} className="rounded-xl border border-line bg-white p-6 text-[12.5px] text-slate-700">
+      <div ref={ref} className="rounded-xl border border-line bg-white p-6 text-xs text-gray-700">
         <div className="flex flex-wrap items-start justify-between gap-4 border-b border-line pb-4">
           <div>
             <div className="font-display text-xl font-bold text-ink">Estimate Master Painting</div>
-            <div className="text-slate-500">Plano, TX · (972) 555-0100</div>
+            <div className="text-gray-500">Plano, TX · (972) 555-0100</div>
           </div>
           <div className="text-right">
             <div className="font-display text-lg font-bold text-ink">{issued ? "Quote" : "DRAFT QUOTE"} {number}</div>
@@ -54,18 +54,18 @@ export function QuotePrintModal({ rep, open, onOpenChange }: { rep: RepeatEstima
         </div>
         <div className="grid gap-4 py-4 sm:grid-cols-2">
           <div>
-            <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Prepared for</div>
+            <div className="text-xxs font-bold uppercase tracking-wider text-gray-400">Prepared for</div>
             <div className="font-semibold text-ink">{owner?.name}</div>
             <div>{propertyAddress(property, true)}</div>
           </div>
           <div>
-            <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Project</div>
+            <div className="text-xxs font-bold uppercase tracking-wider text-gray-400">Project</div>
             <div className="font-semibold text-ink">{rep.title}</div>
           </div>
         </div>
         <table className="w-full border-collapse text-left">
           <thead>
-            <tr className="border-b border-line text-[10px] uppercase tracking-wider text-slate-400">
+            <tr className="border-b border-line text-xxs uppercase tracking-wider text-gray-400">
               <th className="py-2">Area · Surface</th>
               <th className="py-2">Colour</th>
               <th className="py-2">Product · Sheen</th>
@@ -94,14 +94,14 @@ export function QuotePrintModal({ rep, open, onOpenChange }: { rep: RepeatEstima
           <div className="flex justify-between border-t border-line pt-1 font-bold text-ink"><span>Total</span><span>{money(totals.total)}</span></div>
         </div>
         {rep.clauseIncluded && (
-          <div className="mt-6 rounded-lg border border-line bg-slate-50 p-3">
-            <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Differing conditions</div>
+          <div className="mt-6 rounded-lg border border-line bg-gray-50 p-3">
+            <div className="text-xxs font-bold uppercase tracking-wider text-gray-500">Differing conditions</div>
             <p className="mt-1">{DIFFERING_CONDITIONS_CLAUSE}</p>
           </div>
         )}
         <div className="mt-8 grid gap-8 sm:grid-cols-2">
-          <div className="border-t border-slate-400 pt-1 text-[11px] text-slate-500">Customer signature</div>
-          <div className="border-t border-slate-400 pt-1 text-[11px] text-slate-500">Date</div>
+          <div className="border-t border-gray-400 pt-1 text-xs text-gray-500">Customer signature</div>
+          <div className="border-t border-gray-400 pt-1 text-xs text-gray-500">Date</div>
         </div>
       </div>
     </Modal>

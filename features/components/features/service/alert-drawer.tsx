@@ -92,7 +92,7 @@ export function AlertDrawer({ alertId, onClose }: { alertId?: string; onClose: (
             items={[
               ["Owner (customer)", owner?.name ?? "—"],
               ["Earliest due", date(alert.earliestDue)],
-              ["Grouping window end", <span key="w">{date(alert.windowEnd)} <span className="text-[11px] font-normal text-slate-400">(earliest due + 12 months, fixed)</span></span>],
+              ["Grouping window end", <span key="w">{date(alert.windowEnd)} <span className="text-xs font-normal text-gray-400">(earliest due + 12 months, fixed)</span></span>],
               ["Advance notice basis", <NoticeBadge key="n" basis={alert.noticeBasis} />],
               ["Created", `${dateTime(alert.createdAt)} · ${esc.age} days old${alert.runId ? ` · by ${alert.runId}` : ""}`],
               ["Escalation clock", esc.running ? (esc.escalated ? "Fired — routed to the business owner" : `${esc.daysLeft} days left of 14`) : "Stopped (outcome recorded)"],
@@ -104,7 +104,7 @@ export function AlertDrawer({ alertId, onClose }: { alertId?: string; onClose: (
 
         <Section title={`Due surfaces (${alert.surfaces.length})`} icon={<Clock />}>
           {owner && (
-            <AppLink href={contactHref(owner.id, "paint-history", { location: property.id })} className="mb-3 inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-brand hover:underline">
+            <AppLink href={contactHref(owner.id, "paint-history", { location: property.id })} className="mb-3 inline-flex items-center gap-1.5 text-xs font-semibold text-brand hover:underline">
               <ExternalLink className="h-3.5 w-3.5" /> Full paint history for this property
             </AppLink>
           )}
@@ -114,32 +114,32 @@ export function AlertDrawer({ alertId, onClose }: { alertId?: string; onClose: (
               const app = byId(db.applications, s.applicationId);
               const ext = sch?.extension;
               return (
-                <div key={s.applicationId} className="rounded-lg border border-line bg-slate-50/50 p-3">
+                <div key={s.applicationId} className="rounded-lg border border-line bg-gray-50/50 p-3">
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <div className="flex items-start gap-2.5">
                       {app && <Swatch hex={app.hex} />}
                       <div>
-                        <div className="text-[13px] font-semibold text-ink">{surfaceLabel(db, s.surfaceId)}</div>
+                        <div className="text-sm font-semibold text-ink">{surfaceLabel(db, s.surfaceId)}</div>
                         {app && (
-                          <div className="text-[12px] font-medium text-slate-700">
+                          <div className="text-xs font-medium text-gray-700">
                             {app.manufacturer} {colourText(app)} · {app.sheen} · {app.coats} coat{app.coats === 1 ? "" : "s"}
                           </div>
                         )}
-                        <div className="text-[11.5px] text-slate-500">
+                        <div className="text-xs text-gray-500">
                           {s.surfaceId} · completed {date(app?.completedAt)} · {app?.product}
                         </div>
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-[13px] font-bold text-ink">Due {date(s.dueDate)}</div>
-                      <div className="text-[11px] text-slate-500">Notice from {date(s.noticeDate)}</div>
+                      <div className="text-sm font-bold text-ink">Due {date(s.dueDate)}</div>
+                      <div className="text-xs text-gray-500">Notice from {date(s.noticeDate)}</div>
                     </div>
                   </div>
                   <ol className="mt-2 flex flex-wrap gap-1.5">
                     {s.basis.map((b, i) => (
-                      <li key={i} className="rounded-md border border-line bg-white px-2 py-0.5 text-[11px] text-slate-600">{i + 1}. {b}</li>
+                      <li key={i} className="rounded-md border border-line bg-white px-2 py-0.5 text-xs text-gray-600">{i + 1}. {b}</li>
                     ))}
-                    <li className="rounded-md bg-slate-200/70 px-2 py-0.5 text-[11px] font-semibold text-slate-600">Rule v{s.ruleVersion}</li>
+                    <li className="rounded-md bg-gray-200/70 px-2 py-0.5 text-xs font-semibold text-gray-600">Rule v{s.ruleVersion}</li>
                   </ol>
                   {ext?.status === "pending" && (
                     <Banner tone="warn" className="mt-2" title={`Extension to ${date(ext.proposedDate)} proposed by ${byId(db.users, ext.proposedBy)?.name}`}
@@ -153,11 +153,11 @@ export function AlertDrawer({ alertId, onClose }: { alertId?: string; onClose: (
                     </Banner>
                   )}
                   {ext?.status === "approved" && sch && (
-                    <div className="mt-2 rounded-md bg-emerald-50 px-2.5 py-1.5 text-[11.5px] text-emerald-800">
+                    <div className="mt-2 rounded-md bg-green-50 px-2.5 py-1.5 text-xs text-green-800">
                       Extended: original {date(sch.dueDate)} → {date(effectiveDue(sch))}, approved by {byId(db.users, ext.decidedBy)?.name} on {date(ext.decidedAt)}. Photo {ext.photoId}.
                     </div>
                   )}
-                  {ext?.status === "rejected" && <div className="mt-2 text-[11.5px] text-slate-500">Extension to {date(ext.proposedDate)} rejected: {ext.decisionNote}</div>}
+                  {ext?.status === "rejected" && <div className="mt-2 text-xs text-gray-500">Extension to {date(ext.proposedDate)} rejected: {ext.decisionNote}</div>}
                   {sch && canPropose && ext?.status !== "pending" && ext?.status !== "approved" && !resolved && (
                     <Button size="sm" variant="ghost" className="mt-2 -ml-2" onClick={() => setExtFor(sch)}>
                       <Sparkles className="h-3.5 w-3.5" /> {isOwner ? "Extend after inspection" : "Propose inspection extension"}
@@ -171,16 +171,16 @@ export function AlertDrawer({ alertId, onClose }: { alertId?: string; onClose: (
 
         <Section title="Outcome" icon={<ShieldCheck />}>
           {!officeCan ? (
-            <p className="text-[12.5px] text-slate-500">The office manager owns this queue. You can view the alert and propose inspection extensions.</p>
+            <p className="text-xs text-gray-500">The office manager owns this queue. You can view the alert and propose inspection extensions.</p>
           ) : resolved ? (
             <div className="space-y-3">
-              <div className="text-[12.5px] text-slate-600">
+              <div className="text-xs text-gray-600">
                 <strong className="text-ink">{ALERT_OUTCOME[alert.outcome].label}</strong> by {byId(db.users, alert.outcomeBy ?? alert.qualification?.by)?.name ?? "—"} on {dateTime(alert.outcomeAt ?? alert.qualification?.at)}.
                 {alert.qualification && ` Qualification: ${alert.qualification.decision} — ${alert.qualification.reason}`}
                 {!alert.qualification && alert.outcomeReason && ` ${alert.outcomeReason}`}
               </div>
               {fu && (
-                <AppLink href={`/repaint-alerts/follow-ups?fu=${fu.id}`} className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-brand hover:underline">
+                <AppLink href={`/repaint-alerts/follow-ups?fu=${fu.id}`} className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand hover:underline">
                   Open follow-up {fu.id} →
                 </AppLink>
               )}
@@ -188,14 +188,14 @@ export function AlertDrawer({ alertId, onClose }: { alertId?: string; onClose: (
             </div>
           ) : (
             <div className="space-y-3">
-              {blockContact && <p className="text-[12px] text-slate-500">{blockContact === "optout" ? "Property has opted out. Internal tracking continues." : "Suppressed: contact controls are not available."}</p>}
+              {blockContact && <p className="text-xs text-gray-500">{blockContact === "optout" ? "Property has opted out. Internal tracking continues." : "Suppressed: contact controls are not available."}</p>}
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                 <Button disabled={!!blockContact} onClick={() => setOutcome("contacted")} className="justify-center"><PhoneCall className="h-4 w-4" /> Contacted</Button>
                 <Button onClick={() => setSnooze(true)} className="justify-center"><BellOff className="h-4 w-4" /> Snooze</Button>
                 <Button onClick={() => setOutcome("dismissed")} className="justify-center"><XCircle className="h-4 w-4" /> Dismiss</Button>
                 <Button variant="primary" disabled={!!blockContact} onClick={() => setQualify(true)} className="justify-center"><CheckCircle2 className="h-4 w-4" /> Convert</Button>
               </div>
-              <p className="text-[11.5px] text-slate-500">Convert runs the qualification gate and creates one follow-up for the whole property. No alert ever emails a customer by itself.</p>
+              <p className="text-xs text-gray-500">Convert runs the qualification gate and creates one follow-up for the whole property. No alert ever emails a customer by itself.</p>
             </div>
           )}
         </Section>
@@ -204,9 +204,9 @@ export function AlertDrawer({ alertId, onClose }: { alertId?: string; onClose: (
           <Section title="History">
             <ul className="space-y-2">
               {[...(alert.history ?? [])].reverse().map((h, i) => (
-                <li key={i} className="border-l-2 border-line pl-3 text-[12px]">
-                  <div className="text-[10.5px] font-bold uppercase text-slate-400">{dateTime(h.at)} · {byId(db.users, h.by)?.name}</div>
-                  <div className="text-slate-700">{h.text}</div>
+                <li key={i} className="border-l-2 border-line pl-3 text-xs">
+                  <div className="text-xxs font-bold uppercase text-gray-400">{dateTime(h.at)} · {byId(db.users, h.by)?.name}</div>
+                  <div className="text-gray-700">{h.text}</div>
                 </li>
               ))}
             </ul>

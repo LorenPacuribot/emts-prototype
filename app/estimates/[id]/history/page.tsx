@@ -116,7 +116,7 @@ export default function EstimateHistoryPage() {
                         <div className="flex flex-wrap items-start justify-between gap-4">
                           <div className="flex flex-wrap items-center gap-2">
                             <p className="font-bold text-gray-900">{v.note}</p>
-                            <span className="rounded border border-gray-200 bg-gray-50 px-2 py-0.5 text-[10px] font-bold text-gray-500">v{v.version}</span>
+                            <span className="rounded border border-gray-200 bg-gray-50 px-2 py-0.5 text-xs font-bold text-gray-500">v{v.version}</span>
                             <EstimateStatusBadge status={v.status} />
                           </div>
                           <span className="whitespace-nowrap text-xs text-gray-400">
@@ -146,7 +146,7 @@ export default function EstimateHistoryPage() {
 function CoEventCard({ ev }: { ev: CoEvent }) {
   const { label, Icon } = CO_TRIGGER[ev.trigger];
   return (
-    <div className={cn('flex gap-4 rounded-xl border bg-white p-4', ev.coId ? 'border-emerald-200' : 'border-gray-200')}>
+    <div className={cn('flex gap-4 rounded-xl border bg-white p-4', ev.coId ? 'border-green-200' : 'border-gray-200')}>
       <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary-50 text-primary-600"><Icon className="h-4 w-4" /></div>
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-start justify-between gap-4">

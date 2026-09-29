@@ -58,10 +58,10 @@ function Accounts() {
               ]} />
               {a.status !== "connected" && <Banner tone="danger" className="mt-3">Affected scheduled posts are flagged: {affected.map((p) => p.id).join(", ") || "none"}. They fail on this platform until access is renewed.</Banner>}
               <div className="mt-3">
-                <div className="text-[10.5px] font-bold uppercase tracking-wide text-slate-400">Administrator access</div>
+                <div className="text-xxs font-bold uppercase tracking-wide text-gray-400">Administrator access</div>
                 <div className="mt-1 space-y-1">
                   {a.access.map((u) => (
-                    <div key={u} className="flex items-center justify-between gap-2 text-[12.5px]">
+                    <div key={u} className="flex items-center justify-between gap-2 text-xs">
                       <span>{userName(db, u)}</span>
                       {owner && u !== user.id && <Button size="sm" variant="ghost" onClick={() => act(removeAccess, u).ok && toast.success(`Access removed for ${userName(db, u)}`, "Post history kept.")}><UserMinus className="h-3.5 w-3.5" /> Departure</Button>}
                     </div>
@@ -80,7 +80,7 @@ function Accounts() {
       </div>
       <Card className="mt-4 p-4">
         <CardLabel>Launch gates</CardLabel>
-        <ul className="mt-2 list-disc space-y-1 pl-5 text-[12.5px] text-slate-600">
+        <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-gray-600">
           <li>The business owner supplies the Facebook and Instagram business account IDs and administrator access before setup; Meta permissions are verified early.</li>
           <li>The office supplies the image templates in 1080 × 1080 and 1080 × 1350, with the logo and brand colours.</li>
           <li>The business owner and the bookkeeper review the photo-release wording before launch.</li>

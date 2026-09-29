@@ -57,7 +57,7 @@ export function EntryDrawer({ entryId, onClose }: { entryId?: string; onClose: (
                 <CheckCircle2 className="h-4 w-4" /> Approve
               </Button>
             ) : (
-              <span className="text-[12px] text-slate-500">{approveCheck.reason}</span>
+              <span className="text-xs text-gray-500">{approveCheck.reason}</span>
             )
           )}
         </>
@@ -77,11 +77,11 @@ export function EntryDrawer({ entryId, onClose }: { entryId?: string; onClose: (
       {conflicts.length > 0 && (
         <div className="rounded-xl border border-red-200 bg-red-50/40 p-4">
           <CardLabel icon={<WifiOff />}>Offline conflict</CardLabel>
-          <p className="mt-1 text-[12px] text-slate-600">Both records are kept. The crew lead chooses the correct one before approval. The other stays visible, superseded, with zero hours. The system never chooses and never merges.</p>
+          <p className="mt-1 text-xs text-gray-600">Both records are kept. The crew lead chooses the correct one before approval. The other stays visible, superseded, with zero hours. The system never chooses and never merges.</p>
           {conflicts.map(([off, on]) => (
             <div key={off.id + on.id} className="mt-3 grid gap-2 sm:grid-cols-2 [&>*]:min-w-0">
               {[off, on].map((s) => (
-                <div key={s.id} className="rounded-lg border border-line bg-white p-3 text-[12.5px]">
+                <div key={s.id} className="rounded-lg border border-line bg-white p-3 text-xs">
                   <div className="flex items-center gap-2"><Badge tone={s.source === "offline" ? "blue" : "gray"}>{s.source === "offline" ? "Offline" : "Online"}</Badge> <span className="font-semibold">{s.id}</span></div>
                   <div className="mt-1 tabular-nums">{timeLabel(s.start)} – {timeLabel(s.end)} · {hm(s.end ? elapsedMinutes(s.start, s.end) : 0)}</div>
                   {can(user, "time.resolveConflict") && !locked && (
@@ -93,7 +93,7 @@ export function EntryDrawer({ entryId, onClose }: { entryId?: string; onClose: (
               ))}
             </div>
           ))}
-          {!can(user, "time.resolveConflict") && <p className="mt-2 text-[11.5px] font-semibold text-red-700">Waiting for the crew lead to choose.</p>}
+          {!can(user, "time.resolveConflict") && <p className="mt-2 text-xs font-semibold text-red-700">Waiting for the crew lead to choose.</p>}
         </div>
       )}
 
@@ -104,8 +104,8 @@ export function EntryDrawer({ entryId, onClose }: { entryId?: string; onClose: (
           <tbody>
             {segs.map((s) => (
               <TR key={s.id} className={s.supersededAt ? "opacity-50" : ""}>
-                <TD className="font-semibold">{s.id}{s.supersededAt && <div className="text-[10.5px] font-normal text-red-600">Superseded — 0 hours</div>}</TD>
-                <TD>{s.jobId ?? <span className="text-slate-400">Overhead</span>}<div className="text-[11px] text-slate-400">{ACTIVITY_LABEL[s.activity]}</div>{punchTagLabel(db, s) && <div className="text-[11px] font-medium text-slate-500">{punchTagLabel(db, s)}</div>}</TD>
+                <TD className="font-semibold">{s.id}{s.supersededAt && <div className="text-xs font-normal text-red-600">Superseded — 0 hours</div>}</TD>
+                <TD>{s.jobId ?? <span className="text-gray-400">Overhead</span>}<div className="text-xs text-gray-400">{ACTIVITY_LABEL[s.activity]}</div>{punchTagLabel(db, s) && <div className="text-xs font-medium text-gray-500">{punchTagLabel(db, s)}</div>}</TD>
                 <TD className="tabular-nums">{timeLabel(s.start)}</TD>
                 <TD className="tabular-nums">{s.end ? timeLabel(s.end) : <Badge tone="green">Clocked in</Badge>}</TD>
                 <TD className="tabular-nums">{s.end ? hm(elapsedMinutes(s.start, s.end)) : "—"}</TD>
@@ -129,7 +129,7 @@ export function EntryDrawer({ entryId, onClose }: { entryId?: string; onClose: (
             ))}
           </tbody>
         </Table>
-        <p className="mt-1.5 text-[11.5px] text-slate-500">Punches are never rounded. Only the employee's daily total is rounded, after lunch.</p>
+        <p className="mt-1.5 text-xs text-gray-500">Punches are never rounded. Only the employee's daily total is rounded, after lunch.</p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 [&>*]:min-w-0">
@@ -148,17 +148,17 @@ export function EntryDrawer({ entryId, onClose }: { entryId?: string; onClose: (
         <div className="rounded-xl border border-line p-4">
           <CardLabel>Job allocation</CardLabel>
           <div className="mt-3"><JobChips rows={totals.byJob} /></div>
-          <p className="mt-2 text-[11.5px] text-slate-500">
+          <p className="mt-2 text-xs text-gray-500">
             Split in proportion to recorded minutes.{totals.residualTo ? ` The residual minute went to ${totals.residualTo} (most hours; ties go to the lowest job number).` : ""} Travel is charged to the second job; training and rained-out time is overhead.
           </p>
-          {!payrollDetail && <p className="mt-1 text-[11.5px] text-slate-400">Regular and overtime classification is shown to the office manager and owner.</p>}
+          {!payrollDetail && <p className="mt-1 text-xs text-gray-400">Regular and overtime classification is shown to the office manager and owner.</p>}
         </div>
       </div>
 
       <div className="rounded-xl border border-line p-4">
         <CardLabel icon={<UtensilsCrossed />}>No-lunch exception</CardLabel>
         {entry.noLunch ? (
-          <div className="mt-2 text-[12.5px]">
+          <div className="mt-2 text-xs">
             <p>Flagged by {userName(db, entry.noLunch.by)}: “{entry.noLunch.reason}”</p>
             {entry.noLunch.decision ? (
               <p className="mt-1 font-semibold">{entry.noLunch.decision === "approved" ? "Approved" : "Rejected"} by {userName(db, entry.noLunch.decidedBy)} — {entry.noLunch.decision === "approved" ? "no lunch deducted" : "30 minutes deducted"}.</p>
@@ -179,20 +179,20 @@ export function EntryDrawer({ entryId, onClose }: { entryId?: string; onClose: (
             <Button size="sm" onClick={() => { const r = act(setNoLunch, entry.id, noLunchReason); if (r.ok) { toast.success("No-lunch flag set", "The office decides after submission."); setNoLunchReason(""); } else setErr(r.error); }}>Flag no lunch</Button>
           </div>
         ) : (
-          <p className="mt-2 text-[12.5px] text-slate-500">No flag. Lunch is deducted automatically on shifts over six hours.</p>
+          <p className="mt-2 text-xs text-gray-500">No flag. Lunch is deducted automatically on shifts over six hours.</p>
         )}
       </div>
 
       {entry.dispute && (
         <div className={`rounded-xl border p-4 ${entry.dispute.status === "open" ? "border-red-200 bg-red-50/30" : "border-line"}`}>
           <CardLabel icon={<AlertTriangle />}>Dispute</CardLabel>
-          <p className="mt-2 text-[12.5px]">“{entry.dispute.note}” — raised {dateTime(entry.dispute.raisedAt)}</p>
-          <p className="mt-1 text-[12px] text-slate-600">
+          <p className="mt-2 text-xs">“{entry.dispute.note}” — raised {dateTime(entry.dispute.raisedAt)}</p>
+          <p className="mt-1 text-xs text-gray-600">
             Routed to {entry.dispute.routedTo === "owner" ? "the Business Owner (raised after Wednesday noon)" : "the Crew Lead and Office Manager"}.
             {entry.dispute.movedToNextBatch && " This entry dropped out of the current batch and goes into the next one. Nobody else's pay is delayed."}
           </p>
           {entry.dispute.status === "resolved" ? (
-            <p className="mt-2 text-[12.5px] font-semibold">Resolved by {userName(db, entry.dispute.resolvedBy)}: {entry.dispute.outcome}</p>
+            <p className="mt-2 text-xs font-semibold">Resolved by {userName(db, entry.dispute.resolvedBy)}: {entry.dispute.outcome}</p>
           ) : (entry.dispute.routedTo === "owner" ? user.role === "owner" : ["crew_lead", "office_manager", "owner"].includes(user.role)) ? (
             <div className="mt-2 space-y-2">
               <Textarea value={outcome} onChange={(e) => setOutcome(e.target.value)} placeholder="Outcome, e.g. clock-out corrected to 4:30 p.m. by override" className="min-h-14" />
@@ -210,9 +210,9 @@ export function EntryDrawer({ entryId, onClose }: { entryId?: string; onClose: (
       {entry.overrides.length > 0 && (
         <div>
           <CardLabel>Overrides</CardLabel>
-          <ul className="mt-2 space-y-1 text-[12px]">
+          <ul className="mt-2 space-y-1 text-xs">
             {entry.overrides.map((o, i) => (
-              <li key={i} className="rounded-lg bg-slate-50 px-3 py-2">
+              <li key={i} className="rounded-lg bg-gray-50 px-3 py-2">
                 {o.segmentId} {o.field}: <span className="line-through">{timeLabel(o.oldValue)}</span> → <strong>{timeLabel(o.newValue)}</strong> by {userName(db, o.by)} — {o.reason}
               </li>
             ))}
@@ -222,11 +222,11 @@ export function EntryDrawer({ entryId, onClose }: { entryId?: string; onClose: (
 
       <div>
         <CardLabel icon={<Lock />}>History</CardLabel>
-        <ul className="mt-2 space-y-1 text-[12px] text-slate-600">
+        <ul className="mt-2 space-y-1 text-xs text-gray-600">
           {entry.attestedAt && <li>Attested by the employee {dateTime(entry.attestedAt)}</li>}
           {entry.unattested && <li className="text-amber-700">Submitted by the crew lead without the employee's attestation.</li>}
           {[...entry.history].reverse().map((h, i) => <li key={i}>{dateTime(h.at)} — {userName(db, h.by)}: {h.text}</li>)}
-          {!entry.history.length && !entry.attestedAt && <li className="italic text-slate-400">No history yet.</li>}
+          {!entry.history.length && !entry.attestedAt && <li className="italic text-gray-400">No history yet.</li>}
         </ul>
       </div>
 
@@ -266,7 +266,7 @@ function OverrideModal({ target, onClose }: { target?: { segmentId: string; fiel
       }
     >
       <div className="space-y-3">
-        <p className="text-[12.5px] text-slate-600">Currently {timeLabel(current)} on {seg?.id}.</p>
+        <p className="text-xs text-gray-600">Currently {timeLabel(current)} on {seg?.id}.</p>
         <Field label="New time" required error={err?.field === "value" ? err.msg : undefined}>
           <Input type="datetime-local" value={value || local(current)} onChange={(e) => setValue(e.target.value)} />
         </Field>

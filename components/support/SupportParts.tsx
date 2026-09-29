@@ -75,10 +75,10 @@ export function VideoTutorials({ videos, searching }: { videos: Video[]; searchi
                     <Play className="h-5 w-5 fill-current text-gray-900" />
                   </div>
                 </div>
-                <div className="absolute bottom-3 right-3 rounded bg-black/70 px-2 py-0.5 text-[10px] font-bold text-white">{v.duration}</div>
+                <div className="absolute bottom-3 right-3 rounded bg-black/70 px-2 py-0.5 text-xs font-bold text-white">{v.duration}</div>
               </div>
               <div className="flex flex-1 flex-col p-4">
-                <div className="mb-1 text-[10px] font-black uppercase tracking-wider text-primary-600">{v.category}</div>
+                <div className="mb-1 text-xxs font-black uppercase tracking-wider text-primary-600">{v.category}</div>
                 <h3 className="font-bold text-gray-900 group-hover:text-primary-700">{v.title}</h3>
               </div>
             </button>

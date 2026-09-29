@@ -58,18 +58,18 @@ export function WorkforceFrame({ tab, children }: { tab: WorkforceTabKey; childr
 
   return (
     <Screen
-      crumbs={[{ label: "Workforce", href: "/time" }, { label: meta.label }]}
+      crumbs={[{ label: "Time", href: "/time" }, { label: meta.label }]}
       sidebar={
         <SubNav
           header={
             <div className="hidden lg:block">
-              <div className="flex items-center gap-2 font-display text-[14px] font-bold text-ink"><Clock className="h-4 w-4 text-brand" /> Workforce</div>
-              <div className="mt-0.5 text-[11.5px] text-slate-500">Time is recorded and classified here. Gusto runs payroll — no pay rates are held in Estimate Master.</div>
+              <div className="flex items-center gap-2 font-display text-sm font-bold text-ink"><Clock className="h-4 w-4 text-brand" /> Time</div>
+              <div className="mt-0.5 text-xs text-gray-500">Time is recorded and classified here. Gusto runs payroll — no pay rates are held in Estimate Master.</div>
             </div>
           }
           groups={[
             {
-              title: "Workforce",
+              title: "Time",
               items: WORKFORCE_TABS.filter((t) => canSeeTab(user, t.key)).map((t) => ({
                 href: t.path, label: t.label, icon: t.icon,
                 badge: t.key === "review" ? review + conflicts || undefined : t.key === "clock" ? queued || undefined : t.key === "batches" ? open || undefined : undefined,

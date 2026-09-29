@@ -84,9 +84,9 @@ export function WorkOrdersListScreen() {
                 <div className="flex flex-col gap-6 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md lg:flex-row lg:items-center">
                   <div className="min-w-0 flex-1">
                     <div className="mb-1 flex flex-wrap items-center gap-3">
-                      <StatusPill tone={WO_STATUS_TONE[w.status]} className="text-[10px]">{WO_STATUS_LABEL[w.status]}</StatusPill>
+                      <StatusPill tone={WO_STATUS_TONE[w.status]} className="text-xs">{WO_STATUS_LABEL[w.status]}</StatusPill>
                       <span className="font-mono text-xs font-bold text-gray-400">{w.id}</span>
-                      {job.estimateId && <NumberChip className="text-[10px]">EST {job.estimateId}</NumberChip>}
+                      {job.estimateId && <NumberChip className="text-xs">EST {job.estimateId}</NumberChip>}
                     </div>
                     <h3 className="mb-1 text-lg font-bold text-gray-900 group-hover:text-primary-700">{job.name}</h3>
                     <div className="flex items-center gap-2 text-sm text-gray-500"><User className="h-3.5 w-3.5" /> {byId(db.customers, job.customerId)?.name}</div>
@@ -96,11 +96,11 @@ export function WorkOrdersListScreen() {
                     <div className="flex items-center gap-2 text-sm text-gray-600"><Calendar className="h-3.5 w-3.5 text-gray-400" /> Start: {w.startDate ? date(w.startDate) : "TBD"}</div>
                   </div>
                   <div className="lg:w-48">
-                    <div className="mb-1.5 text-[10px] font-bold uppercase tracking-wider text-gray-400">Crew Lead</div>
+                    <div className="mb-1.5 text-xxs font-bold uppercase tracking-wider text-gray-400">Crew Lead</div>
                     <div className="text-sm font-bold text-gray-700">{lead ?? "Unassigned"}</div>
                   </div>
                   <div className="flex items-center justify-between gap-4 lg:justify-end">
-                    <div className="text-right"><div className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Total Hours</div><div className="text-base font-black text-gray-900">{hours(w.jobId).toFixed(2)}</div></div>
+                    <div className="text-right"><div className="text-xxs font-bold uppercase tracking-wider text-gray-400">Total Hours</div><div className="text-base font-black text-gray-900">{hours(w.jobId).toFixed(2)}</div></div>
                     <span className="inline-flex h-8 items-center rounded-lg border border-gray-200 bg-white px-3 text-xs font-bold text-gray-600 shadow-sm">View</span>
                   </div>
                 </div>

@@ -58,7 +58,7 @@ function MyTime() {
       />
       {emp.type !== "hourly" && <Banner tone="info" className="mb-4">{emp.type === "salaried" ? "You are salaried: your job-coded time costs jobs but is not exported to Gusto." : "Subcontractor hours are recorded for analysis with zero labour cost."}</Banner>}
       <Card className="mb-4 flex items-center justify-between p-4">
-        <span className="text-[12.5px] text-slate-500">Week total (rounded daily)</span>
+        <span className="text-xs text-gray-500">Week total (rounded daily)</span>
         <span className="font-display text-xl font-bold text-ink">{hm(total)}</span>
       </Card>
       <div className="space-y-2.5">
@@ -71,12 +71,12 @@ function MyTime() {
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="font-display text-[15px] font-bold text-ink">{dayLabel(e.workDate)}</span>
+                    <span className="font-display text-base font-bold text-ink">{dayLabel(e.workDate)}</span>
                     <EntryStateBadge state={e.state} />
                     {e.attestedAt ? <Badge tone="green" icon={<BadgeCheck className="h-3 w-3" />}>Attested</Badge> : overdue ? <Badge tone="amber">Attestation overdue</Badge> : <Badge tone="gray">Attest by {attestationDue(e.workDate).toLocaleDateString("en-US", { weekday: "short" })}</Badge>}
                     {e.dispute?.status === "open" && <Badge tone="red">Disputed · {e.dispute.routedTo === "owner" ? "with the owner" : "with the crew lead and office"}</Badge>}
                   </div>
-                  <div className="mt-1.5 text-[12.5px] text-slate-600">Worked {hm(t.workedMinutes)}{t.lunchMinutes ? ` · lunch −${hm(t.lunchMinutes)}` : ""} · <strong>{hm(t.roundedMinutes)}</strong></div>
+                  <div className="mt-1.5 text-xs text-gray-600">Worked {hm(t.workedMinutes)}{t.lunchMinutes ? ` · lunch −${hm(t.lunchMinutes)}` : ""} · <strong>{hm(t.roundedMinutes)}</strong></div>
                   <div className="mt-1.5"><JobChips rows={t.byJob} /></div>
                 </div>
                 <div className="flex gap-2">

@@ -96,7 +96,7 @@ function DayHeader({ day, extra }: { day: string; extra?: React.ReactNode }) {
   const isToday = day === todayKey();
   return (
     <div className="p-3 text-center">
-      <div className={cn('text-[10px] font-bold uppercase tracking-wide', isToday ? 'text-primary-600' : 'text-gray-400')}>{fmtDay(day, { weekday: 'short' })}</div>
+      <div className={cn('text-xxs font-bold uppercase tracking-wide', isToday ? 'text-primary-600' : 'text-gray-400')}>{fmtDay(day, { weekday: 'short' })}</div>
       <div className={cn('mx-auto flex h-8 w-8 items-center justify-center rounded-full text-lg font-black', isToday ? 'bg-primary-600 text-white' : 'text-gray-900')}>
         {fmtDay(day, { day: 'numeric' })}
       </div>
@@ -124,12 +124,12 @@ function JobBar({ job, color, days, onSelect, compact }: { job: Job & { shiftLab
       )}
       style={{ backgroundColor: color }}
     >
-      {!compact && <span className="absolute right-1.5 top-1/2 -translate-y-1/2 text-[10px] font-black opacity-90">{days}d</span>}
+      {!compact && <span className="absolute right-1.5 top-1/2 -translate-y-1/2 text-xs font-black opacity-90">{days}d</span>}
       <span className="flex items-center gap-1 truncate pr-6">
         {job.scheduleProtected && <Lock className="h-3 w-3 shrink-0" aria-label="Protected" />}
         <span className="truncate">{job.title} <span className="font-medium text-white/80">({job.jobNumber})</span></span>
       </span>
-      {!compact && job.startTime && <span className="truncate pr-6 text-[10px] font-semibold opacity-80">{job.shiftLabel && <>{job.shiftLabel} · </>}{fmtTimeShort(job.startTime)} – {fmtTimeShort(job.endTime)}</span>}
+      {!compact && job.startTime && <span className="truncate pr-6 text-xs font-semibold opacity-80">{job.shiftLabel && <>{job.shiftLabel} · </>}{fmtTimeShort(job.startTime)} – {fmtTimeShort(job.endTime)}</span>}
     </div>
   );
 }
@@ -204,7 +204,7 @@ export function MonthBoard({ jobs, weeks, month, colorOf, onSelect, onDrop }: Bo
     <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm" onDragEnter={(e) => isJobDrag(e) && setDragging(true)}>
       <div className="grid grid-cols-7 border-b border-gray-100">
         {(weeks[0] ?? []).map((k) => (
-          <div key={k} className="border-l border-gray-100 p-2 text-center text-[10px] font-black uppercase tracking-widest text-gray-400 first:border-l-0">{fmtDay(k, { weekday: 'short' })}</div>
+          <div key={k} className="border-l border-gray-100 p-2 text-center text-xxs font-black uppercase tracking-widest text-gray-400 first:border-l-0">{fmtDay(k, { weekday: 'short' })}</div>
         ))}
       </div>
       {weeks.map((week, wi) => {
@@ -239,7 +239,7 @@ export function MonthBoard({ jobs, weeks, month, colorOf, onSelect, onDrop }: Bo
                   onDragStart={(e) => { e.dataTransfer.setData(JOB_DND, j.id); setDragging(true); }}
                   onClick={() => onSelect(j.id)}
                   title={`${j.title} (${j.jobNumber})`}
-                  className="absolute truncate rounded-md px-2 text-left text-[11px] font-bold text-white shadow-sm hover:brightness-110"
+                  className="absolute truncate rounded-md px-2 text-left text-xs font-bold text-white shadow-sm hover:brightness-110"
                   style={{ left: `calc(${(startCol / 7) * 100}% + 2px)`, width: `calc(${(span / 7) * 100}% - 4px)`, top: row * BAR, height: BAR - 4, lineHeight: `${BAR - 4}px`, backgroundColor: colorOf(j) }}
                 >
                   {j.title} <span className="font-medium text-white/80">({j.jobNumber})</span>
@@ -261,7 +261,7 @@ function LoadCell({ member, jobs, dayKeys }: { member: TeamMember; jobs: Job[]; 
   const tone = loadTone(used, cap);
   return (
     <div className="mt-1.5">
-      <div className="flex items-baseline justify-between text-[11px]">
+      <div className="flex items-baseline justify-between text-xs">
         <span className={cn('font-bold tabular-nums', tone.text)}>{used} / {cap}h</span>
         <span className={used > cap ? 'font-bold text-red-500' : 'text-gray-400'}>{used > cap ? `${round1(used - cap)}h over` : `${round1(cap - used)}h free`}</span>
       </div>
@@ -297,7 +297,7 @@ export function CrewBoard({ jobs, crew, dayKeys, availability, onSelect, onDrop 
                   <Avatar name={fullName(m)} color={m.color} size="sm" />
                   <div className="min-w-0">
                     <div className="truncate text-sm font-bold text-gray-800">{fullName(m)}</div>
-                    <div className="truncate text-[11px] text-gray-400">{m.role}</div>
+                    <div className="truncate text-xs text-gray-400">{m.role}</div>
                   </div>
                 </div>
                 {availability && <LoadCell member={m} jobs={jobs} dayKeys={dayKeys} />}
@@ -315,8 +315,8 @@ export function CrewBoard({ jobs, crew, dayKeys, availability, onSelect, onDrop 
                         onDrop={(e) => { e.preventDefault(); const id = e.dataTransfer.getData(JOB_DND); if (id) onDrop(id, d); }}
                         className={cn('relative border-l border-gray-100 first:border-l-0', hover === `${m.id}:${d}` && 'bg-primary-100 ring-1 ring-inset ring-primary-300')}
                       >
-                        {availability && hrs === 0 && <div className="absolute bottom-1 left-1.5 text-[10px] font-semibold uppercase tracking-wide text-gray-300">Free</div>}
-                        {availability && hrs > cap && <div className="absolute bottom-1 left-1.5 text-[10px] font-bold text-red-500">{hrs}h</div>}
+                        {availability && hrs === 0 && <div className="absolute bottom-1 left-1.5 text-xxs font-semibold uppercase tracking-wide text-gray-300">Free</div>}
+                        {availability && hrs > cap && <div className="absolute bottom-1 left-1.5 text-xs font-bold text-red-500">{hrs}h</div>}
                       </div>
                     );
                   })}
@@ -352,7 +352,7 @@ export function CrewHoursGrid({ jobs, crew, dayKeys, onSelect }: { jobs: Job[]; 
             <th className="w-48 border-b border-r border-gray-200 px-5 py-3 text-left text-xs font-bold uppercase tracking-widest text-gray-400">Capacity</th>
             {dayKeys.map((d, i) => (
               <th key={d} className="border-b border-gray-200 font-normal">
-                <DayHeader day={d} extra={<div className="text-[10px] font-bold text-gray-400">{dayTotals[i]}h</div>} />
+                <DayHeader day={d} extra={<div className="text-xs font-bold text-gray-400">{dayTotals[i]}h</div>} />
               </th>
             ))}
           </tr>
@@ -363,7 +363,7 @@ export function CrewHoursGrid({ jobs, crew, dayKeys, onSelect }: { jobs: Job[]; 
               <td className="px-5 py-4">
                 <div className="flex items-center gap-3">
                   <Avatar name={fullName(m)} color={m.color} size="sm" />
-                  <div><div className="font-bold text-gray-900">{fullName(m)}</div><div className="text-[11px] text-gray-400">{m.role}</div></div>
+                  <div><div className="font-bold text-gray-900">{fullName(m)}</div><div className="text-xs text-gray-400">{m.role}</div></div>
                 </div>
               </td>
               <td className="border-r border-gray-100 px-5 py-4"><LoadCell member={m} jobs={jobs} dayKeys={dayKeys} /></td>
@@ -376,7 +376,7 @@ export function CrewHoursGrid({ jobs, crew, dayKeys, onSelect }: { jobs: Job[]; 
                     <div className="space-y-1.5">
                       {chips.map(({ j, h }) => (
                         <button key={j.id} onClick={() => onSelect(j.id)} title={`${j.title} (${j.jobNumber})`}
-                          className="flex w-full items-center justify-between gap-1 rounded-md px-2 py-1 text-[11px] font-bold text-white hover:brightness-110" style={{ backgroundColor: m.color }}>
+                          className="flex w-full items-center justify-between gap-1 rounded-md px-2 py-1 text-xs font-bold text-white hover:brightness-110" style={{ backgroundColor: m.color }}>
                           <span className="truncate">{j.jobNumber.replace('JOB-', '')}</span><span>{h}h</span>
                         </button>
                       ))}
@@ -401,7 +401,7 @@ export function UnscheduledPanel({ jobs, customerName, onSelect }: { jobs: Job[]
     <div className="mt-6 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
       <h3 className="mb-4 text-xs font-bold uppercase tracking-widest text-gray-400">Unscheduled Jobs</h3>
       {jobs.length === 0 ? (
-        <p className="flex items-center gap-2 text-sm font-medium text-emerald-600"><CheckCircle2 className="h-4 w-4" /> All jobs are scheduled.</p>
+        <p className="flex items-center gap-2 text-sm font-medium text-green-600"><CheckCircle2 className="h-4 w-4" /> All jobs are scheduled.</p>
       ) : (
         <div className="grid max-h-80 grid-cols-1 gap-3 overflow-y-auto pr-1 sm:grid-cols-2 lg:grid-cols-3">
           {jobs.map((j) => (
@@ -420,12 +420,12 @@ export function UnscheduledPanel({ jobs, customerName, onSelect }: { jobs: Job[]
               <div className="flex items-start gap-2">
                 <div className="min-w-0 flex-1">
                   <div className="truncate text-sm font-bold text-gray-900">{j.title}</div>
-                  <div className="truncate text-[11px] text-gray-400">{j.jobNumber} · {customerName(j)}</div>
+                  <div className="truncate text-xs text-gray-400">{j.jobNumber} · {customerName(j)}</div>
                 </div>
                 <GripVertical className="h-4 w-4 shrink-0 text-gray-300 group-hover:text-gray-400" />
               </div>
               {j.estimatedHours > 0 && (
-                <div className="mt-2 flex items-center gap-1 text-[11px] text-gray-400"><Clock className="h-3.5 w-3.5" /> {j.estimatedHours.toFixed(1)}h est.</div>
+                <div className="mt-2 flex items-center gap-1 text-xs text-gray-400"><Clock className="h-3.5 w-3.5" /> {j.estimatedHours.toFixed(1)}h est.</div>
               )}
             </div>
           ))}

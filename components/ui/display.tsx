@@ -17,7 +17,7 @@ import { NativeSelect } from './form';
 
 export function Badge({ children, className, dot }: { children: React.ReactNode; className?: string; dot?: boolean }) {
   return (
-    <span className={cn('inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-bold whitespace-nowrap', className)}>
+    <span className={cn('inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-bold whitespace-nowrap', className)}>
       {dot && <span className="h-1.5 w-1.5 rounded-full bg-current" />}
       {children}
     </span>
@@ -27,7 +27,7 @@ export function Badge({ children, className, dot }: { children: React.ReactNode;
 /** Small uppercase pill: "WEBSITE", "CLIENT", "INTERIOR" */
 export function Tag({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
-    <span className={cn('inline-flex items-center rounded-full border px-2 py-0.5 text-[9px] font-black uppercase tracking-wider whitespace-nowrap', className)}>
+    <span className={cn('inline-flex items-center rounded-full border px-2 py-0.5 text-xxs font-black uppercase tracking-wider whitespace-nowrap', className)}>
       {children}
     </span>
   );
@@ -36,7 +36,7 @@ export function Tag({ children, className }: { children: React.ReactNode; classN
 /** Blue reference chip that links to a record: EST-2026-9, LEAD-2026-6 */
 export function RefChip({ href, kind = 'doc', children }: { href?: string; kind?: 'doc' | 'lead' | 'plain'; children: React.ReactNode }) {
   const cls = cn(
-    'inline-flex items-center gap-1 rounded border px-1.5 py-0.5 text-[10px] font-semibold whitespace-nowrap',
+    'inline-flex items-center gap-1 rounded border px-1.5 py-0.5 text-xs font-semibold whitespace-nowrap',
     kind === 'plain' ? 'border-gray-200 bg-gray-50 text-gray-500' : 'border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100',
   );
   const icon = kind === 'lead' ? <Users className="h-3 w-3" /> : kind === 'doc' ? <FileText className="h-3 w-3" /> : null;
@@ -62,7 +62,7 @@ export function Card({ children, className, onClick }: { children: React.ReactNo
 /** Uppercase card header with icon: "📋 MY TASKS" */
 export function CardTitle({ icon, children, href, right, className }: { icon?: React.ReactNode; children: React.ReactNode; href?: string; right?: React.ReactNode; className?: string }) {
   const label = (
-    <span className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.15em] text-gray-600">
+    <span className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-gray-600">
       {icon && <span className="[&>svg]:h-4 [&>svg]:w-4">{icon}</span>}
       {children}
       {href && <ChevronRight className="h-3 w-3 text-gray-300" />}
@@ -79,7 +79,7 @@ export function CardTitle({ icon, children, href, right, className }: { icon?: R
 export function StatCard({ icon, label, value, sub, className }: { icon?: React.ReactNode; label: string; value: React.ReactNode; sub?: React.ReactNode; className?: string }) {
   return (
     <Card className={cn('p-5', className)}>
-      <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.15em] text-gray-500 [&>svg]:h-4 [&>svg]:w-4">
+      <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-gray-500 [&>svg]:h-4 [&>svg]:w-4">
         {icon}
         {label}
       </div>
@@ -205,15 +205,15 @@ export function DateTile({ iso, compact }: { iso: string; compact?: boolean }) {
   const t = dateTile(iso);
   return (
     <div className={cn('flex shrink-0 flex-col items-center justify-center rounded-lg border border-gray-200 bg-gray-50', compact ? 'h-10 w-10' : 'h-12 w-11')}>
-      <span className="text-[8px] font-bold uppercase text-gray-500">{t.month}</span>
+      <span className="text-xxs font-bold uppercase text-gray-500">{t.month}</span>
       <span className="font-heading text-sm font-extrabold leading-none text-gray-900">{t.day}</span>
-      {!compact && <span className="text-[8px] text-gray-400">{t.year}</span>}
+      {!compact && <span className="text-xs text-gray-400">{t.year}</span>}
     </div>
   );
 }
 
 export function Avatar({ name, color, size = 'md', className }: { name: string; color?: string; size?: 'sm' | 'md' | 'lg'; className?: string }) {
-  const s = size === 'sm' ? 'h-7 w-7 text-[10px]' : size === 'lg' ? 'h-14 w-14 text-lg' : 'h-9 w-9 text-xs';
+  const s = size === 'sm' ? 'h-7 w-7 text-xs' : size === 'lg' ? 'h-14 w-14 text-lg' : 'h-9 w-9 text-xs';
   return (
     <span
       className={cn('inline-flex shrink-0 items-center justify-center rounded-full font-bold text-white', s, className)}

@@ -38,7 +38,7 @@ export function GatedButton({ allowed, reason, children, className, ...rest }: B
 export function SectionTitle({ children, right }: { children: ReactNode; right?: ReactNode }) {
   return (
     <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-      <div className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">{children}</div>
+      <div className="text-xxs font-bold uppercase tracking-[0.12em] text-gray-400">{children}</div>
       {right}
     </div>
   );
@@ -50,9 +50,9 @@ const MONEY_COLUMNS = new Set(["Budget", "Spend", "Revenue", "Amount"]);
 export function ReportTableCard({ table, empty }: { table: ReportTable; empty: string }) {
   return (
     <Card className="p-0">
-      <div className="border-b border-line px-4 py-3 font-display text-[14px] font-bold text-ink">{table.title}</div>
+      <div className="border-b border-line px-4 py-3 font-display text-sm font-bold text-ink">{table.title}</div>
       {table.rows.length === 0 ? (
-        <p className="px-4 py-6 text-center text-[12.5px] italic text-slate-400">{empty}</p>
+        <p className="px-4 py-6 text-center text-xs italic text-gray-400">{empty}</p>
       ) : (
         <div className="overflow-x-auto">
           <Table className="rounded-none border-0">
@@ -78,8 +78,8 @@ export function ReportTableCard({ table, empty }: { table: ReportTable; empty: s
 /** Rating as words and stars, never colour alone. */
 export function Stars({ rating }: { rating: number }) {
   return (
-    <span className="inline-flex items-center gap-1 text-[12.5px] font-semibold text-ink" aria-label={`${rating} out of 5 stars`}>
-      <span aria-hidden className="tracking-tight text-amber-500">{"★".repeat(rating)}<span className="text-slate-300">{"★".repeat(5 - rating)}</span></span>
+    <span className="inline-flex items-center gap-1 text-xs font-semibold text-ink" aria-label={`${rating} out of 5 stars`}>
+      <span aria-hidden className="tracking-tight text-amber-500">{"★".repeat(rating)}<span className="text-gray-300">{"★".repeat(5 - rating)}</span></span>
       {rating} of 5
     </span>
   );

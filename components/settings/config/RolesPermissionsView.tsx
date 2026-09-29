@@ -160,7 +160,7 @@ function PermissionGrid({ role, onSave }: { role: Role; onSave: (p: string[]) =>
         <div className="flex items-center gap-2">
           <h3 className="font-heading text-base font-bold text-gray-900">Permissions</h3>
           {role.roleType === 'SYSTEM' && (
-            <span className="flex items-center gap-1 rounded-full bg-gray-100 px-2 py-0.5 text-[9px] font-medium text-gray-500"><Lock className="h-2.5 w-2.5" /> System Role</span>
+            <span className="flex items-center gap-1 rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-500"><Lock className="h-2.5 w-2.5" /> System Role</span>
           )}
         </div>
         <Button size="sm" disabled={!dirty || locked} icon={<Save className="h-3.5 w-3.5" />} onClick={() => onSave(Array.from(perms))}>Save</Button>
@@ -169,7 +169,7 @@ function PermissionGrid({ role, onSave }: { role: Role; onSave: (p: string[]) =>
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs">
           <thead>
-            <tr className="bg-gray-50 text-[10px] font-bold uppercase tracking-widest text-gray-500">
+            <tr className="bg-gray-50 text-xxs font-bold uppercase tracking-widest text-gray-500">
               <th className="w-44 px-5 py-2.5">Module</th>
               <th className="px-3 py-2.5">Permissions</th>
               <th className="w-14 px-5 py-2.5 text-right">All</th>
@@ -183,12 +183,12 @@ function PermissionGrid({ role, onSave }: { role: Role; onSave: (p: string[]) =>
                 <tr key={g.module}>
                   <td className="px-5 py-3 align-top">
                     <span className="font-bold text-gray-900">{g.module}</span>
-                    <span className="ml-1.5 text-[10px] text-gray-400">{count}/{keys.length}</span>
+                    <span className="ml-1.5 text-xs text-gray-400">{count}/{keys.length}</span>
                   </td>
                   <td className="px-3 py-3">
                     <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 sm:grid-cols-3 lg:grid-cols-5">
                       {g.keys.map((k) => (
-                        <span key={k.key} className={cn('text-[11px] [&_label]:text-[11px]', perms.has(k.key) && '[&_label]:font-semibold [&_label]:text-gray-900')}>
+                        <span key={k.key} className={cn('text-xs [&_label]:text-xs', perms.has(k.key) && '[&_label]:font-semibold [&_label]:text-gray-900')}>
                           <Checkbox checked={perms.has(k.key)} disabled={locked} onChange={(v) => toggle(k.key, v)} label={k.label} />
                         </span>
                       ))}

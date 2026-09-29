@@ -75,7 +75,7 @@ export function LeadsTable({
     setSort((s) => (s.key === key ? { key, dir: s.dir === 'asc' ? 'desc' : 'asc' } : { key, dir: key === 'date' || key === 'value' ? 'desc' : 'asc' }));
 
   const Th = ({ label, k, className }: { label: string; k?: SortKey; className?: string }) => (
-    <th className={cn('whitespace-nowrap px-5 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-gray-500', className)}>
+    <th className={cn('whitespace-nowrap px-5 py-3 text-left text-xs font-bold uppercase tracking-wider text-gray-500', className)}>
       {k ? (
         <button type="button" onClick={() => toggleSort(k)} className="inline-flex items-center gap-1 uppercase hover:text-gray-800">
           {label}
@@ -155,7 +155,7 @@ export function LeadsTable({
                             </span>
                           )}
                         </div>
-                        <span className={cn('mt-1 inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide', lc.color)}>{lc.label}</span>
+                        <span className={cn('mt-1 inline-flex rounded-full px-2 py-0.5 text-xxs font-bold uppercase tracking-wide', lc.color)}>{lc.label}</span>
                       </td>
                       <td className="px-5 py-4"><Badge className={LEAD_STATUS_BADGE[l.status]}>{l.status}</Badge></td>
                       <td className="px-5 py-4">

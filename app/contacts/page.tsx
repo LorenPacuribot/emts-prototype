@@ -182,7 +182,7 @@ export default function ContactsPage() {
                               <Star className="h-3 w-3 fill-current" /><span className="text-xs font-bold text-amber-700">{c.rating}</span>
                             </span>
                           )}
-                          <span className={cn('rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase', CONTACT_TYPE_COLORS[c.type])}>{c.type}</span>
+                          <span className={cn('rounded-full border px-2 py-0.5 text-xxs font-bold uppercase', CONTACT_TYPE_COLORS[c.type])}>{c.type}</span>
                         </div>
                         <div className="truncate text-sm text-gray-500">
                           {[c.street, c.city, c.state, c.zip].filter(Boolean).join(', ') || 'No address'}
@@ -192,7 +192,7 @@ export default function ContactsPage() {
                     </div>
 
                     <div className="flex flex-col items-start lg:flex-none">
-                      <div className="mb-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">Status</div>
+                      <div className="mb-1 text-xxs font-bold uppercase tracking-wider text-gray-400">Status</div>
                       <div className={cn('rounded-full border px-3 py-1 text-xs font-bold', CONTACT_JOB_STATUS[status] ?? CONTACT_JOB_STATUS['No Active Jobs'])}>{status}</div>
                     </div>
 
@@ -204,17 +204,17 @@ export default function ContactsPage() {
 
                     <div className="flex w-full flex-row justify-between gap-4 lg:w-auto lg:flex-1 lg:flex-col lg:gap-1">
                       <div>
-                        <div className="mb-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">Lifetime Value</div>
+                        <div className="mb-1 text-xxs font-bold uppercase tracking-wider text-gray-400">Lifetime Value</div>
                         <div className="text-base font-bold text-gray-900">${Math.round(st?.lifetimeValue ?? 0).toLocaleString()}</div>
                       </div>
                       <div>
-                        <div className="mb-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">Jobs Completed</div>
+                        <div className="mb-1 text-xxs font-bold uppercase tracking-wider text-gray-400">Jobs Completed</div>
                         <div className="text-base font-bold text-gray-900">{st?.completedJobs ?? 0}</div>
                       </div>
                     </div>
 
                     <div className="mr-4 hidden text-right xl:block">
-                      <div className="mb-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">Last Contact</div>
+                      <div className="mb-1 text-xxs font-bold uppercase tracking-wider text-gray-400">Last Contact</div>
                       <div className="flex items-center justify-end gap-1 text-xs font-bold text-gray-600"><Calendar className="h-3 w-3" />{st?.lastContactAt ? shortDate(st.lastContactAt) : '-'}</div>
                     </div>
 

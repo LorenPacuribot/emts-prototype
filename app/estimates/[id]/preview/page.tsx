@@ -216,7 +216,7 @@ function Preview() {
                       <span className={cn('flex h-5 w-5 shrink-0 items-center justify-center rounded border', shown ? 'border-primary-500 bg-primary-500 text-white' : 'border-gray-300')}>{shown && <Check className="h-3.5 w-3.5" />}</span>
                       <span className="min-w-0">
                         <span className={cn('block font-semibold', shown ? 'text-gray-900' : 'text-gray-400')}>{g.label}</span>
-                        {g.hint && g.hint !== g.label && <span className="block text-[11px] text-gray-400">{g.hint}</span>}
+                        {g.hint && g.hint !== g.label && <span className="block text-xs text-gray-400">{g.hint}</span>}
                       </span>
                     </button>
                   </li>

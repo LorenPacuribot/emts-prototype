@@ -72,7 +72,7 @@ export const LEAD_LIFECYCLE: Record<LeadStatus, { label: string; type: Lead['con
   Contacted: { label: 'Lead', type: 'LEAD', color: 'bg-blue-100 text-blue-700' },
   Scheduled: { label: 'Contact', type: 'CONTACT', color: 'bg-purple-100 text-purple-700' },
   Pending: { label: 'Contact', type: 'CONTACT', color: 'bg-purple-100 text-purple-700' },
-  Sold: { label: 'Client', type: 'CLIENT', color: 'bg-emerald-100 text-emerald-700' },
+  Sold: { label: 'Client', type: 'CLIENT', color: 'bg-green-100 text-green-700' },
   Lost: { label: 'Lead', type: 'LEAD', color: 'bg-gray-100 text-gray-500' },
   Archived: { label: 'Lead', type: 'LEAD', color: 'bg-gray-100 text-gray-500' },
 };

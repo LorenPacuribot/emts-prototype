@@ -167,7 +167,7 @@ export function ManageColorModal({ open, onOpenChange, job, colour, colorNumber,
         <div>
           <LiveLabel className="mb-3">Color Identity</LiveLabel>
           <div className="mb-4">
-            <div className="mb-1.5 flex items-center gap-2 text-[12.5px] font-semibold text-slate-600">
+            <div className="mb-1.5 flex items-center gap-2 text-xs font-semibold text-gray-600">
               Pick from the manufacturer palette <NewBadge feature={3} />
             </div>
             <PalettePicker
@@ -256,9 +256,9 @@ export function ManageColorModal({ open, onOpenChange, job, colour, colorNumber,
           </div>
         </div>
 
-        <div className="rounded-xl border border-emerald-200 bg-emerald-50/40 p-4">
+        <div className="rounded-xl border border-green-200 bg-green-50/40 p-4">
           <div className="mb-3 flex items-center gap-2">
-            <LiveLabel className="text-emerald-800">Ordering &amp; approval detail</LiveLabel>
+            <LiveLabel className="text-green-800">Ordering &amp; approval detail</LiveLabel>
             <NewBadge feature={3} />
           </div>
           <p className="mb-3 text-xs text-gray-500">A specification can't be approved with a blank primer, and can't be ordered without its tint base.</p>

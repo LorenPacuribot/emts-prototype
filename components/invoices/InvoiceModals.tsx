@@ -279,10 +279,10 @@ function EditInvoiceForm({ invoice, onDone }: { invoice: Invoice; onDone: () => 
   return (
     <div className="space-y-6">
       <div>
-        <div className="mb-2 text-[11px] font-bold uppercase tracking-wide text-gray-600">Line Items</div>
+        <div className="mb-2 text-xs font-bold uppercase tracking-wide text-gray-600">Line Items</div>
         <div className="overflow-hidden rounded-xl border border-gray-200">
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 text-[11px] font-bold uppercase tracking-wide text-gray-500">
+            <thead className="bg-gray-50 text-xs font-bold uppercase tracking-wide text-gray-500">
               <tr>
                 <th className="px-3 py-2 text-left">Description</th>
                 <th className="w-24 px-3 py-2 text-left">Qty</th>

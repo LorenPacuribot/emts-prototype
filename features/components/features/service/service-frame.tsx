@@ -52,8 +52,8 @@ export function ServiceFrame({ tab, children }: { tab: ServiceTabKey; children: 
         <SubNav
           header={
             <div className="hidden lg:block">
-              <div className="flex items-center gap-2 font-display text-[14px] font-bold text-ink">Repaint Alerts <NewBadge feature={[27, 29]} /></div>
-              <div className="mt-0.5 text-[11.5px] text-slate-500">Repaint timing and follow-up. Internal only — nothing here is shown to customers.</div>
+              <div className="flex items-center gap-2 font-display text-sm font-bold text-ink">Repaint Alerts <NewBadge feature={[27, 29]} /></div>
+              <div className="mt-0.5 text-xs text-gray-500">Repaint timing and follow-up. Internal only — nothing here is shown to customers.</div>
             </div>
           }
           groups={[

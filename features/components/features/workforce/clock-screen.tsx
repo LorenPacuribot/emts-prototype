@@ -63,10 +63,10 @@ function Clock() {
       <Card className="mb-4 space-y-3 p-4">
         <CardLabel>Device (simulated)</CardLabel>
         <div className="flex flex-wrap gap-x-6 gap-y-2">
-          <Switch checked={offline} onCheckedChange={setOffline} label={<span className="text-[12.5px]">No signal</span>} />
-          <Switch checked={denied} onCheckedChange={setDenied} label={<span className="text-[12.5px]">Location permission denied</span>} />
+          <Switch checked={offline} onCheckedChange={setOffline} label={<span className="text-xs">No signal</span>} />
+          <Switch checked={denied} onCheckedChange={setDenied} label={<span className="text-xs">Location permission denied</span>} />
         </div>
-        {denied && <p className="flex items-center gap-1.5 text-[12px] text-amber-700"><MapPinOff className="h-3.5 w-3.5" /> Location is off. Clock-in still works — each punch records a flag and the crew is prompted to turn location on. There is no continuous tracking.</p>}
+        {denied && <p className="flex items-center gap-1.5 text-xs text-amber-700"><MapPinOff className="h-3.5 w-3.5" /> Location is off. Clock-in still works — each punch records a flag and the crew is prompted to turn location on. There is no continuous tracking.</p>}
       </Card>
 
       {queued.length > 0 && (
@@ -107,9 +107,9 @@ function Clock() {
             <Card key={e.id} className="p-4">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <div className="font-display text-[15px] font-bold text-ink">{e.name}{e.userId === user.id && <span className="ml-1.5 text-[11px] font-medium text-slate-400">(you)</span>}</div>
+                  <div className="font-display text-base font-bold text-ink">{e.name}{e.userId === user.id && <span className="ml-1.5 text-xs font-medium text-gray-400">(you)</span>}</div>
                   {seg ? (
-                    <div className="mt-0.5 text-[12.5px] text-slate-600">
+                    <div className="mt-0.5 text-xs text-gray-600">
                       In since {timeLabel(seg.start)} · {seg.jobId ?? "Overhead"}{seg.shiftId ? ` · ${punchTagLabel(db, seg)}` : ""} · {ACTIVITY_LABEL[seg.activity]} · {hm(elapsedMinutes(seg.start, now()))}
                       <div className="mt-1 flex flex-wrap gap-1">
                         {seg.source === "offline" && <Badge tone="blue" icon={<WifiOff className="h-3 w-3" />}>Offline</Badge>}
@@ -118,7 +118,7 @@ function Clock() {
                       </div>
                     </div>
                   ) : (
-                    <div className="mt-0.5 text-[12.5px] text-slate-400">Not clocked in</div>
+                    <div className="mt-0.5 text-xs text-gray-400">Not clocked in</div>
                   )}
                 </div>
                 <div className="flex shrink-0 flex-col gap-1.5">
@@ -144,7 +144,7 @@ function Clock() {
                     <button
                       key={a}
                       onClick={() => act(setActivity, e.id, a, opts).ok && toast.success(`${e.name}: ${ACTIVITY_LABEL[a]}`)}
-                      className={`rounded-lg border px-2.5 py-1 text-[11.5px] font-semibold ${seg.activity === a ? "border-ink bg-ink text-white" : "border-line bg-white text-slate-600 hover:bg-slate-50"}`}
+                      className={`rounded-lg border px-2.5 py-1 text-xs font-semibold ${seg.activity === a ? "border-ink bg-ink text-white" : "border-line bg-white text-gray-600 hover:bg-gray-50"}`}
                     >
                       {ACTIVITY_LABEL[a]}
                     </button>

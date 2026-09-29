@@ -85,7 +85,7 @@ export function CloseoutRowModal({ job, row, onClose }: { job: Job; row?: Closeo
           </Field>
         ) : (
           <>
-            <div className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500">Required</div>
+            <div className="text-xs font-bold uppercase tracking-[0.12em] text-gray-500">Required</div>
             <div className="grid gap-3 sm:grid-cols-4">
               <Field label="Manufacturer" required error={errors.colour} className="sm:col-span-1"><Input value={f.manufacturer} invalid={!!errors.colour} onChange={(e) => setF({ ...f, manufacturer: e.target.value })} /></Field>
               <Field label="Colour name" required className="sm:col-span-1"><Input value={f.colourName} onChange={(e) => setF({ ...f, colourName: e.target.value })} /></Field>
@@ -103,14 +103,14 @@ export function CloseoutRowModal({ job, row, onClose }: { job: Job; row?: Closeo
                 <Input type="date" value={f.date} max={todayInput()} invalid={!!errors.completedAt} onChange={(e) => setF({ ...f, date: e.target.value })} />
               </Field>
             </div>
-            <div className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500">Optional actuals — leave blank if not recorded</div>
+            <div className="text-xs font-bold uppercase tracking-[0.12em] text-gray-500">Optional actuals — leave blank if not recorded</div>
             <div className="grid gap-3 sm:grid-cols-4">
               <Field label="Hours" error={errors.actualHours}><Input type="number" min={0} step={0.25} value={f.hours} invalid={!!errors.actualHours} onChange={(e) => setF({ ...f, hours: e.target.value })} placeholder="Not recorded" /></Field>
               <Field label="Gallons used" error={errors.actualGallons}><Input type="number" min={0} step={0.25} value={f.gallons} invalid={!!errors.actualGallons} onChange={(e) => setF({ ...f, gallons: e.target.value })} placeholder="Not recorded" /></Field>
               <Field label="Photographs" error={errors.photoCount}><Input type="number" min={0} step={1} value={f.photos} invalid={!!errors.photoCount} onChange={(e) => setF({ ...f, photos: e.target.value })} placeholder="0" /></Field>
               <Field label="Tint formula"><Input value={f.tint} onChange={(e) => setF({ ...f, tint: e.target.value })} placeholder="Not recorded" /></Field>
             </div>
-            <p className="text-[12px] text-slate-500">Blank actuals are saved as “Not recorded” — never as zero and never estimated.</p>
+            <p className="text-xs text-gray-500">Blank actuals are saved as “Not recorded” — never as zero and never estimated.</p>
           </>
         )}
         {errors._ && <Banner tone="danger">{errors._}</Banner>}

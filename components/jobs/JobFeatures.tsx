@@ -86,7 +86,7 @@ export function JobCostCard({ job }: { job: PJob }) {
         {!hoursOnly && f.unmatched > 0 && <p className="text-xs text-amber-700">{money(f.unmatched)} of supplier bills not yet matched to orders.</p>}
         {perf && (
           <div className={hoursOnly ? '' : 'mt-3 border-t border-gray-100 pt-3'}>
-            <div className="mb-1.5 text-[11px] font-bold uppercase tracking-[0.15em] text-gray-500">Estimated vs actual hours</div>
+            <div className="mb-1.5 text-xs font-bold uppercase tracking-[0.15em] text-gray-500">Estimated vs actual hours</div>
             <div className="flex justify-between gap-2"><span className="text-gray-500">Estimated (incl. change orders)</span><b>{estHours!.toFixed(1)} h</b></div>
             <div className="flex justify-between gap-2"><span className="text-gray-500">Approved actual</span><b>{actHours === undefined ? '—' : `${actHours.toFixed(1)} h`}</b></div>
             {perf.pendingHours > 0 && <div className="flex justify-between gap-2"><span className="text-gray-500">Awaiting approval</span><b className="text-amber-700">{perf.pendingHours.toFixed(1)} h</b></div>}

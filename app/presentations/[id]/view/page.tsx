@@ -73,7 +73,7 @@ export default function PresentationViewPage() {
             <ArrowLeft className="h-4 w-4" /> <span className="hidden sm:inline">Back to builder</span>
           </Link>
           <span className="truncate font-heading text-sm font-bold text-gray-900">{p.title}</span>
-          {p.status === 'Draft' && <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-blue-700">Draft</span>}
+          {p.status === 'Draft' && <span className="rounded-full bg-blue-50 px-2 py-0.5 text-xxs font-bold uppercase tracking-wider text-blue-700">Draft</span>}
           <span className="hidden items-center gap-1 text-xs text-gray-400 md:flex"><Eye className="h-3.5 w-3.5" />{p.views}</span>
         </div>
         <div className="flex items-center gap-2">

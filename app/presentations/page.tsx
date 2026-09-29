@@ -113,7 +113,7 @@ export default function PresentationsPage() {
                 </div>
                 <div className="mt-auto space-y-3">
                   <div className="flex flex-wrap gap-2">
-                    <span className="inline-flex items-center rounded-full border border-blue-100 bg-blue-50 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-blue-700">
+                    <span className="inline-flex items-center rounded-full border border-blue-100 bg-blue-50 px-2.5 py-0.5 text-xxs font-bold uppercase tracking-wider text-blue-700">
                       {p.scopes.length ? p.scopes.join(', ') : 'No type'}
                     </span>
                   </div>

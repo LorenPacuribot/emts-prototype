@@ -102,11 +102,11 @@ export function NewCoModal({ open, onOpenChange, job, onCreated }: { open: boole
                 key={t}
                 type="button"
                 onClick={() => setType(t)}
-                className={`rounded-lg border px-3 py-2 text-left transition-colors ${type === t ? "border-brand bg-brand-soft/60" : "border-line hover:bg-slate-50"}`}
+                className={`rounded-lg border px-3 py-2 text-left transition-colors ${type === t ? "border-brand bg-brand-soft/60" : "border-line hover:bg-gray-50"}`}
                 aria-pressed={type === t}
               >
-                <div className="text-[13px] font-semibold text-ink">{CO_TYPE[t].label}</div>
-                <div className="text-[11.5px] text-slate-500">{TYPE_HELP[t]}</div>
+                <div className="text-sm font-semibold text-ink">{CO_TYPE[t].label}</div>
+                <div className="text-xs text-gray-500">{TYPE_HELP[t]}</div>
               </button>
             ))}
           </div>
@@ -127,7 +127,7 @@ export function NewCoModal({ open, onOpenChange, job, onCreated }: { open: boole
 
         {type === "no_cost_colour_change" && (
           <div className="space-y-3 rounded-xl border border-indigo-200 bg-indigo-50/40 p-4">
-            <div className="text-[12px] font-semibold text-indigo-900">Rule 1 check — does this need a change order or a Colour Re-approval?</div>
+            <div className="text-xs font-semibold text-indigo-900">Rule 1 check — does this need a change order or a Colour Re-approval?</div>
             <Field label="Specification" required htmlFor="nco-spec" error={fe(error, "specId")}>
               <Select id="nco-spec" value={cc.specId} invalid={!!fe(error, "specId")} onChange={(e) => pickSpec(e.target.value)}>
                 <option value="">Choose…</option>
@@ -155,7 +155,7 @@ export function NewCoModal({ open, onOpenChange, job, onCreated }: { open: boole
               <Checkbox checked={cc.priceChanges} onCheckedChange={(v) => setCc({ ...cc, priceChanges: v })} label="The price changes" />
               <Checkbox checked={cc.tintedOrOrdered} onCheckedChange={(v) => setCc({ ...cc, tintedOrOrdered: v })} label="Affected paint already tinted or ordered" />
             </div>
-            {cc.specId && specTintedOrOrdered(db, cc.specId) && <p className="text-[11.5px] text-slate-500">A supplier order already includes this specification, so its paint counts as ordered.</p>}
+            {cc.specId && specTintedOrOrdered(db, cc.specId) && <p className="text-xs text-gray-500">A supplier order already includes this specification, so its paint counts as ordered.</p>}
             {decision && decision.kind === "colour_reapproval" && (
               <Banner tone="success" title="Qualifies for a Colour Re-approval">
                 {decision.reason} Record it as a Colour Re-approval — never both a re-approval and a change order.
@@ -456,7 +456,7 @@ export function VerifyRecipientModal({ co, onClose }: { co?: ChangeOrder; onClos
         <Field label="Email or portal login" required htmlFor="vr-addr" error={fe(error, "address")}>
           <Input id="vr-addr" value={address} invalid={!!fe(error, "address")} onChange={(e) => setAddress(e.target.value)} placeholder="name@example.com" />
         </Field>
-        <p className="text-[11.5px] text-slate-500">
+        <p className="text-xs text-gray-500">
           Authorised on this account: {options.map((o) => `${o.name} (${o.role})`).join(", ")}. A property manager must already be listed on the account before their approval is accepted.
         </p>
       </div>
@@ -503,9 +503,9 @@ export function SendModal({ co, reissue, onClose }: { co?: ChangeOrder; reissue?
             ]}
           />
         </Field>
-        <p className="text-[12px] text-slate-500">Verbal approval is not offered. It is accepted only for emergency work strictly below $500.00.</p>
+        <p className="text-xs text-gray-500">Verbal approval is not offered. It is accepted only for emergency work strictly below $500.00.</p>
         {reissue && <Banner tone="warn">The current link is superseded and blocked. The customer will see a message pointing them to the new link.</Banner>}
-        <p className="text-[11.5px] text-slate-400">The prototype records the send; no real message leaves the browser.</p>
+        <p className="text-xs text-gray-400">The prototype records the send; no real message leaves the browser.</p>
       </div>
     </Modal>
   );
@@ -616,7 +616,7 @@ export function DecisionModal({ co, onClose, onSplit }: { co?: ChangeOrder; onCl
                 <Field label="Customer's reason" required htmlFor="dc-reason" error={fe(error, "reason")}>
                   <Textarea id="dc-reason" value={reason} invalid={!!fe(error, "reason")} onChange={(e) => setReason(e.target.value)} />
                 </Field>
-                <p className="text-[11.5px] text-slate-500">Rejected means refused before the work began. Payment refused for work already done is a dispute — record it from the approved change order.</p>
+                <p className="text-xs text-gray-500">Rejected means refused before the work began. Payment refused for work already done is a dispute — record it from the approved change order.</p>
               </>
             )}
           </>
@@ -705,7 +705,7 @@ export function EmergencyModal({ co, onClose }: { co?: ChangeOrder; onClose: () 
             <Button size="sm" onClick={() => setPhotos(photos + 1)}>
               <Camera className="h-3.5 w-3.5" /> Attach photo
             </Button>
-            <span className="text-[12.5px] text-slate-600">{photos} attached</span>
+            <span className="text-xs text-gray-600">{photos} attached</span>
             {photos > 0 && <Button size="sm" variant="ghost" onClick={() => setPhotos(0)}>Clear</Button>}
           </div>
         </Field>

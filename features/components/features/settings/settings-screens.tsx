@@ -75,16 +75,16 @@ export function GeneralConfigScreen() {
               <Input type="number" value={pct} onChange={(e) => setPct(e.target.value)} onBlur={() => Number(pct) !== w.defaultWastePercent && act(updateWasteSettings, { defaultWastePercent: Number(pct) }).ok && toast.success("Waste settings saved")} className="mt-1 w-32" disabled={!can(user, "settings.masterData")} />
             </div>
           )}
-          <div className="rounded-xl border border-emerald-200 bg-emerald-50/40 p-4">
+          <div className="rounded-xl border border-green-200 bg-green-50/40 p-4">
             <div className="mb-2 flex items-center gap-2 text-sm font-bold text-gray-900">Waste rules for material orders <NewBadge feature={18} /></div>
             <p className="mb-3 text-xs text-gray-500">Material demand on the work order uses the single highest rule that matches a specification. Allowances are never added together.</p>
             <table className="w-full text-sm">
-              <tbody className="divide-y divide-emerald-100">
+              <tbody className="divide-y divide-green-100">
                 {[["Interior repaint", "5%"], ["Exterior, or any spray application", "10%"], ["Rough surface", "15%"]].map(([a, b]) => <tr key={a}><td className="py-1.5 text-gray-700">{a}</td><td className="py-1.5 text-right font-bold">{b}</td></tr>)}
               </tbody>
             </table>
           </div>
-          <div className="rounded-xl border border-emerald-200 bg-emerald-50/40 p-4">
+          <div className="rounded-xl border border-green-200 bg-green-50/40 p-4">
             <div className="mb-2 flex items-center gap-2 text-sm font-bold text-gray-900">Container packing objective <NewBadge feature={18} /></div>
             <Select value={strategy} disabled={!can(user, "catalog.edit")} onChange={(e) => act(setPackingStrategy, e.target.value as "least_leftover" | "lowest_price").ok && toast.success("Packing objective changed")} className="w-60">
               <option value="least_leftover">Least leftover</option>

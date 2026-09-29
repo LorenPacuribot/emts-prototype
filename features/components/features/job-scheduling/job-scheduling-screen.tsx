@@ -22,7 +22,7 @@ import { cn } from "@/features/lib/cn";
 import { Screen } from "@/features/components/layout/screen";
 import { NewBadge, Tooltip } from "@/features/components/ui";
 
-const JOB_COLORS = ["bg-blue-500", "bg-emerald-500", "bg-purple-500", "bg-amber-500", "bg-pink-500", "bg-cyan-600"];
+const JOB_COLORS = ["bg-blue-500", "bg-green-500", "bg-purple-500", "bg-amber-500", "bg-pink-500", "bg-cyan-600"];
 const DAY_CAPACITY = 9; // live: 9h workday (8 to 17)
 
 export function JobSchedulingScreen() {
@@ -81,7 +81,7 @@ export function JobSchedulingScreen() {
         <div className="my-6 flex items-center justify-between rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
           <button onClick={() => setWeekStart(addDaysToDay(weekStart, -7))} className="rounded-lg p-2 hover:bg-gray-100" aria-label="Previous week"><ChevronLeft className="h-5 w-5" /></button>
           <div className="text-center">
-            <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Week</div>
+            <div className="text-xxs font-bold uppercase tracking-widest text-gray-400">Week</div>
             <h3 className="font-heading text-lg font-bold text-gray-900">{fmt(days[0])} – {fmt(days[6])}</h3>
           </div>
           <button onClick={() => setWeekStart(addDaysToDay(weekStart, 7))} className="rounded-lg p-2 hover:bg-gray-100" aria-label="Next week"><ChevronRight className="h-5 w-5" /></button>
@@ -122,7 +122,7 @@ export function JobSchedulingScreen() {
                       <td className="px-4 py-3">
                         <div className="text-sm font-bold text-gray-800">{week.toFixed(0)} / {cap}h</div>
                         <div className={cn("text-xs", over ? "text-red-600" : "text-gray-400")}>{over ? `${(week - cap).toFixed(0)}h over` : `${(cap - week).toFixed(0)}h free`}</div>
-                        <div className="mt-1 h-1.5 rounded-full bg-gray-100"><div className={cn("h-1.5 rounded-full", over ? "bg-red-500" : week === cap ? "bg-amber-500" : "bg-emerald-500")} style={{ width: `${Math.min(100, (week / cap) * 100)}%` }} /></div>
+                        <div className="mt-1 h-1.5 rounded-full bg-gray-100"><div className={cn("h-1.5 rounded-full", over ? "bg-red-500" : week === cap ? "bg-amber-500" : "bg-green-500")} style={{ width: `${Math.min(100, (week / cap) * 100)}%` }} /></div>
                       </td>
                       {days.map((d) => {
                         const chips = assigned.get(`${e.id}|${d}`) ?? [];
@@ -134,7 +134,7 @@ export function JobSchedulingScreen() {
                                 const job = byId(db.jobs, c.jobId);
                                 const wo = db.workOrders.find((w) => w.jobId === c.jobId);
                                 return (
-                                  <AppLink key={i} href={wo ? workOrderHref(wo.id) : "#"} className={cn("block rounded-lg px-2 py-1 text-[11px] font-semibold text-white", colour(c.jobId))}>
+                                  <AppLink key={i} href={wo ? workOrderHref(wo.id) : "#"} className={cn("block rounded-lg px-2 py-1 text-xs font-semibold text-white", colour(c.jobId))}>
                                     <div className="truncate">{job?.name} ({c.jobId})</div>
                                     <div className="opacity-80">{c.start}–{c.end} · {c.hours}h</div>
                                   </AppLink>
@@ -142,7 +142,7 @@ export function JobSchedulingScreen() {
                               })}
                               {a.hours > 0 && (
                                 <Tooltip content={a.approved ? "Approved for payroll" : `Clocked, not approved yet (${a.state ?? "open"})`}>
-                                  <div className={cn("rounded-md border px-2 py-0.5 text-[11px] font-bold", a.approved ? "border-green-200 bg-green-50 text-green-700" : "border-gray-200 bg-gray-50 text-gray-600")}>
+                                  <div className={cn("rounded-md border px-2 py-0.5 text-xs font-bold", a.approved ? "border-green-200 bg-green-50 text-green-700" : "border-gray-200 bg-gray-50 text-gray-600")}>
                                     {a.approved ? "Approved" : "Clocked"} {a.hours.toFixed(1)}h
                                   </div>
                                 </Tooltip>
@@ -165,7 +165,7 @@ export function JobSchedulingScreen() {
                   <div className="mb-2 text-xs font-bold uppercase text-gray-500">{new Date(`${d}T12:00:00`).toLocaleDateString(undefined, { weekday: "short", day: "numeric" })}</div>
                   <div className="space-y-1.5">
                     {scheduled.filter((w) => w.startDate && w.endDate && d >= w.startDate.slice(0, 10) && d <= w.endDate.slice(0, 10)).map((w) => (
-                      <AppLink key={w.id} href={workOrderHref(w.id)} className={cn("block rounded-lg px-2 py-1 text-[11px] font-semibold text-white", colour(w.jobId))}>{byId(db.jobs, w.jobId)?.name}</AppLink>
+                      <AppLink key={w.id} href={workOrderHref(w.id)} className={cn("block rounded-lg px-2 py-1 text-xs font-semibold text-white", colour(w.jobId))}>{byId(db.jobs, w.jobId)?.name}</AppLink>
                     ))}
                   </div>
                 </div>

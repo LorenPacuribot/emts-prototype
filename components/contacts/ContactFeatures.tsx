@@ -56,12 +56,12 @@ export function LocationPaintChips({ customerId, street }: { customerId: string;
       <Link
         href={contactHref(customerId, 'paint-history', { location: property.id })}
         scroll={false}
-        className="inline-flex items-center gap-1 rounded-md border border-emerald-200 bg-white px-1.5 py-0.5 text-[11px] font-semibold text-emerald-700 hover:bg-emerald-50"
+        className="inline-flex items-center gap-1 rounded-md border border-green-200 bg-white px-1.5 py-0.5 text-xs font-semibold text-green-700 hover:bg-green-50"
       >
         {apps} paint records <NewBadge feature={25} />
       </Link>
       {qr && (
-        <span className="inline-flex items-center gap-1 rounded-md border border-gray-200 bg-white px-1.5 py-0.5 text-[11px] font-semibold text-gray-600">
+        <span className="inline-flex items-center gap-1 rounded-md border border-gray-200 bg-white px-1.5 py-0.5 text-xs font-semibold text-gray-600">
           <QrCode className="h-3 w-3" /> QR link active
         </span>
       )}

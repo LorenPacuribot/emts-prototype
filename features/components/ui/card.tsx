@@ -16,7 +16,7 @@ export function Card({ className, children, ...rest }: { className?: string; chi
 export function CardLabel({ icon, children, right, className }: { icon?: ReactNode; children: ReactNode; right?: ReactNode; className?: string }) {
   return (
     <div className={cn("flex flex-wrap items-center justify-between gap-3", className)}>
-      <div className="flex items-center gap-2 text-[10.5px] font-bold uppercase tracking-[0.14em] text-slate-600">
+      <div className="flex items-center gap-2 text-xxs font-bold uppercase tracking-[0.14em] text-gray-600">
         {icon && <span className="text-brand [&>svg]:h-3.5 [&>svg]:w-3.5">{icon}</span>}
         {children}
       </div>
@@ -27,17 +27,17 @@ export function CardLabel({ icon, children, right, className }: { icon?: ReactNo
 
 /** Uppercase field label ("SCHEDULE", "PIPELINE VALUE"). */
 export function MicroLabel({ children, className }: { children: ReactNode; className?: string }) {
-  return <div className={cn("text-[9.5px] font-bold uppercase tracking-[0.12em] text-slate-400", className)}>{children}</div>;
+  return <div className={cn("text-xxs font-bold uppercase tracking-[0.12em] text-gray-400", className)}>{children}</div>;
 }
 
 export function Stat({ label, value, hint, tone }: { label: string; value: ReactNode; hint?: ReactNode; tone?: "default" | "brand" | "warn" | "danger" | "good" }) {
   const color =
-    tone === "brand" ? "text-brand" : tone === "warn" ? "text-amber-600" : tone === "danger" ? "text-red-600" : tone === "good" ? "text-emerald-600" : "text-ink";
+    tone === "brand" ? "text-brand" : tone === "warn" ? "text-amber-600" : tone === "danger" ? "text-red-600" : tone === "good" ? "text-green-600" : "text-ink";
   return (
     <div className="min-w-0">
       <MicroLabel>{label}</MicroLabel>
       <div className={cn("mt-1 font-display text-lg font-bold leading-tight", color)}>{value}</div>
-      {hint && <div className="mt-0.5 text-[11px] text-slate-500">{hint}</div>}
+      {hint && <div className="mt-0.5 text-xs text-gray-500">{hint}</div>}
     </div>
   );
 }

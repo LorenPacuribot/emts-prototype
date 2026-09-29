@@ -73,7 +73,7 @@ function Inner({ rep, line, onClose }: { rep: RepeatEstimate; line: RepeatEstima
         </div>
         <div>
           <Checkbox checked={isSuccessor} onCheckedChange={setIsSuccessor} label="Manufacturer-published direct successor" />
-          {e("isDirectSuccessor") && <p className="mt-1 text-[11.5px] font-medium text-red-600">{e("isDirectSuccessor")}</p>}
+          {e("isDirectSuccessor") && <p className="mt-1 text-xs font-medium text-red-600">{e("isDirectSuccessor")}</p>}
         </div>
         {line.tintFormula && (
           <Banner tone="info" title="Custom tint formula carried for store review">

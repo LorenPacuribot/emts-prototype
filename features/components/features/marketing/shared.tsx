@@ -12,14 +12,14 @@ import { Badge, Card } from "@/features/components/ui";
 import type { Tone } from "@/features/components/ui/badge";
 
 export const POST_STATE: Record<PostState, { label: string; tone: Tone; dot: string }> = {
-  draft: { label: "Draft", tone: "gray", dot: "bg-slate-400" },
+  draft: { label: "Draft", tone: "gray", dot: "bg-gray-400" },
   awaiting_approval: { label: "Awaiting owner approval", tone: "purple", dot: "bg-purple-500" },
   approved: { label: "Approved", tone: "blue", dot: "bg-blue-500" },
   scheduled: { label: "Scheduled", tone: "indigo", dot: "bg-indigo-500" },
-  published: { label: "Published", tone: "green", dot: "bg-emerald-500" },
+  published: { label: "Published", tone: "green", dot: "bg-green-500" },
   missed: { label: "Missed", tone: "amber", dot: "bg-amber-500" },
   partially_failed: { label: "Partially failed", tone: "red", dot: "bg-red-500" },
-  cancelled: { label: "Cancelled", tone: "gray", dot: "bg-slate-300" },
+  cancelled: { label: "Cancelled", tone: "gray", dot: "bg-gray-300" },
 };
 
 export function PostStateBadge({ state }: { state: PostState }) {
@@ -27,8 +27,8 @@ export function PostStateBadge({ state }: { state: PostState }) {
 }
 
 export function PlatformChip({ platform, status }: { platform: SocialPlatform; status?: "pending" | "published" | "failed" | "uncertain" }) {
-  const tone = status === "published" ? "bg-emerald-50 text-emerald-700 ring-emerald-200" : status === "failed" ? "bg-red-50 text-red-700 ring-red-200" : status === "uncertain" ? "bg-amber-50 text-amber-700 ring-amber-200" : platform === "facebook" ? "bg-blue-50 text-blue-700 ring-blue-200" : "bg-pink-50 text-pink-700 ring-pink-200";
-  return <span title={`${PLATFORM_LABEL[platform]}${status ? ` — ${status}` : ""}`} className={cn("inline-flex h-5 items-center rounded px-1.5 text-[10px] font-bold ring-1 ring-inset", tone)}>{platform === "facebook" ? "FB" : "IG"}</span>;
+  const tone = status === "published" ? "bg-green-50 text-green-700 ring-green-200" : status === "failed" ? "bg-red-50 text-red-700 ring-red-200" : status === "uncertain" ? "bg-amber-50 text-amber-700 ring-amber-200" : platform === "facebook" ? "bg-blue-50 text-blue-700 ring-blue-200" : "bg-pink-50 text-pink-700 ring-pink-200";
+  return <span title={`${PLATFORM_LABEL[platform]}${status ? ` — ${status}` : ""}`} className={cn("inline-flex h-5 items-center rounded px-1.5 text-xs font-bold ring-1 ring-inset", tone)}>{platform === "facebook" ? "FB" : "IG"}</span>;
 }
 
 export function ConsentBadge({ asset }: { asset: MediaAsset }) {
@@ -45,20 +45,20 @@ export function AssetTile({ asset, selected, onClick, compact }: { asset: MediaA
   const body = (
     <>
       <div className={cn("relative flex items-end rounded-lg p-2", compact ? "h-16" : "h-24")} style={{ background: `linear-gradient(135deg, ${asset.hex}, ${asset.hex}cc)` }}>
-        {asset.crop && <span className="absolute right-1.5 top-1.5 rounded bg-white/85 px-1 text-[9.5px] font-bold text-slate-700">{asset.crop.format === "square" ? "1080×1080" : "1080×1350"}</span>}
-        {locked && <span className="absolute inset-0 flex items-center justify-center rounded-lg bg-slate-900/45 text-white"><Lock className="h-5 w-5" /></span>}
-        <span className="rounded bg-white/85 px-1 text-[10px] font-bold text-slate-700">{asset.id}</span>
+        {asset.crop && <span className="absolute right-1.5 top-1.5 rounded bg-white/85 px-1 text-xs font-bold text-gray-700">{asset.crop.format === "square" ? "1080×1080" : "1080×1350"}</span>}
+        {locked && <span className="absolute inset-0 flex items-center justify-center rounded-lg bg-gray-900/45 text-white"><Lock className="h-5 w-5" /></span>}
+        <span className="rounded bg-white/85 px-1 text-xs font-bold text-gray-700">{asset.id}</span>
       </div>
       <div className="mt-1.5 text-left">
-        <div className="line-clamp-2 text-[12px] font-semibold text-ink">{asset.label}</div>
+        <div className="line-clamp-2 text-xs font-semibold text-ink">{asset.label}</div>
         <div className="mt-1 flex flex-wrap gap-1"><ConsentBadge asset={asset} />{asset.cropOf && <Badge tone="gray">Crop of {asset.cropOf}</Badge>}</div>
-        {locked && <div className="mt-1 text-[11px] text-slate-500">{u.reason}</div>}
+        {locked && <div className="mt-1 text-xs text-gray-500">{u.reason}</div>}
       </div>
     </>
   );
   if (!onClick) return <div className="min-w-0">{body}</div>;
   return (
-    <button type="button" onClick={onClick} disabled={locked} aria-pressed={selected} className={cn("min-w-0 rounded-xl border p-2 text-left transition", selected ? "border-brand ring-2 ring-brand/30" : "border-line hover:border-slate-300", locked && "cursor-not-allowed opacity-80")}>
+    <button type="button" onClick={onClick} disabled={locked} aria-pressed={selected} className={cn("min-w-0 rounded-xl border p-2 text-left transition", selected ? "border-brand ring-2 ring-brand/30" : "border-line hover:border-gray-300", locked && "cursor-not-allowed opacity-80")}>
       {body}
     </button>
   );
@@ -68,7 +68,7 @@ export function AssetTile({ asset, selected, onClick, compact }: { asset: MediaA
 export function AccountHealth() {
   const db = useDb((d) => d);
   return (
-    <Card className="mb-4 flex flex-wrap items-center gap-x-6 gap-y-2 p-3 text-[12.5px]" data-tour="marketing-accounts">
+    <Card className="mb-4 flex flex-wrap items-center gap-x-6 gap-y-2 p-3 text-xs" data-tour="marketing-accounts">
       {db.socialAccounts.map((a) => {
         const days = Math.ceil((new Date(a.expiresAt).getTime() - new Date(now()).getTime()) / 86_400_000);
         const affected = affectedPosts(db, a.platform).length;

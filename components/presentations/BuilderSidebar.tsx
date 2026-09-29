@@ -33,8 +33,8 @@ export interface SidebarProps {
   onSelect: (id: string) => void;
 }
 
-const heading = 'text-[10px] font-black uppercase tracking-widest text-gray-400';
-const hint = 'text-[10px] font-medium italic leading-relaxed text-gray-400';
+const heading = 'text-xxs font-black uppercase tracking-widest text-gray-400';
+const hint = 'text-xs font-medium italic leading-relaxed text-gray-400';
 
 export function BuilderSidebar(props: SidebarProps) {
   const [tab, setTab] = useState<Tab>('Blocks');
@@ -46,7 +46,7 @@ export function BuilderSidebar(props: SidebarProps) {
             key={t}
             onClick={() => setTab(t)}
             className={cn(
-              'relative border-b border-gray-100 py-3 text-[10px] font-black uppercase tracking-widest transition-all lg:border-r',
+              'relative border-b border-gray-100 py-3 text-xxs font-black uppercase tracking-widest transition-all lg:border-r',
               tab === t ? 'bg-white text-primary-700' : 'bg-gray-50/50 text-gray-400 hover:text-gray-600',
             )}
           >
@@ -105,7 +105,7 @@ function BlocksTab({ addSection }: SidebarProps) {
                     className="group flex flex-col items-center rounded-lg border border-gray-100 bg-gray-50 p-2 transition-all hover:border-primary-300 hover:bg-white hover:shadow-sm"
                   >
                     <MiniPreview v={v} />
-                    <span className="mt-1.5 text-[9px] font-black uppercase text-gray-300 group-hover:text-primary-600">Style {v}</span>
+                    <span className="mt-1.5 text-xxs font-black uppercase text-gray-300 group-hover:text-primary-600">Style {v}</span>
                   </button>
                 ))}
               </div>
@@ -120,7 +120,7 @@ function BlocksTab({ addSection }: SidebarProps) {
 /** Tiny thumbnail: style 1 light, style 2 dark, style 3 soft gray. */
 function MiniPreview({ v }: { v: 1 | 2 | 3 }) {
   return (
-    <div className={cn('flex h-10 w-full flex-col items-center justify-center gap-1 rounded border border-gray-100', v === 2 ? 'bg-slate-900' : v === 3 ? 'bg-gray-100' : 'bg-white')}>
+    <div className={cn('flex h-10 w-full flex-col items-center justify-center gap-1 rounded border border-gray-100', v === 2 ? 'bg-gray-900' : v === 3 ? 'bg-gray-100' : 'bg-white')}>
       <div className={cn('h-1 w-1/2 rounded-full', v === 2 ? 'bg-white/70' : 'bg-gray-700')} />
       <div className="flex w-full gap-0.5 px-1.5">
         {[1, 2, 3].map((i) => <div key={i} className={cn('h-3 flex-1 rounded-sm', v === 2 ? 'bg-white/15' : 'bg-primary-100')} />)}
@@ -219,7 +219,7 @@ function BrandingTab({ p, change }: SidebarProps) {
         <p className={hint}>Customize the look and feel.</p>
       </div>
       <div className="space-y-3 px-2">
-        <div className="text-[11px] font-bold uppercase tracking-wide text-gray-600">Theme</div>
+        <div className="text-xs font-bold uppercase tracking-wide text-gray-600">Theme</div>
         <div className="grid grid-cols-2 gap-2">
           {(Object.keys(THEMES) as Presentation['theme'][]).map((k) => (
             <button
@@ -228,13 +228,13 @@ function BrandingTab({ p, change }: SidebarProps) {
               className={cn('overflow-hidden rounded-lg border-2 text-left', p.theme === k ? 'border-gray-900' : 'border-gray-100 hover:border-gray-300')}
             >
               <div className="h-8" style={{ background: THEMES[k].cover }} />
-              <div className="px-2 py-1 text-[11px] font-bold text-gray-700">{THEMES[k].label}</div>
+              <div className="px-2 py-1 text-xs font-bold text-gray-700">{THEMES[k].label}</div>
             </button>
           ))}
         </div>
       </div>
       <div className="space-y-3 px-2">
-        <div className="text-[11px] font-bold uppercase tracking-wide text-gray-600">Primary Brand Color</div>
+        <div className="text-xs font-bold uppercase tracking-wide text-gray-600">Primary Brand Color</div>
         <div className="grid grid-cols-5 gap-2">
           {BRAND_COLORS.map((c) => {
             const active = !custom && c.value.toLowerCase() === color.toLowerCase();
@@ -256,7 +256,7 @@ function BrandingTab({ p, change }: SidebarProps) {
             title="Other Color"
           >
             <Plus className="h-3.5 w-3.5 text-gray-400" />
-            <span className="text-[8px] font-black uppercase leading-none text-gray-400">Other</span>
+            <span className="text-xxs font-black uppercase leading-none text-gray-400">Other</span>
           </button>
         </div>
         {custom && (
@@ -296,7 +296,7 @@ function SettingsTab({ p, change }: SidebarProps) {
         <Textarea rows={3} value={p.description} onChange={(e) => change({ description: e.target.value })} placeholder="Internal description" />
       </Field>
       <div>
-        <div className="mb-2 text-[11px] font-bold uppercase tracking-wide text-gray-600">Estimate Types (Scopes)</div>
+        <div className="mb-2 text-xs font-bold uppercase tracking-wide text-gray-600">Estimate Types (Scopes)</div>
         <div className="space-y-1 rounded-xl border border-gray-200 p-2">
           {types.map((t) => (
             <div key={t.id} className={cn('rounded-lg p-2', p.scopes.includes(t.name) && 'bg-primary-50')}>
@@ -306,7 +306,7 @@ function SettingsTab({ p, change }: SidebarProps) {
         </div>
       </div>
       <div>
-        <div className="mb-2 text-[11px] font-bold uppercase tracking-wide text-gray-600">Used for Estimate Templates</div>
+        <div className="mb-2 text-xs font-bold uppercase tracking-wide text-gray-600">Used for Estimate Templates</div>
         <EstimateTemplateChecklist value={p.templateIds ?? []} onChange={(templateIds) => change({ templateIds, isTemplate: templateIds.length > 0 || p.isTemplate })} />
         <p className={cn(hint, 'mt-1')}>Client Preview offers this presentation for estimates made from these templates (or, when none are ticked, for the estimate types above).</p>
       </div>

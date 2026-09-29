@@ -23,7 +23,7 @@ export function SamplePanel({ colour }: { colour: Colour }) {
   return (
     <div className="rounded-xl border border-amber-200 bg-amber-50/40 p-4">
       <div className="mb-3 flex items-center justify-between">
-        <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.12em] text-amber-800">
+        <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.12em] text-amber-800">
           <FlaskConical className="h-3.5 w-3.5" /> Custom sample rounds
         </div>
         <Button size="sm" onClick={() => setAdding(true)}>
@@ -35,16 +35,16 @@ export function SamplePanel({ colour }: { colour: Colour }) {
       ) : (
         <ol className="space-y-2">
           {rounds.map((r) => (
-            <li key={r.id} className="flex flex-wrap items-center gap-3 rounded-lg border border-line bg-white px-3 py-2 text-[12.5px]">
+            <li key={r.id} className="flex flex-wrap items-center gap-3 rounded-lg border border-line bg-white px-3 py-2 text-xs">
               <span className="font-bold text-ink">Round {r.round}</span>
-              <span className="text-slate-500">{date(r.date)}</span>
-              <span className="text-slate-500">delivered by {userName(db, r.deliveredBy)}</span>
+              <span className="text-gray-500">{date(r.date)}</span>
+              <span className="text-gray-500">delivered by {userName(db, r.deliveredBy)}</span>
               {r.outcome ? (
                 <Badge tone={r.outcome === "accepted" ? "green" : "red"}>{r.outcome === "accepted" ? "Accepted" : "Rejected"}</Badge>
               ) : (
                 <Badge tone="amber">Awaiting customer</Badge>
               )}
-              {r.note && <span className="w-full text-slate-500 italic sm:w-auto">“{r.note}”</span>}
+              {r.note && <span className="w-full text-gray-500 italic sm:w-auto">“{r.note}”</span>}
               {!r.outcome && (
                 <Button size="sm" variant="primary" className="ml-auto" onClick={() => setOutcomeFor(r.id)}>
                   Record outcome
@@ -98,7 +98,7 @@ export function SamplePanel({ colour }: { colour: Colour }) {
             <Button size="sm" onClick={() => setPhotos((p) => p + 1)}>
               <Camera className="h-3.5 w-3.5" /> Attach photo
             </Button>
-            {photos > 0 && <span className="ml-2 text-[12px] text-slate-500">{photos} photo(s) attached (simulated)</span>}
+            {photos > 0 && <span className="ml-2 text-xs text-gray-500">{photos} photo(s) attached (simulated)</span>}
           </div>
         </div>
       </Modal>

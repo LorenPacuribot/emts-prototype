@@ -62,11 +62,11 @@ export function SmsTemplatesView() {
             <div className="rounded-2xl bg-white p-6 shadow-lg md:p-7">
               <div className="mb-6 flex items-center justify-between border-b border-gray-100 pb-4">
                 <h3 className="font-heading text-lg font-bold text-gray-900">{active.name}</h3>
-                <span className="rounded-full bg-gray-100 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-gray-500">SMS</span>
+                <span className="rounded-full bg-gray-100 px-3 py-1 text-xxs font-bold uppercase tracking-wider text-gray-500">SMS</span>
               </div>
               <div className="mb-1.5 flex items-center justify-between">
                 <Label className="mb-0">Message Body</Label>
-                <span className={cn('text-[11px]', body.length > MAX ? 'font-bold text-red-600' : 'text-gray-400')}>
+                <span className={cn('text-xs', body.length > MAX ? 'font-bold text-red-600' : 'text-gray-400')}>
                   {body.length} / {MAX} chars · {segments(body.length)} segment{segments(body.length) === 1 ? '' : 's'}
                 </span>
               </div>

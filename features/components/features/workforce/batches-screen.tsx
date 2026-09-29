@@ -77,13 +77,13 @@ function Batches() {
         <CardLabel icon={<FileSpreadsheet />}>Week of {dayLabel(week, false)} · payday {dayLabel(paydayFor(week))}</CardLabel>
         <div className="mt-3 grid gap-4 md:grid-cols-2 [&>*]:min-w-0">
           <div>
-            <div className="text-[12px] font-semibold text-slate-700">Ready for a batch</div>
-            <p className="text-[12px] text-slate-500">{eligible.length} approved hourly day{eligible.length === 1 ? "" : "s"}, not yet in a batch.</p>
+            <div className="text-xs font-semibold text-gray-700">Ready for a batch</div>
+            <p className="text-xs text-gray-500">{eligible.length} approved hourly day{eligible.length === 1 ? "" : "s"}, not yet in a batch.</p>
           </div>
           <div>
-            <div className="text-[12px] font-semibold text-slate-700">Excluded — stays outstanding</div>
-            {outstanding.length === 0 ? <p className="text-[12px] italic text-slate-400">Nothing outstanding.</p> : (
-              <ul className="text-[12px] text-slate-600">
+            <div className="text-xs font-semibold text-gray-700">Excluded — stays outstanding</div>
+            {outstanding.length === 0 ? <p className="text-xs italic text-gray-400">Nothing outstanding.</p> : (
+              <ul className="text-xs text-gray-600">
                 {outstanding.map((e) => (
                   <li key={e.id}>{byId(db.employees, e.employeeId)?.name} · {dayLabel(e.workDate)} · {hm(entryTotals(db, e).roundedMinutes)} — {e.dispute?.status === "open" ? "disputed" : e.state === "open" ? "not submitted" : "awaiting approval"}</li>
                 ))}
@@ -103,11 +103,11 @@ function Batches() {
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
                     <Lock className="h-4 w-4 text-indigo-600" />
-                    <span className="font-display text-[15px] font-bold text-ink">{b.id}</span>
+                    <span className="font-display text-base font-bold text-ink">{b.id}</span>
                     {b.correctionOf && <Badge tone="purple">Correction of {b.correctionOf}</Badge>}
                     {b.paidAt ? <Badge tone="green">Paid {dayLabel(b.paidAt.slice(0, 10), false)}</Badge> : <Badge tone="blue">Awaiting Gusto</Badge>}
                   </div>
-                  <div className="mt-1 text-[12.5px] text-slate-500">Week of {dayLabel(b.weekStart, false)} · created {dateTime(b.createdAt)} by {userName(db, b.createdBy)} · {b.lines.length} employee{b.lines.length === 1 ? "" : "s"}</div>
+                  <div className="mt-1 text-xs text-gray-500">Week of {dayLabel(b.weekStart, false)} · created {dateTime(b.createdAt)} by {userName(db, b.createdBy)} · {b.lines.length} employee{b.lines.length === 1 ? "" : "s"}</div>
                 </div>
                 <div className="flex flex-wrap gap-1">
                   {counts.accepted > 0 && <Badge tone="green">{counts.accepted} accepted</Badge>}
@@ -123,7 +123,7 @@ function Batches() {
       {db.payrollAdjustments.length > 0 && (
         <Card className="mt-4 p-4">
           <CardLabel icon={<Undo2 />}>Paid-period adjustments</CardLabel>
-          <p className="mt-1 text-[12px] text-slate-500">New records on the next paycheck. The paid entries are never edited.</p>
+          <p className="mt-1 text-xs text-gray-500">New records on the next paycheck. The paid entries are never edited.</p>
           <Table className="mt-3">
             <THead><tr><TH>Adjustment</TH><TH>Employee</TH><TH>Paid week</TH><TH className="text-right">Hours</TH><TH>Payday</TH><TH>Reason</TH></tr></THead>
             <tbody>
@@ -134,7 +134,7 @@ function Batches() {
                   <TD>{dayLabel(a.weekStart, false)}</TD>
                   <TD className="text-right tabular-nums">{a.minutes > 0 ? "+" : ""}{hm(a.minutes)}</TD>
                   <TD>{dayLabel(a.payday)}</TD>
-                  <TD className="max-w-xs whitespace-normal text-[12px]">{a.reason}</TD>
+                  <TD className="max-w-xs whitespace-normal text-xs">{a.reason}</TD>
                 </TR>
               ))}
             </tbody>
@@ -211,14 +211,14 @@ function BatchDrawer({ batchId, onClose }: { batchId?: string; onClose: () => vo
             const r = RESULT[l.result];
             return (
               <TR key={l.employeeId}>
-                <TD className="font-semibold">{emp?.name}<div className="text-[11px] font-normal text-slate-400">{l.entryIds.length} days</div></TD>
-                <TD className="text-[12px]">{emp?.gustoId ?? "—"}</TD>
+                <TD className="font-semibold">{emp?.name}<div className="text-xs font-normal text-gray-400">{l.entryIds.length} days</div></TD>
+                <TD className="text-xs">{emp?.gustoId ?? "—"}</TD>
                 <TD className="text-right tabular-nums">{hm(l.regularMinutes)}</TD>
                 <TD className="text-right tabular-nums">{hm(l.overtimeMinutes)}</TD>
                 <TD>
                   <Badge tone={r.tone}>{r.label}</Badge>
-                  {l.resultNote && <div className="mt-1 max-w-[220px] whitespace-normal text-[11px] text-red-700">{l.resultNote}</div>}
-                  {l.correctedInBatchId && <div className="mt-1 text-[11px] text-slate-500">Corrected in {l.correctedInBatchId}</div>}
+                  {l.resultNote && <div className="mt-1 max-w-[220px] whitespace-normal text-xs text-red-700">{l.resultNote}</div>}
+                  {l.correctedInBatchId && <div className="mt-1 text-xs text-gray-500">Corrected in {l.correctedInBatchId}</div>}
                 </TD>
                 {canResult && (
                   <TD>
@@ -233,7 +233,7 @@ function BatchDrawer({ batchId, onClose }: { batchId?: string; onClose: () => vo
           })}
         </tbody>
       </Table>
-      <p className="text-[11.5px] text-slate-500">Totals: {hm(b.lines.reduce((a, l) => a + l.regularMinutes, 0))} regular, {hm(b.lines.reduce((a, l) => a + l.overtimeMinutes, 0))} overtime.</p>
+      <p className="text-xs text-gray-500">Totals: {hm(b.lines.reduce((a, l) => a + l.regularMinutes, 0))} regular, {hm(b.lines.reduce((a, l) => a + l.overtimeMinutes, 0))} overtime.</p>
       <Modal
         open={!!rejecting}
         onOpenChange={(v) => !v && setRejecting(undefined)}

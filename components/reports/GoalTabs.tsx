@@ -74,11 +74,11 @@ export function SalesGoalTab({ year, range, setRange }: { year: number; range: D
             <h3 className="font-heading text-xl font-bold text-gray-900">{m.monthName} Performance</h3>
             <div className="mt-4 flex items-center gap-6 sm:mt-0">
               <div className="hidden text-right sm:block">
-                <div className="mb-0.5 text-[10px] font-bold uppercase tracking-widest text-gray-400">Goal</div>
+                <div className="mb-0.5 text-xxs font-bold uppercase tracking-widest text-gray-400">Goal</div>
                 <div className="text-xl font-bold text-gray-500">{money0(m.salesGoal)}</div>
               </div>
               <div className="text-right">
-                <div className="mb-0.5 text-[10px] font-bold uppercase tracking-widest text-gray-400">Total Sold</div>
+                <div className="mb-0.5 text-xxs font-bold uppercase tracking-widest text-gray-400">Total Sold</div>
                 <div className="text-2xl font-black text-gray-900">{money2(m.jobs.reduce((s, j) => s + j.amount, 0))}</div>
               </div>
               <button
@@ -106,7 +106,7 @@ export function SalesGoalTab({ year, range, setRange }: { year: number; range: D
                     <td className="whitespace-nowrap px-6 py-4 font-mono text-xs text-gray-400"><Link href={`/jobs/${j.id}`} className="hover:text-primary-600">{j.jobNumber}</Link></td>
                     <td className="whitespace-nowrap px-6 py-4 font-bold text-gray-900">{j.customer}</td>
                     <td className="whitespace-nowrap px-6 py-4">
-                      {j.source ? <span className="inline-flex rounded bg-gray-100 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-gray-500">{j.source}</span> : <span className="text-gray-300">-</span>}
+                      {j.source ? <span className="inline-flex rounded bg-gray-100 px-2 py-1 text-xxs font-bold uppercase tracking-wide text-gray-500">{j.source}</span> : <span className="text-gray-300">-</span>}
                     </td>
                     <td className="whitespace-nowrap px-6 py-4 text-right font-mono font-bold text-gray-900">{money0(j.amount)}</td>
                     <td className="whitespace-nowrap px-6 py-4 text-center text-gray-600">{j.hours}</td>
@@ -151,7 +151,7 @@ function GoalInfo({ perEstimate, avgJobSize, closingRate, hover }: { perEstimate
 function BelowTarget({ title, target, needed }: { title: string; target: string; needed: string }) {
   return (
     <div className="group relative flex items-center">
-      <span className="flex cursor-help items-center gap-1 rounded border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[9px] font-bold text-amber-600">
+      <span className="flex cursor-help items-center gap-1 rounded border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-xs font-bold text-amber-600">
         <AlertCircle className="h-3 w-3" /> Below Target
       </span>
       <div className="invisible absolute right-0 top-full z-50 mt-1.5 w-48 rounded-lg border border-gray-200 bg-white p-2.5 text-xs opacity-0 shadow-xl transition-all group-hover:visible group-hover:opacity-100">
@@ -229,22 +229,22 @@ export function StatsTab({ year }: { year: number }) {
             <h3 className="text-lg font-bold text-gray-900">{year} Performance Summary</h3>
             <div className="hidden items-center gap-4 border-l border-gray-200 px-4 md:flex">
               <div className="flex flex-col">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Target Revenue</span>
+                <span className="text-xxs font-bold uppercase tracking-widest text-gray-400">Target Revenue</span>
                 <span className="font-bold text-gray-900">{money0(targetRevenue)}</span>
               </div>
               <div className="flex flex-col">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Goal Total</span>
+                <span className="text-xxs font-bold uppercase tracking-widest text-gray-400">Goal Total</span>
                 <div className="flex items-center gap-2">
                   <span className={cn('font-bold', totalSales >= targetRevenue ? 'text-green-600' : 'text-amber-500')}>{money0(totalSales)}</span>
                   {totalSales < targetRevenue && <BelowTarget title="Sales Goal Shortfall" target={money0(targetRevenue)} needed={`+${money0(targetRevenue - totalSales)}`} />}
                 </div>
               </div>
               <div className="flex flex-col">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Annual Est. Goal</span>
+                <span className="text-xxs font-bold uppercase tracking-widest text-gray-400">Annual Est. Goal</span>
                 <span className="font-bold text-gray-900">{annualEstimatesTarget} Est.</span>
               </div>
               <div className="flex flex-col">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Current Est.</span>
+                <span className="text-xxs font-bold uppercase tracking-widest text-gray-400">Current Est.</span>
                 <div className="flex items-center gap-2">
                   <span className={cn('font-bold', totalEst >= annualEstimatesTarget ? 'text-green-600' : 'text-amber-500')}>{totalEst} Est.</span>
                   {totalEst < annualEstimatesTarget && <BelowTarget title="Estimates Shortfall" target={`${annualEstimatesTarget} Est.`} needed={`+${annualEstimatesTarget - totalEst} Est.`} />}
@@ -267,12 +267,12 @@ export function StatsTab({ year }: { year: number }) {
             </thead>
             <tbody className="divide-y divide-gray-100">
               <tr>
-                <td colSpan={13} className="sticky left-0 bg-white p-3 pl-4 text-[10px] font-bold uppercase tracking-widest text-blue-600">Estimates Pipeline</td>
+                <td colSpan={13} className="sticky left-0 bg-white p-3 pl-4 text-xxs font-bold uppercase tracking-widest text-blue-600">Estimates Pipeline</td>
               </tr>
               <tr className="group hover:bg-gray-50/50">
                 <td className={cn(cellL, 'group-hover:bg-gray-50')}>
                   <div className="flex items-center justify-between">
-                    <div>Estimate Goal<span className="mt-0.5 block text-[9px] font-normal text-gray-400">Editable</span></div>
+                    <div>Estimate Goal<span className="mt-0.5 block text-xs font-normal text-gray-400">Editable</span></div>
                     <GoalInfo perEstimate={perEstimate} avgJobSize={avgJobSize} closingRate={closingRate} hover="hover:text-blue-500" />
                   </div>
                 </td>
@@ -297,12 +297,12 @@ export function StatsTab({ year }: { year: number }) {
                 {months.map((m) => <td key={m.month} className="border-l border-gray-100 p-3 text-center text-xs font-bold text-gray-900">{m.jobsSold}</td>)}
               </tr>
               <tr className="border-t border-gray-200">
-                <td colSpan={13} className="sticky left-0 bg-white p-3 pl-4 text-[10px] font-bold uppercase tracking-widest text-green-600">Revenue Performance</td>
+                <td colSpan={13} className="sticky left-0 bg-white p-3 pl-4 text-xxs font-bold uppercase tracking-widest text-green-600">Revenue Performance</td>
               </tr>
               <tr className="group hover:bg-gray-50/50">
                 <td className={cn(cellL, 'group-hover:bg-gray-50')}>
                   <div className="flex items-center justify-between">
-                    <div>Sales Goal<span className="mt-0.5 block text-[9px] font-normal text-gray-400">Editable</span></div>
+                    <div>Sales Goal<span className="mt-0.5 block text-xs font-normal text-gray-400">Editable</span></div>
                     <GoalInfo perEstimate={perEstimate} avgJobSize={avgJobSize} closingRate={closingRate} hover="hover:text-green-500" />
                   </div>
                 </td>
@@ -352,7 +352,7 @@ export function StatsTab({ year }: { year: number }) {
                   <div className="w-1/3 rounded-t bg-green-200" style={{ height: `${((salesGoals[i] ?? 0) / maxBar) * 100}%` }} title={`Goal ${money0(salesGoals[i] ?? 0)}`} />
                   <div className="w-1/3 rounded-t bg-primary-600" style={{ height: `${(m.actualSold / maxBar) * 100}%` }} title={`Actual ${money0(m.actualSold)}`} />
                 </div>
-                <span className="text-[10px] font-bold uppercase text-gray-400">{MONTH_LABELS[i]!.slice(0, 3)}</span>
+                <span className="text-xxs font-bold uppercase text-gray-400">{MONTH_LABELS[i]!.slice(0, 3)}</span>
               </div>
             ))}
           </div>

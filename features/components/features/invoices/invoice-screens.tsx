@@ -103,9 +103,9 @@ export function InvoicesListScreen() {
                   <h3 className="mt-1 font-bold text-gray-900">{byId(db.customers, job?.customerId)?.name}</h3>
                   <div className="text-sm text-gray-500">{job?.id} · {job?.name}</div>
                 </div>
-                {showQbo && <div className="md:w-40" onClick={(e) => e.stopPropagation()}><div className="text-[10px] font-bold uppercase tracking-wider text-gray-400">QuickBooks</div><QboCell invoiceId={i.id} /></div>}
+                {showQbo && <div className="md:w-40" onClick={(e) => e.stopPropagation()}><div className="text-xxs font-bold uppercase tracking-wider text-gray-400">QuickBooks</div><QboCell invoiceId={i.id} /></div>}
                 <div className="text-right">
-                  <div className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Balance Due</div>
+                  <div className="text-xxs font-bold uppercase tracking-wider text-gray-400">Balance Due</div>
                   <div className="text-xl font-black text-gray-900">{money(invoiceBalance(i), { cents: true })}</div>
                   <div className="text-xs text-gray-400">Total: {money(i.amount, { cents: true })}</div>
                 </div>
@@ -161,12 +161,12 @@ export function InvoiceDetailsScreen() {
             <div className="text-center"><h2 className="font-heading text-2xl font-extrabold">{job?.name}</h2><div className="text-sm text-gray-500">Invoice #{inv.id}</div></div>
             <div className="mt-8 flex flex-wrap items-start justify-between gap-4 border-b border-gray-200 pb-6">
               <div><div className="font-heading text-lg font-bold">Estimate Master Painting</div><div className="text-xs text-gray-500">410 Commerce Park, Dallas, TX 75201</div></div>
-              <div className="text-right"><div className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Balance Due</div><div className="font-heading text-4xl font-black">{money(invoiceBalance(inv), { cents: true })}</div><StatusPill tone={STATUS[inv.status].tone}>{STATUS[inv.status].label}</StatusPill></div>
+              <div className="text-right"><div className="text-xxs font-bold uppercase tracking-widest text-gray-400">Balance Due</div><div className="font-heading text-4xl font-black">{money(invoiceBalance(inv), { cents: true })}</div><StatusPill tone={STATUS[inv.status].tone}>{STATUS[inv.status].label}</StatusPill></div>
             </div>
             <div className="grid gap-4 border-b border-gray-200 py-6 sm:grid-cols-3 text-sm">
-              <div><div className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Client</div><div className="font-semibold">{customer?.name}</div><div className="text-gray-500">{customer?.email}</div></div>
-              <div><div className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Job Site</div><div>{property ? propertyAddress(property, true) : "No job address specified"}</div></div>
-              <div><div className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Dates</div><div>Invoice Date: {date(inv.createdAt)}</div></div>
+              <div><div className="text-xxs font-bold uppercase tracking-widest text-gray-400">Client</div><div className="font-semibold">{customer?.name}</div><div className="text-gray-500">{customer?.email}</div></div>
+              <div><div className="text-xxs font-bold uppercase tracking-widest text-gray-400">Job Site</div><div>{property ? propertyAddress(property, true) : "No job address specified"}</div></div>
+              <div><div className="text-xxs font-bold uppercase tracking-widest text-gray-400">Dates</div><div>Invoice Date: {date(inv.createdAt)}</div></div>
             </div>
             <table className="mt-6 w-full text-sm">
               <thead><tr className="border-b border-gray-200 text-left text-xs uppercase tracking-wider text-gray-500"><th className="py-2">Item</th><th className="py-2 text-right">Price</th></tr></thead>
@@ -208,7 +208,7 @@ export function InvoiceDetailsScreen() {
 function QboCard({ invoiceId }: { invoiceId: string }) {
   const q = useQbo(invoiceId);
   return (
-    <div className="mt-8 rounded-2xl border border-emerald-300 bg-white p-6 shadow-sm ring-1 ring-emerald-100" data-tour="invoice-qbo">
+    <div className="mt-8 rounded-2xl border border-green-300 bg-white p-6 shadow-sm ring-1 ring-green-100" data-tour="invoice-qbo">
       <h3 className="mb-3 flex flex-wrap items-center gap-2 font-heading text-lg font-bold"><Landmark className="h-5 w-5 text-primary-600" /> QuickBooks exchange <NewBadge feature={33} /> <ConfirmBadge /></h3>
       <div className="flex flex-wrap items-center gap-3 text-sm">
         <StatusPill tone={q.tone}>{q.state}</StatusPill>

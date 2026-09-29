@@ -151,10 +151,10 @@ function Review() {
                   <TR key={e.id} className="cursor-pointer" onClick={() => setOpenId(e.id)}>
                     <TD>
                       <div className="font-semibold text-ink">{emp.name}</div>
-                      <div className="text-[11px] text-slate-400">{emp.type === "hourly" ? "Hourly" : emp.type === "salaried" ? "Salaried" : "Subcontractor"}</div>
+                      <div className="text-xs text-gray-400">{emp.type === "hourly" ? "Hourly" : emp.type === "salaried" ? "Salaried" : "Subcontractor"}</div>
                     </TD>
                     <TD className="whitespace-nowrap">{dayLabel(e.workDate)}</TD>
-                    <TD className="whitespace-nowrap tabular-nums text-[12px]">{timeLabel(segs[0]?.start)} – {segs.every((s) => s.end) ? timeLabel(segs[segs.length - 1]?.end) : "now"}<div className="text-[11px] text-slate-400">{segs.length} punch{segs.length === 1 ? "" : "es"}</div></TD>
+                    <TD className="whitespace-nowrap tabular-nums text-xs">{timeLabel(segs[0]?.start)} – {segs.every((s) => s.end) ? timeLabel(segs[segs.length - 1]?.end) : "now"}<div className="text-xs text-gray-400">{segs.length} punch{segs.length === 1 ? "" : "es"}</div></TD>
                     <TD className="tabular-nums">{hm(totals.workedMinutes)}</TD>
                     <TD className="tabular-nums">{totals.lunchMinutes ? `−${hm(totals.lunchMinutes)}` : "—"}</TD>
                     <TD className="tabular-nums font-bold text-ink">{hm(totals.roundedMinutes)}</TD>
@@ -172,13 +172,13 @@ function Review() {
       <div className="mt-4 grid gap-4 xl:grid-cols-2 [&>*]:min-w-0">
         <Card className="p-4">
           <CardLabel icon={<TriangleAlert />}>Excluded from export</CardLabel>
-          <p className="mt-1 text-[12px] text-slate-500">Hourly time that isn't approved stays out of the Gusto file and stays visible here until it is settled.</p>
+          <p className="mt-1 text-xs text-gray-500">Hourly time that isn't approved stays out of the Gusto file and stays visible here until it is settled.</p>
           <div className="mt-3 space-y-1.5">
-            {excluded.length === 0 && <p className="text-[12.5px] italic text-slate-400">Every hourly day this week is approved.</p>}
+            {excluded.length === 0 && <p className="text-xs italic text-gray-400">Every hourly day this week is approved.</p>}
             {excluded.map((r) => (
-              <button key={r.e.id} onClick={() => setOpenId(r.e.id)} className="flex w-full items-center justify-between rounded-lg border border-line px-3 py-2 text-left text-[12.5px] hover:bg-slate-50">
+              <button key={r.e.id} onClick={() => setOpenId(r.e.id)} className="flex w-full items-center justify-between rounded-lg border border-line px-3 py-2 text-left text-xs hover:bg-gray-50">
                 <span><strong>{r.emp.name}</strong> · {dayLabel(r.e.workDate)} · {hm(r.totals.roundedMinutes)}</span>
-                <span className="text-[11.5px] text-slate-500">{r.flags[0]?.label ?? (r.e.state === "open" ? "Not submitted" : "Awaiting approval")}</span>
+                <span className="text-xs text-gray-500">{r.flags[0]?.label ?? (r.e.state === "open" ? "Not submitted" : "Awaiting approval")}</span>
               </button>
             ))}
           </div>
@@ -186,7 +186,7 @@ function Review() {
         {payrollDetail ? (
           <Card className="p-4">
             <CardLabel>Weekly classification</CardLabel>
-            <p className="mt-1 text-[12px] text-slate-500">Overtime starts above 40 hours and lands on the last hours of the week, on the jobs where they fell. Gusto validates the categories.</p>
+            <p className="mt-1 text-xs text-gray-500">Overtime starts above 40 hours and lands on the last hours of the week, on the jobs where they fell. Gusto validates the categories.</p>
             <Table className="mt-3">
               <THead><tr><TH>Employee</TH><TH className="text-right">Regular</TH><TH className="text-right">Overtime</TH><TH>Overtime on</TH></tr></THead>
               <tbody>
@@ -197,7 +197,7 @@ function Review() {
                       <TD className="font-semibold">{emp.name}</TD>
                       <TD className="text-right tabular-nums">{hm(w.regular)}</TD>
                       <TD className={`text-right tabular-nums ${w.overtime ? "font-bold text-amber-700" : ""}`}>{hm(w.overtime)}</TD>
-                      <TD className="text-[11.5px] text-slate-500">{otJobs.join(", ") || "—"}</TD>
+                      <TD className="text-xs text-gray-500">{otJobs.join(", ") || "—"}</TD>
                     </TR>
                   );
                 })}
@@ -207,7 +207,7 @@ function Review() {
         ) : (
           <Card className="p-4">
             <CardLabel>Weekly classification</CardLabel>
-            <p className="mt-2 text-[12.5px] text-slate-500">Regular and overtime classification is payroll detail, shown to the office manager and business owner.</p>
+            <p className="mt-2 text-xs text-gray-500">Regular and overtime classification is payroll detail, shown to the office manager and business owner.</p>
           </Card>
         )}
       </div>

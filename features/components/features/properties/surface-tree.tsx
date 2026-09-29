@@ -39,8 +39,8 @@ export function SurfaceTree({ areas, surfaces, apps, selected, onSelect, canEdit
       {groups.map((g) => (
         <div key={g.key}>
           {g.label && (
-            <button onClick={() => toggle(g.key)} className="flex w-full items-center gap-1.5 rounded-lg px-1.5 py-1.5 text-left text-[12px] font-bold text-ink hover:bg-slate-50" aria-expanded={!collapsed[g.key]}>
-              {collapsed[g.key] ? <ChevronRight className="h-3.5 w-3.5 text-slate-400" /> : <ChevronDown className="h-3.5 w-3.5 text-slate-400" />}
+            <button onClick={() => toggle(g.key)} className="flex w-full items-center gap-1.5 rounded-lg px-1.5 py-1.5 text-left text-xs font-bold text-ink hover:bg-gray-50" aria-expanded={!collapsed[g.key]}>
+              {collapsed[g.key] ? <ChevronRight className="h-3.5 w-3.5 text-gray-400" /> : <ChevronDown className="h-3.5 w-3.5 text-gray-400" />}
               <Building2 className="h-3.5 w-3.5 text-brand" /> {g.label}
             </button>
           )}
@@ -51,28 +51,28 @@ export function SurfaceTree({ areas, surfaces, apps, selected, onSelect, canEdit
                 const isCollapsed = collapsed[area.id];
                 return (
                   <div key={area.id} role="treeitem" aria-expanded={!isCollapsed}>
-                    <button onClick={() => toggle(area.id)} className="flex w-full items-center gap-1.5 rounded-lg px-1.5 py-1.5 text-left text-[12.5px] font-semibold text-slate-700 hover:bg-slate-50">
-                      {isCollapsed ? <ChevronRight className="h-3.5 w-3.5 text-slate-400" /> : <ChevronDown className="h-3.5 w-3.5 text-slate-400" />}
-                      <DoorOpen className="h-3.5 w-3.5 text-slate-400" />
+                    <button onClick={() => toggle(area.id)} className="flex w-full items-center gap-1.5 rounded-lg px-1.5 py-1.5 text-left text-xs font-semibold text-gray-700 hover:bg-gray-50">
+                      {isCollapsed ? <ChevronRight className="h-3.5 w-3.5 text-gray-400" /> : <ChevronDown className="h-3.5 w-3.5 text-gray-400" />}
+                      <DoorOpen className="h-3.5 w-3.5 text-gray-400" />
                       <span className="flex-1">{area.name}</span>
-                      <span className="text-[10.5px] font-medium text-slate-400">{area.kind === "exterior" ? "Elevation" : "Room"}</span>
+                      <span className="text-xs font-medium text-gray-400">{area.kind === "exterior" ? "Elevation" : "Room"}</span>
                     </button>
                     {!isCollapsed && (
                       <div className="ml-4 space-y-0.5 border-l border-line pl-2">
-                        {list.length === 0 && <div className="px-2 py-1 text-[11.5px] italic text-slate-400">No surfaces</div>}
+                        {list.length === 0 && <div className="px-2 py-1 text-xs italic text-gray-400">No surfaces</div>}
                         {list.map((s) => {
                           const count = apps.filter((a) => a.surfaceId === s.id).length;
                           const active = selected === s.id;
                           return (
-                            <div key={s.id} className={cn("group flex items-center gap-1 rounded-lg border", active ? "border-blue-100 bg-brand-soft" : "border-transparent hover:bg-slate-50")}>
+                            <div key={s.id} className={cn("group flex items-center gap-1 rounded-lg border", active ? "border-blue-100 bg-brand-soft" : "border-transparent hover:bg-gray-50")}>
                               <button onClick={() => onSelect(s.id)} className="flex min-w-0 flex-1 items-center gap-2 px-2 py-1.5 text-left" aria-current={active || undefined}>
-                                <span className={cn("min-w-0 flex-1 truncate text-[12.5px]", active ? "font-semibold text-brand" : "text-slate-700", s.removedAt && "text-slate-400 line-through")}>{s.name}</span>
+                                <span className={cn("min-w-0 flex-1 truncate text-xs", active ? "font-semibold text-brand" : "text-gray-700", s.removedAt && "text-gray-400 line-through")}>{s.name}</span>
                                 {s.removedAt ? (
                                   <Tooltip content={s.removedReason ?? "Removed"}>
-                                    <span className="whitespace-nowrap text-[10.5px] font-semibold text-red-500">Removed {dateLong(s.removedAt)}</span>
+                                    <span className="whitespace-nowrap text-xs font-semibold text-red-500">Removed {dateLong(s.removedAt)}</span>
                                   </Tooltip>
                                 ) : (
-                                  <span className={cn("rounded-full px-1.5 text-[10px] font-bold", count ? "bg-slate-100 text-slate-500" : "text-slate-300")}>{count}</span>
+                                  <span className={cn("rounded-full px-1.5 text-xs font-bold", count ? "bg-gray-100 text-gray-500" : "text-gray-300")}>{count}</span>
                                 )}
                               </button>
                               {canEdit && !s.removedAt && (

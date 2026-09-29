@@ -104,11 +104,11 @@ export function LineStatusModal({ po, line, onClose }: { po?: PurchaseOrder; lin
             {FULFIL.map((s) => <option key={s} value={s}>{LINE_STATUS_LABEL[s]}</option>)}
           </Select>
         </Field>
-        {status === "substitute_available" && <p className="text-[11.5px] text-amber-800">Type what the supplier is offering below. The line then opens the replacement review.</p>}
+        {status === "substitute_available" && <p className="text-xs text-amber-800">Type what the supplier is offering below. The line then opens the replacement review.</p>}
         <Field label="Supplier's status text (verbatim)" error={e("supplierText")} hint={text.trim() ? (mapped ? `Matches "${LINE_STATUS_LABEL[mapped]}".` : "Unfamiliar text — it will be kept exactly as typed for human review, and no status will be inferred.") : "Optional. Copy it exactly as the branch wrote or said it."}>
           <Input value={text} onChange={(ev) => setText(ev.target.value)} placeholder='e.g. "BO - TINT MACH DOWN / ETA 2D"' invalid={!!e("supplierText")} />
         </Field>
-        <p className="text-[11.5px] text-slate-500">A status change never creates an expense. Financial reconciliation happens in accounting.</p>
+        <p className="text-xs text-gray-500">A status change never creates an expense. Financial reconciliation happens in accounting.</p>
       </div>
     </Modal>
   );
@@ -189,9 +189,9 @@ export function ReplaceModal({ po, line, onClose }: { po?: PurchaseOrder; line?:
             {offer.catalogId ? "It's preselected below. Rule 1 decides who approves it." : "It isn't in the product library — choose the closest product, or decline and call the branch."}
           </Banner>
         )}
-        <div className="rounded-lg bg-slate-50 p-3 text-[12.5px]">
+        <div className="rounded-lg bg-gray-50 p-3 text-xs">
           <div className="font-semibold text-ink">Current: {line?.product}</div>
-          <div className="text-slate-600">{line?.colourLabel} · {line?.sheen} · {line?.packs.map((p) => `${p.count} × ${PACK_LABEL[p.size]}`).join(" + ")}</div>
+          <div className="text-gray-600">{line?.colourLabel} · {line?.sheen} · {line?.packs.map((p) => `${p.count} × ${PACK_LABEL[p.size]}`).join(" + ")}</div>
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Replacement product" required>
@@ -458,21 +458,21 @@ function ElectronicPreview({ po }: { po: PurchaseOrder }) {
   const conn = byId(db.suppliers, po.supplierId)?.connection;
   const built = buildSupplierOrder(db, po);
   return (
-    <div className="rounded-lg border border-amber-200 bg-amber-50/50 p-3 text-[12.5px]">
+    <div className="rounded-lg border border-amber-200 bg-amber-50/50 p-3 text-xs">
       <div className="flex flex-wrap items-center gap-2">
         <span className="font-semibold text-ink">{conn?.endpointLabel}</span>
-        {conn?.sandbox && <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-bold text-amber-800">Sandbox — no real supplier is contacted</span>}
-        {conn?.mode === "live" && <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-bold text-emerald-800">Live{conn.endpointHost ? ` · ${conn.endpointHost}` : ""}</span>}
+        {conn?.sandbox && <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-bold text-amber-800">Sandbox — no real supplier is contacted</span>}
+        {conn?.mode === "live" && <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-bold text-green-800">Live{conn.endpointHost ? ` · ${conn.endpointHost}` : ""}</span>}
         {conn && conn.health !== "healthy" && <span className="text-red-600">Connection {conn.health === "failing" ? "failing" : "not tested"} — test it under Suppliers.</span>}
       </div>
       {"error" in built ? (
         <p className="mt-2 font-medium text-red-700">{built.error}</p>
       ) : (
         <details className="mt-2">
-          <summary className="cursor-pointer text-slate-600">
+          <summary className="cursor-pointer text-gray-600">
             Structured order: {built.payload.lines.length} line{built.payload.lines.length === 1 ? "" : "s"}, store {built.payload.storeNumber}, every pack has an item code. Show payload
           </summary>
-          <pre className="mt-2 max-h-64 overflow-auto rounded bg-white p-2 font-mono text-[11px] text-slate-700">{JSON.stringify({ ...built.payload, accountNumber: "••••" }, null, 2)}</pre>
+          <pre className="mt-2 max-h-64 overflow-auto rounded bg-white p-2 font-mono text-xs text-gray-700">{JSON.stringify({ ...built.payload, accountNumber: "••••" }, null, 2)}</pre>
         </details>
       )}
     </div>

@@ -145,7 +145,7 @@ export default function PayInvoicePage() {
             ) : (
               <div className="space-y-4">
                 <div>
-                  <div className="text-[11px] font-bold uppercase tracking-widest text-gray-400">Amount Due</div>
+                  <div className="text-xs font-bold uppercase tracking-widest text-gray-400">Amount Due</div>
                   <div className="mt-1 text-3xl font-black tracking-tight text-gray-900">{usd(t.balance)}</div>
                   <div className="text-xs text-gray-500">Invoice {invoice.invoiceNumber}</div>
                 </div>
@@ -172,7 +172,7 @@ export default function PayInvoicePage() {
                 <Button size="lg" className="w-full" loading={processing} icon={<Lock className="h-4 w-4" />} onClick={pay}>
                   Pay {usd(amount || 0)}
                 </Button>
-                <p className="flex items-center justify-center gap-1.5 text-center text-[11px] text-gray-400">
+                <p className="flex items-center justify-center gap-1.5 text-center text-xs text-gray-400">
                   <ShieldCheck className="h-3.5 w-3.5" /> Secure payment. Card details are never stored.
                 </p>
               </div>

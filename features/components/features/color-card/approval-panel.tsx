@@ -24,15 +24,15 @@ export function ApprovalPanel({ jobId }: { jobId: string }) {
       <div className="mt-4 space-y-3">
         {approvals.length === 0 && <EmptyState title="Nothing sent for approval yet." body="Use Send For Approval to send one or more specifications." />}
         {approvals.map((a) => (
-          <div key={a.id} className="rounded-xl border border-line p-3 text-[12.5px]">
+          <div key={a.id} className="rounded-xl border border-line p-3 text-xs">
             <div className="flex flex-wrap items-center gap-2">
               <span className="font-bold text-ink">{a.id}</span>
               <Badge tone={a.status === "approved" ? "green" : "blue"}>{a.status === "approved" ? "Approved" : "Awaiting reply"}</Badge>
-              <span className="text-slate-500">v{a.cardVersion}</span>
-              <span className="text-slate-500">· {CHANNEL_LABEL[a.channel]}</span>
+              <span className="text-gray-500">v{a.cardVersion}</span>
+              <span className="text-gray-500">· {CHANNEL_LABEL[a.channel]}</span>
             </div>
-            <div className="mt-1 text-slate-600">Specifications: {a.specIds.join(", ")}</div>
-            <div className="mt-1 text-slate-500">
+            <div className="mt-1 text-gray-600">Specifications: {a.specIds.join(", ")}</div>
+            <div className="mt-1 text-gray-500">
               {a.status === "approved" ? `Signed by ${a.signer} · ${dateTime(a.approvedAt)}` : `Sent ${dateTime(a.sentAt)} by ${userName(db, a.sentBy)}`}
             </div>
             <div className="mt-2 flex gap-2">
@@ -207,8 +207,8 @@ export function SendApprovalModal({ open, onOpenChange, jobId, preselect }: { op
                       </span>
                     }
                   />
-                  {blocked && picked.includes(s.id) && <p className="mt-1 pl-6 text-[11.5px] font-medium text-red-600">{blocked}</p>}
-                  {blocked && !picked.includes(s.id) && <p className="mt-1 pl-6 text-[11.5px] text-slate-400">{blocked}</p>}
+                  {blocked && picked.includes(s.id) && <p className="mt-1 pl-6 text-xs font-medium text-red-600">{blocked}</p>}
+                  {blocked && !picked.includes(s.id) && <p className="mt-1 pl-6 text-xs text-gray-400">{blocked}</p>}
                 </div>
               );
             })}
@@ -223,7 +223,7 @@ export function SendApprovalModal({ open, onOpenChange, jobId, preselect }: { op
             ))}
           </Select>
         </Field>
-        <p className="flex items-center gap-1.5 text-[11.5px] text-slate-500">
+        <p className="flex items-center gap-1.5 text-xs text-gray-500">
           <Mail className="h-3.5 w-3.5" /> The prototype records the send; no real email leaves the browser.
         </p>
       </div>

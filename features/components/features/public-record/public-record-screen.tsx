@@ -83,9 +83,9 @@ function PublicRecord() {
     return (
       <Shell>
         <div className="rounded-2xl border border-line bg-white p-8 text-center shadow-card">
-          <SearchX className="mx-auto h-8 w-8 text-slate-300" />
-          <h1 className="mt-3 font-display text-[20px] font-bold text-ink">Record not found</h1>
-          <p className="mt-2 text-[14px] text-slate-600">This link doesn&apos;t match a paint record. Check the address on your card, or call us.</p>
+          <SearchX className="mx-auto h-8 w-8 text-gray-300" />
+          <h1 className="mt-3 font-display text-xl font-bold text-ink">Record not found</h1>
+          <p className="mt-2 text-sm text-gray-600">This link doesn&apos;t match a paint record. Check the address on your card, or call us.</p>
           <PhoneButton />
         </div>
       </Shell>
@@ -98,10 +98,10 @@ function PublicRecord() {
       <Shell>
         <div className="rounded-2xl border border-line bg-white p-8 text-center shadow-card">
           <Logo className="mx-auto h-12 w-12" />
-          <div className="mt-2 font-display text-[14px] font-extrabold text-ink">{BUSINESS.name}</div>
-          <Truck className="mx-auto mt-6 h-8 w-8 text-slate-300" />
-          <h1 className="mt-3 font-display text-[22px] font-bold text-ink">Record has moved</h1>
-          <p className="mx-auto mt-2 max-w-sm text-[14px] text-slate-600">This paint record is no longer available at this link. Please call us and we&apos;ll help.</p>
+          <div className="mt-2 font-display text-sm font-extrabold text-ink">{BUSINESS.name}</div>
+          <Truck className="mx-auto mt-6 h-8 w-8 text-gray-300" />
+          <h1 className="mt-3 font-display text-2xl font-bold text-ink">Record has moved</h1>
+          <p className="mx-auto mt-2 max-w-sm text-sm text-gray-600">This paint record is no longer available at this link. Please call us and we&apos;ll help.</p>
           <PhoneButton />
         </div>
       </Shell>
@@ -124,7 +124,7 @@ function PublicRecord() {
         <RecordBody record={record} onTouchUp={(surfaceId, colourLabel) => setTouchUp({ surfaceId, colourLabel })} />
         <RecordFooter />
       </div>
-      <p className="mt-4 text-center text-[11.5px] text-slate-400">Read-only record. No login needed. Anyone with this link can view it.</p>
+      <p className="mt-4 text-center text-xs text-gray-400">Read-only record. No login needed. Anyone with this link can view it.</p>
       <TouchUpModal prefill={touchUp} onClose={() => setTouchUp(undefined)} linkRef={link.ref} record={record} />
     </Shell>
   );
@@ -132,7 +132,7 @@ function PublicRecord() {
 
 function PhoneButton() {
   return (
-    <a href={`tel:${BUSINESS.phone.replace(/\D/g, "")}`} className="mt-5 inline-flex items-center gap-2 rounded-lg bg-brand px-4 py-2.5 text-[15px] font-bold text-white shadow-sm hover:bg-brand-dark">
+    <a href={`tel:${BUSINESS.phone.replace(/\D/g, "")}`} className="mt-5 inline-flex items-center gap-2 rounded-lg bg-brand px-4 py-2.5 text-base font-bold text-white shadow-sm hover:bg-brand-dark">
       <Phone className="h-4 w-4" /> {BUSINESS.phone}
     </a>
   );
@@ -151,15 +151,15 @@ function PassportView({ passport }: { passport: import("@/features/types").Paint
         <div className="flex items-center gap-3">
           <Logo className="h-10 w-10" />
           <div>
-            <div className="font-display text-[20px] font-bold text-ink">Paint Passport</div>
-            <div className="text-[13px] text-slate-500">{customer?.name ? `For ${customer.name} · ` : ""}{passport.jobIds.length} job{passport.jobIds.length === 1 ? "" : "s"} · from {BUSINESS.name}</div>
+            <div className="font-display text-xl font-bold text-ink">Paint Passport</div>
+            <div className="text-sm text-gray-500">{customer?.name ? `For ${customer.name} · ` : ""}{passport.jobIds.length} job{passport.jobIds.length === 1 ? "" : "s"} · from {BUSINESS.name}</div>
           </div>
         </div>
         <div className="no-print">
           <Button onClick={() => printElement(docRef.current, "Paint passport")}><Download className="h-4 w-4" /> Download PDF</Button>
         </div>
         {records.length === 0 ? (
-          <p className="text-[14px] text-slate-600">There is nothing to show on this passport any more. Please call us and we&apos;ll help.</p>
+          <p className="text-sm text-gray-600">There is nothing to show on this passport any more. Please call us and we&apos;ll help.</p>
         ) : records.map((record) => (
           <section key={record.propertyId} className="space-y-4 border-t border-line pt-6 first:border-t-0 first:pt-0">
             <RecordHeader record={record} />
@@ -168,7 +168,7 @@ function PassportView({ passport }: { passport: import("@/features/types").Paint
         ))}
         <RecordFooter />
       </div>
-      <p className="mt-4 text-center text-[11.5px] text-slate-400">Read-only passport. No login needed. Anyone with this link can view it.</p>
+      <p className="mt-4 text-center text-xs text-gray-400">Read-only passport. No login needed. Anyone with this link can view it.</p>
     </Shell>
   );
 }

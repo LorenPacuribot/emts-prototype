@@ -139,7 +139,7 @@ export function ChangeOrdersSection({ job, estimateId, creating, setCreating }: 
       )}
 
       <Card className="p-5" data-tour="co-list">
-        <CardLabel icon={<FileDiff />} right={<span className="text-[11.5px] text-slate-400">{cos.length} change order{cos.length === 1 ? "" : "s"}</span>}>
+        <CardLabel icon={<FileDiff />} right={<span className="text-xs text-gray-400">{cos.length} change order{cos.length === 1 ? "" : "s"}</span>}>
           Change order list
         </CardLabel>
         <PillTabs
@@ -188,35 +188,35 @@ export function ChangeOrdersSection({ job, estimateId, creating, setCreating }: 
                       <TD>
                         <div className="flex items-center gap-1.5">
                           <IdChip tone="blue">{c.id}</IdChip>
-                          <span className="text-[10.5px] text-slate-400">v{c.version ?? 1}</span>
+                          <span className="text-xs text-gray-400">v{c.version ?? 1}</span>
                         </div>
-                        <div className="mt-0.5 max-w-36 truncate text-[12px] font-medium text-ink" title={c.title}>{c.title}</div>
+                        <div className="mt-0.5 max-w-36 truncate text-xs font-medium text-ink" title={c.title}>{c.title}</div>
                       </TD>
                       <TD><TypeBadge type={c.type} /></TD>
                       {canPrice && (
                         <TD className="text-right">
-                          <div className="text-[11.5px] text-slate-500">Gross {money(p.grossAddition)}</div>
+                          <div className="text-xs text-gray-500">Gross {money(p.grossAddition)}</div>
                           <div className={`font-semibold ${p.net < 0 ? "text-pink-700" : "text-ink"}`}>Net {money(p.net)}</div>
                         </TD>
                       )}
                       <TD><StatusBadge co={c} stack /></TD>
                       <TD>
                         {c.parentId ? (
-                          <button className="text-[11.5px] font-semibold text-brand hover:underline" onClick={(e) => { e.stopPropagation(); setOpenId(c.parentId); }}>
+                          <button className="text-xs font-semibold text-brand hover:underline" onClick={(e) => { e.stopPropagation(); setOpenId(c.parentId); }}>
                             {c.parentId}
                           </button>
                         ) : (
-                          <span className="text-slate-300">—</span>
+                          <span className="text-gray-300">—</span>
                         )}
                       </TD>
                       <TD>
-                        <div className="text-[12px]">{c.sentAt ? `Sent ${date(c.sentAt)}` : <span className="text-slate-300">Not sent</span>}</div>
+                        <div className="text-xs">{c.sentAt ? `Sent ${date(c.sentAt)}` : <span className="text-gray-300">Not sent</span>}</div>
                         {link && c.status === "sent" ? (
                           <span className={lst === "expired" ? "font-semibold text-amber-700" : ""}>
-                            Expires {date(link.expiresAt)} <span className="block text-[11px] text-slate-400">{relDays(link.expiresAt, nowIso)}</span>
+                            Expires {date(link.expiresAt)} <span className="block text-xs text-gray-400">{relDays(link.expiresAt, nowIso)}</span>
                           </span>
                         ) : link ? (
-                          <span className="text-[11px] text-slate-400">Link {date(link.expiresAt)}</span>
+                          <span className="text-xs text-gray-400">Link {date(link.expiresAt)}</span>
                         ) : null}
                       </TD>
                       <TD><Badge tone={ap.tone} className="max-w-28 whitespace-normal">{ap.label}</Badge></TD>
@@ -241,7 +241,7 @@ export function ChangeOrdersSection({ job, estimateId, creating, setCreating }: 
 
       <Card className="mt-4 p-5">
         <CardLabel icon={<Palette />}>Colour Re-approvals (Rule 1)</CardLabel>
-        <p className="mt-2 text-[12px] text-slate-500">
+        <p className="mt-2 text-xs text-gray-500">
           A separately numbered record, used only when a colour changes with no price change, nothing tinted or ordered, and the same brand, product line and sheen. Never raised together with a change order.
         </p>
         <div className="mt-3">

@@ -54,14 +54,14 @@ export function timeLabel(iso?: string): string {
 }
 
 export function HoursCell({ minutes, muted }: { minutes: number; muted?: boolean }) {
-  return <span className={muted ? "tabular-nums text-slate-400" : "tabular-nums font-semibold text-ink"}>{hm(minutes)}</span>;
+  return <span className={muted ? "tabular-nums text-gray-400" : "tabular-nums font-semibold text-ink"}>{hm(minutes)}</span>;
 }
 
 export function JobChips({ rows }: { rows: { jobId?: string; allocated: number }[] }) {
   return (
     <div className="flex flex-wrap gap-1">
       {rows.map((r) => (
-        <span key={r.jobId ?? "oh"} className={`rounded-md px-1.5 py-0.5 text-[10.5px] font-semibold ${r.jobId ? "bg-blue-50 text-blue-700" : "bg-slate-100 text-slate-500"}`}>
+        <span key={r.jobId ?? "oh"} className={`rounded-md px-1.5 py-0.5 text-xs font-semibold ${r.jobId ? "bg-blue-50 text-blue-700" : "bg-gray-100 text-gray-500"}`}>
           {r.jobId ?? "Overhead"} {hm(r.allocated)}
         </span>
       ))}

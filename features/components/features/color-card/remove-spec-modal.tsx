@@ -75,7 +75,7 @@ export function RemoveSpecModal({ spec, onClose }: { spec?: SpecLine; onClose: (
           )}
         </div>
       ) : (
-        <p className="text-[13px] text-slate-600">This removes the line from the card. The action is logged.</p>
+        <p className="text-sm text-gray-600">This removes the line from the card. The action is logged.</p>
       )}
     </Modal>
   );

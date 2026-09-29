@@ -92,12 +92,12 @@ export function WoTwinChips({ twin }: { twin: WoTwin }) {
     <>
       {openCos.length > 0 && (
         <AppLink href={job.estimateId ? estimateHref(job.estimateId, 'section-change-orders') : '#'}
-          className="inline-flex items-center gap-1 rounded-md border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[10px] font-bold text-amber-700">
+          className="inline-flex items-center gap-1 rounded-md border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-xs font-bold text-amber-700">
           {openCos.length} open change order{openCos.length === 1 ? '' : 's'} <NewBadge feature={24} />
         </AppLink>
       )}
       {wo.status === 'IN_PROGRESS' && (
-        <span className="inline-flex items-center gap-1 rounded-md border border-emerald-200 bg-emerald-50 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700">
+        <span className="inline-flex items-center gap-1 rounded-md border border-green-200 bg-green-50 px-1.5 py-0.5 text-xs font-bold text-green-700">
           Closeout {confirmed}/{rows.length} surfaces confirmed <NewBadge feature={25} />
         </span>
       )}
@@ -202,12 +202,12 @@ function UseInMarketing({ wo, attId }: { wo: WorkOrder; attId: string }) {
   const att = wo.attachments.find((a) => a.id === attId);
   if (!att?.fileType.startsWith('image') || !can(user, 'marketing.post')) return null;
   if (att.mediaAssetId) {
-    return <AppLink href="/marketing/media" className="mt-1 inline-flex items-center gap-1 text-[11px] font-semibold text-primary-700 hover:underline"><Share2 className="h-3 w-3" /> In media library</AppLink>;
+    return <AppLink href="/marketing/media" className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-primary-700 hover:underline"><Share2 className="h-3 w-3" /> In media library</AppLink>;
   }
   return (
     <button type="button" data-tour="wo-use-in-marketing"
       onClick={() => { const r = act(sendPhotoToMarketing, wo.id, attId); if (r.ok) toast.success('Added to the media library', `${r.value} — check it for identifying details before posting.`); }}
-      className="mt-1 inline-flex items-center gap-1 text-[11px] font-semibold text-gray-600 hover:text-primary-700">
+      className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-gray-600 hover:text-primary-700">
       <Share2 className="h-3 w-3" /> Use in marketing <NewBadge feature={34} />
     </button>
   );

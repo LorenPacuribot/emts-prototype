@@ -87,16 +87,16 @@ export function OwnershipPanel({ property }: { property: Property }) {
                   <TD>{dateLong(o.start)}</TD>
                   <TD>{o.end ? dateLong(o.end) : "—"}</TD>
                   <TD>
-                    {active ? <Badge tone="blue">Active · {active.ref.slice(0, 6)}…</Badge> : links.length ? <Badge tone="gray">Revoked</Badge> : <span className="text-slate-400">None</span>}
+                    {active ? <Badge tone="blue">Active · {active.ref.slice(0, 6)}…</Badge> : links.length ? <Badge tone="gray">Revoked</Badge> : <span className="text-gray-400">None</span>}
                   </TD>
-                  <TD>{first ? <span className="text-slate-400">First recorded owner</span> : <Badge tone={PREDECESSOR_CONSENT[o.predecessorConsent ?? "not_requested"].tone}>{PREDECESSOR_CONSENT[o.predecessorConsent ?? "not_requested"].label}</Badge>}</TD>
+                  <TD>{first ? <span className="text-gray-400">First recorded owner</span> : <Badge tone={PREDECESSOR_CONSENT[o.predecessorConsent ?? "not_requested"].tone}>{PREDECESSOR_CONSENT[o.predecessorConsent ?? "not_requested"].label}</Badge>}</TD>
                   <TD>
                     {o.end ? (
                       <Button size="sm" onClick={() => setPdfFor(o)}>
                         <FileText className="h-3.5 w-3.5" /> {o.formerOwnerPdf ? `Issued ${dateLong(o.formerOwnerPdf.issuedAt)}` : "View fixed PDF"}
                       </Button>
                     ) : (
-                      <span className="text-slate-400">Live link</span>
+                      <span className="text-gray-400">Live link</span>
                     )}
                   </TD>
                 </TR>
@@ -112,16 +112,16 @@ export function OwnershipPanel({ property }: { property: Property }) {
         <div className="space-y-4">
           <Card className="p-5">
             <CardLabel icon={<Eraser />}>Personal-data deletion</CardLabel>
-            <p className="mt-1 text-[12px] text-slate-500">Removes names, contact details and photographs showing faces, house numbers or identifiable possessions. The paint specification at the address stays.</p>
+            <p className="mt-1 text-xs text-gray-500">Removes names, contact details and photographs showing faces, house numbers or identifiable possessions. The paint specification at the address stays.</p>
             <div className="mt-3 space-y-2">
               {property.ownership.map((o) => {
                 const c = byId(db.customers, o.customerId);
                 if (!c) return null;
                 return (
-                  <div key={o.id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-line px-3 py-2 text-[12.5px]">
+                  <div key={o.id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-line px-3 py-2 text-xs">
                     <div>
                       <div className="font-semibold text-ink">{c.name}</div>
-                      <div className="text-slate-500">{c.personalDataDeleted ? "Personal data deleted" : [c.email, c.phone].filter(Boolean).join(" · ") || "No contact details"}</div>
+                      <div className="text-gray-500">{c.personalDataDeleted ? "Personal data deleted" : [c.email, c.phone].filter(Boolean).join(" · ") || "No contact details"}</div>
                     </div>
                     {!c.personalDataDeleted && (
                       <Button size="sm" variant="danger" disabled={!can(user, "property.deletePersonalData")} onClick={() => setDeleting(c.id)}>
@@ -132,7 +132,7 @@ export function OwnershipPanel({ property }: { property: Property }) {
                 );
               })}
               {deletions.map((d) => (
-                <div key={d.id} className="rounded-lg bg-slate-50 px-3 py-2 text-[12px] text-slate-600">
+                <div key={d.id} className="rounded-lg bg-gray-50 px-3 py-2 text-xs text-gray-600">
                   Deleted {d.subject} on {dateLong(d.at)} by {byId(db.users, d.by)?.name}. Backup purge due <strong>{dateLong(d.purgeDue)}</strong> (within 35 days). A restore from backup does not bring it back.
                 </div>
               ))}
@@ -153,13 +153,13 @@ export function OwnershipPanel({ property }: { property: Property }) {
             >
               Merge &amp; renumber
             </CardLabel>
-            <p className="mt-1 text-[12px] text-slate-500">Each merge and each unit renumber is approved individually by the Business Owner. There is no bulk approval.</p>
+            <p className="mt-1 text-xs text-gray-500">Each merge and each unit renumber is approved individually by the Business Owner. There is no bulk approval.</p>
             <div className="mt-3 space-y-2">
               {requests.length === 0 && <EmptyState title="No requests" body="Duplicates are matched on street, postcode and unit. Differing units need manual review." />}
               {requests.map((r) => {
                 const st = STRUCTURE_REQUEST_STATUS[r.status];
                 return (
-                  <div key={r.id} className="rounded-lg border border-line px-3 py-2.5 text-[12.5px]">
+                  <div key={r.id} className="rounded-lg border border-line px-3 py-2.5 text-xs">
                     <div className="flex flex-wrap items-center gap-2">
                       <IdChip>{r.id}</IdChip>
                       <span className="font-semibold text-ink">
@@ -167,14 +167,14 @@ export function OwnershipPanel({ property }: { property: Property }) {
                       </span>
                       <Badge tone={st.tone}>{st.label}</Badge>
                     </div>
-                    <div className="mt-1 text-slate-500">{r.reason}</div>
+                    <div className="mt-1 text-gray-500">{r.reason}</div>
                     {r.kind === "merge" && (
-                      <div className="mt-1 text-[11.5px] text-slate-500">
+                      <div className="mt-1 text-xs text-gray-500">
                         <AppLink className="text-brand hover:underline" href={propertyHref(r.propertyId)}>{byId(db.properties, r.propertyId)?.address}</AppLink> and{" "}
                         <AppLink className="text-brand hover:underline" href={propertyHref(r.targetPropertyId!)}>{byId(db.properties, r.targetPropertyId)?.address}</AppLink>. Both identifiers are preserved.
                       </div>
                     )}
-                    <div className="mt-1 text-[11.5px] text-slate-400">
+                    <div className="mt-1 text-xs text-gray-400">
                       Requested by {byId(db.users, r.requestedBy)?.name} {dateLong(r.requestedAt)}
                       {r.decidedBy && ` · ${titleCase(r.status)} by ${byId(db.users, r.decidedBy)?.name} ${dateLong(r.decidedAt)}`}
                     </div>
@@ -248,12 +248,12 @@ function ConsentCard({ property, period, sellerName, isFirst }: { property: Prop
       <CardLabel icon={<KeyRound />}>Predecessor consent</CardLabel>
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <Badge tone={PREDECESSOR_CONSENT[state].tone}>{PREDECESSOR_CONSENT[state].label}</Badge>
-        <span className="text-[12.5px] text-slate-500">Seller: {sellerName ?? "—"}</span>
+        <span className="text-xs text-gray-500">Seller: {sellerName ?? "—"}</span>
       </div>
       <Banner tone={state === "refused" ? "danger" : state === "not_requested" ? "warn" : "info"} className="mt-3">{note}</Banner>
 
       {period.consentRecord && (
-        <div className="mt-3 rounded-lg bg-slate-50 px-3 py-2 text-[12.5px] text-slate-600">
+        <div className="mt-3 rounded-lg bg-gray-50 px-3 py-2 text-xs text-gray-600">
           Written {period.consentRecord.decision === "granted" ? "consent" : "refusal"} on {dateLong(period.consentRecord.at)} via {period.consentRecord.channel}. Spoke to {period.consentRecord.spokeTo}. Recorded by {byId(db.users, period.consentRecord.recordedBy)?.name}.
         </div>
       )}
@@ -268,26 +268,26 @@ function ConsentCard({ property, period, sellerName, isFirst }: { property: Prop
       {!period.consentRecord && (
         <div className="mt-5 border-t border-line pt-4">
           <div className="flex items-center justify-between gap-2">
-            <div className="text-[12px] font-bold text-ink">Contact attempts</div>
+            <div className="text-xs font-bold text-ink">Contact attempts</div>
             {state !== "unreachable_spec_only" && <Button size="sm" disabled={!canRecord} onClick={() => setAttempt(true)}>Log contact attempt</Button>}
           </div>
-          <div className="mt-2 grid grid-cols-3 gap-2 text-[11.5px]">
+          <div className="mt-2 grid grid-cols-3 gap-2 text-xs">
             {[
               [`${check.attempts} of 3 attempts`, check.attempts >= 3],
               [`${check.days} of 14 days`, check.days >= 14],
               [`${check.channels.length} of 2 channels`, check.channels.length >= 2],
             ].map(([label, okv]) => (
-              <div key={String(label)} className={okv ? "flex items-center gap-1 rounded-lg bg-emerald-50 px-2 py-1.5 font-semibold text-emerald-700" : "flex items-center gap-1 rounded-lg bg-slate-50 px-2 py-1.5 font-semibold text-slate-500"}>
+              <div key={String(label)} className={okv ? "flex items-center gap-1 rounded-lg bg-green-50 px-2 py-1.5 font-semibold text-green-700" : "flex items-center gap-1 rounded-lg bg-gray-50 px-2 py-1.5 font-semibold text-gray-500"}>
                 {okv ? <Check className="h-3 w-3" /> : <CircleX className="h-3 w-3" />} {label}
               </div>
             ))}
           </div>
           <div className="mt-2 space-y-1.5">
-            {(period.consentAttempts ?? []).length === 0 && <p className="text-[12px] italic text-slate-400">No attempts logged yet.</p>}
+            {(period.consentAttempts ?? []).length === 0 && <p className="text-xs italic text-gray-400">No attempts logged yet.</p>}
             {(period.consentAttempts ?? []).map((a) => (
-              <div key={a.id} className="flex items-start gap-2 text-[12px] text-slate-600">
-                {a.channel === "phone" || a.channel === "text" ? <Phone className="mt-0.5 h-3.5 w-3.5 text-slate-400" /> : <Mail className="mt-0.5 h-3.5 w-3.5 text-slate-400" />}
-                <span><strong>{dateLong(a.at)}</strong> · {titleCase(a.channel)} — {a.note} <span className="text-slate-400">({byId(db.users, a.by)?.name})</span></span>
+              <div key={a.id} className="flex items-start gap-2 text-xs text-gray-600">
+                {a.channel === "phone" || a.channel === "text" ? <Phone className="mt-0.5 h-3.5 w-3.5 text-gray-400" /> : <Mail className="mt-0.5 h-3.5 w-3.5 text-gray-400" />}
+                <span><strong>{dateLong(a.at)}</strong> · {titleCase(a.channel)} — {a.note} <span className="text-gray-400">({byId(db.users, a.by)?.name})</span></span>
               </div>
             ))}
           </div>
@@ -308,7 +308,7 @@ function ConsentCard({ property, period, sellerName, isFirst }: { property: Prop
             </div>
           )}
           {period.unreachableApprovedBy && (
-            <p className="mt-2 text-[12px] text-slate-600">Approved by {byId(db.users, period.unreachableApprovedBy)?.name} on {dateLong(period.unreachableApprovedAt)}.</p>
+            <p className="mt-2 text-xs text-gray-600">Approved by {byId(db.users, period.unreachableApprovedBy)?.name} on {dateLong(period.unreachableApprovedAt)}.</p>
           )}
         </div>
       )}
@@ -423,10 +423,10 @@ function SaleModal({ open, onClose, property }: { open: boolean; onClose: () => 
               </Select>
             </Field>
           )}
-          <div className="rounded-xl border border-line bg-slate-50 p-3 text-[12.5px] text-slate-700">
+          <div className="rounded-xl border border-line bg-gray-50 p-3 text-xs text-gray-700">
             <div className="mb-1 font-semibold text-ink">What happens, in this order</div>
             <ol className="list-decimal space-y-0.5 pl-5">
-              <li>{oldLink ? <>Old link <code className="text-[11.5px]">{oldLink.ref}</code> is revoked. Its printed code shows “Record has moved”.</> : "No active link to revoke."}</li>
+              <li>{oldLink ? <>Old link <code className="text-xs">{oldLink.ref}</code> is revoked. Its printed code shows “Record has moved”.</> : "No active link to revoke."}</li>
               <li>The former owner receives a permanent PDF. It never updates.</li>
               <li>The buyer&apos;s ownership period starts. Predecessor history stays hidden until the seller consents.</li>
               <li>A new link is issued for the buyer. A person still presses Send.</li>

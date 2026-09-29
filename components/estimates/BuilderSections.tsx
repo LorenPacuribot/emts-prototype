@@ -37,7 +37,7 @@ export function ExtrasBlock({
       <div className="overflow-x-auto rounded-b-xl border border-t-0 border-gray-200 bg-white">
         <table className="w-full min-w-[560px]">
           <thead>
-            <tr className="border-b border-gray-100 bg-gray-50 text-[11px] font-bold uppercase tracking-wider text-gray-500">
+            <tr className="border-b border-gray-100 bg-gray-50 text-xs font-bold uppercase tracking-wider text-gray-500">
               <th className="px-4 py-2 text-left">Item</th>
               <th className="w-24 px-2 py-2 text-center">Qty</th>
               <th className="w-32 px-2 py-2 text-center">Price</th>

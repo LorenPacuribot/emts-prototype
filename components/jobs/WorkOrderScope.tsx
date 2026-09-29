@@ -73,7 +73,7 @@ export function WorkOrderScope({ job, estimate, lead, workOrder, onSchedule }: {
           ['Paint', `${gallons.toFixed(2)} gal`],
         ].map(([label, value]) => (
           <div key={label}>
-            <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400">{label}</div>
+            <div className="text-xxs font-bold uppercase tracking-widest text-gray-400">{label}</div>
             <div className="font-heading text-xl font-black text-gray-900">{value}</div>
           </div>
         ))}
@@ -86,7 +86,7 @@ export function WorkOrderScope({ job, estimate, lead, workOrder, onSchedule }: {
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full min-w-[900px] text-sm">
-            <thead className="bg-gray-50 text-left text-[11px] font-bold uppercase tracking-wider text-gray-500">
+            <thead className="bg-gray-50 text-left text-xs font-bold uppercase tracking-wider text-gray-500">
               <tr>
                 {['Location', 'Surface', 'Amount', 'Colour', 'Product', 'Sheen', 'Coats', 'Preparation', 'Est. hours'].map((h) => (
                   <th key={h} className={`px-4 py-2.5 ${h === 'Est. hours' ? 'text-right' : ''}`}>{h}</th>
@@ -126,7 +126,7 @@ export function WorkOrderScope({ job, estimate, lead, workOrder, onSchedule }: {
           </div>
           <div className="overflow-x-auto">
             <table className="mt-2 w-full min-w-[700px] text-sm">
-              <thead className="bg-gray-50 text-left text-[11px] font-bold uppercase tracking-wider text-gray-500">
+              <thead className="bg-gray-50 text-left text-xs font-bold uppercase tracking-wider text-gray-500">
                 <tr>{['Change order', 'Work', 'Amount', 'Colour', 'Product', 'Est. hours'].map((h) => <th key={h} className={`px-4 py-2.5 ${h === 'Est. hours' ? 'text-right' : ''}`}>{h}</th>)}</tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -135,7 +135,7 @@ export function WorkOrderScope({ job, estimate, lead, workOrder, onSchedule }: {
                   return (
                     <tr key={`${l.coId}-${l.id}`} className={l.kind === 'remove' ? 'text-gray-500' : ''}>
                       <td className="px-4 py-2.5"><RefChip href={jobHref(job.id, 'change-orders')}>{l.coId}</RefChip></td>
-                      <td className="px-4 py-2.5 font-semibold text-gray-900">{l.kind === 'remove' ? <span className="mr-1 rounded bg-red-50 px-1.5 py-0.5 text-[10px] font-bold uppercase text-red-700">Removed</span> : null}{l.description}</td>
+                      <td className="px-4 py-2.5 font-semibold text-gray-900">{l.kind === 'remove' ? <span className="mr-1 rounded bg-red-50 px-1.5 py-0.5 text-xxs font-bold uppercase text-red-700">Removed</span> : null}{l.description}</td>
                       <td className="px-4 py-2.5 text-gray-600">{l.sqft ? `${l.kind === 'remove' ? '−' : ''}${l.sqft} sq ft` : '—'}</td>
                       <td className="px-4 py-2.5 text-gray-600">{l.colour || '—'}</td>
                       <td className="px-4 py-2.5 text-gray-600">{l.product || '—'}</td>

@@ -216,7 +216,7 @@ function LogoBox({ label, value, onChange, dark, description }: { label: string;
       <div
         className={cn(
           'group relative flex aspect-video flex-col items-center justify-center overflow-hidden rounded-2xl border-2 transition-all',
-          dark ? 'border-slate-700 bg-slate-900' : 'border-gray-200 bg-gray-50 hover:border-primary-300',
+          dark ? 'border-gray-700 bg-gray-900' : 'border-gray-200 bg-gray-50 hover:border-primary-300',
           value ? 'border-solid' : 'border-dashed',
           error && 'border-red-300',
         )}
@@ -224,7 +224,7 @@ function LogoBox({ label, value, onChange, dark, description }: { label: string;
         {value ? (
           <>
             <img src={value} alt={label} className="max-h-full max-w-full object-contain p-8" />
-            <div className={cn('absolute inset-0 flex items-center justify-center gap-3 opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100', dark ? 'bg-slate-900/60' : 'bg-white/60')}>
+            <div className={cn('absolute inset-0 flex items-center justify-center gap-3 opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100', dark ? 'bg-gray-900/60' : 'bg-white/60')}>
               <Button size="sm" variant="secondary" icon={<Pencil className="h-3.5 w-3.5" />} onClick={() => ref.current?.click()}>Replace</Button>
               <button type="button" onClick={() => onChange('')} className="rounded-lg bg-red-600 p-2 text-white shadow-lg hover:bg-red-700" aria-label={`Remove ${label}`}>
                 <X className="h-4 w-4" />
@@ -233,11 +233,11 @@ function LogoBox({ label, value, onChange, dark, description }: { label: string;
           </>
         ) : (
           <button type="button" onClick={() => ref.current?.click()} className="flex h-full w-full flex-col items-center justify-center gap-3 p-6 text-center">
-            <span className={cn('flex h-12 w-12 items-center justify-center rounded-xl transition-transform group-hover:scale-110', dark ? 'bg-slate-800 text-slate-500' : 'bg-white text-gray-300 shadow-sm group-hover:text-primary-500')}>
+            <span className={cn('flex h-12 w-12 items-center justify-center rounded-xl transition-transform group-hover:scale-110', dark ? 'bg-gray-800 text-gray-500' : 'bg-white text-gray-300 shadow-sm group-hover:text-primary-500')}>
               <Upload className="h-6 w-6" />
             </span>
-            <span className={cn('block text-[11px] font-black uppercase tracking-widest', dark ? 'text-slate-500' : 'text-gray-400')}>Upload {label}</span>
-            <span className={cn('block text-[10px] font-medium', dark ? 'text-slate-600' : 'text-gray-400')}>{description}</span>
+            <span className={cn('block text-xs font-black uppercase tracking-widest', dark ? 'text-gray-500' : 'text-gray-400')}>Upload {label}</span>
+            <span className={cn('block text-xs font-medium', dark ? 'text-gray-600' : 'text-gray-400')}>{description}</span>
           </button>
         )}
       </div>

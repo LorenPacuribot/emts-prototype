@@ -95,7 +95,7 @@ function Campaigns() {
                     <TR key={c.id} className="cursor-pointer" onClick={() => setOpenId(c.id)}>
                       <TD className="min-w-56">
                         <button type="button" className={`text-left font-semibold text-brand hover:underline ${TAP}`} onClick={(e) => { e.stopPropagation(); setOpenId(c.id); }}>{c.name}</button>
-                        <div className="text-[11.5px] text-slate-500">{c.id} · {OBJECTIVE_LABEL[c.objective]} · {dateLong(c.startDate)} – {c.endDate ? dateLong(c.endDate) : "open"}</div>
+                        <div className="text-xs text-gray-500">{c.id} · {OBJECTIVE_LABEL[c.objective]} · {dateLong(c.startDate)} – {c.endDate ? dateLong(c.endDate) : "open"}</div>
                       </TD>
                       <TD><CampaignStatusBadge status={c.status} /></TD>
                       <TD className="text-right tabular-nums">{cents(c.budget)}</TD>
@@ -153,11 +153,11 @@ function CampaignForm({ campaign, onClose, onSaved }: { campaign?: MarketingCamp
           <Field label="End date" htmlFor="cmp-end" hint="Optional" error={e("endDate")}><Input id="cmp-end" type="date" value={f.endDate} invalid={!!e("endDate")} onChange={(x) => setF({ ...f, endDate: x.target.value })} /></Field>
         </div>
         <fieldset>
-          <legend className="mb-1.5 text-[12px] font-semibold text-slate-700">Services promoted</legend>
+          <legend className="mb-1.5 text-xs font-semibold text-gray-700">Services promoted</legend>
           <div className="flex flex-wrap gap-x-4 gap-y-2">{SERVICES.map((s) => <Checkbox key={s} checked={f.services.includes(s)} onCheckedChange={() => setF({ ...f, services: toggle(f.services, s) })} label={SERVICE_LABEL[s]} />)}</div>
         </fieldset>
         <fieldset>
-          <legend className="mb-1.5 text-[12px] font-semibold text-slate-700">Channels</legend>
+          <legend className="mb-1.5 text-xs font-semibold text-gray-700">Channels</legend>
           <div className="flex flex-wrap gap-x-4 gap-y-2">{CHANNELS.map((ch) => <Checkbox key={ch} checked={f.channels.includes(ch)} onCheckedChange={() => setF({ ...f, channels: toggle(f.channels, ch) })} label={CHANNEL_LABEL[ch]} />)}</div>
         </fieldset>
         <div className="grid gap-3 sm:grid-cols-2">
@@ -259,7 +259,7 @@ function CampaignDrawer({ id, onClose, onEdit }: { id: string; onClose: () => vo
         {CAMPAIGN_TRANSITIONS[c.status].map((to) => (
           <GatedButton key={to} allowed={canEdit} reason={reason} size="sm" variant={to === "active" ? "primary" : to === "completed" ? "danger" : "secondary"} onClick={() => changeStatus(to)}>{NEXT_LABEL[to]}</GatedButton>
         ))}
-        {done && <p className="text-[12px] text-slate-500">Completed campaigns are read-only. Leads can still be credited to it.</p>}
+        {done && <p className="text-xs text-gray-500">Completed campaigns are read-only. Leads can still be credited to it.</p>}
       </div>
 
       <section>
@@ -274,22 +274,22 @@ function CampaignDrawer({ id, onClose, onEdit }: { id: string; onClose: () => vo
           <Stat label="ROI" value={pct(r.roi)} hint="(Revenue − spend) ÷ spend" tone={r.roi !== undefined && r.roi < 0 ? "danger" : "default"} />
           <Stat label="Clicks" value={r.clicks} hint={`${r.inquiries} inquiries`} />
         </div>
-        <p className="mt-2 text-[12px] text-slate-600">
+        <p className="mt-2 text-xs text-gray-600">
           Budget {cents(c.budget)} · spent {cents(r.spend)}{spentPct !== undefined && ` (${pct(spentPct)})`}
           {c.budget > 0 && r.spend > c.budget && <Badge tone="red" className="ml-2">Over budget by {cents(r.spend - c.budget)}</Badge>}
         </p>
-        {r.sandboxMetrics && <p className="mt-1 text-[11.5px] text-slate-500">Reach and engagement include sandbox connector numbers.</p>}
+        {r.sandboxMetrics && <p className="mt-1 text-xs text-gray-500">Reach and engagement include sandbox connector numbers.</p>}
       </section>
 
       <section>
         <SectionTitle>Leads ({facts.length})</SectionTitle>
-        {facts.length === 0 ? <p className="mb-2 text-[12.5px] text-slate-500">No leads yet. Attach one below, or share a tracked link so new leads arrive already credited.</p> : (
+        {facts.length === 0 ? <p className="mb-2 text-xs text-gray-500">No leads yet. Attach one below, or share a tracked link so new leads arrive already credited.</p> : (
           <div className="mb-2 divide-y divide-line rounded-xl border border-line">
             {facts.map((x) => (
-              <div key={x.leadId} className="flex flex-wrap items-center gap-2 px-3 py-2 text-[12.5px]">
+              <div key={x.leadId} className="flex flex-wrap items-center gap-2 px-3 py-2 text-xs">
                 <div className="min-w-0 flex-1">
                   <AppLink href={`/leads/${x.leadId}`} className="font-semibold text-brand hover:underline">{x.leadId}</AppLink> <span className="text-ink">{x.customerName}</span>
-                  <div className="text-[11.5px] text-slate-500">{x.source} · {dateLong(x.at)}</div>
+                  <div className="text-xs text-gray-500">{x.source} · {dateLong(x.at)}</div>
                 </div>
                 {x.job ? <Badge tone="green">Job won · {cents(x.revenue)}</Badge> : x.estimate ? <Badge tone="blue">Estimate</Badge> : <Badge tone="gray">Lead</Badge>}
                 {att.manual.has(x.leadId) && canEdit && (
@@ -318,11 +318,11 @@ function CampaignDrawer({ id, onClose, onEdit }: { id: string; onClose: () => vo
 
       <section>
         <SectionTitle>Posts and ads ({att.posts.length + att.ads.length})</SectionTitle>
-        {att.posts.length + att.ads.length === 0 && <p className="mb-2 text-[12.5px] text-slate-500">No posts linked yet. Link a post so its reach and clicks count here.</p>}
+        {att.posts.length + att.ads.length === 0 && <p className="mb-2 text-xs text-gray-500">No posts linked yet. Link a post so its reach and clicks count here.</p>}
         {att.posts.length > 0 && (
           <div className="mb-2 divide-y divide-line rounded-xl border border-line">
             {att.posts.map((p) => (
-              <div key={p.id} className="flex flex-wrap items-center gap-2 px-3 py-2 text-[12.5px]">
+              <div key={p.id} className="flex flex-wrap items-center gap-2 px-3 py-2 text-xs">
                 <div className="min-w-0 flex-1"><AppLink href={`/marketing/compose?id=${p.id}`} className="font-semibold text-brand hover:underline">{p.id}</AppLink> <span className="text-ink">{p.title}</span></div>
                 <PostStateBadge state={p.state} />
                 {canEdit && <Button size="icon" variant="ghost" className={TAP} aria-label={`Unlink ${p.id} from this campaign`} onClick={() => { if (act(setCampaignPost, c.id, p.id, false).ok) toast.success(`${p.id} unlinked from ${c.name}`); }}><X className="h-4 w-4" /></Button>}
@@ -330,7 +330,7 @@ function CampaignDrawer({ id, onClose, onEdit }: { id: string; onClose: () => vo
             ))}
           </div>
         )}
-        {att.ads.map((a) => <div key={a.id} className="mb-1 text-[12.5px]"><Badge tone="indigo">Ad</Badge> {a.name} · {a.status}{a.performance && ` · ${cents(a.performance.spend)} spent`}</div>)}
+        {att.ads.map((a) => <div key={a.id} className="mb-1 text-xs"><Badge tone="indigo">Ad</Badge> {a.name} · {a.status}{a.performance && ` · ${cents(a.performance.spend)} spent`}</div>)}
         {canEdit && postOptions.length > 0 && (
           <div className="flex flex-wrap items-end gap-2">
             <Field label="Link a post" htmlFor={`post-${c.id}`} className="min-w-0 flex-1">
@@ -346,14 +346,14 @@ function CampaignDrawer({ id, onClose, onEdit }: { id: string; onClose: () => vo
 
       <section>
         <SectionTitle right={<GatedButton allowed={canEdit} reason={reason} size="sm" onClick={() => setExpense(true)}><Plus className="h-3.5 w-3.5" /> Log expense</GatedButton>}>Spend ({att.expenses.length})</SectionTitle>
-        {att.expenses.length === 0 ? <p className="text-[12.5px] text-slate-500">No spend logged. Log printing, ads, photography and other costs so CAC and ROI are right.</p> : (
+        {att.expenses.length === 0 ? <p className="text-xs text-gray-500">No spend logged. Log printing, ads, photography and other costs so CAC and ROI are right.</p> : (
           <Table className="relative">
             <THead><tr><TH>Date</TH><TH>Expense</TH><TH className="text-right">Amount</TH>{canEdit && <TH><span className="sr-only">Actions</span></TH>}</tr></THead>
             <tbody>
               {att.expenses.map((x) => (
                 <TR key={x.id}>
                   <TD className="whitespace-nowrap">{dateLong(x.date)}</TD>
-                  <TD className="min-w-48"><div className="font-semibold text-ink">{x.vendor}</div><div className="text-[11.5px] text-slate-500">{EXPENSE_LABEL[x.category]} · {x.description}{x.platform && ` · ${CHANNEL_LABEL[x.platform]}`}</div></TD>
+                  <TD className="min-w-48"><div className="font-semibold text-ink">{x.vendor}</div><div className="text-xs text-gray-500">{EXPENSE_LABEL[x.category]} · {x.description}{x.platform && ` · ${CHANNEL_LABEL[x.platform]}`}</div></TD>
                   <TD className="text-right tabular-nums">{cents(x.amount)}</TD>
                   {canEdit && (
                     <TD className="text-right">
@@ -373,21 +373,21 @@ function CampaignDrawer({ id, onClose, onEdit }: { id: string; onClose: () => vo
 
       <section>
         <SectionTitle right={<GatedButton allowed={canEdit} reason={reason} size="sm" onClick={() => setLinkForm(true)}><Plus className="h-3.5 w-3.5" /> Create tracked link or QR</GatedButton>}>Tracked links and QR codes ({att.links.length})</SectionTitle>
-        {att.links.length === 0 ? <p className="text-[12.5px] text-slate-500">No tracked links yet. Create one for each place you share the campaign (a post, a flyer, a yard sign) to see which brings clicks and leads.</p> : (
+        {att.links.length === 0 ? <p className="text-xs text-gray-500">No tracked links yet. Create one for each place you share the campaign (a post, a flyer, a yard sign) to see which brings clicks and leads.</p> : (
           <div className="space-y-2">
             {att.links.map((l) => {
               const short = shortUrl(absoluteUrl(""), l.code);
               const full = trackedUrl(l.target, l.utm, absoluteUrl("") || undefined);
               const qr = l.clicks.filter((k) => k.via === "qr").length;
               return (
-                <div key={l.id} className="rounded-xl border border-line p-3 text-[12.5px]">
+                <div key={l.id} className="rounded-xl border border-line p-3 text-xs">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <div className="min-w-0">
                       <div className="font-semibold text-ink">{l.name} {l.kind === "qr" && <Badge tone="gray" icon={<QrCode className="h-3 w-3" />}>QR code</Badge>} {!l.active && <Badge tone="red">Turned off</Badge>}</div>
-                      <div className="break-all text-slate-600">{short}</div>
-                      <div className="break-all text-[11px] text-slate-400">Opens {full}</div>
+                      <div className="break-all text-gray-600">{short}</div>
+                      <div className="break-all text-xs text-gray-400">Opens {full}</div>
                     </div>
-                    <div className="text-right tabular-nums"><div className="font-display text-lg font-bold text-ink">{l.clicks.length}</div><div className="text-[11px] text-slate-500">clicks{qr ? ` (${qr} by QR)` : ""}</div></div>
+                    <div className="text-right tabular-nums"><div className="font-display text-lg font-bold text-ink">{l.clicks.length}</div><div className="text-xs text-gray-500">clicks{qr ? ` (${qr} by QR)` : ""}</div></div>
                   </div>
                   <div className="mt-2 flex flex-wrap gap-2">
                     <Button size="sm" className={TAP} onClick={() => { void navigator.clipboard?.writeText(l.kind === "qr" ? shortUrl(absoluteUrl(""), l.code, "qr") : short).then(() => toast.success("Link copied", short), () => toast.error("Couldn't copy", "Select the link and copy it by hand.")); }}><Copy className="h-3.5 w-3.5" /> Copy link</Button>
@@ -401,7 +401,7 @@ function CampaignDrawer({ id, onClose, onEdit }: { id: string; onClose: () => vo
                   {qrFor === l.id && (
                     <div className="mt-3 inline-block rounded-xl border border-line bg-white p-3">
                       <QRCodeSVG value={shortUrl(absoluteUrl("") || "http://localhost", l.code, "qr")} size={148} level="M" title={`QR code for ${l.name}`} />
-                      <div className="mt-1 text-center text-[11px] text-slate-500">Scans count as QR clicks</div>
+                      <div className="mt-1 text-center text-xs text-gray-500">Scans count as QR clicks</div>
                     </div>
                   )}
                 </div>
@@ -414,7 +414,7 @@ function CampaignDrawer({ id, onClose, onEdit }: { id: string; onClose: () => vo
       {(att.offers.length > 0 || att.messages.length > 0) && (
         <section>
           <SectionTitle>Offers and messages</SectionTitle>
-          <div className="space-y-1 text-[12.5px]">
+          <div className="space-y-1 text-xs">
             {att.offers.map((p) => <div key={p.id}><Badge tone="purple">Offer</Badge> <AppLink href="/marketing/promotions" className="font-semibold text-brand hover:underline">{p.code}</AppLink> {p.name} · {p.redemptions.length} redeemed{!p.active && " · paused"}</div>)}
             {att.messages.map((m) => <div key={m.id}><Badge tone="blue">{m.channel === "email" ? "Email" : "SMS"}</Badge> <AppLink href={`/marketing/messages?id=${m.id}`} className="font-semibold text-brand hover:underline">{m.name}</AppLink> · {m.status === "sent" ? `sent ${dateLong(m.sentAt)}` : "draft"}</div>)}
           </div>
@@ -424,7 +424,7 @@ function CampaignDrawer({ id, onClose, onEdit }: { id: string; onClose: () => vo
       {(c.budgetHistory?.length ?? 0) > 0 && (
         <section>
           <SectionTitle>Budget changes</SectionTitle>
-          <ul className="space-y-1 text-[12px] text-slate-600">{c.budgetHistory!.map((h, i) => <li key={i}>{dateLong(h.at)} · {cents(h.from)} → {cents(h.to)} · {h.reason}</li>)}</ul>
+          <ul className="space-y-1 text-xs text-gray-600">{c.budgetHistory!.map((h, i) => <li key={i}>{dateLong(h.at)} · {cents(h.from)} → {cents(h.to)} · {h.reason}</li>)}</ul>
         </section>
       )}
 
@@ -520,9 +520,9 @@ function LinkForm({ campaignId, onClose }: { campaignId: string; onClose: () => 
           <Field label="Short code" htmlFor="lnk-code" hint="Optional; made for you if blank" error={e("code")}><Input id="lnk-code" value={f.code} invalid={!!e("code")} onChange={(x) => setF({ ...f, code: x.target.value.toUpperCase() })} placeholder="FALL-SIGN" /></Field>
           <Field label="Content tag (utm_content)" htmlFor="lnk-content" hint="Optional, e.g. which ad or flyer"><Input id="lnk-content" value={f.content} onChange={(x) => setF({ ...f, content: x.target.value })} /></Field>
         </div>
-        <div className="rounded-lg border border-line bg-slate-50 p-3 text-[12px]">
-          <div className="font-semibold text-slate-700">Opens</div>
-          <div className="break-all text-slate-600">{preview}</div>
+        <div className="rounded-lg border border-line bg-gray-50 p-3 text-xs">
+          <div className="font-semibold text-gray-700">Opens</div>
+          <div className="break-all text-gray-600">{preview}</div>
         </div>
         {err && !["name", "target", "code"].includes(err.field ?? "") && <Banner tone="danger">{err.message}</Banner>}
       </div>

@@ -183,7 +183,7 @@ function CalendarPageInner() {
           <span className="text-sm font-bold text-gray-900">{pickerDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</span>
           <button className="rounded p-1 hover:bg-gray-100" onClick={() => setPickerDate(new Date(y, m + 1, 1))} aria-label="Next month"><ChevronRight className="h-4 w-4" /></button>
         </div>
-        <div className="mb-1 grid grid-cols-7 text-center text-[10px] font-bold uppercase text-gray-400">
+        <div className="mb-1 grid grid-cols-7 text-center text-xxs font-bold uppercase text-gray-400">
           {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, i) => <span key={i}>{d}</span>)}
         </div>
         <div className="grid grid-cols-7 gap-1">
@@ -363,7 +363,7 @@ function CalendarPageInner() {
                   >
                     <div className="mb-2 flex items-start justify-between gap-2">
                       <div className="line-clamp-1 text-sm font-bold text-gray-900">{it.title}</div>
-                      <span className="shrink-0 rounded-full border border-blue-200 bg-blue-50 px-2 py-0.5 text-[9px] font-bold text-blue-700">{it.kind === 'job' ? it.status : it.type}</span>
+                      <span className="shrink-0 rounded-full border border-blue-200 bg-blue-50 px-2 py-0.5 text-xs font-bold text-blue-700">{it.kind === 'job' ? it.status : it.type}</span>
                     </div>
                     <div className="mb-1 flex items-center gap-2 text-xs text-gray-500">
                       <CalendarIcon className="h-3.5 w-3.5" />

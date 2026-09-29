@@ -51,7 +51,7 @@ function Report() {
         <Stat label="Posts published" value={r.published} hint={`Facebook ${r.perPlatform.facebook} · Instagram ${r.perPlatform.instagram} platform posts`} />
         <Stat label="Website leads" value={r.bySource.website ?? 0} />
         <Stat label="All leads" value={r.leads} />
-        {r.unavailable.map((u) => <Stat key={u} label={u} value={<span className="text-[14px] text-slate-400">Unavailable</span>} hint="not reported by the platform" />)}
+        {r.unavailable.map((u) => <Stat key={u} label={u} value={<span className="text-sm text-gray-400">Unavailable</span>} hint="not reported by the platform" />)}
       </StatStrip>
       <Card className="p-4">
         <CardLabel>Leads by source at creation</CardLabel>
@@ -64,11 +64,11 @@ function Report() {
       </Card>
 
       <div className="mb-3 mt-8 flex flex-wrap items-center justify-between gap-3">
-        <h2 className="font-display text-[18px] font-bold text-ink">Campaign analytics</h2>
+        <h2 className="font-display text-lg font-bold text-ink">Campaign analytics</h2>
         <PillTabs value={scope} onChange={setScope} options={[{ value: "month", label: `Month ${month}` }, { value: "all", label: "All time" }]} />
       </div>
       {!hasCampaigns ? (
-        <EmptyState icon={<Target />} title="No campaigns yet" body="Campaign analytics build from the leads, spend and links attached to a campaign. Create one to start." action={<AppLink href="/marketing/campaigns" className={`inline-flex h-10 items-center rounded-lg bg-brand px-4 text-[13px] font-semibold text-white ${TAP}`}>Go to Campaigns</AppLink>} />
+        <EmptyState icon={<Target />} title="No campaigns yet" body="Campaign analytics build from the leads, spend and links attached to a campaign. Create one to start." action={<AppLink href="/marketing/campaigns" className={`inline-flex h-10 items-center rounded-lg bg-brand px-4 text-sm font-semibold text-white ${TAP}`}>Go to Campaigns</AppLink>} />
       ) : (
         <div className="space-y-4">
           <StatStrip>

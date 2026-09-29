@@ -91,12 +91,12 @@ export function TableColumnsView() {
                   </button>
                   <div className="min-w-0 flex-1">
                     <p className={cn('truncate text-sm font-bold', c.isVisible ? 'text-gray-900' : 'text-gray-400')}>{c.name}</p>
-                    <span className={cn('mt-1 inline-flex items-center rounded px-1.5 py-0.5 text-[9px] font-medium', badge.cls)}>
+                    <span className={cn('mt-1 inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium', badge.cls)}>
                       {badge.label}
                       {c.columnType === 'QUANTITY' && c.unit && <span className="ml-1">({c.unit === 'Percent' ? '%' : c.unit})</span>}
                     </span>
                     {!c.isSystem && c.columnType !== 'HOURS' && (
-                      <span className="ml-1 text-[10px] text-gray-500">{c.prepRate ? `${c.prepRate} units/hr` : 'No prep rate'}</span>
+                      <span className="ml-1 text-xs text-gray-500">{c.prepRate ? `${c.prepRate} units/hr` : 'No prep rate'}</span>
                     )}
                   </div>
                   <RowMenu

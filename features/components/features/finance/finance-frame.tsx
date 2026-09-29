@@ -32,9 +32,9 @@ export const FINANCE_TABS = [
   { key: "reimbursements", label: "Reimbursements", path: "/accounting/reimbursements", icon: ReceiptText },
   { key: "checkbook", label: "Checkbook", path: "/accounting/checkbook", icon: Wallet },
   { key: "feeds", label: "Bank & Card Feeds", path: "/accounting/feeds", icon: Waves },
-  { key: "recurring", label: "Recurring", path: "/accounting/recurring", icon: Repeat },
-  { key: "alerts", label: "Alerts", path: "/accounting/alerts", icon: Bell },
-  { key: "search", label: "Search", path: "/accounting/search", icon: Search },
+  { key: "recurring", label: "Recurring Expenses", path: "/accounting/recurring", icon: Repeat },
+  { key: "alerts", label: "Financial Alerts", path: "/accounting/alerts", icon: Bell },
+  { key: "search", label: "Search the Books", path: "/accounting/search", icon: Search },
   { key: "reports", label: "Reports", path: "/reports?tab=job_margin", icon: BarChart3 },
   { key: "setup", label: "Vendors & Mappings", path: "/settings/accounting", icon: Settings2 },
 ] as const;
@@ -73,9 +73,9 @@ export function FinanceFrame({ tab, children }: { tab: FinanceTabKey; children: 
         <SubNav
           header={
             <div className="hidden lg:block">
-              <div className="flex items-center gap-2 font-display text-[14px] font-bold text-ink"><BookOpen className="h-4 w-4 text-brand" /> Accounting <NewBadge feature={33} /></div>
+              <div className="flex items-center gap-2 font-display text-sm font-bold text-ink"><BookOpen className="h-4 w-4 text-brand" /> Accounting <NewBadge feature={33} /></div>
               <div className="mt-1"><ConfirmBadge /></div>
-              <div className="mt-0.5 text-[11.5px] text-slate-500">QuickBooks Online owns the ledger. Estimate Master owns the job. Nothing here moves money.</div>
+              <div className="mt-0.5 text-xs text-gray-500">QuickBooks Online owns the ledger. Estimate Master owns the job. Nothing here moves money.</div>
             </div>
           }
           groups={[
@@ -121,7 +121,7 @@ function QuickBooksConnectionCard() {
         </div>
       </div>
       <div className="space-y-4 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm md:p-8">
-        <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400">QuickBooks Online</div>
+        <div className="text-xxs font-bold uppercase tracking-widest text-gray-400">QuickBooks Online</div>
         <p className="text-sm text-gray-600">QuickBooks owns the ledger. Estimate Master sends invoices, payments, deposits and job allocations, and receives bills. Nothing here moves money.</p>
         <div className="flex flex-wrap gap-2 border-t border-gray-100 pt-4">
           <Button disabled={!can(user, "finance.connect")} onClick={() => toast.success("Connection OK", "QuickBooks answered (simulated).")}><Wifi className="h-4 w-4" /> Test Connection</Button>

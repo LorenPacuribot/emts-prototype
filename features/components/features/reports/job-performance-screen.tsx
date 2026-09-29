@@ -203,8 +203,8 @@ export function Performance() {
       </Card>
 
       <StatStrip className="mb-4">
-        <Stat label="Period" value={<span className="text-[14px]">{dateLong(`${range.from}T12:00:00`)} – {dateLong(`${range.to}T12:00:00`)}</span>} hint="date basis: work date" />
-        <Stat label="Timezone" value={<span className="text-[13px]">Configured local</span>} hint={db.payrollSettings.timezone} />
+        <Stat label="Period" value={<span className="text-sm">{dateLong(`${range.from}T12:00:00`)} – {dateLong(`${range.to}T12:00:00`)}</span>} hint="date basis: work date" />
+        <Stat label="Timezone" value={<span className="text-sm">Configured local</span>} hint={db.payrollSettings.timezone} />
         <Stat label="Jobs included" value={jobs.length} hint={user.role === "estimator" || user.role === "senior_estimator" ? "your own jobs" : undefined} />
         <Stat label="Incomplete" value={incompleteJobs.length} tone={incompleteJobs.length ? "warn" : "good"} />
         {measure === "cost" && <Stat label="Overhead excluded" value={money(excluded)} hint="unallocatable, shown so totals reconcile" />}
@@ -227,9 +227,9 @@ export function Performance() {
         </Card>
         <Card className="mb-4 p-4">
           <CardLabel>Incomplete — not in the completed totals</CardLabel>
-          <p className="mt-1 text-[12px] text-slate-500">Jobs still in progress, or without a reconciled actual. A missing actual is shown as missing, never as zero.</p>
+          <p className="mt-1 text-xs text-gray-500">Jobs still in progress, or without a reconciled actual. A missing actual is shown as missing, never as zero.</p>
           <div className="mt-3">
-            {incompleteRows.length === 0 ? <p className="text-[12.5px] italic text-slate-400">No incomplete jobs in this period.</p> : (
+            {incompleteRows.length === 0 ? <p className="text-xs italic text-gray-400">No incomplete jobs in this period.</p> : (
               <Grid rows={incompleteRows} measure={measure} baseline={baseline} dimension={dimension} onOpen={setOpenJob} incomplete />
             )}
           </div>
@@ -264,23 +264,23 @@ function Grid({ rows, measure, baseline, dimension, onOpen, incomplete, readOnly
         {rows.map((r) => {
           const base = baseline === "revised" ? r.revised : r.original;
           const v = r.actual === undefined ? undefined : variance(r.actual, base, measure);
-          const tint = !incomplete && v?.highlight === "over" ? "bg-red-50/70" : !incomplete && v?.highlight === "under" ? "bg-emerald-50/70" : "";
+          const tint = !incomplete && v?.highlight === "over" ? "bg-red-50/70" : !incomplete && v?.highlight === "under" ? "bg-green-50/70" : "";
           return [
             <TR key={r.key} className={`${tint} ${onOpen && dimension === "job" ? "cursor-pointer" : ""}`} onClick={() => dimension === "job" && onOpen?.(r.key)}>
-              <TD className="max-w-[260px] whitespace-normal font-semibold text-ink">{r.label}{dimension !== "job" && <div className="text-[11px] font-normal text-slate-400">{r.jobIds.length} jobs</div>}</TD>
+              <TD className="max-w-[260px] whitespace-normal font-semibold text-ink">{r.label}{dimension !== "job" && <div className="text-xs font-normal text-gray-400">{r.jobIds.length} jobs</div>}</TD>
               <TD className="text-right tabular-nums">{fmt(r.original, measure)}</TD>
               <TD className="text-right tabular-nums">{fmt(r.change, measure)}</TD>
               <TD className="text-right tabular-nums font-semibold">{fmt(r.revised, measure)}</TD>
               <TD className="text-right tabular-nums">{r.actual === undefined ? <Badge tone="amber">Missing</Badge> : fmt(r.actual, measure)}</TD>
               <TD className="text-right tabular-nums">{v ? `${v.amount > 0 ? "+" : ""}${fmt(v.amount, measure)}` : "—"}</TD>
-              <TD className="text-right tabular-nums">{!v ? "—" : v.pct === null ? <span className="text-slate-400">Not applicable</span> : `${v.pct > 0 ? "+" : ""}${(v.pct * 100).toFixed(1)}%`}</TD>
-              <TD>{v ? <span className={`text-[12px] font-bold ${v.highlight === "over" ? "text-red-700" : v.highlight === "under" ? "text-emerald-700" : "text-slate-600"}`}>{v.label}</span> : "—"}</TD>
-              <TD className="text-right tabular-nums text-slate-500">{r.pending ? r.pending.toFixed(1) : "—"}</TD>
+              <TD className="text-right tabular-nums">{!v ? "—" : v.pct === null ? <span className="text-gray-400">Not applicable</span> : `${v.pct > 0 ? "+" : ""}${(v.pct * 100).toFixed(1)}%`}</TD>
+              <TD>{v ? <span className={`text-xs font-bold ${v.highlight === "over" ? "text-red-700" : v.highlight === "under" ? "text-green-700" : "text-gray-600"}`}>{v.label}</span> : "—"}</TD>
+              <TD className="text-right tabular-nums text-gray-500">{r.pending ? r.pending.toFixed(1) : "—"}</TD>
               {dimension === "job" && <TD onClick={(e) => e.stopPropagation()}>{readOnly ? (r.reasonCode ?? "—") : <ReasonCell jobId={r.key} current={r.reasonCode as ReasonCode | undefined} canEdit={can(user, "perf.reason")} />}</TD>}
             </TR>,
             r.outOfScope ? (
-              <TR key={`${r.key}-oos`} className="bg-slate-50/70">
-                <TD colSpan={dimension === "job" ? 10 : 9} className="whitespace-normal text-[12px] text-slate-600">↳ Out of scope, not counted as estimating error: {r.outOfScope.label} — {fmt(r.outOfScope.value, measure)}</TD>
+              <TR key={`${r.key}-oos`} className="bg-gray-50/70">
+                <TD colSpan={dimension === "job" ? 10 : 9} className="whitespace-normal text-xs text-gray-600">↳ Out of scope, not counted as estimating error: {r.outOfScope.label} — {fmt(r.outOfScope.value, measure)}</TD>
               </TR>
             ) : null,
           ];
@@ -291,9 +291,9 @@ function Grid({ rows, measure, baseline, dimension, onOpen, incomplete, readOnly
 }
 
 function ReasonCell({ jobId, current, canEdit }: { jobId: string; current?: ReasonCode; canEdit: boolean }) {
-  if (!canEdit) return <span className="text-[12px]">{current ?? "—"}</span>;
+  if (!canEdit) return <span className="text-xs">{current ?? "—"}</span>;
   return (
-    <Select value={current ?? ""} className="h-8 w-44 py-0 text-[12px]" aria-label="Reason code" onChange={(e) => e.target.value && act(setReason, jobId, e.target.value as ReasonCode, "").ok && toast.success("Reason recorded")}>
+    <Select value={current ?? ""} className="h-8 w-44 py-0 text-xs" aria-label="Reason code" onChange={(e) => e.target.value && act(setReason, jobId, e.target.value as ReasonCode, "").ok && toast.success("Reason recorded")}>
       <option value="">— Reason —</option>
       {REASON_CODES.map((c) => <option key={c} value={c}>{c}</option>)}
     </Select>
@@ -326,22 +326,22 @@ function DrillDown({ job, range, measure, onClose }: { job?: JobPerf; range: { f
       {job.source === "live" && !hoursOnly && (
         <Card className="p-4">
           <CardLabel>Purchases versus usage</CardLabel>
-          <p className="mt-2 text-[12.5px] text-slate-600">Purchased {job.purchasedGal?.toFixed(2)} gal ({money(job.purchasedValue)}). Used = issued {job.issuedGal?.toFixed(2)} gal less {job.returnedGal?.toFixed(2)} gal sealed returns = <strong>{((job.issuedGal ?? 0) - (job.returnedGal ?? 0)).toFixed(2)} gal</strong>. Spills stay inside usage; paint bought but not issued is not usage.</p>
+          <p className="mt-2 text-xs text-gray-600">Purchased {job.purchasedGal?.toFixed(2)} gal ({money(job.purchasedValue)}). Used = issued {job.issuedGal?.toFixed(2)} gal less {job.returnedGal?.toFixed(2)} gal sealed returns = <strong>{((job.issuedGal ?? 0) - (job.returnedGal ?? 0)).toFixed(2)} gal</strong>. Spills stay inside usage; paint bought but not issued is not usage.</p>
         </Card>
       )}
       {empHours.length > 0 && (
         <Card className="p-4">
           <CardLabel>Hours by employee</CardLabel>
-          <ul className="mt-2 space-y-1 text-[12.5px]">{empHours.map((e) => <li key={e.employeeId}>{e.name}: {e.hours.toFixed(1)} h</li>)}</ul>
+          <ul className="mt-2 space-y-1 text-xs">{empHours.map((e) => <li key={e.employeeId}>{e.name}: {e.hours.toFixed(1)} h</li>)}</ul>
         </Card>
       )}
       {empCost.length > 0 && (
         <Card className="p-4">
           <CardLabel>Labour cost by employee (bookkeeper and owner only)</CardLabel>
-          <ul className="mt-2 space-y-1 text-[12.5px]">{empCost.map((e, i) => <li key={i}>{e.name}: {money(e.amount)}</li>)}</ul>
+          <ul className="mt-2 space-y-1 text-xs">{empCost.map((e, i) => <li key={i}>{e.name}: {money(e.amount)}</li>)}</ul>
         </Card>
       )}
-      {!can(user, "perf.wageDetail") && job.source === "live" && <p className="text-[11.5px] text-slate-500">Wage-level detail is restricted to the business owner and the office manager.</p>}
+      {!can(user, "perf.wageDetail") && job.source === "live" && <p className="text-xs text-gray-500">Wage-level detail is restricted to the business owner and the office manager.</p>}
       <CorrectionModal open={correcting} jobId={job.jobId} onClose={() => setCorrecting(false)} />
     </Drawer>
   );
@@ -375,18 +375,18 @@ function Snapshots({ onOpen }: { onOpen: (id: string) => void }) {
   return (
     <Card className="p-4" data-tour="perf-snapshots">
       <CardLabel icon={<FileText />} right={can(user, "perf.issue") && <Button size="sm" onClick={() => { const r = act(runWeeklyIssue); if (r.ok) toast.success(`Weekly summary ${r.value} issued`, "Sent to the owner, office manager and estimating manager."); }}><CalendarClock className="h-3.5 w-3.5" /> Run Monday 7 a.m. issue</Button>}>Issued snapshots</CardLabel>
-      <p className="mt-1 text-[12px] text-slate-500">Issued reports are immutable. A correction is reissued as a new snapshot; the old one is kept seven years.</p>
+      <p className="mt-1 text-xs text-gray-500">Issued reports are immutable. A correction is reissued as a new snapshot; the old one is kept seven years.</p>
       <div className="mt-3 space-y-2">
         {db.performanceSnapshots.length === 0 && <EmptyState title="No snapshots yet" />}
         {db.performanceSnapshots.map((s) => (
-          <div key={s.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-line px-3 py-2 text-[12.5px]">
+          <div key={s.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-line px-3 py-2 text-xs">
             <div>
               <div className="flex flex-wrap items-center gap-1.5"><strong>{s.id}</strong> <Badge tone={s.kind === "weekly" ? "blue" : "gray"}>{s.kind === "weekly" ? "Weekly" : "Manual"}</Badge>{s.supersededBy && <Badge tone="purple">Superseded by {s.supersededBy}</Badge>}{s.archivedAt && <Badge tone="gray" icon={<Archive className="h-3 w-3" />}>Archived</Badge>}</div>
-              <div className="text-slate-500">{s.period.from} – {s.period.to} · issued {dateTime(s.issuedAt)}{s.recipients ? ` · to ${s.recipients.length} addresses` : ""}</div>
+              <div className="text-gray-500">{s.period.from} – {s.period.to} · issued {dateTime(s.issuedAt)}{s.recipients ? ` · to ${s.recipients.length} addresses` : ""}</div>
             </div>
             {s.archivedAt && !s.retrievalRequestedAt ? (
               <Button size="sm" onClick={() => act(requestArchived, s.id).ok && toast.success("Retrieval requested", "Archived — available within one working day.")}>Request</Button>
-            ) : s.archivedAt ? <span className="text-[11.5px] text-slate-500">Requested {dateLong(s.retrievalRequestedAt)} — available within one working day</span> : (
+            ) : s.archivedAt ? <span className="text-xs text-gray-500">Requested {dateLong(s.retrievalRequestedAt)} — available within one working day</span> : (
               <Button size="sm" onClick={() => onOpen(s.id)}>Open</Button>
             )}
           </div>
@@ -403,19 +403,19 @@ function Corrections() {
   return (
     <Card className="p-4">
       <CardLabel>Actual corrections</CardLabel>
-      <p className="mt-1 text-[12px] text-slate-500">After completion the office manager and the owner approve. The current report updates at once; issued snapshots don't.</p>
+      <p className="mt-1 text-xs text-gray-500">After completion the office manager and the owner approve. The current report updates at once; issued snapshots don't.</p>
       <div className="mt-3 space-y-2">
-        {list.length === 0 && <p className="text-[12.5px] italic text-slate-400">No corrections.</p>}
+        {list.length === 0 && <p className="text-xs italic text-gray-400">No corrections.</p>}
         {list.map((c) => {
           const mine = user.role === "owner" || user.role === "office_manager" ? (user.role as "owner" | "office_manager") : undefined;
           const canApprove = c.status === "pending" && mine && c.requires.includes(mine) && !c.approvals.some((a) => a.role === mine);
           return (
-            <div key={c.id} className="rounded-lg border border-line px-3 py-2 text-[12.5px]">
+            <div key={c.id} className="rounded-lg border border-line px-3 py-2 text-xs">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <span><strong>{c.id}</strong> · {c.jobId} · {c.field}: {c.oldValue} → {c.newValue}</span>
                 {c.status === "applied" ? <Badge tone="green">Applied</Badge> : canApprove ? <Button size="sm" variant="primary" onClick={() => act(approveCorrection, c.id).ok && toast.success("Approved")}>Approve</Button> : <Badge tone="amber">Waiting for {c.requires.filter((r) => !c.approvals.some((a) => a.role === r)).map((r) => (r === "owner" ? "owner" : "office manager")).join(" and ")}</Badge>}
               </div>
-              <div className="text-slate-500">{c.code} — {c.note} · approved so far by {c.approvals.map((a) => userName(db, a.by)).join(", ")}</div>
+              <div className="text-gray-500">{c.code} — {c.note} · approved so far by {c.approvals.map((a) => userName(db, a.by)).join(", ")}</div>
             </div>
           );
         })}

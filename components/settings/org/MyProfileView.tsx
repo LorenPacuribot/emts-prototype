@@ -89,13 +89,13 @@ export function MyProfileView() {
               </div>
               <div className="absolute inset-0 flex flex-col items-center justify-center rounded-full bg-black/40 text-white opacity-0 transition-opacity group-hover:opacity-100">
                 <Camera className="mb-1 h-5 w-5" />
-                <span className="text-[9px] font-black uppercase tracking-widest">Change</span>
+                <span className="text-xxs font-black uppercase tracking-widest">Change</span>
               </div>
             </button>
             <div className="flex-1 text-center md:text-left">
               <h3 className="mb-2 font-heading text-xl font-bold text-gray-900">{profile.firstName} {profile.lastName}</h3>
               <p className="text-sm text-gray-500">User profile photo is visible to clients in estimates and work orders.</p>
-              <p className="mt-1 text-[11px] text-gray-400">Maximum file size: 5MB. Supported formats: JPG, PNG, GIF, WebP</p>
+              <p className="mt-1 text-xs text-gray-400">Maximum file size: 5MB. Supported formats: JPG, PNG, GIF, WebP</p>
               <div className="mt-5 flex flex-wrap justify-center gap-3 md:justify-start">
                 <Button size="sm" variant="secondary" onClick={() => fileRef.current?.click()}>Upload New</Button>
                 <Button size="sm" variant="ghost" className="text-red-500 hover:bg-red-50 hover:text-red-600" disabled={!photo} onClick={removePhoto}>

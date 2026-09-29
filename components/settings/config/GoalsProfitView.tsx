@@ -146,7 +146,7 @@ export function GoalsProfitView() {
             {step === 3 && <StepLabor m={model} c={c} upd={upd} />}
             {step === 4 && <StepReview m={model} c={c} onApply={apply} />}
           </div>
-          <div className="mt-10 flex items-center justify-between border-t border-slate-100 pt-6">
+          <div className="mt-10 flex items-center justify-between border-t border-gray-100 pt-6">
             <Button variant="ghost" icon={<ArrowLeft className="h-4 w-4" />} onClick={() => (step === 1 ? setMode('dashboard') : setStep(step - 1))}>Previous</Button>
             {step < 4 && <Button size="lg" onClick={() => setStep(step + 1)}>Next Step <ArrowRight className="h-5 w-5" /></Button>}
           </div>
@@ -185,7 +185,7 @@ export function GoalsProfitView() {
             <div className="bg-blue-400" style={{ width: `${Math.max(0, c.totalExpensePercent)}%` }} />
             <div className="bg-gray-900" style={{ width: `${Math.max(0, c.laborPercent)}%` }} />
           </div>
-          <div className="grid grid-cols-3 gap-2 text-center text-[9px] font-bold uppercase text-gray-400">
+          <div className="grid grid-cols-3 gap-2 text-center text-xxs font-bold uppercase text-gray-400">
             <div>Profit<div className="text-xs font-black text-green-600">{view.profitMargin}%</div></div>
             <div>Expense<div className="text-xs font-black text-blue-500">{c.totalExpensePercent.toFixed(1)}%</div></div>
             <div>Labor<div className="text-xs font-black text-gray-900">{c.laborPercent.toFixed(1)}%</div></div>
@@ -201,19 +201,19 @@ export function GoalsProfitView() {
         </div>
       </Section>
 
-      <Section icon={<DollarSign />} tone="bg-emerald-50 text-emerald-600" title="Projected Annual Budget" sub={`Estimated dollar allocation based on your target revenue of ${usd0(c.targetRevenue)}.`}>
+      <Section icon={<DollarSign />} tone="bg-green-50 text-green-600" title="Projected Annual Budget" sub={`Estimated dollar allocation based on your target revenue of ${usd0(c.targetRevenue)}.`}>
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4">
           {[
-            { label: 'Payroll Budget', pct: c.laborPercent, icon: <Users />, tone: 'bg-slate-100 text-slate-600' },
+            { label: 'Payroll Budget', pct: c.laborPercent, icon: <Users />, tone: 'bg-gray-100 text-gray-600' },
             { label: 'Paint & Materials', pct: view.materialCost, icon: <Paintbrush />, tone: 'bg-blue-50 text-blue-600' },
             { label: 'Misc & Marketing', pct: view.includeMiscExpense ? view.miscExpense : 0, icon: <PieChart />, tone: 'bg-purple-50 text-purple-600' },
-            { label: 'Net Profit', pct: view.profitMargin, icon: <TrendingUp />, tone: 'bg-emerald-50 text-emerald-600', value: view.desiredAnnualIncome },
+            { label: 'Net Profit', pct: view.profitMargin, icon: <TrendingUp />, tone: 'bg-green-50 text-green-600', value: view.desiredAnnualIncome },
           ].map((b) => (
             <div key={b.label} className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
               <div className={cn('mb-4 inline-flex rounded-lg p-2 [&>svg]:h-4 [&>svg]:w-4', b.tone)}>{b.icon}</div>
-              <div className="mb-1 text-[9px] font-black uppercase tracking-widest text-gray-400">{b.label}</div>
+              <div className="mb-1 text-xxs font-black uppercase tracking-widest text-gray-400">{b.label}</div>
               <div className="mb-1 text-2xl font-black tracking-tight text-gray-900">{usd0(b.value ?? c.targetRevenue * (b.pct / 100))}</div>
-              <div className="text-[10px] font-bold text-gray-500">{b.pct.toFixed(1)}% of Revenue</div>
+              <div className="text-xs font-bold text-gray-500">{b.pct.toFixed(1)}% of Revenue</div>
             </div>
           ))}
         </div>
@@ -276,10 +276,10 @@ function PipeCard({ icon, tone, label, value, sub }: { icon: React.ReactNode; to
     <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
       <div className="mb-4 flex items-center justify-between">
         <div className={cn('rounded-lg p-2 [&>svg]:h-4 [&>svg]:w-4', tone)}>{icon}</div>
-        <span className="text-[9px] font-black uppercase tracking-widest text-gray-400">{label}</span>
+        <span className="text-xxs font-black uppercase tracking-widest text-gray-400">{label}</span>
       </div>
       <div className="mb-1 text-3xl font-black text-gray-900">{value.toLocaleString()}</div>
-      <div className="text-[10px] font-bold text-gray-500">{sub}</div>
+      <div className="text-xs font-bold text-gray-500">{sub}</div>
     </div>
   );
 }
@@ -307,7 +307,7 @@ function Stepper({ step, onStep }: { step: number; onStep: (s: number) => void }
               <span className={cn('flex h-11 w-11 items-center justify-center rounded-2xl border-2 transition', active ? 'border-primary-600 bg-primary-600 text-white shadow-lg shadow-primary-500/30' : done ? 'border-primary-200 bg-primary-50 text-primary-600' : 'border-gray-200 bg-white text-gray-400')}>
                 {done ? <Check className="h-5 w-5" /> : <Icon className="h-5 w-5" />}
               </span>
-              <span className={cn('hidden text-[10px] font-bold uppercase tracking-wider md:block', active ? 'text-primary-700' : 'text-gray-400')}>{s.title}</span>
+              <span className={cn('hidden text-xxs font-bold uppercase tracking-wider md:block', active ? 'text-primary-700' : 'text-gray-400')}>{s.title}</span>
             </button>
           </React.Fragment>
         );
@@ -330,8 +330,8 @@ function NumInput({ label, value, onChange, placeholder }: { label: string; valu
 function StepHeader({ title, sub, center }: { title: string; sub: string; center?: boolean }) {
   return (
     <div className={cn('mb-8', center && 'text-center')}>
-      <h2 className="mb-2 font-heading text-2xl font-black text-slate-900 md:text-3xl">{title}</h2>
-      <p className="font-medium text-slate-500">{sub}</p>
+      <h2 className="mb-2 font-heading text-2xl font-black text-gray-900 md:text-3xl">{title}</h2>
+      <p className="font-medium text-gray-500">{sub}</p>
     </div>
   );
 }
@@ -362,7 +362,7 @@ function StepIncome({ m, c, upd }: { m: Model; c: Calc; upd: Upd }) {
             {[['Jobs', c.jobs], ['Ests', c.estimates], ['Leads', c.leads]].map(([l, v]) => (
               <div key={l}>
                 <div className="text-2xl font-black text-primary-700">{v}</div>
-                <div className="text-[10px] font-bold uppercase text-primary-400">{l}</div>
+                <div className="text-xxs font-bold uppercase text-primary-400">{l}</div>
               </div>
             ))}
           </div>
@@ -381,7 +381,7 @@ function StepExpenses({ m, c, upd }: { m: Model; c: Calc; upd: Upd }) {
           <NumInput label="Materials & Sundries %" value={m.materialCost} placeholder="0" onChange={(n) => upd('materialCost', n)} />
           <div>
             <div className="mb-1.5 flex items-center justify-between">
-              <span className="text-[11px] font-bold uppercase tracking-wide text-gray-600">Misc + Marketing Expense %</span>
+              <span className="text-xs font-bold uppercase tracking-wide text-gray-600">Misc + Marketing Expense %</span>
               <Switch checked={m.includeMiscExpense} onChange={(v) => upd('includeMiscExpense', v)} label="Include misc expense" />
             </div>
             <Input type="number" step="any" min="0" value={String(m.miscExpense)} disabled={!m.includeMiscExpense} onChange={(e) => upd('miscExpense', numberOrZero(e.target.value))} />
@@ -389,19 +389,19 @@ function StepExpenses({ m, c, upd }: { m: Model; c: Calc; upd: Upd }) {
           {c.laborPercent <= 0 && <p className="text-sm font-medium text-red-600">Profit and expenses add up to 100% or more. Nothing is left for labor.</p>}
         </div>
         <div className="flex flex-col justify-center">
-          <h4 className="mb-4 text-center text-xs font-black uppercase tracking-widest text-slate-400">Revenue Dollar Breakdown</h4>
-          <div className="flex h-16 w-full overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 shadow-inner">
-            {m.profitMargin > 0 && <div className="flex h-full items-center justify-center bg-emerald-500 text-[10px] font-black text-white" style={{ width: `${m.profitMargin}%` }}>Profit</div>}
-            {c.totalExpensePercent > 0 && <div className="flex h-full items-center justify-center bg-primary-400 text-[10px] font-black text-white" style={{ width: `${c.totalExpensePercent}%` }}>Exp</div>}
-            <div className="flex h-full flex-1 items-center justify-center bg-slate-900 text-[10px] font-black text-white">Labor</div>
+          <h4 className="mb-4 text-center text-xs font-black uppercase tracking-widest text-gray-400">Revenue Dollar Breakdown</h4>
+          <div className="flex h-16 w-full overflow-hidden rounded-2xl border border-gray-200 bg-gray-100 shadow-inner">
+            {m.profitMargin > 0 && <div className="flex h-full items-center justify-center bg-green-500 text-xs font-black text-white" style={{ width: `${m.profitMargin}%` }}>Profit</div>}
+            {c.totalExpensePercent > 0 && <div className="flex h-full items-center justify-center bg-primary-400 text-xs font-black text-white" style={{ width: `${c.totalExpensePercent}%` }}>Exp</div>}
+            <div className="flex h-full flex-1 items-center justify-center bg-gray-900 text-xs font-black text-white">Labor</div>
           </div>
           <div className="mt-8 grid grid-cols-2 gap-4">
-            <div className="rounded-xl border border-slate-100 bg-slate-50 p-4">
-              <span className="mb-1 block text-[10px] font-black uppercase tracking-widest text-slate-400">Total Expenses</span>
-              <span className="text-2xl font-black text-slate-900">{c.totalExpensePercent.toFixed(1)}%</span>
+            <div className="rounded-xl border border-gray-100 bg-gray-50 p-4">
+              <span className="mb-1 block text-xxs font-black uppercase tracking-widest text-gray-400">Total Expenses</span>
+              <span className="text-2xl font-black text-gray-900">{c.totalExpensePercent.toFixed(1)}%</span>
             </div>
-            <div className="rounded-xl border border-slate-800 bg-slate-900 p-4 text-white shadow-lg">
-              <span className="mb-1 block text-[10px] font-black uppercase tracking-widest text-slate-400">Payroll Budget</span>
+            <div className="rounded-xl border border-gray-800 bg-gray-900 p-4 text-white shadow-lg">
+              <span className="mb-1 block text-xxs font-black uppercase tracking-widest text-gray-400">Payroll Budget</span>
               <span className="text-2xl font-black text-primary-400">{c.laborPercent.toFixed(1)}%</span>
             </div>
           </div>
@@ -418,8 +418,8 @@ function StepLabor({ m, c, upd }: { m: Model; c: Calc; upd: Upd }) {
       <div className="grid grid-cols-1 gap-8 md:grid-cols-2 md:gap-12">
         <div>
           <div className="mb-6"><NumInput label="Average Base Hourly Pay ($)" value={m.avgHourlyPay} placeholder="25" onChange={(n) => upd('avgHourlyPay', n)} /></div>
-          <div className="space-y-4 rounded-2xl border border-slate-100 bg-slate-50 p-6">
-            <h4 className="mb-2 border-b border-slate-200 pb-2 text-[10px] font-bold uppercase tracking-widest text-slate-700">Taxes &amp; Benefits (%)</h4>
+          <div className="space-y-4 rounded-2xl border border-gray-100 bg-gray-50 p-6">
+            <h4 className="mb-2 border-b border-gray-200 pb-2 text-xxs font-bold uppercase tracking-widest text-gray-700">Taxes &amp; Benefits (%)</h4>
             <div className="grid grid-cols-2 gap-4">
               {BURDEN_FIELDS.map((f) => (
                 <NumInput key={f.key} label={f.label} value={m.burden[f.key]} placeholder="0" onChange={(n) => upd('burden', { ...m.burden, [f.key]: n })} />
@@ -429,11 +429,11 @@ function StepLabor({ m, c, upd }: { m: Model; c: Calc; upd: Upd }) {
         </div>
         <div className="flex flex-col items-center justify-center space-y-6">
           <div className="text-center">
-            <div className="mb-1 text-sm font-bold uppercase tracking-widest text-slate-400">Total Burden Rate</div>
-            <div className="text-4xl font-black text-slate-900">{c.burdenPercent.toFixed(2)}%</div>
+            <div className="mb-1 text-sm font-bold uppercase tracking-widest text-gray-400">Total Burden Rate</div>
+            <div className="text-4xl font-black text-gray-900">{c.burdenPercent.toFixed(2)}%</div>
           </div>
           <TrueCostCard base={m.avgHourlyPay} burdenPercent={c.burdenPercent} total={c.burdenedCost} />
-          <p className="max-w-xs text-center text-xs italic leading-relaxed text-slate-400">&ldquo;This is what it costs your business every hour an employee is on the clock.&rdquo;</p>
+          <p className="max-w-xs text-center text-xs italic leading-relaxed text-gray-400">&ldquo;This is what it costs your business every hour an employee is on the clock.&rdquo;</p>
         </div>
       </div>
     </div>
@@ -443,18 +443,18 @@ function StepLabor({ m, c, upd }: { m: Model; c: Calc; upd: Upd }) {
 /** "TRUE COST" card, shared with the Labor Config page. */
 export function TrueCostCard({ base, burdenPercent, total, label = 'True Cost' }: { base: number; burdenPercent: number; total: number; label?: string }) {
   return (
-    <div className="relative w-full rounded-3xl border-2 border-slate-100 bg-white p-7 shadow-xl">
-      <div className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap rounded-full border border-amber-200 bg-amber-100 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-amber-800">{label}</div>
-      <div className="mb-4 flex items-end justify-between border-b border-dashed border-slate-200 pb-4">
-        <span className="text-sm font-medium text-slate-500">Base Rate</span>
-        <span className="text-lg font-bold text-slate-900">${base.toFixed(2)}</span>
+    <div className="relative w-full rounded-3xl border-2 border-gray-100 bg-white p-7 shadow-xl">
+      <div className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap rounded-full border border-amber-200 bg-amber-100 px-3 py-1 text-xxs font-black uppercase tracking-widest text-amber-800">{label}</div>
+      <div className="mb-4 flex items-end justify-between border-b border-dashed border-gray-200 pb-4">
+        <span className="text-sm font-medium text-gray-500">Base Rate</span>
+        <span className="text-lg font-bold text-gray-900">${base.toFixed(2)}</span>
       </div>
-      <div className="mb-4 flex items-end justify-between border-b border-dashed border-slate-200 pb-4">
-        <span className="text-sm font-medium text-slate-500">Burden ({burdenPercent.toFixed(1)}%)</span>
-        <span className="font-bold text-slate-900">+${(base * (burdenPercent / 100)).toFixed(2)}</span>
+      <div className="mb-4 flex items-end justify-between border-b border-dashed border-gray-200 pb-4">
+        <span className="text-sm font-medium text-gray-500">Burden ({burdenPercent.toFixed(1)}%)</span>
+        <span className="font-bold text-gray-900">+${(base * (burdenPercent / 100)).toFixed(2)}</span>
       </div>
       <div className="flex items-end justify-between pt-2">
-        <span className="text-base font-black text-slate-900">Total Cost</span>
+        <span className="text-base font-black text-gray-900">Total Cost</span>
         <span className="text-3xl font-black tracking-tighter text-primary-600">${total.toFixed(2)}</span>
       </div>
     </div>
@@ -471,7 +471,7 @@ function StepReview({ m, c, onApply }: { m: Model; c: Calc; onApply: () => void 
       <div className="mx-auto grid w-full max-w-5xl grid-cols-1 items-center gap-10 lg:grid-cols-2">
         <div className="space-y-6">
           <div className="space-y-4 rounded-3xl border border-gray-100 bg-white p-7 shadow-sm">
-            <h4 className="border-b border-gray-50 pb-3 text-[11px] font-black uppercase tracking-[0.2em] text-gray-400">Labor &amp; Burden</h4>
+            <h4 className="border-b border-gray-50 pb-3 text-xs font-black uppercase tracking-[0.2em] text-gray-400">Labor &amp; Burden</h4>
             {line('Base Hourly Pay', `$${m.avgHourlyPay.toFixed(2)}`)}
             {line('Burden Rate', `${c.burdenPercent.toFixed(1)}%`)}
             <div className="flex items-center justify-between border-t border-dashed border-gray-100 pt-4">
@@ -480,8 +480,8 @@ function StepReview({ m, c, onApply }: { m: Model; c: Calc; onApply: () => void 
             </div>
           </div>
           <div className="space-y-4 rounded-3xl border border-gray-100 bg-white p-7 shadow-sm">
-            <h4 className="border-b border-gray-50 pb-3 text-[11px] font-black uppercase tracking-[0.2em] text-gray-400">Revenue Model</h4>
-            {line('Target Margin', `${m.profitMargin}%`, 'text-emerald-500')}
+            <h4 className="border-b border-gray-50 pb-3 text-xs font-black uppercase tracking-[0.2em] text-gray-400">Revenue Model</h4>
+            {line('Target Margin', `${m.profitMargin}%`, 'text-green-500')}
             {line('Overhead/Exp', `${c.totalExpensePercent.toFixed(1)}%`, 'text-amber-500')}
             <div className="flex items-center justify-between border-t border-dashed border-gray-100 pt-4">
               <span className="text-sm font-black uppercase tracking-widest text-gray-900">Labor Budget</span>
@@ -491,7 +491,7 @@ function StepReview({ m, c, onApply }: { m: Model; c: Calc; onApply: () => void 
         </div>
         <div className="flex flex-col items-center gap-8">
           <div className="relative w-full overflow-hidden rounded-[2.5rem] border border-blue-100 bg-white p-10 text-center shadow-2xl shadow-primary-500/10">
-            <span className="block text-[11px] font-black uppercase tracking-[0.3em] text-primary-600">Calculated Charge Rate</span>
+            <span className="block text-xs font-black uppercase tracking-[0.3em] text-primary-600">Calculated Charge Rate</span>
             <div className="mt-4 text-6xl font-black tracking-tighter text-gray-900 md:text-7xl">${c.chargeRate.toFixed(2)}</div>
             <span className="mt-1 block text-lg font-bold uppercase tracking-widest text-gray-400">per hour</span>
             <div className="mt-10 flex items-center justify-between border-t border-gray-100 px-2 pt-6">

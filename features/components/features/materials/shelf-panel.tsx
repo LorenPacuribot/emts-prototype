@@ -29,27 +29,27 @@ export function ShelfPanel({ lines, readOnly }: { lines: DemandLine[]; readOnly:
   return (
     <Card className="p-4">
       <CardLabel icon={<PackageOpen />}>Leftover shelf</CardLabel>
-      <p className="mt-1 text-[11.5px] text-slate-500">Proposed only when product, colour and sheen match, the container is sealed and under two years old. A proposal changes nothing until a person checks it.</p>
+      <p className="mt-1 text-xs text-gray-500">Proposed only when product, colour and sheen match, the container is sealed and under two years old. A proposal changes nothing until a person checks it.</p>
       <div className="mt-3 space-y-3">
         {groups.length === 0 && <EmptyState icon={<PackageOpen />} title="No matching shelf stock." body="Nothing on the shelf matches this job's product, colour and sheen." />}
         {groups.map(({ line, candidates }) => (
           <div key={line.specId}>
-            <div className="mb-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500">{line.colourName} · {line.spec.product} · {line.spec.sheen}</div>
+            <div className="mb-1.5 text-xs font-bold uppercase tracking-[0.12em] text-gray-500">{line.colourName} · {line.spec.product} · {line.spec.sheen}</div>
             <div className="space-y-1.5">
               {candidates.map((c) => {
                 const s = c.stock;
                 const ageMonths = Math.floor(c.ageDays / 30.44);
                 return (
-                  <div key={s.id} className={cn("flex flex-wrap items-center gap-3 rounded-lg border px-3 py-2 text-[12.5px]",
-                    c.state === "reserved_here" ? "border-emerald-200 bg-emerald-50/60" : c.state === "proposed" ? "border-line bg-slate-50" : "border-line bg-white opacity-70")}>
+                  <div key={s.id} className={cn("flex flex-wrap items-center gap-3 rounded-lg border px-3 py-2 text-xs",
+                    c.state === "reserved_here" ? "border-green-200 bg-green-50/60" : c.state === "proposed" ? "border-line bg-gray-50" : "border-line bg-white opacity-70")}>
                     <span className="font-semibold text-ink">{s.id}</span>
-                    <span className="text-slate-600">{PACK_LABEL[s.containerSize]} · {s.tintDate ? "tinted" : "bought"} {dateLong(s.tintDate ?? s.purchaseDate)} · {ageMonths} mo</span>
-                    {c.state === "proposed" && <span className="italic text-slate-500">Not confirmed — purchase need unchanged.</span>}
+                    <span className="text-gray-600">{PACK_LABEL[s.containerSize]} · {s.tintDate ? "tinted" : "bought"} {dateLong(s.tintDate ?? s.purchaseDate)} · {ageMonths} mo</span>
+                    {c.state === "proposed" && <span className="italic text-gray-500">Not confirmed — purchase need unchanged.</span>}
                     {c.state === "reserved_here" && <Badge tone="green" className="whitespace-normal">Reserved to this job · {s.measuredGal} gal checked by {userName(db, s.confirmedBy)} {dateLong(s.checkDate)}</Badge>}
                     {c.state === "reserved_elsewhere" && <Badge tone="gray" className="whitespace-normal">Unavailable — reserved to {s.reservedJobId}</Badge>}
                     {(c.state === "too_old" || c.state === "unsealed") && <Badge tone="gray" className="whitespace-normal">Not proposed — {c.reason}</Badge>}
                     {c.state === "rejected" && <Badge tone="gray" className="whitespace-normal">Rejected for this job — {c.reason}</Badge>}
-                    {perms.seePrices && s.unitCostPerGal !== undefined && <span className="text-slate-400">{money(s.unitCostPerGal)}/gal</span>}
+                    {perms.seePrices && s.unitCostPerGal !== undefined && <span className="text-gray-400">{money(s.unitCostPerGal)}/gal</span>}
                     <span className="ml-auto flex gap-1.5">
                       {c.state === "proposed" && !readOnly && perms.confirmShelf && (
                         <>

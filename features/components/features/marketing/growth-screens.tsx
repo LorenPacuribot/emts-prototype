@@ -82,7 +82,7 @@ function Promotions() {
 
   return (
     <>
-      <PageHeader title="Promotions & Referral Codes" subtitle="Discounts, coupons, seasonal offers and service packages with the code customers quote, plus referral programmes where each referrer has their own code." actions={promos.length > 0 && newButton} />
+      <PageHeader title="Promotions & Referrals" subtitle="Discounts, coupons, seasonal offers and service packages with the code customers quote, plus referral programmes where each referrer has their own code." actions={promos.length > 0 && newButton} />
       {promos.length === 0 ? (
         <EmptyState icon={<Ticket />} title="No promotions yet" body="Create an offer with a code customers can quote, or a referral programme for existing customers." action={newButton} />
       ) : (
@@ -102,10 +102,10 @@ function Promotions() {
                   const camp = byId(db.mktCampaigns ?? [], p.campaignId);
                   return (
                     <TR key={p.id}>
-                      <TD className="font-mono text-[12.5px] font-bold text-ink">{p.code}</TD>
-                      <TD className="min-w-52"><div className="font-semibold text-ink">{p.name}</div><div className="text-[11.5px] text-slate-500">{PROMO_KIND_LABEL[p.kind]}{camp && ` · ${camp.name}`}{p.minSpend !== undefined && ` · min ${cents(p.minSpend)}`}</div></TD>
+                      <TD className="font-mono text-xs font-bold text-ink">{p.code}</TD>
+                      <TD className="min-w-52"><div className="font-semibold text-ink">{p.name}</div><div className="text-xs text-gray-500">{PROMO_KIND_LABEL[p.kind]}{camp && ` · ${camp.name}`}{p.minSpend !== undefined && ` · min ${cents(p.minSpend)}`}</div></TD>
                       <TD className="whitespace-nowrap">{discountText(p)}</TD>
-                      <TD className="whitespace-nowrap text-[12px]">{dateLong(p.validFrom)} – {p.validTo ? dateLong(p.validTo) : "no end"}</TD>
+                      <TD className="whitespace-nowrap text-xs">{dateLong(p.validFrom)} – {p.validTo ? dateLong(p.validTo) : "no end"}</TD>
                       <TD className="text-right tabular-nums">{p.redemptions.length}{p.maxRedemptions !== undefined && ` of ${p.maxRedemptions}`}</TD>
                       <TD><Badge tone={s.tone}>{s.label}</Badge></TD>
                       {canEdit && (
@@ -133,8 +133,8 @@ function Promotions() {
                 return (
                   <Card key={p.id} className="p-4">
                     <SectionTitle right={<GatedButton allowed={canEdit} reason={reason} size="sm" onClick={() => setCodeFor(p.id)}><Plus className="h-3.5 w-3.5" /> New referral code</GatedButton>}>Referral programme · {p.code}</SectionTitle>
-                    <div className="mb-3 text-[12.5px] text-slate-600"><b className="text-ink">{p.name}.</b> The friend gets {cents(rw.refereeReward)} off; the referrer gets {cents(rw.referrerReward)} ({rw.rewardType.replace("_", " ")}) once the {rw.qualifyOn === "job_completed" ? "job is completed" : "estimate is accepted"}.</div>
-                    {codes.length === 0 ? <p className="text-[12.5px] text-slate-500">No referrer codes yet. Give a happy customer their own code.</p> : (
+                    <div className="mb-3 text-xs text-gray-600"><b className="text-ink">{p.name}.</b> The friend gets {cents(rw.refereeReward)} off; the referrer gets {cents(rw.referrerReward)} ({rw.rewardType.replace("_", " ")}) once the {rw.qualifyOn === "job_completed" ? "job is completed" : "estimate is accepted"}.</div>
+                    {codes.length === 0 ? <p className="text-xs text-gray-500">No referrer codes yet. Give a happy customer their own code.</p> : (
                       <Table className="relative">
                         <THead><tr><TH>Code</TH><TH>Referrer</TH><TH className="text-right">Referrals</TH><TH className="text-right">Qualified</TH><TH className="text-right">Rewarded</TH><TH className="text-right">Rewards given</TH>{canEdit && <TH><span className="sr-only">Actions</span></TH>}</tr></THead>
                         <tbody>
@@ -143,7 +143,7 @@ function Promotions() {
                             return (
                               <TR key={r.id}>
                                 <TD className="font-mono font-bold text-ink">{r.code}</TD>
-                                <TD>{r.referrerName}<div className="text-[11px] text-slate-500">{r.referrals.map((x) => `${x.leadId} (${x.status === "pending" && referralQualified(db, x, p).qualified ? "qualified" : x.status})`).join(", ")}</div></TD>
+                                <TD>{r.referrerName}<div className="text-xs text-gray-500">{r.referrals.map((x) => `${x.leadId} (${x.status === "pending" && referralQualified(db, x, p).qualified ? "qualified" : x.status})`).join(", ")}</div></TD>
                                 <TD className="text-right tabular-nums">{t.referrals}</TD>
                                 <TD className="text-right tabular-nums">{t.qualified}</TD>
                                 <TD className="text-right tabular-nums">{t.rewarded}</TD>
@@ -163,7 +163,7 @@ function Promotions() {
                   <SectionTitle>Rewards due</SectionTitle>
                   <div className="divide-y divide-line">
                     {due.map((x) => (
-                      <div key={`${x.codeId}-${x.leadId}`} className="flex flex-wrap items-center justify-between gap-2 py-2 text-[12.5px]">
+                      <div key={`${x.codeId}-${x.leadId}`} className="flex flex-wrap items-center justify-between gap-2 py-2 text-xs">
                         <span><b className="text-ink">{x.referrerName}</b> ({x.code}) for {x.leadId} · {cents(x.amount)} {x.rewardType.replace("_", " ")}</span>
                         <GatedButton allowed={canEdit} reason={reason} size="sm" variant="primary" onClick={() => setConfirm({
                           title: `Record ${cents(x.amount)} reward for ${x.referrerName}?`, label: "Record reward given",
@@ -197,7 +197,7 @@ function CodeChecker() {
   return (
     <Card className={`h-fit p-4 ${TAP_SCOPE}`}>
       <SectionTitle>Check a code</SectionTitle>
-      <p className="mb-3 text-[12.5px] text-slate-500">When a customer quotes a code, check it is valid for them and what it is worth.</p>
+      <p className="mb-3 text-xs text-gray-500">When a customer quotes a code, check it is valid for them and what it is worth.</p>
       <div className="space-y-3">
         <Field label="Code" htmlFor="chk-code"><Input id="chk-code" value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder="FALL10" /></Field>
         <Field label="Job amount before tax (USD)" htmlFor="chk-amt" hint="Optional"><Input id="chk-amt" type="number" min={0} step={0.01} inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0.00" /></Field>
@@ -275,7 +275,7 @@ function PromotionForm({ promo, onClose }: { promo?: Promotion; onClose: () => v
         </div>
         {!referral && (
           <fieldset>
-            <legend className="mb-1.5 text-[12px] font-semibold text-slate-700">Only for these services <span className="font-normal text-slate-500">(none ticked = any)</span></legend>
+            <legend className="mb-1.5 text-xs font-semibold text-gray-700">Only for these services <span className="font-normal text-gray-500">(none ticked = any)</span></legend>
             <div className="flex flex-wrap gap-x-4 gap-y-2">{SERVICES.map((s) => <Checkbox key={s} checked={f.services.includes(s)} onCheckedChange={() => setF({ ...f, services: toggle(f.services, s) })} label={SERVICE_LABEL[s]} />)}</div>
           </fieldset>
         )}
@@ -397,14 +397,14 @@ function Reviews() {
       )}
       <Card className="mt-6 p-4">
         <SectionTitle>Review requests</SectionTitle>
-        {requests.length === 0 ? <p className="text-[12.5px] text-slate-500">None sent yet. Each customer can be asked once every {REVIEW_REQUEST_COOLDOWN_DAYS} days.</p> : (
+        {requests.length === 0 ? <p className="text-xs text-gray-500">None sent yet. Each customer can be asked once every {REVIEW_REQUEST_COOLDOWN_DAYS} days.</p> : (
           <Table className="relative">
             <THead><tr><TH>Sent</TH><TH>Customer</TH><TH>By</TH><TH>Platform</TH><TH>Status</TH></tr></THead>
             <tbody>
               {requests.map((q) => (
                 <TR key={q.id}>
                   <TD className="whitespace-nowrap">{dateLong(q.at)}</TD>
-                  <TD>{byId(db.customers, q.customerId)?.name ?? "—"}{q.jobId && <div className="text-[11px] text-slate-500">{q.jobId}</div>}</TD>
+                  <TD>{byId(db.customers, q.customerId)?.name ?? "—"}{q.jobId && <div className="text-xs text-gray-500">{q.jobId}</div>}</TD>
                   <TD>{q.channel === "email" ? "Email" : "SMS"} · {q.to}</TD>
                   <TD>{PLATFORM_LABEL[q.platform]}</TD>
                   <TD><Badge tone={q.status === "failed" ? "red" : "green"}>{q.status === "sent" ? "Sent (sandbox)" : q.status === "failed" ? "Failed" : "Sending"}</Badge></TD>
@@ -439,7 +439,7 @@ function ReviewCard({ r, canPost, canApprove, onTestimonial, onReject }: { r: So
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2"><span className="font-semibold text-ink">{r.author}</span><Stars rating={r.rating} /><Badge tone="gray">{PLATFORM_LABEL[r.platform]}</Badge>{r.sandbox && <Badge tone="gray">Sandbox</Badge>}</div>
-          <div className="text-[11.5px] text-slate-500">{dateLong(r.at)}{r.jobId && ` · ${r.jobId}`}{r.customerId && ` · ${byId(db.customers, r.customerId)?.name ?? ""}`}</div>
+          <div className="text-xs text-gray-500">{dateLong(r.at)}{r.jobId && ` · ${r.jobId}`}{r.customerId && ` · ${byId(db.customers, r.customerId)?.name ?? ""}`}</div>
         </div>
         <div className="flex flex-wrap gap-1">
           {r.response?.status === "sent" ? <Badge tone="green">Responded</Badge> : <Badge tone="amber">Needs a response</Badge>}
@@ -447,9 +447,9 @@ function ReviewCard({ r, canPost, canApprove, onTestimonial, onReject }: { r: So
           {r.testimonial?.status === "rejected" && <Badge tone="gray">Not for testimonials</Badge>}
         </div>
       </div>
-      {r.text ? <p className="mt-2 text-[13px] text-slate-700">&ldquo;{r.text}&rdquo;</p> : <p className="mt-2 text-[12.5px] italic text-slate-400">Rating only, no text.</p>}
-      {r.response && <div className="mt-2 rounded-lg border border-line bg-slate-50 px-3 py-2 text-[12.5px]"><b>Our response</b> ({dateLong(r.response.at)}): {r.response.text}</div>}
-      {r.testimonial?.status === "approved" && <div className="mt-2 rounded-lg border border-purple-200 bg-purple-50 px-3 py-2 text-[12.5px]">Testimonial: &ldquo;{r.testimonial.quote}&rdquo; — {r.testimonial.displayName}</div>}
+      {r.text ? <p className="mt-2 text-sm text-gray-700">&ldquo;{r.text}&rdquo;</p> : <p className="mt-2 text-xs italic text-gray-400">Rating only, no text.</p>}
+      {r.response && <div className="mt-2 rounded-lg border border-line bg-gray-50 px-3 py-2 text-xs"><b>Our response</b> ({dateLong(r.response.at)}): {r.response.text}</div>}
+      {r.testimonial?.status === "approved" && <div className="mt-2 rounded-lg border border-purple-200 bg-purple-50 px-3 py-2 text-xs">Testimonial: &ldquo;{r.testimonial.quote}&rdquo; — {r.testimonial.displayName}</div>}
       {replying ? (
         <div className={`mt-3 space-y-2 ${TAP_SCOPE}`}>
           <Field label="Public response" htmlFor={`resp-${r.id}`} error={err}><Textarea id={`resp-${r.id}`} value={text} invalid={!!err} onChange={(e) => setText(e.target.value)} placeholder={`Thank you, ${r.author.split(" ")[0]}…`} autoFocus /></Field>
@@ -561,9 +561,9 @@ function RequestReviewForm({ onClose }: { onClose: () => void }) {
           <Field label="Review on" htmlFor="rq-plat"><Select id="rq-plat" value={f.platform} onChange={(x) => setF({ ...f, platform: x.target.value as SocialPlatform })}>{REVIEW_PLATFORMS.map((p) => <option key={p} value={p}>{PLATFORM_LABEL[p]}</option>)}</Select></Field>
         </div>
         {customer && (
-          <div className="rounded-lg border border-line bg-slate-50 p-3 text-[12.5px]">
-            <div className="font-semibold text-slate-700">To: {to ?? <span className="text-red-600">no {f.channel === "email" ? "email" : "mobile number"} on file</span>}</div>
-            <div className="mt-1 text-slate-600">{preview}</div>
+          <div className="rounded-lg border border-line bg-gray-50 p-3 text-xs">
+            <div className="font-semibold text-gray-700">To: {to ?? <span className="text-red-600">no {f.channel === "email" ? "email" : "mobile number"} on file</span>}</div>
+            <div className="mt-1 text-gray-600">{preview}</div>
           </div>
         )}
         {err && err.field !== "customerId" && <Banner tone="danger">{err.message}</Banner>}
@@ -616,7 +616,7 @@ function Messages() {
                   const sent = m.sends.filter((s) => s.status === "sandbox" || s.status === "sent").length;
                   return (
                     <TR key={m.id} className="cursor-pointer" onClick={() => setOpenId(m.id)}>
-                      <TD className="min-w-56"><button type="button" className={`text-left font-semibold text-brand hover:underline ${TAP}`} onClick={(e) => { e.stopPropagation(); setOpenId(m.id); }}>{m.name}</button><div className="text-[11.5px] text-slate-500">{m.id}{m.campaignId && ` · ${byId(db.mktCampaigns ?? [], m.campaignId)?.name ?? ""}`}</div></TD>
+                      <TD className="min-w-56"><button type="button" className={`text-left font-semibold text-brand hover:underline ${TAP}`} onClick={(e) => { e.stopPropagation(); setOpenId(m.id); }}>{m.name}</button><div className="text-xs text-gray-500">{m.id}{m.campaignId && ` · ${byId(db.mktCampaigns ?? [], m.campaignId)?.name ?? ""}`}</div></TD>
                       <TD><Badge tone="gray">{m.channel === "email" ? "Email" : "SMS"}</Badge></TD>
                       <TD>{seg?.name ?? "—"}</TD>
                       <TD>{m.status === "sent" ? <Badge tone="green">Sent (sandbox) {dateLong(m.sentAt)}</Badge> : <Badge tone="gray">Draft</Badge>}</TD>
@@ -637,11 +637,11 @@ function Messages() {
             return (
               <Card key={s.id} className="p-4">
                 <div className="flex items-start justify-between gap-2">
-                  <div className="min-w-0"><div className="font-semibold text-ink">{s.name}</div><div className="text-[12px] text-slate-500">{describeRules(s.rules)}</div></div>
+                  <div className="min-w-0"><div className="font-semibold text-ink">{s.name}</div><div className="text-xs text-gray-500">{describeRules(s.rules)}</div></div>
                   {canPost && <Button size="icon" variant="ghost" className={TAP} aria-label={`Edit segment ${s.name}`} onClick={() => setSegEditing(s.id)}><Pencil className="h-4 w-4" /></Button>}
                 </div>
-                <div className="mt-2 text-[12.5px] text-slate-700"><b>{m.length}</b> {m.length === 1 ? "person" : "people"} · {m.filter((x) => x.email && !x.optOutEmail).length} by email · {m.filter((x) => x.phone && !x.optOutSms).length} by SMS</div>
-                {s.description && <div className="mt-1 text-[11.5px] text-slate-500">{s.description}</div>}
+                <div className="mt-2 text-xs text-gray-700"><b>{m.length}</b> {m.length === 1 ? "person" : "people"} · {m.filter((x) => x.email && !x.optOutEmail).length} by email · {m.filter((x) => x.phone && !x.optOutSms).length} by SMS</div>
+                {s.description && <div className="mt-1 text-xs text-gray-500">{s.description}</div>}
               </Card>
             );
           })}
@@ -685,23 +685,23 @@ function MessageDrawer({ id, onClose, onEdit }: { id: string; onClose: () => voi
       )}
       <section>
         <SectionTitle>Preview for {sample}</SectionTitle>
-        <div className="rounded-xl border border-line p-3 text-[13px]">
+        <div className="rounded-xl border border-line p-3 text-sm">
           {p.subject && <div className="mb-2 font-semibold text-ink">Subject: {p.subject}</div>}
-          <div className="whitespace-pre-wrap text-slate-700">{p.body}</div>
+          <div className="whitespace-pre-wrap text-gray-700">{p.body}</div>
         </div>
       </section>
       {m.status === "draft" ? (
         <section>
           <SectionTitle>Who receives it</SectionTitle>
-          <p className="text-[12.5px] text-slate-700"><b>{rec.send.length}</b> will receive it by {m.channel === "email" ? "email" : "SMS"}. {optedOut} opted out and {noAddr} with no {m.channel === "email" ? "email" : "mobile number"} will be skipped and logged.</p>
-          <ul className="mt-2 max-h-48 overflow-y-auto text-[12px] text-slate-600">{rec.send.map((r) => <li key={r.member.key}>{r.member.name} · {r.to}</li>)}</ul>
+          <p className="text-xs text-gray-700"><b>{rec.send.length}</b> will receive it by {m.channel === "email" ? "email" : "SMS"}. {optedOut} opted out and {noAddr} with no {m.channel === "email" ? "email" : "mobile number"} will be skipped and logged.</p>
+          <ul className="mt-2 max-h-48 overflow-y-auto text-xs text-gray-600">{rec.send.map((r) => <li key={r.member.key}>{r.member.name} · {r.to}</li>)}</ul>
         </section>
       ) : (
         <section>
           <SectionTitle>Send log ({m.sends.length})</SectionTitle>
           <Table className="relative">
             <THead><tr><TH>Recipient</TH><TH>To</TH><TH>Result</TH><TH>Message ID</TH></tr></THead>
-            <tbody>{m.sends.map((s) => <TR key={s.memberKey}><TD>{s.name}</TD><TD>{s.to ?? "—"}</TD><TD><Badge tone={s.status === "sandbox" || s.status === "sent" ? "green" : s.status === "failed" ? "red" : "gray"}>{SEND_LABEL[s.status]}</Badge></TD><TD className="font-mono text-[11px]">{s.messageId ?? "—"}</TD></TR>)}</tbody>
+            <tbody>{m.sends.map((s) => <TR key={s.memberKey}><TD>{s.name}</TD><TD>{s.to ?? "—"}</TD><TD><Badge tone={s.status === "sandbox" || s.status === "sent" ? "green" : s.status === "failed" ? "red" : "gray"}>{SEND_LABEL[s.status]}</Badge></TD><TD className="font-mono text-xs">{s.messageId ?? "—"}</TD></TR>)}</tbody>
           </Table>
         </section>
       )}
@@ -758,10 +758,10 @@ function MessageForm({ message, onClose, onSaved }: { message?: MessageCampaign;
           <Textarea id="msg-body" className="min-h-40" value={f.body} invalid={!!e("body")} onChange={(x) => setF({ ...f, body: x.target.value })} />
         </Field>
         {f.body && (
-          <div className="rounded-lg border border-line bg-slate-50 p-3 text-[12.5px]">
-            <div className="mb-1 font-semibold text-slate-700">Preview for {rec?.send[0]?.member.name ?? "a customer"}</div>
+          <div className="rounded-lg border border-line bg-gray-50 p-3 text-xs">
+            <div className="mb-1 font-semibold text-gray-700">Preview for {rec?.send[0]?.member.name ?? "a customer"}</div>
             {p.subject && <div className="font-semibold text-ink">{p.subject}</div>}
-            <div className="whitespace-pre-wrap text-slate-600">{p.body}</div>
+            <div className="whitespace-pre-wrap text-gray-600">{p.body}</div>
           </div>
         )}
         {err && !["name", "segmentId", "subject", "body", "campaignId", "promotionId"].includes(err.field ?? "") && <Banner tone="danger">{err.message}</Banner>}
@@ -803,9 +803,9 @@ function SegmentForm({ id, onClose }: { id?: string; onClose: () => void }) {
           <Field label="Name" htmlFor="seg-name" required error={e("name")}><Input id="seg-name" value={f.name} invalid={!!e("name")} onChange={(x) => setF({ ...f, name: x.target.value })} placeholder="Past exterior customers in Plano" /></Field>
           <Field label="Description" htmlFor="seg-desc"><Input id="seg-desc" value={f.description} onChange={(x) => setF({ ...f, description: x.target.value })} /></Field>
         </div>
-        <fieldset><legend className="mb-1.5 text-[12px] font-semibold text-slate-700">Status</legend><div className="flex flex-wrap gap-x-4 gap-y-2">{AUDIENCE_STATUSES.map((s) => <Checkbox key={s} checked={f.statuses.includes(s)} onCheckedChange={() => setF({ ...f, statuses: toggle(f.statuses, s) })} label={STATUS_LABEL[s]} />)}</div></fieldset>
-        <fieldset><legend className="mb-1.5 text-[12px] font-semibold text-slate-700">Contact group</legend><div className="flex flex-wrap gap-x-4 gap-y-2">{GROUPS.map((g) => <Checkbox key={g} checked={f.groups.includes(g)} onCheckedChange={() => setF({ ...f, groups: toggle(f.groups, g) })} label={GROUP_LABEL[g]} />)}</div></fieldset>
-        <fieldset><legend className="mb-1.5 text-[12px] font-semibold text-slate-700">Had these services</legend><div className="flex flex-wrap gap-x-4 gap-y-2">{SERVICES.map((s) => <Checkbox key={s} checked={f.services.includes(s)} onCheckedChange={() => setF({ ...f, services: toggle(f.services, s) })} label={SERVICE_LABEL[s]} />)}</div></fieldset>
+        <fieldset><legend className="mb-1.5 text-xs font-semibold text-gray-700">Status</legend><div className="flex flex-wrap gap-x-4 gap-y-2">{AUDIENCE_STATUSES.map((s) => <Checkbox key={s} checked={f.statuses.includes(s)} onCheckedChange={() => setF({ ...f, statuses: toggle(f.statuses, s) })} label={STATUS_LABEL[s]} />)}</div></fieldset>
+        <fieldset><legend className="mb-1.5 text-xs font-semibold text-gray-700">Contact group</legend><div className="flex flex-wrap gap-x-4 gap-y-2">{GROUPS.map((g) => <Checkbox key={g} checked={f.groups.includes(g)} onCheckedChange={() => setF({ ...f, groups: toggle(f.groups, g) })} label={GROUP_LABEL[g]} />)}</div></fieldset>
+        <fieldset><legend className="mb-1.5 text-xs font-semibold text-gray-700">Had these services</legend><div className="flex flex-wrap gap-x-4 gap-y-2">{SERVICES.map((s) => <Checkbox key={s} checked={f.services.includes(s)} onCheckedChange={() => setF({ ...f, services: toggle(f.services, s) })} label={SERVICE_LABEL[s]} />)}</div></fieldset>
         <div className="grid gap-3 sm:grid-cols-3">
           <Field label="Towns or ZIP codes" htmlFor="seg-loc" hint="Separate with commas" className="sm:col-span-3"><Input id="seg-loc" value={f.locations} onChange={(x) => setF({ ...f, locations: x.target.value })} placeholder="Dallas, 75214" /></Field>
           <Field label="Reachable by" htmlFor="seg-reach"><Select id="seg-reach" value={f.reachableBy} onChange={(x) => setF({ ...f, reachableBy: x.target.value as typeof f.reachableBy })}><option value="">Either</option><option value="email">Email</option><option value="sms">SMS</option></Select></Field>
@@ -814,9 +814,9 @@ function SegmentForm({ id, onClose }: { id?: string; onClose: () => void }) {
           <Field label="At least (jobs)" htmlFor="seg-min"><Input id="seg-min" type="number" min={0} step={1} value={f.minJobs} onChange={(x) => setF({ ...f, minJobs: x.target.value })} /></Field>
           <Field label="At most (jobs)" htmlFor="seg-max"><Input id="seg-max" type="number" min={0} step={1} value={f.maxJobs} onChange={(x) => setF({ ...f, maxJobs: x.target.value })} /></Field>
         </div>
-        <div className="rounded-lg border border-line bg-slate-50 p-3 text-[12.5px]">
+        <div className="rounded-lg border border-line bg-gray-50 p-3 text-xs">
           <b>{members.length}</b> {members.length === 1 ? "person matches" : "people match"} today: {describeRules(rules)}
-          {members.length > 0 && <div className="mt-1 text-slate-500">{members.slice(0, 8).map((m) => m.name).join(", ")}{members.length > 8 && `, and ${members.length - 8} more`}</div>}
+          {members.length > 0 && <div className="mt-1 text-gray-500">{members.slice(0, 8).map((m) => m.name).join(", ")}{members.length > 8 && `, and ${members.length - 8} more`}</div>}
         </div>
         {err && !["name", "rules"].includes(err.field ?? "") && <Banner tone="danger">{err.message}</Banner>}
       </div>

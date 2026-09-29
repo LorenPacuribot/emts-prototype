@@ -147,7 +147,7 @@ export function SendEstimateModal({
           </Field>
           <div>
             <div className="mb-1.5 flex items-center justify-between">
-              <span className="text-[11px] font-bold uppercase tracking-wide text-gray-600">Message<span className="ml-0.5 text-red-500">*</span></span>
+              <span className="text-xs font-bold uppercase tracking-wide text-gray-600">Message<span className="ml-0.5 text-red-500">*</span></span>
               <Checkbox
                 checked={form.sms}
                 onChange={(v) => setForm({ ...form, sms: v })}

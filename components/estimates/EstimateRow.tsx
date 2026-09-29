@@ -53,7 +53,7 @@ export function EstimateRow({ estimate: e, total, handlers }: { estimate: Estima
     <Link
       href={`/leads/${lead.id}`}
       onClick={(ev) => ev.stopPropagation()}
-      className="inline-flex items-center gap-1 rounded border border-blue-100 bg-blue-50 px-2 py-0.5 text-[10px] font-medium text-blue-700 hover:bg-blue-100"
+      className="inline-flex items-center gap-1 rounded border border-blue-100 bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 hover:bg-blue-100"
       title="View Lead"
     >
       <Users className="h-3 w-3" />
@@ -80,7 +80,7 @@ export function EstimateRow({ estimate: e, total, handlers }: { estimate: Estima
           </h3>
           <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500">
             <span className="rounded border border-gray-200 bg-gray-100 px-1.5 py-0.5 font-mono font-medium text-gray-600">{e.estimateNumber}</span>
-            {fromHistory && <span className="rounded-md bg-indigo-50 px-1.5 py-0.5 text-[10px] font-bold text-indigo-700">From history</span>}
+            {fromHistory && <span className="rounded-md bg-indigo-50 px-1.5 py-0.5 text-xs font-bold text-indigo-700">From history</span>}
             {customer && (
               <>
                 <span>&bull;</span>
@@ -99,15 +99,15 @@ export function EstimateRow({ estimate: e, total, handlers }: { estimate: Estima
 
       <div className="flex items-center justify-between gap-6 border-t border-gray-100 pt-3 md:justify-end md:gap-8 md:border-0 md:pt-0">
         <div className="flex w-24 flex-col gap-1">
-          <span className="text-[9px] font-bold uppercase tracking-wider text-gray-400">Status</span>
+          <span className="text-xxs font-bold uppercase tracking-wider text-gray-400">Status</span>
           <EstimateStatusBadge status={e.status} />
         </div>
         <div className="hidden w-24 flex-col gap-1 lg:flex">
-          <span className="text-[9px] font-bold uppercase tracking-wider text-gray-400">Type</span>
+          <span className="text-xxs font-bold uppercase tracking-wider text-gray-400">Type</span>
           <span className="truncate text-sm font-bold text-gray-700">{e.estimateType}</span>
         </div>
         <div className="flex min-w-28 flex-col items-end gap-1 text-right">
-          <span className="text-[9px] font-bold uppercase tracking-wider text-gray-400">Total Value</span>
+          <span className="text-xxs font-bold uppercase tracking-wider text-gray-400">Total Value</span>
           <span className="text-sm font-black text-gray-900">{money(total)}</span>
         </div>
         <div className="flex items-center gap-2 border-l border-gray-100 pl-4">

@@ -205,7 +205,7 @@ export default function WorkOrderDetailPage() {
               <p className="font-medium text-gray-700">{job?.address || 'No address set'}</p>
             </div>
             {/* Map placeholder (no external map tiles in the replica) */}
-            <div className="relative min-h-[180px] flex-1 border-t border-gray-200 bg-gradient-to-br from-emerald-50 via-sky-50 to-blue-100">
+            <div className="relative min-h-[180px] flex-1 border-t border-gray-200 bg-gradient-to-br from-green-50 via-sky-50 to-blue-100">
               <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,255,255,.6)_1px,transparent_1px),linear-gradient(rgba(255,255,255,.6)_1px,transparent_1px)] bg-[size:32px_32px]" />
               <MapPin className="absolute left-1/2 top-1/2 h-8 w-8 -translate-x-1/2 -translate-y-full fill-red-500 text-white drop-shadow" />
             </div>
@@ -229,7 +229,7 @@ export default function WorkOrderDetailPage() {
                     <Avatar name={fullName(m)} color={m?.color} size="sm" />
                     <div className="min-w-0 flex-1">
                       <div className="text-sm font-bold text-gray-900">{fullName(m)}</div>
-                      <div className="text-[11px] text-gray-500">{a ? `${a.role} · ${a.hours}h on job` : m?.role}</div>
+                      <div className="text-xs text-gray-500">{a ? `${a.role} · ${a.hours}h on job` : m?.role}</div>
                     </div>
                     {crewEditable && <button onClick={() => setCrew(wo.assignedTo.filter((x) => x !== mid), 'Crew member removed')}
                       className="rounded-lg p-1.5 text-gray-300 hover:bg-red-50 hover:text-red-500" aria-label={`Remove ${fullName(m)}`}><Trash2 className="h-4 w-4" /></button>}
@@ -329,7 +329,7 @@ export default function WorkOrderDetailPage() {
 function Stat({ label, value, primary }: { label: string; value: number; primary?: boolean }) {
   return (
     <div className="flex min-w-0 flex-col sm:min-w-[60px]">
-      <span className={cn('mb-0.5 text-[9px] font-black uppercase tracking-[0.15em]', primary ? 'text-primary-500' : 'text-gray-400')}>{label}</span>
+      <span className={cn('mb-0.5 text-xxs font-black uppercase tracking-[0.15em]', primary ? 'text-primary-500' : 'text-gray-400')}>{label}</span>
       <div className={cn('flex items-center gap-1.5 font-black', primary ? 'text-primary-600' : 'text-gray-900')}>
         <Clock className={cn('h-3.5 w-3.5', !primary && 'text-gray-400')} /><span className="text-base leading-none sm:text-lg">{value.toFixed(2)}</span>
       </div>

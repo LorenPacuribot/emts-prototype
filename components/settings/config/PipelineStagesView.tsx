@@ -62,7 +62,7 @@ export function PipelineStagesView() {
                   <Kanban className="h-4 w-4" />
                 </div>
                 <div>
-                  <div className="text-[9px] font-bold uppercase tracking-widest text-gray-400">Stage ID</div>
+                  <div className="text-xxs font-bold uppercase tracking-widest text-gray-400">Stage ID</div>
                   <div className="text-xs font-bold text-gray-700">{s.stageId}</div>
                 </div>
               </div>

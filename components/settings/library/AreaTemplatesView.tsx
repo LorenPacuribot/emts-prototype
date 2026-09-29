@@ -54,7 +54,7 @@ export function AreaTemplatesView() {
         <div className="w-full md:w-auto md:min-w-[150px]">
           <Select
             size="sm"
-            className="h-8 text-[10px]"
+            className="h-8 text-xs"
             value={typeFilter}
             onChange={setTypeFilter}
             options={[{ label: 'All Estimate Types', value: 'all' }, ...types.map((t) => ({ label: t.name, value: t.id }))]}
@@ -79,11 +79,11 @@ export function AreaTemplatesView() {
                 </div>
                 <div className="mb-5 pr-10 pt-2">
                   <h3 className="mb-1 font-heading text-base font-bold text-gray-900">{t.name}</h3>
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400">{lookups.estimateType(t.estimateTypeId)?.name || 'General'}</span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-gray-400">{lookups.estimateType(t.estimateTypeId)?.name || 'General'}</span>
                 </div>
                 <div className="mt-auto flex flex-wrap gap-1.5">
                   {surfs.map((s) => (
-                    <span key={s!.id} className="rounded-lg border border-gray-200 bg-gray-100 px-2.5 py-1 text-[11px] font-bold text-gray-700">{s!.name}</span>
+                    <span key={s!.id} className="rounded-lg border border-gray-200 bg-gray-100 px-2.5 py-1 text-xs font-bold text-gray-700">{s!.name}</span>
                   ))}
                   {surfs.length === 0 && <span className="text-xs italic text-gray-400">No default surfaces</span>}
                 </div>
@@ -177,7 +177,7 @@ function AreaTemplateModal({
         </div>
         <div>
           <div className="max-h-60 overflow-y-auto rounded-xl border border-gray-100 bg-gray-50 p-3">
-            <span className="mb-3 block text-[10px] font-bold uppercase tracking-widest text-gray-500">Default Surfaces Included</span>
+            <span className="mb-3 block text-xxs font-bold uppercase tracking-widest text-gray-500">Default Surfaces Included</span>
             {surfaces.length === 0 ? (
               <p className="text-sm italic text-gray-500">No surface rates available</p>
             ) : (

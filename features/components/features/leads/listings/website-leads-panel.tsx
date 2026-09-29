@@ -77,13 +77,13 @@ function LeadList({ leads }: { leads: Lead[] }) {
                 const cell = (field: string, v?: string) => (missing.has(field) || !v ? <Badge tone="red">Missing</Badge> : v);
                 return (
                   <TR key={l.id}>
-                    <TD className="whitespace-nowrap font-semibold text-ink"><AppLink href={leadHref(l.id)} className="hover:text-primary-700">{c.name}</AppLink><div className="text-[11px] font-normal text-slate-400">{l.id} · {titleCase(l.source)} · {l.eventRef ?? "manual"}</div></TD>
+                    <TD className="whitespace-nowrap font-semibold text-ink"><AppLink href={leadHref(l.id)} className="hover:text-primary-700">{c.name}</AppLink><div className="text-xs font-normal text-gray-400">{l.id} · {titleCase(l.source)} · {l.eventRef ?? "manual"}</div></TD>
                     <TD className="whitespace-nowrap">{cell("phone", c.phone)}</TD>
                     <TD className="whitespace-nowrap">{cell("email", c.email)}</TD>
                     <TD>{cell("town", l.town)}</TD>
-                    <TD className="max-w-[220px] whitespace-normal text-[12px] text-slate-600">{l.message ?? byId(db.customers, l.customerId)?.name}{(l.events?.length ?? 0) > 1 && <div className="text-[11px] text-slate-400">+ {l.events!.length - 1} later: “{l.events!.at(-1)!.message}”</div>}{l.note && <div className="text-[11px] text-slate-400">{l.note}</div>}</TD>
-                    <TD className="whitespace-nowrap text-[12px]">{dateLong(l.createdAt)}</TD>
-                    <TD className="whitespace-nowrap text-[12px]">{dateLong(l.lastActivityAt ?? l.createdAt)}</TD>
+                    <TD className="max-w-[220px] whitespace-normal text-xs text-gray-600">{l.message ?? byId(db.customers, l.customerId)?.name}{(l.events?.length ?? 0) > 1 && <div className="text-xs text-gray-400">+ {l.events!.length - 1} later: “{l.events!.at(-1)!.message}”</div>}{l.note && <div className="text-xs text-gray-400">{l.note}</div>}</TD>
+                    <TD className="whitespace-nowrap text-xs">{dateLong(l.createdAt)}</TD>
+                    <TD className="whitespace-nowrap text-xs">{dateLong(l.lastActivityAt ?? l.createdAt)}</TD>
                     <TD>{matchState(l)}</TD>
                   </TR>
                 );
@@ -92,7 +92,7 @@ function LeadList({ leads }: { leads: Lead[] }) {
           </Table>
         )}
       </div>
-      <p className="mt-2 text-[11.5px] text-slate-500">Mandatory fields: name, phone, email, property address or at least the town, and a message. A missing field is shown to the office, never filled in.</p>
+      <p className="mt-2 text-xs text-gray-500">Mandatory fields: name, phone, email, property address or at least the town, and a message. A missing field is shown to the office, never filled in.</p>
     </Card>
   );
 }
@@ -104,27 +104,27 @@ function ReviewList({ leads }: { leads: Lead[] }) {
   return (
     <Card className="p-4" data-tour="marketing-review">
       <CardLabel>Lead review</CardLabel>
-      <p className="mt-1 text-[12px] text-slate-500">The phone matches one contact and the email another. A person decides. There is no merge button.</p>
+      <p className="mt-1 text-xs text-gray-500">The phone matches one contact and the email another. A person decides. There is no merge button.</p>
       <div className="mt-3 space-y-3">
-        {leads.length === 0 && <p className="text-[12.5px] italic text-slate-400">Nothing to review.</p>}
+        {leads.length === 0 && <p className="text-xs italic text-gray-400">Nothing to review.</p>}
         {leads.map((l) => {
           const r = l.review!;
           const me = leadContact(db, l.id);
           const a = leadContact(db, r.phoneMatchLeadId);
           const b = leadContact(db, r.emailMatchLeadId);
           return (
-            <div key={l.id} className="rounded-lg border border-line p-3 text-[12.5px]">
+            <div key={l.id} className="rounded-lg border border-line p-3 text-xs">
               <div className="flex flex-wrap items-center gap-1.5"><strong>{l.id}</strong> {me.name} · {me.phone} · {me.email} {r.status === "open" ? <Badge tone="amber">Open</Badge> : <Badge tone="green">Resolved</Badge>}</div>
               <div className="mt-2 grid gap-2 sm:grid-cols-2">
-                <div className="rounded-md bg-slate-50 px-2.5 py-2"><div className="text-[10.5px] font-bold uppercase tracking-wide text-slate-400">Phone matches</div><div className="font-semibold">{a.name}</div><div className="text-slate-500">{r.phoneMatchLeadId} · {a.phone}</div></div>
-                <div className="rounded-md bg-slate-50 px-2.5 py-2"><div className="text-[10.5px] font-bold uppercase tracking-wide text-slate-400">Email matches</div><div className="font-semibold">{b.name}</div><div className="text-slate-500">{r.emailMatchLeadId} · {b.email}</div></div>
+                <div className="rounded-md bg-gray-50 px-2.5 py-2"><div className="text-xxs font-bold uppercase tracking-wide text-gray-400">Phone matches</div><div className="font-semibold">{a.name}</div><div className="text-gray-500">{r.phoneMatchLeadId} · {a.phone}</div></div>
+                <div className="rounded-md bg-gray-50 px-2.5 py-2"><div className="text-xxs font-bold uppercase tracking-wide text-gray-400">Email matches</div><div className="font-semibold">{b.name}</div><div className="text-gray-500">{r.emailMatchLeadId} · {b.email}</div></div>
               </div>
               {r.status === "open" ? (can(user, "marketing.post") && (
                 <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-end">
                   <Field label="Manual resolution" className="flex-1"><Input value={notes[l.id] ?? ""} onChange={(e) => setNotes({ ...notes, [l.id]: e.target.value })} placeholder="e.g. Called: Jordan is Jeremy's son, separate household — kept as a new lead" /></Field>
                   <Button variant="primary" onClick={() => act(resolveLeadReview, l.id, notes[l.id] ?? "").ok && toast.success("Resolved by hand", "No records were merged.")}>Record resolution</Button>
                 </div>
-              )) : <div className="mt-2 text-slate-600">Resolved by {userName(db, r.resolvedBy)} on {dateLong(r.resolvedAt)}: {r.resolution}</div>}
+              )) : <div className="mt-2 text-gray-600">Resolved by {userName(db, r.resolvedBy)} on {dateLong(r.resolvedAt)}: {r.resolution}</div>}
             </div>
           );
         })}
@@ -137,13 +137,13 @@ function LiveForm() {
   return (
     <Card className="p-4">
       <CardLabel icon={<Globe />}>Live website form</CardLabel>
-      <p className="mt-1 text-[12px] text-slate-500">Your website posts enquiries to this endpoint. New ones appear here within 30 seconds.</p>
-      <dl className="mt-3 space-y-2 text-[12px]">
-        <div><dt className="font-semibold text-slate-600">Endpoint</dt><dd className="break-all font-mono text-slate-800">POST /api/website-form (on this site)</dd></div>
-        <div><dt className="font-semibold text-slate-600">Fields</dt><dd className="text-slate-800">siteKey, name, phone or email, town, message; optional ref (your stable event id)</dd></div>
-        <div><dt className="font-semibold text-slate-600">Protection</dt><dd className="text-slate-800">Site key, hidden honeypot field, 5 submissions per 10 minutes per address</dd></div>
+      <p className="mt-1 text-xs text-gray-500">Your website posts enquiries to this endpoint. New ones appear here within 30 seconds.</p>
+      <dl className="mt-3 space-y-2 text-xs">
+        <div><dt className="font-semibold text-gray-600">Endpoint</dt><dd className="break-all font-mono text-gray-800">POST /api/website-form (on this site)</dd></div>
+        <div><dt className="font-semibold text-gray-600">Fields</dt><dd className="text-gray-800">siteKey, name, phone or email, town, message; optional ref (your stable event id)</dd></div>
+        <div><dt className="font-semibold text-gray-600">Protection</dt><dd className="text-gray-800">Site key, hidden honeypot field, 5 submissions per 10 minutes per address</dd></div>
       </dl>
-      <a href="/website-form" target="_blank" rel="noreferrer" className="mt-3 inline-flex h-9 w-full items-center justify-center rounded-lg border border-line bg-white text-[13px] font-semibold text-ink hover:border-slate-300">Open sample form</a>
+      <a href="/website-form" target="_blank" rel="noreferrer" className="mt-3 inline-flex h-9 w-full items-center justify-center rounded-lg border border-line bg-white text-sm font-semibold text-ink hover:border-gray-300">Open sample form</a>
     </Card>
   );
 }
@@ -165,11 +165,11 @@ function Simulator() {
   return (
     <Card className="p-4" data-tour="marketing-website-form">
       <CardLabel icon={<Send />}>Website form (simulated)</CardLabel>
-      <p className="mt-1 text-[12px] text-slate-500">Sends an event the way the website would. Try the scenarios, or retry the last one.</p>
+      <p className="mt-1 text-xs text-gray-500">Sends an event the way the website would. Try the scenarios, or retry the last one.</p>
       <div className="mt-3 space-y-1.5">
         {PRESETS.map((p) => (
-          <button key={p.label} type="button" onClick={() => send({ ref: ref(), ...p.make() })} className="flex w-full items-center justify-between gap-2 rounded-lg border border-line px-3 py-2 text-left text-[12.5px] hover:border-slate-300">
-            <span className="font-medium text-ink">{p.label}</span><span className="shrink-0 text-[11px] text-slate-400">{p.hint}</span>
+          <button key={p.label} type="button" onClick={() => send({ ref: ref(), ...p.make() })} className="flex w-full items-center justify-between gap-2 rounded-lg border border-line px-3 py-2 text-left text-xs hover:border-gray-300">
+            <span className="font-medium text-ink">{p.label}</span><span className="shrink-0 text-xs text-gray-400">{p.hint}</span>
           </button>
         ))}
         <Button className="w-full" disabled={!last} onClick={() => last && send(last)}>Retry last event{last ? ` (${last.ref})` : ""}</Button>
@@ -179,7 +179,7 @@ function Simulator() {
         <div className="grid grid-cols-2 gap-2">{f("email", "Email")}{f("town", "Address or town")}</div>
         <Field label="Message"><Textarea rows={2} value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} /></Field>
         <Button variant="primary" className="w-full" disabled={!can(user, "marketing.access")} onClick={() => send(form)}>Submit form</Button>
-        <p className="text-[11px] text-slate-400">Event reference {form.ref}</p>
+        <p className="text-xs text-gray-400">Event reference {form.ref}</p>
       </div>
     </Card>
   );

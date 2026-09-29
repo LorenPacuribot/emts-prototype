@@ -17,7 +17,7 @@ export function PropertyCell({ db, propertyId, sub }: { db: Database; propertyId
       <AppLink href={propertyHref(propertyId)} className="font-semibold text-ink hover:text-brand" onClick={(e) => e.stopPropagation()}>
         {p?.address ?? propertyId}
       </AppLink>
-      <div className="text-[11px] text-slate-500">
+      <div className="text-xs text-gray-500">
         {propertyId} · {p?.city} · {owner?.name ?? "—"}
         {sub}
       </div>
@@ -36,7 +36,7 @@ export function NoticeBadge({ basis }: { basis: RepaintAlert["noticeBasis"] }) {
 }
 
 export function SuppressionBadge({ s }: { s?: Suppression }) {
-  if (!s) return <span className="text-[11.5px] text-slate-400">None</span>;
+  if (!s) return <span className="text-xs text-gray-400">None</span>;
   return <Badge tone="gray" icon={<EyeOff className="h-3 w-3" />}>{s.label}</Badge>;
 }
 
@@ -47,14 +47,14 @@ export function OptOutBadge() {
 export function EscalationBadge({ escalated, age, daysLeft }: { escalated: boolean; age: number; daysLeft?: number }) {
   if (escalated) return <Badge tone="red" icon={<Flag className="h-3 w-3" />}>Escalated · day {age}</Badge>;
   if (daysLeft !== undefined && daysLeft <= 3) return <Badge tone="amber" icon={<AlertOctagon className="h-3 w-3" />}>{daysLeft} day{daysLeft === 1 ? "" : "s"} to escalation</Badge>;
-  return <span className="text-[11.5px] text-slate-500">{daysLeft !== undefined ? `${daysLeft} days left` : "—"}</span>;
+  return <span className="text-xs text-gray-500">{daysLeft !== undefined ? `${daysLeft} days left` : "—"}</span>;
 }
 
 export function Section({ title, icon, children, right }: { title: string; icon?: ReactNode; children: ReactNode; right?: ReactNode }) {
   return (
     <section className="rounded-xl border border-line p-4">
       <div className="mb-3 flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2 text-[10.5px] font-bold uppercase tracking-[0.14em] text-slate-600">
+        <div className="flex items-center gap-2 text-xxs font-bold uppercase tracking-[0.14em] text-gray-600">
           {icon && <span className="text-brand [&>svg]:h-3.5 [&>svg]:w-3.5">{icon}</span>}
           {title}
         </div>

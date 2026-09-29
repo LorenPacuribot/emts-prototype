@@ -111,7 +111,7 @@ export function PaintHistoryPanel({ property }: { property: Property }) {
         eyebrow={
           <div className="flex items-center gap-2">
             <MicroLabel>Ownership period</MicroLabel>
-            <Select value={periodId} onChange={(e) => setPeriodId(e.target.value)} className="h-8 w-auto py-0 text-[12px]" aria-label="Ownership period">
+            <Select value={periodId} onChange={(e) => setPeriodId(e.target.value)} className="h-8 w-auto py-0 text-xs" aria-label="Ownership period">
               <option value="all">All periods (staff view)</option>
               {[...property.ownership].reverse().map((o) => (
                 <option key={o.id} value={o.id}>{periodLabel(db, o)}</option>
@@ -130,7 +130,7 @@ export function PaintHistoryPanel({ property }: { property: Property }) {
               <DropdownMenu.Portal>
                 <DropdownMenu.Content align="end" sideOffset={4} className="z-50 min-w-48 rounded-xl border border-line bg-white p-1 shadow-xl">
                   {(["staff", "customer"] as const).map((v) => (
-                    <DropdownMenu.Item key={v} onSelect={() => setPrint({ open: true, variant: v })} className="cursor-pointer rounded-lg px-3 py-2 text-[13px] outline-none data-[highlighted]:bg-slate-100">
+                    <DropdownMenu.Item key={v} onSelect={() => setPrint({ open: true, variant: v })} className="cursor-pointer rounded-lg px-3 py-2 text-sm outline-none data-[highlighted]:bg-gray-100">
                       {v === "staff" ? "Staff record" : "Customer variant"}
                     </DropdownMenu.Item>
                   ))}
@@ -140,7 +140,7 @@ export function PaintHistoryPanel({ property }: { property: Property }) {
             <Button onClick={exportCsv}><Download className="h-4 w-4" /> Export CSV</Button>
             <Button onClick={() => correctionsRef.current?.scrollIntoView({ behavior: "smooth" })}>
               <History className="h-4 w-4" /> Corrections
-              {pendingNotices > 0 && <span className="rounded-full bg-amber-500 px-1.5 text-[10px] font-bold text-white">{pendingNotices}</span>}
+              {pendingNotices > 0 && <span className="rounded-full bg-amber-500 px-1.5 text-xs font-bold text-white">{pendingNotices}</span>}
             </Button>
             <AppLink href={propertyHref(property.id, "qr-links")}>
               <Button variant="primary"><QrCode className="h-4 w-4" /> QR Links</Button>
@@ -180,10 +180,10 @@ export function PaintHistoryPanel({ property }: { property: Property }) {
               <Badge tone={multi ? "purple" : "gray"}>{multi ? `Multi-unit · ${buildings.size || 1} building, ${units.size} unit${units.size === 1 ? "" : "s"}` : "Single building"}</Badge>
               {property.mergedFrom?.length ? <Badge tone="indigo">Includes {property.mergedFrom.join(", ")}</Badge> : null}
             </div>
-            <div className="mt-2 font-display text-[20px] font-bold text-ink">{property.address}</div>
-            <div className="text-[13px] text-slate-500">{property.city}, {property.state} {property.zip}</div>
+            <div className="mt-2 font-display text-xl font-bold text-ink">{property.address}</div>
+            <div className="text-sm text-gray-500">{property.city}, {property.state} {property.zip}</div>
             {property.addressHistory?.length ? (
-              <div className="mt-1 text-[11.5px] text-slate-400">Earlier address: {property.addressHistory.map((h) => `“${h.address}” (until ${date(h.changedAt)})`).join(", ")}</div>
+              <div className="mt-1 text-xs text-gray-400">Earlier address: {property.addressHistory.map((h) => `“${h.address}” (until ${date(h.changedAt)})`).join(", ")}</div>
             ) : null}
           </div>
           <KV
@@ -227,19 +227,19 @@ export function PaintHistoryPanel({ property }: { property: Property }) {
             ) : (
               <>
                 <div className="mt-3 flex flex-wrap items-center gap-2">
-                  <span className={surface.removedAt ? "font-display text-[16px] font-bold text-slate-400 line-through" : "font-display text-[16px] font-bold text-ink"}>{surfaceLabel(db, surface.id)}</span>
+                  <span className={surface.removedAt ? "font-display text-base font-bold text-gray-400 line-through" : "font-display text-base font-bold text-ink"}>{surfaceLabel(db, surface.id)}</span>
                   <IdChip>{surface.id}</IdChip>
                   {surface.removedAt && <Badge tone="red">Removed {dateLong(surface.removedAt)}</Badge>}
                   {surface.replacesSurfaceId && (
-                    <button onClick={() => setSelected(surface.replacesSurfaceId)} className="text-[12px] font-semibold text-brand hover:underline">Replaces {surface.replacesSurfaceId} — view its history</button>
+                    <button onClick={() => setSelected(surface.replacesSurfaceId)} className="text-xs font-semibold text-brand hover:underline">Replaces {surface.replacesSurfaceId} — view its history</button>
                   )}
                   {surfaces.find((s) => s.replacesSurfaceId === surface.id) && (
-                    <button onClick={() => setSelected(surfaces.find((s) => s.replacesSurfaceId === surface.id)!.id)} className="text-[12px] font-semibold text-brand hover:underline">
+                    <button onClick={() => setSelected(surfaces.find((s) => s.replacesSurfaceId === surface.id)!.id)} className="text-xs font-semibold text-brand hover:underline">
                       Replaced by {surfaces.find((s) => s.replacesSurfaceId === surface.id)!.id}
                     </button>
                   )}
                 </div>
-                {surface.removedAt && <p className="mt-1 text-[12px] text-slate-500">{surface.removedReason}. Applications are never deleted and stay openable below.</p>}
+                {surface.removedAt && <p className="mt-1 text-xs text-gray-500">{surface.removedReason}. Applications are never deleted and stay openable below.</p>}
 
                 <div className="mt-4 space-y-3">
                   {confirmed.length === 0 && unverified.length === 0 && (
@@ -252,7 +252,7 @@ export function PaintHistoryPanel({ property }: { property: Property }) {
 
                 {unverified.length > 0 && (
                   <div className="mt-5 rounded-xl border border-dashed border-amber-300 bg-amber-50/40 p-3">
-                    <div className="mb-2 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.12em] text-amber-700">
+                    <div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.12em] text-amber-700">
                       <AlertTriangle className="h-3.5 w-3.5" /> Customer-reported work — not crew-confirmed, not under warranty
                     </div>
                     <div className="space-y-3">
@@ -269,15 +269,15 @@ export function PaintHistoryPanel({ property }: { property: Property }) {
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             <Card className="p-5" data-tour="gaps">
               <CardLabel icon={<MessageSquareWarning />}>Gaps</CardLabel>
-              <p className="mt-1 text-[12px] text-slate-500">Values recorded as Unknown or Not recorded. Nothing here is estimated.</p>
+              <p className="mt-1 text-xs text-gray-500">Values recorded as Unknown or Not recorded. Nothing here is estimated.</p>
               <div className="mt-3 space-y-2">
                 {gaps.length === 0 && <EmptyState title="No gaps" body="Every application has colour, sheen, product and a completion date." />}
                 {gaps.map((g, i) => (
-                  <button key={i} onClick={() => setSelected(g.app.surfaceId)} className="flex w-full items-start gap-3 rounded-lg border border-line px-3 py-2 text-left text-[12.5px] hover:bg-slate-50">
+                  <button key={i} onClick={() => setSelected(g.app.surfaceId)} className="flex w-full items-start gap-3 rounded-lg border border-line px-3 py-2 text-left text-xs hover:bg-gray-50">
                     <Badge tone={g.state === "Unknown" ? "amber" : "gray"}>{g.state}</Badge>
                     <div className="min-w-0 flex-1">
                       <div className="font-semibold text-ink">{g.field} · {surfaceLabel(db, g.app.surfaceId)}</div>
-                      <div className="text-slate-500">
+                      <div className="text-gray-500">
                         {g.app.id}
                         {g.approvedBy ? ` · Exception approved by ${byId(db.users, g.approvedBy)?.name}` : g.state === "Unknown" ? " · No owner exception on file" : ""}
                         {g.reason ? ` — ${g.reason}` : ""}
@@ -287,7 +287,7 @@ export function PaintHistoryPanel({ property }: { property: Property }) {
                   </button>
                 ))}
                 {seeCosts && actualsMissing > 0 && (
-                  <p className="pt-1 text-[11.5px] text-slate-500">
+                  <p className="pt-1 text-xs text-gray-500">
                     Production hours: <span className="italic">Not recorded</span> on {actualsMissing} confirmed application{actualsMissing === 1 ? "" : "s"}. Optional actuals never block closeout.
                   </p>
                 )}
@@ -297,22 +297,22 @@ export function PaintHistoryPanel({ property }: { property: Property }) {
             <div ref={correctionsRef} className="scroll-mt-20">
               <Card className="h-full p-5">
                 <CardLabel icon={<Pencil />}>Corrections</CardLabel>
-                <p className="mt-1 text-[12px] text-slate-500">Post-close corrections by the Business Owner or Office Manager.</p>
+                <p className="mt-1 text-xs text-gray-500">Post-close corrections by the Business Owner or Office Manager.</p>
                 <div className="mt-3 space-y-2">
                   {corrections.length === 0 && <EmptyState title="No corrections" body="Use Correct on an application to fix a recorded value." />}
                   {corrections.map((c) => {
                     const a = byId(db.applications, c.applicationId);
                     return (
-                      <div key={c.id} className="rounded-lg border border-line px-3 py-2.5 text-[12.5px]">
+                      <div key={c.id} className="rounded-lg border border-line px-3 py-2.5 text-xs">
                         <div className="flex flex-wrap items-center gap-2">
                           <span className="font-semibold text-ink">{c.field}</span>
                           <IdChip>{c.applicationId}</IdChip>
-                          <span className="text-[11px] text-slate-400">{a ? surfaceLabel(db, a.surfaceId) : ""}</span>
+                          <span className="text-xs text-gray-400">{a ? surfaceLabel(db, a.surfaceId) : ""}</span>
                         </div>
-                        <div className="mt-1 text-slate-600">
-                          <span className="line-through decoration-slate-400">{c.oldValue}</span> → <span className="font-semibold text-ink">{c.newValue}</span>
+                        <div className="mt-1 text-gray-600">
+                          <span className="line-through decoration-gray-400">{c.oldValue}</span> → <span className="font-semibold text-ink">{c.newValue}</span>
                         </div>
-                        <div className="mt-0.5 text-[11.5px] text-slate-500">
+                        <div className="mt-0.5 text-xs text-gray-500">
                           {byId(db.users, c.by)?.name} · {dateLong(c.at)} · {c.reason}
                         </div>
                         <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
@@ -399,16 +399,16 @@ function ApplicationCard({ app, latest, seeCosts, canCorrect, canLog, onCorrect,
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             {unknownTip("colour") ? (
-              <Tooltip content={unknownTip("colour")}><span className="cursor-help font-display text-[15px] font-bold text-ink underline decoration-dotted">{colourText(app)}</span></Tooltip>
+              <Tooltip content={unknownTip("colour")}><span className="cursor-help font-display text-base font-bold text-ink underline decoration-dotted">{colourText(app)}</span></Tooltip>
             ) : (
-              <span className="font-display text-[15px] font-bold text-ink">{colourText(app)}</span>
+              <span className="font-display text-base font-bold text-ink">{colourText(app)}</span>
             )}
             <Mark field="Colour" />
             <VerificationBadge app={app} />
             {latest && <Badge tone="blue">Latest</Badge>}
             <IdChip>{app.id}</IdChip>
           </div>
-          <div className="text-[12px] text-slate-500">
+          <div className="text-xs text-gray-500">
             {app.manufacturer}
             {app.source && ` · Source: ${app.source}`}
             {job ? <> · <AppLink className="font-semibold text-brand hover:underline" href={`/jobs/${encodeURIComponent(job.id)}`}>{job.id}</AppLink></> : app.jobId ? ` · ${app.jobId}` : ""}
@@ -439,24 +439,24 @@ function ApplicationCard({ app, latest, seeCosts, canCorrect, canLog, onCorrect,
       </div>
 
       {app.touchUps.length > 0 && (
-        <div className="mt-3 rounded-lg bg-slate-50 px-3 py-2">
+        <div className="mt-3 rounded-lg bg-gray-50 px-3 py-2">
           <MicroLabel>Touch-ups on this application</MicroLabel>
           {app.touchUps.map((t, i) => (
-            <div key={i} className="mt-1 text-[12px] text-slate-600">{dateLong(t.date)} — {t.note}{t.by ? ` (${byId(db.users, t.by)?.name})` : ""}</div>
+            <div key={i} className="mt-1 text-xs text-gray-600">{dateLong(t.date)} — {t.note}{t.by ? ` (${byId(db.users, t.by)?.name})` : ""}</div>
           ))}
         </div>
       )}
 
-      <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-line pt-3 text-[12px]">
-        <span className="flex items-center gap-1.5 text-slate-600"><Camera className="h-3.5 w-3.5 text-slate-400" /> {app.photoCount} photo{app.photoCount === 1 ? "" : "s"}<Mark field="Photographs" /></span>
-        <span className="flex items-center gap-1.5 text-slate-600"><FlaskConical className="h-3.5 w-3.5 text-slate-400" /> Tint {app.tintFormula ?? <NotRecorded />}</span>
+      <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-line pt-3 text-xs">
+        <span className="flex items-center gap-1.5 text-gray-600"><Camera className="h-3.5 w-3.5 text-gray-400" /> {app.photoCount} photo{app.photoCount === 1 ? "" : "s"}<Mark field="Photographs" /></span>
+        <span className="flex items-center gap-1.5 text-gray-600"><FlaskConical className="h-3.5 w-3.5 text-gray-400" /> Tint {app.tintFormula ?? <NotRecorded />}</span>
         {app.product !== "Unknown" && app.verification === "confirmed" && (
           <a href={pdsLink(app.product)} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 font-semibold text-brand hover:underline">
             <ExternalLink className="h-3.5 w-3.5" /> Product data sheet <Badge tone="dark" className="ml-1">Staff-only</Badge>
           </a>
         )}
         {seeCosts && (
-          <span className="flex items-center gap-2 text-slate-600">
+          <span className="flex items-center gap-2 text-gray-600">
             <Badge tone="gray" icon={<Lock className="h-3 w-3" />}>Staff-only</Badge>
             {estHours !== undefined && <>Est. hours {Math.round(estHours * 10) / 10} · </>}
             Actual hours {app.actualHours === undefined ? <NotRecorded /> : app.actualHours} · Gallons {app.actualGallons === undefined ? <NotRecorded /> : app.actualGallons}

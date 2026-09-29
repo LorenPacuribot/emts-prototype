@@ -175,18 +175,18 @@ function Board() {
                       <TD className="font-semibold text-ink">{p.id}</TD>
                       <TD className="max-w-[170px] whitespace-normal">
                         <div className="leading-snug text-ink">{job?.name}</div>
-                        <div className="text-[11px] text-slate-400">{p.jobId} · {p.phase}</div>
+                        <div className="text-xs text-gray-400">{p.jobId} · {p.phase}</div>
                       </TD>
-                      <TD>{b?.name}<div className="text-[11px] text-slate-400">Store {b?.storeNumber || "—"}</div></TD>
+                      <TD>{b?.name}<div className="text-xs text-gray-400">Store {b?.storeNumber || "—"}</div></TD>
                       <TD><PoStatusBadge po={p} /></TD>
-                      <TD className="whitespace-nowrap">{p.sentAt ? <>{dateTime(p.resentAt ?? p.sentAt)}<div className="text-[11px] text-slate-400">{p.sendMethod}{p.resentAt ? " · resent" : ""}</div></> : <span className="text-slate-400">Not sent</span>}</TD>
+                      <TD className="whitespace-nowrap">{p.sentAt ? <>{dateTime(p.resentAt ?? p.sentAt)}<div className="text-xs text-gray-400">{p.sendMethod}{p.resentAt ? " · resent" : ""}</div></> : <span className="text-gray-400">Not sent</span>}</TD>
                       <TD><AckClockChip po={p} nowIso={nowIso} /></TD>
                       <TD><ReceivedBar po={p} /></TD>
                       <TD>
                         {ex?.overdue ? <Badge tone="red" icon={<AlertTriangle className="h-3 w-3" />}>Call branch · {ex.responsible?.name.split(" ")[0]}</Badge>
                           : p.uncertainSend ? <Badge tone="amber">Receipt uncertain</Badge>
                           : p.lines.some((l) => l.supplierStatusText && !["ready for pickup", "picked up"].includes(l.supplierStatusText.toLowerCase()) && l.status !== "picked_up") ? <Badge tone="amber">Text to review</Badge>
-                          : <span className="text-slate-300">—</span>}
+                          : <span className="text-gray-300">—</span>}
                       </TD>
                       {perms.seePrices && <TD className="text-right tabular-nums">{money(poValue(p))}</TD>}
                       <TD onClick={(e) => e.stopPropagation()}>
@@ -207,7 +207,7 @@ function Board() {
       {view === "exceptions" && (
         <Card className="p-4">
           <CardLabel icon={<AlertTriangle />}>Orders past four working hours with no acknowledgment</CardLabel>
-          <p className="mt-1 text-[12px] text-slate-500">Working hours: Monday to Friday, 7 a.m. to 4 p.m. branch-local, excluding observed US federal holidays. Opening an exception does not clear it — only a recorded action does.</p>
+          <p className="mt-1 text-xs text-gray-500">Working hours: Monday to Friday, 7 a.m. to 4 p.m. branch-local, excluding observed US federal holidays. Opening an exception does not clear it — only a recorded action does.</p>
           <div className="mt-4 space-y-3">
             {exceptions.length === 0 && <EmptyState icon={<CheckCircle2 />} title="No overdue acknowledgments." body="Every sent order has either been acknowledged or is still inside its four working hours." />}
             {exceptions.map(({ po, ex }) => {
@@ -217,25 +217,25 @@ function Board() {
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="font-display text-[14px] font-bold text-ink">{po.id}</span>
+                        <span className="font-display text-sm font-bold text-ink">{po.id}</span>
                         <PoStatusBadge po={po} />
                         <Badge tone="red">Overdue by {minutesLabel(-ex!.remainingMinutes)} working time</Badge>
                       </div>
-                      <div className="mt-1 text-[12.5px] text-slate-600">
+                      <div className="mt-1 text-xs text-gray-600">
                         {byId(db.jobs, po.jobId)?.name} · {byId(db.branches, po.branchId)?.name} · sent {dateTime(po.resentAt ?? po.sentAt)} by {userName(db, po.sentBy)} via {po.sendMethod}
                       </div>
-                      <div className="mt-2 flex flex-wrap items-center gap-1.5 text-[12px]">
+                      <div className="mt-2 flex flex-wrap items-center gap-1.5 text-xs">
                         {(["sender", "office_manager", "owner"] as const).map((s, i) => (
                           <span key={s} className="flex items-center gap-1.5">
-                            {i > 0 && <span className="text-slate-300">→</span>}
-                            <span className={s === ex!.step ? "rounded-full bg-red-600 px-2 py-0.5 font-bold text-white" : "text-slate-500"}>
+                            {i > 0 && <span className="text-gray-300">→</span>}
+                            <span className={s === ex!.step ? "rounded-full bg-red-600 px-2 py-0.5 font-bold text-white" : "text-gray-500"}>
                               {ESCALATION_LABEL[s]}{s === "sender" ? ` (${userName(db, po.sentBy)})` : ""}
                             </span>
                           </span>
                         ))}
                       </div>
-                      <div className="mt-2 text-[12px] text-slate-600">Responsible now: <strong>{ex!.responsible?.name}</strong>{ex!.senderAbsent && " — sender is out of office"}. {lastCall ? `Last call ${dateTime(lastCall.at)} with ${lastCall.employee} (${lastCall.outcome.replace(/_/g, " ")}).` : "No branch call recorded yet."}</div>
-                      <div className="mt-1 text-[12px] text-slate-500">Received {receivedOf(po).received} of {receivedOf(po).ordered} gal. Commitment still held — not released on a timer.</div>
+                      <div className="mt-2 text-xs text-gray-600">Responsible now: <strong>{ex!.responsible?.name}</strong>{ex!.senderAbsent && " — sender is out of office"}. {lastCall ? `Last call ${dateTime(lastCall.at)} with ${lastCall.employee} (${lastCall.outcome.replace(/_/g, " ")}).` : "No branch call recorded yet."}</div>
+                      <div className="mt-1 text-xs text-gray-500">Received {receivedOf(po).received} of {receivedOf(po).ordered} gal. Commitment still held — not released on a timer.</div>
                     </div>
                     <div className="flex flex-wrap gap-2">
                       <Button size="sm" onClick={() => setOpenPo(po.id)}><Eye className="h-3.5 w-3.5" /> Open</Button>
@@ -257,14 +257,14 @@ function Board() {
       {view === "uncertain" && (
         <Card className="p-4">
           <CardLabel icon={<Repeat2 />}>Uncertain sends</CardLabel>
-          <p className="mt-1 text-[12px] text-slate-500">A resend is blocked until a branch confirmation call is recorded. The original reference and the uncertainty stay visible.</p>
+          <p className="mt-1 text-xs text-gray-500">A resend is blocked until a branch confirmation call is recorded. The original reference and the uncertainty stay visible.</p>
           <div className="mt-4 space-y-2">
             {uncertain.length === 0 && <EmptyState icon={<Inbox />} title="No uncertain sends." body="Mark a send uncertain from the order drawer when you're not sure the branch received it." />}
             {uncertain.map((p) => (
-              <button key={p.id} onClick={() => setOpenPo(p.id)} className="flex w-full flex-wrap items-center gap-3 rounded-xl border border-line p-3 text-left hover:bg-slate-50">
+              <button key={p.id} onClick={() => setOpenPo(p.id)} className="flex w-full flex-wrap items-center gap-3 rounded-xl border border-line p-3 text-left hover:bg-gray-50">
                 <span className="font-semibold text-ink">{p.id}</span>
                 {p.uncertainSend ? <Badge tone="amber">Receipt uncertain — call before resend</Badge> : <Badge tone="blue">Resent {p.resendCount}× · original reference kept</Badge>}
-                <span className="text-[12px] text-slate-500">Marked {dateTime(p.uncertainAt)} · {(p.calls ?? []).length} call{(p.calls ?? []).length === 1 ? "" : "s"} recorded</span>
+                <span className="text-xs text-gray-500">Marked {dateTime(p.uncertainAt)} · {(p.calls ?? []).length} call{(p.calls ?? []).length === 1 ? "" : "s"} recorded</span>
               </button>
             ))}
           </div>
@@ -278,9 +278,9 @@ function Board() {
         <div className="space-y-2">
           {awaitingSend.length === 0 && <EmptyState icon={<FilePlus2 />} title="No orders waiting to be sent." body="Generate an order from a job's Materials tab first." />}
           {awaitingSend.map((p) => (
-            <button key={p.id} onClick={() => { setNewSub(false); setOpenPo(p.id); }} className="flex w-full items-center gap-3 rounded-lg border border-line px-3 py-2.5 text-left text-[13px] hover:border-brand hover:bg-brand-soft/40">
+            <button key={p.id} onClick={() => { setNewSub(false); setOpenPo(p.id); }} className="flex w-full items-center gap-3 rounded-lg border border-line px-3 py-2.5 text-left text-sm hover:border-brand hover:bg-brand-soft/40">
               <span className="font-semibold text-ink">{p.id}</span>
-              <span className="text-slate-500">{byId(db.jobs, p.jobId)?.name} · {byId(db.branches, p.branchId)?.name} · {p.lines.length} line{p.lines.length === 1 ? "" : "s"}</span>
+              <span className="text-gray-500">{byId(db.jobs, p.jobId)?.name} · {byId(db.branches, p.branchId)?.name} · {p.lines.length} line{p.lines.length === 1 ? "" : "s"}</span>
             </button>
           ))}
         </div>
@@ -321,13 +321,13 @@ function ReceiptsView({ onOpen }: { onOpen: (id: string) => void }) {
                     <TD><button className="text-brand hover:underline" onClick={() => onOpen(r.poId)}>{r.poId}</button> · {r.lineId}</TD>
                     <TD>{r.jobId}</TD>
                     <TD className="text-right tabular-nums">{r.qtyGal} / {r.orderedGal}</TD>
-                    <TD>{r.overGal > 0 ? `${r.overGal.toFixed(2)} gal → ${r.toJobCostGal.toFixed(2)} job cost${r.toShelfGal > 0 ? `, ${r.toShelfGal.toFixed(2)} shelf` : ""}` : <span className="text-slate-300">—</span>}</TD>
+                    <TD>{r.overGal > 0 ? `${r.overGal.toFixed(2)} gal → ${r.toJobCostGal.toFixed(2)} job cost${r.toShelfGal > 0 ? `, ${r.toShelfGal.toFixed(2)} shelf` : ""}` : <span className="text-gray-300">—</span>}</TD>
                     <TD>
                       {r.status === "pending_approval" ? (
                         perms.approveOver ? <Button size="sm" variant="primary" onClick={() => act(approveReceipt, r.id).ok && toast.success("Over-receipt approved")}>Approve</Button> : <Badge tone="amber">Awaiting office manager</Badge>
                       ) : <Badge tone="green">{r.status === "approved" ? "Approved" : "Recorded"}</Badge>}
                     </TD>
-                    <TD>{userName(db, r.by)}<div className="text-[11px] text-slate-400">{dateTime(r.at)}</div></TD>
+                    <TD>{userName(db, r.by)}<div className="text-xs text-gray-400">{dateTime(r.at)}</div></TD>
                   </TR>
                 ))}
               </tbody>
@@ -356,7 +356,7 @@ function RequestsView({ requests, onOpen }: { requests: OrderRequest[]; onOpen: 
   return (
     <Card className="p-4">
       <CardLabel icon={<Inbox />}>Submission requests from estimators</CardLabel>
-      <p className="mt-1 text-[12px] text-slate-500">Estimators approve demand and request submission. The office manager or owner generates the priced order.</p>
+      <p className="mt-1 text-xs text-gray-500">Estimators approve demand and request submission. The office manager or owner generates the priced order.</p>
       <div className="mt-4 space-y-3">
         {requests.length === 0 && <EmptyState icon={<Inbox />} title="No requests." />}
         {requests.map((r) => {
@@ -367,17 +367,17 @@ function RequestsView({ requests, onOpen }: { requests: OrderRequest[]; onOpen: 
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="font-display text-[14px] font-bold text-ink">{r.id}</span>
+                    <span className="font-display text-sm font-bold text-ink">{r.id}</span>
                     <Badge tone={r.status === "requested" ? "amber" : r.status === "generated" ? "green" : "gray"}>{r.status === "requested" ? "Waiting for office" : r.status === "generated" ? "Generated" : "Rejected"}</Badge>
                     <Badge tone={r.limit.estimatorPass ? "green" : "red"}>Limit {r.limit.estimatorPass ? "pass" : "fail"}</Badge>
                     {need !== "none" && <Badge tone="amber">Needs {need === "owner" ? "owner" : "office manager"} approval</Badge>}
                   </div>
-                  <div className="mt-1 text-[12.5px] text-slate-600">
+                  <div className="mt-1 text-xs text-gray-600">
                     <AppLink href={jobHref(r.jobId, "materials")} className="text-brand hover:underline">{byId(db.jobs, r.jobId)?.name} · {r.jobId}</AppLink> · {byId(db.branches, r.branchId)?.name} · {r.phase} · needed {dateLong(r.deliveryDate)}
                   </div>
-                  <div className="mt-1 text-[12px] text-slate-500">{r.lines.map((l) => `${l.specId}: ${formatPacks(l.packs)}`).join(" · ")}</div>
-                  <div className="mt-1 text-[12px] text-slate-500">Requested by {userName(db, r.requestedBy)} {dateTime(r.requestedAt)}{r.note ? ` — “${r.note}”` : ""}</div>
-                  {perms.seePrices && <div className="mt-1 text-[12px] text-slate-600">Value {money(r.limit.orderValue)} · 7-day window {money(r.limit.windowTotal)} · lifetime {money(r.limit.lifetimeTotal)}</div>}
+                  <div className="mt-1 text-xs text-gray-500">{r.lines.map((l) => `${l.specId}: ${formatPacks(l.packs)}`).join(" · ")}</div>
+                  <div className="mt-1 text-xs text-gray-500">Requested by {userName(db, r.requestedBy)} {dateTime(r.requestedAt)}{r.note ? ` — “${r.note}”` : ""}</div>
+                  {perms.seePrices && <div className="mt-1 text-xs text-gray-600">Value {money(r.limit.orderValue)} · 7-day window {money(r.limit.windowTotal)} · lifetime {money(r.limit.lifetimeTotal)}</div>}
                 </div>
                 <div className="flex gap-2">
                   {r.status === "generated" && r.poId && <Button size="sm" onClick={() => onOpen(r.poId!)}><Eye className="h-3.5 w-3.5" /> View order {r.poId}</Button>}

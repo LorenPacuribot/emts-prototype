@@ -116,13 +116,13 @@ export function FollowUpDrawer({ fuId, onClose }: { fuId?: string; onClose: () =
         <Section title={`Scope — one property conversation (${surfaceIds.length})`} icon={<Link2 />}>
           <ul className="divide-y divide-line rounded-lg border border-line">
             {alerts.flatMap((a) => a.surfaces.map((x) => ({ a, x }))).sort((p, q) => p.x.dueDate.localeCompare(q.x.dueDate)).map(({ a, x }) => (
-              <li key={x.applicationId} className="flex flex-wrap items-center justify-between gap-2 px-3 py-2 text-[12.5px]">
-                <span><span className="font-semibold text-ink">{surfaceLabel(db, x.surfaceId)}</span> <span className="text-slate-400">· {x.surfaceId}{a.id !== fu.alertId ? ` · linked from ${a.id}` : ""}</span></span>
+              <li key={x.applicationId} className="flex flex-wrap items-center justify-between gap-2 px-3 py-2 text-xs">
+                <span><span className="font-semibold text-ink">{surfaceLabel(db, x.surfaceId)}</span> <span className="text-gray-400">· {x.surfaceId}{a.id !== fu.alertId ? ` · linked from ${a.id}` : ""}</span></span>
                 <span className="font-semibold">Due {date(x.dueDate)}</span>
               </li>
             ))}
           </ul>
-          <p className="mt-2 text-[11.5px] text-slate-500">The customer is contacted once about all of these, never once per surface.</p>
+          <p className="mt-2 text-xs text-gray-500">The customer is contacted once about all of these, never once per surface.</p>
         </Section>
 
         <Section title="Contact" icon={<Phone />}>
@@ -131,7 +131,7 @@ export function FollowUpDrawer({ fuId, onClose }: { fuId?: string; onClose: () =
             ["Preferred channel", titleCase(owner?.preferredChannel ?? "—")],
             ["Signed consent", owner?.consentSigned ? <Badge key="c" tone="green">On file</Badge> : <Badge key="c" tone="amber">Not signed — email unavailable</Badge>],
             ["Contact window", windowCheck.ok ? <Badge key="w" tone="green">Open now ({nowDate().toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })})</Badge> : <span key="w" className="text-red-700">Outside the permitted contact window (8 a.m.–7 p.m., not Sundays or holidays). {windowCheck.reason}</span>],
-            ["Opt-out", property.optOut ? <span key="o" className="text-slate-800"><Badge tone="dark">Do not contact</Badge> since {date(property.optOutAt)}{property.optOutSource ? ` — "${property.optOutSource}"` : ""}</span> : "No"],
+            ["Opt-out", property.optOut ? <span key="o" className="text-gray-800"><Badge tone="dark">Do not contact</Badge> since {date(property.optOutAt)}{property.optOutSource ? ` — "${property.optOutSource}"` : ""}</span> : "No"],
             ["Suppression", suppression ? suppression.label : "None"],
             ...(property.reconsent?.length ? [["Re-consent", property.reconsent.map((r) => `${date(r.date)}: "${r.statement}"`).join("; ")] as [string, string]] : []),
           ]} />
@@ -160,29 +160,29 @@ export function FollowUpDrawer({ fuId, onClose }: { fuId?: string; onClose: () =
               </Tooltip>
             </div>
           ) : undefined}>
-          {!closed && canWork && attemptBlock && <p className="mb-2 text-[12px] text-slate-500">{attemptBlock}</p>}
+          {!closed && canWork && attemptBlock && <p className="mb-2 text-xs text-gray-500">{attemptBlock}</p>}
           <div className="space-y-2">
             {fu.attempts.map((a, i) => {
               const m = a.outcome ? CALL_OUTCOME[a.outcome] : undefined;
               return (
-                <div key={a.id} className="rounded-lg border border-line p-3 text-[12.5px]">
+                <div key={a.id} className="rounded-lg border border-line p-3 text-xs">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="font-bold text-ink">Attempt {i + 1}</span>
                       <Badge tone="gray">Day {a.plannedDay}</Badge>
-                      <span className="text-slate-600">Planned {date(a.plannedDate)}</span>
+                      <span className="text-gray-600">Planned {date(a.plannedDate)}</span>
                       {a.movedFrom && <Badge tone="amber">Moved from {date(a.movedFrom)} ({new Date(a.movedFrom).getUTCDay() === 0 ? "Sunday" : "holiday"})</Badge>}
                     </div>
                     {a.actualAt ? (
-                      <span className="flex items-center gap-1.5">{m && <Badge tone={m.tone}>{m.label}</Badge>}<span className="text-slate-500">{dateTime(a.actualAt)} · {a.channel ?? "call"}</span></span>
+                      <span className="flex items-center gap-1.5">{m && <Badge tone={m.tone}>{m.label}</Badge>}<span className="text-gray-500">{dateTime(a.actualAt)} · {a.channel ?? "call"}</span></span>
                     ) : (
-                      <span className="text-slate-400">Not made yet</span>
+                      <span className="text-gray-400">Not made yet</span>
                     )}
                   </div>
                   {a.actualAt && (
-                    <div className="mt-1.5 text-slate-600">
-                      {a.contactName} — {a.note} <span className="text-slate-400">· by {byId(db.users, a.by)?.name} · next action {date(a.nextActionDate)}</span>
-                      {!isConversation(a.outcome) && <span className="ml-1 text-[11px] italic text-slate-400">(attempt only, not a conversation)</span>}
+                    <div className="mt-1.5 text-gray-600">
+                      {a.contactName} — {a.note} <span className="text-gray-400">· by {byId(db.users, a.by)?.name} · next action {date(a.nextActionDate)}</span>
+                      {!isConversation(a.outcome) && <span className="ml-1 text-xs italic text-gray-400">(attempt only, not a conversation)</span>}
                     </div>
                   )}
                 </div>
@@ -190,7 +190,7 @@ export function FollowUpDrawer({ fuId, onClose }: { fuId?: string; onClose: () =
             })}
           </div>
           {!!fu.priorAttempts?.length && (
-            <p className="mt-2 text-[11.5px] text-slate-500">{fu.priorAttempts.length} attempts from an earlier season are kept on record.</p>
+            <p className="mt-2 text-xs text-gray-500">{fu.priorAttempts.length} attempts from an earlier season are kept on record.</p>
           )}
         </Section>
 
@@ -199,19 +199,19 @@ export function FollowUpDrawer({ fuId, onClose }: { fuId?: string; onClose: () =
             {clocks.clocks.map((c) => {
               const drivingNow = c.key === clocks.driving;
               return (
-                <div key={c.key} className={`rounded-lg border p-3 text-[12px] ${drivingNow ? (c.escalated ? "border-red-300 bg-red-50" : "border-brand bg-brand-soft/40") : "border-line"}`}>
+                <div key={c.key} className={`rounded-lg border p-3 text-xs ${drivingNow ? (c.escalated ? "border-red-300 bg-red-50" : "border-brand bg-brand-soft/40") : "border-line"}`}>
                   <div className="flex items-center justify-between gap-1">
                     <span className="font-semibold text-ink">{c.label.split(" (")[0]}</span>
                     {drivingNow && <Badge tone={c.escalated ? "red" : "blue"}>Driving</Badge>}
                   </div>
-                  <div className="mt-1 text-slate-600">{c.state === "not_started" ? "Not started" : `Day ${c.days} of ${c.limit}`}{c.escalated ? " · escalated" : ""}</div>
-                  <div className="text-[11px] text-slate-500">Source {c.source ? date(c.source) : "—"} · to {c.escalatesTo}</div>
-                  {c.stoppedNote && <div className="text-[11px] text-slate-400">{c.stoppedNote}</div>}
+                  <div className="mt-1 text-gray-600">{c.state === "not_started" ? "Not started" : `Day ${c.days} of ${c.limit}`}{c.escalated ? " · escalated" : ""}</div>
+                  <div className="text-xs text-gray-500">Source {c.source ? date(c.source) : "—"} · to {c.escalatesTo}</div>
+                  {c.stoppedNote && <div className="text-xs text-gray-400">{c.stoppedNote}</div>}
                 </div>
               );
             })}
           </div>
-          <p className="mt-2 text-[11.5px] text-slate-500">Reassignment restarts the assigned clock only. Absence restarts nothing.</p>
+          <p className="mt-2 text-xs text-gray-500">Reassignment restarts the assigned clock only. Absence restarts nothing.</p>
         </Section>
 
         <Section title="Linked records" icon={<Link2 />}
@@ -238,7 +238,7 @@ export function FollowUpDrawer({ fuId, onClose }: { fuId?: string; onClose: () =
 
         <Section title="Closure" icon={<ShieldCheck />}>
           {closed ? (
-            <div className="space-y-2 text-[12.5px]">
+            <div className="space-y-2 text-xs">
               <p>Closed as <strong>{s.label}</strong> on {dateTime(fu.closedAt)}{fu.closedReason ? ` — ${fu.closedReason}` : ""}. Read-only.</p>
               {office && fu.status !== "won" && !flags.recycled && <Button size="sm" onClick={() => setReopen("reopen")}><RotateCcw className="h-3.5 w-3.5" /> Reopen</Button>}
               {office && flags.recycled && (
@@ -250,19 +250,19 @@ export function FollowUpDrawer({ fuId, onClose }: { fuId?: string; onClose: () =
           ) : canWork ? (
             <div className="flex flex-wrap items-center gap-2">
               <Button size="sm" onClick={() => setClose("open")}><XCircle className="h-3.5 w-3.5" /> Close follow-up…</Button>
-              <span className="text-[11.5px] text-slate-500">Won needs a sold estimate. Lost and Do not contact need a reason.</span>
+              <span className="text-xs text-gray-500">Won needs a sold estimate. Lost and Do not contact need a reason.</span>
             </div>
           ) : (
-            <p className="text-[12.5px] text-slate-500">Only the assigned estimator or the office can work this follow-up.</p>
+            <p className="text-xs text-gray-500">Only the assigned estimator or the office can work this follow-up.</p>
           )}
         </Section>
 
         <Section title="Status history">
           <ul className="space-y-2">
             {[...fu.history].reverse().map((h, i) => (
-              <li key={i} className="border-l-2 border-line pl-3 text-[12px]">
-                <div className="text-[10.5px] font-bold uppercase text-slate-400">{dateTime(h.at)} · {byId(db.users, h.by)?.name}</div>
-                <div className="text-slate-700">{FOLLOWUP_STATUS[h.status]?.label ?? titleCase(h.status)}{h.note ? ` — ${h.note}` : ""}</div>
+              <li key={i} className="border-l-2 border-line pl-3 text-xs">
+                <div className="text-xxs font-bold uppercase text-gray-400">{dateTime(h.at)} · {byId(db.users, h.by)?.name}</div>
+                <div className="text-gray-700">{FOLLOWUP_STATUS[h.status]?.label ?? titleCase(h.status)}{h.note ? ` — ${h.note}` : ""}</div>
               </li>
             ))}
           </ul>

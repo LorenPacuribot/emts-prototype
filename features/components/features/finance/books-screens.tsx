@@ -105,7 +105,7 @@ function Checkbook() {
         <Table>
           <THead><tr><TH>Date</TH><TH>No.</TH><TH>Payee / purpose</TH><TH>Job · code</TH><TH className="text-right">Payment</TH><TH className="text-right">Deposit</TH><TH className="text-right">Balance</TH><TH>Status</TH>{canWrite && <TH />}</tr></THead>
           <tbody>
-            <TR><TD className="text-slate-500">{dateLong(acct.openingDate)}</TD><TD /><TD className="text-slate-500">Opening balance</TD><TD /><TD /><TD /><TD className="text-right font-semibold tabular-nums">{cents(acct.openingBalance)}</TD><TD /><TD /></TR>
+            <TR><TD className="text-gray-500">{dateLong(acct.openingDate)}</TD><TD /><TD className="text-gray-500">Opening balance</TD><TD /><TD /><TD /><TD className="text-right font-semibold tabular-nums">{cents(acct.openingBalance)}</TD><TD /><TD /></TR>
             {lines.map(({ entry: e, balance: b }) => {
               const rec = byId(db.financeRecords, e.recordId);
               return (
@@ -114,9 +114,9 @@ function Checkbook() {
                   <TD className="tabular-nums">{e.number ?? "—"}</TD>
                   <TD className="min-w-48">
                     <div className={`font-semibold text-ink ${e.status === "void" ? "line-through" : ""}`}>{e.payee}</div>
-                    <div className="text-[11.5px] text-slate-500">{e.purpose}{e.voidReason && ` · Void: ${e.voidReason}`}</div>
+                    <div className="text-xs text-gray-500">{e.purpose}{e.voidReason && ` · Void: ${e.voidReason}`}</div>
                   </TD>
-                  <TD className="text-[12px]">{e.jobId ?? (e.kind === "check" ? "Overhead" : "")}{e.costCode && <span className="text-slate-400"> · {e.costCode}</span>}</TD>
+                  <TD className="text-xs">{e.jobId ?? (e.kind === "check" ? "Overhead" : "")}{e.costCode && <span className="text-gray-400"> · {e.costCode}</span>}</TD>
                   <TD className="text-right tabular-nums">{e.kind === "check" ? cents(e.amount) : ""}</TD>
                   <TD className="text-right tabular-nums">{e.kind === "deposit" ? cents(e.amount) : ""}</TD>
                   <TD className="text-right font-semibold tabular-nums">{cents(b)}</TD>
@@ -140,7 +140,7 @@ function Checkbook() {
           </tbody>
         </Table>
       </Card>
-      <p className="mt-2 text-[11.5px] text-slate-500">Checks above $2,500 are held for the owner&apos;s approval (Accounting › Transfer Queue) before they go to QuickBooks. A voided check stays listed at zero.</p>
+      <p className="mt-2 text-xs text-gray-500">Checks above $2,500 are held for the owner&apos;s approval (Accounting › Transfer Queue) before they go to QuickBooks. A voided check stays listed at zero.</p>
       {form && <RegisterForm kind={form} accountId={acct.id} onClose={() => setForm(undefined)} />}
       <Modal
         open={!!voiding}
@@ -249,14 +249,14 @@ function Feeds() {
               {done.map((t) => (
                 <TR key={t.id}>
                   <TD className="whitespace-nowrap">{dateLong(t.date)}</TD>
-                  <TD><div className="font-semibold text-ink">{t.description}</div><div className="text-[11px] text-slate-400">{t.source === "card" ? "Card" : "Bank"} · {byId(db.bankAccounts ?? [], t.accountId)?.name}</div></TD>
-                  <TD className={`text-right tabular-nums ${t.amount < 0 ? "" : "text-emerald-700"}`}>{cents(t.amount)}</TD>
-                  <TD className="text-[12px]">
+                  <TD><div className="font-semibold text-ink">{t.description}</div><div className="text-xs text-gray-400">{t.source === "card" ? "Card" : "Bank"} · {byId(db.bankAccounts ?? [], t.accountId)?.name}</div></TD>
+                  <TD className={`text-right tabular-nums ${t.amount < 0 ? "" : "text-green-700"}`}>{cents(t.amount)}</TD>
+                  <TD className="text-xs">
                     {t.status === "matched" && <Badge tone="indigo">Matched {byId(db.financeRecords, t.recordId)?.ref}</Badge>}
                     {t.status === "coded" && <Badge tone="green">{t.incomeId ? `Other income ${t.incomeId}` : `Coded ${t.costCode}${t.jobId ? ` · ${t.jobId}` : ""}`}</Badge>}
                     {t.status === "excluded" && <Badge tone="gray">Excluded: {t.note}</Badge>}
                   </TD>
-                  <TD className="text-[12px] text-slate-500">{userName(db, t.reviewedBy)}</TD>
+                  <TD className="text-xs text-gray-500">{userName(db, t.reviewedBy)}</TD>
                   {canCode && <TD className="text-right"><Button size="sm" variant="ghost" onClick={() => act(undoFeedReview, t.id).ok && toast.success("Back in the review queue")}><Undo2 className="h-3.5 w-3.5" /> Undo</Button></TD>}
                 </TR>
               ))}
@@ -287,17 +287,17 @@ function FeedRow({ t }: { t: FeedTransaction }) {
     <Card className="p-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
-          <div className="font-display text-[15px] font-bold text-ink">{t.description}</div>
-          <div className="text-[12px] text-slate-500">{dateLong(t.date)} · {t.source === "card" ? "Card" : "Bank"} · {byId(db.bankAccounts ?? [], t.accountId)?.name}{t.origin === "sandbox" && " · sandbox"}</div>
+          <div className="font-display text-base font-bold text-ink">{t.description}</div>
+          <div className="text-xs text-gray-500">{dateLong(t.date)} · {t.source === "card" ? "Card" : "Bank"} · {byId(db.bankAccounts ?? [], t.accountId)?.name}{t.origin === "sandbox" && " · sandbox"}</div>
         </div>
-        <div className={`font-display text-lg font-bold tabular-nums ${out ? "text-ink" : "text-emerald-700"}`}>{cents(t.amount)}</div>
+        <div className={`font-display text-lg font-bold tabular-nums ${out ? "text-ink" : "text-green-700"}`}>{cents(t.amount)}</div>
       </div>
       {canCode && (
         <>
           {matches.length > 0 && !mode && (
             <div className="mt-3 space-y-2">
               {matches.slice(0, 3).map((r) => (
-                <div key={r.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-indigo-200 bg-indigo-50/60 px-3 py-2 text-[12.5px]">
+                <div key={r.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-indigo-200 bg-indigo-50/60 px-3 py-2 text-xs">
                   <span><b>Looks like {r.ref}</b> · {r.party} · {cents(r.amount + (r.purchaseTax ?? 0))} · {dateLong(r.date)}{r.jobId && ` · ${r.jobId}`}</span>
                   <Button size="sm" variant="primary" onClick={() => act(matchFeedTransaction, t.id, r.id).ok && toast.success("Matched", `No second expense for ${r.ref}.`)}><Link2 className="h-3.5 w-3.5" /> Match</Button>
                 </div>
@@ -305,7 +305,7 @@ function FeedRow({ t }: { t: FeedTransaction }) {
             </div>
           )}
           {mode ? (
-            <div className="mt-3 space-y-3 rounded-lg border border-line bg-slate-50 p-3">
+            <div className="mt-3 space-y-3 rounded-lg border border-line bg-gray-50 p-3">
               {mode === "code" && out && (
                 <div className="grid gap-3 sm:grid-cols-3">
                   <Field label="Cost code" required><CodeSelect value={f.costCode} onChange={(v) => setF({ ...f, costCode: v })} /></Field>
@@ -318,7 +318,7 @@ function FeedRow({ t }: { t: FeedTransaction }) {
                   </Field>
                 </div>
               )}
-              {mode === "code" && !out && <p className="text-[12.5px] text-slate-600">Money in that isn&apos;t a customer payment (a refund, rebate or interest) is recorded as other income.</p>}
+              {mode === "code" && !out && <p className="text-xs text-gray-600">Money in that isn&apos;t a customer payment (a refund, rebate or interest) is recorded as other income.</p>}
               <Field label={mode === "exclude" ? "Why exclude it" : "Note"} required={mode === "exclude"}><Input value={f.note} onChange={(e) => setF({ ...f, note: e.target.value })} placeholder={mode === "exclude" ? "e.g. Transfer between our own accounts" : "Optional"} /></Field>
               <div className="flex justify-end gap-2">
                 <Button size="sm" onClick={() => setMode(undefined)}>Cancel</Button>
@@ -361,9 +361,9 @@ function ImportModal({ onClose }: { onClose: () => void }) {
         <input ref={fileRef} type="file" accept=".csv,text/csv" className="hidden" onChange={async (e) => { const file = e.target.files?.[0]; if (file) { setName(file.name); setText(await file.text()); } }} />
         <Button onClick={() => fileRef.current?.click()}><FileUp className="h-4 w-4" /> {name || "Choose CSV file"}</Button>
         {parsed && (
-          <div className="rounded-lg border border-line p-3 text-[12.5px]">
+          <div className="rounded-lg border border-line p-3 text-xs">
             <div className="font-semibold text-ink">{parsed.rows.length} line{parsed.rows.length === 1 ? "" : "s"} ready</div>
-            {parsed.rows.slice(0, 5).map((r, i) => <div key={i} className="flex justify-between gap-2 text-slate-600"><span className="truncate">{r.date} · {r.description}</span><span className="tabular-nums">{cents(r.amount)}</span></div>)}
+            {parsed.rows.slice(0, 5).map((r, i) => <div key={i} className="flex justify-between gap-2 text-gray-600"><span className="truncate">{r.date} · {r.description}</span><span className="tabular-nums">{cents(r.amount)}</span></div>)}
             {parsed.errors.length > 0 && <div className="mt-2 text-amber-700">{parsed.errors.length} line{parsed.errors.length === 1 ? "" : "s"} skipped: {parsed.errors.slice(0, 3).join("; ")}</div>}
           </div>
         )}
@@ -404,7 +404,7 @@ function Recurring() {
       </StatStrip>
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_380px] [&>*]:min-w-0">
         <Card className="p-4">
-          <div className="mb-2 text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Upcoming</div>
+          <div className="mb-2 text-xxs font-bold uppercase tracking-[0.12em] text-gray-400">Upcoming</div>
           {occ.length === 0 ? <EmptyState icon={<Repeat />} title="Nothing due in the next 60 days" /> : (
             <div className="divide-y divide-line">
               {occ.map((o) => {
@@ -413,8 +413,8 @@ function Recurring() {
                 const late = o.dueDate < t;
                 return (
                   <div key={o.id} className="flex flex-wrap items-center gap-3 py-2.5">
-                    <div className="w-28 shrink-0 text-[12.5px]"><div className={`font-semibold ${late ? "text-amber-700" : "text-ink"}`}>{dateLong(o.dueDate)}</div>{late && <div className="text-[11px] text-amber-700">Overdue</div>}</div>
-                    <div className="min-w-0 flex-1 text-[13px]"><div className="font-semibold text-ink">{r.name}</div><div className="text-[11.5px] text-slate-500">{r.payee} · {r.costCode}</div></div>
+                    <div className="w-28 shrink-0 text-xs"><div className={`font-semibold ${late ? "text-amber-700" : "text-ink"}`}>{dateLong(o.dueDate)}</div>{late && <div className="text-xs text-amber-700">Overdue</div>}</div>
+                    <div className="min-w-0 flex-1 text-sm"><div className="font-semibold text-ink">{r.name}</div><div className="text-xs text-gray-500">{r.payee} · {r.costCode}</div></div>
                     <div className="tabular-nums font-semibold">{cents(o.amount)}</div>
                     {canEdit && (
                       <div className="flex gap-1">
@@ -435,8 +435,8 @@ function Recurring() {
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
                   <div className="font-semibold text-ink">{r.name}</div>
-                  <div className="text-[12px] text-slate-500">{KIND[r.kind]} · {r.payee} · {r.costCode}</div>
-                  <div className="mt-1 text-[12.5px]"><b>{cents(r.amount)}</b> {FREQ[r.frequency].toLowerCase()} · remind {r.reminderDays} day{r.reminderDays === 1 ? "" : "s"} before{r.endDate && ` · ends ${dateLong(r.endDate)}`}</div>
+                  <div className="text-xs text-gray-500">{KIND[r.kind]} · {r.payee} · {r.costCode}</div>
+                  <div className="mt-1 text-xs"><b>{cents(r.amount)}</b> {FREQ[r.frequency].toLowerCase()} · remind {r.reminderDays} day{r.reminderDays === 1 ? "" : "s"} before{r.endDate && ` · ends ${dateLong(r.endDate)}`}</div>
                 </div>
                 {!r.active && <Badge tone="gray">Paused</Badge>}
               </div>
@@ -534,27 +534,27 @@ function Alerts() {
             <Card key={n.id} className="p-4">
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-2"><Bell className="h-4 w-4 text-slate-400" /><span className="font-semibold text-ink">{n.title}</span><Badge tone={tone[n.severity]}>{n.severity === "critical" ? "Critical" : n.severity === "warn" ? "Warning" : "Heads up"}</Badge></div>
-                  <div className="mt-1 text-[12.5px] text-slate-600">{n.detail}</div>
-                  <div className="mt-1 text-[11px] text-slate-400">Raised {dateLong(n.raisedAt)}</div>
+                  <div className="flex flex-wrap items-center gap-2"><Bell className="h-4 w-4 text-gray-400" /><span className="font-semibold text-ink">{n.title}</span><Badge tone={tone[n.severity]}>{n.severity === "critical" ? "Critical" : n.severity === "warn" ? "Warning" : "Heads up"}</Badge></div>
+                  <div className="mt-1 text-xs text-gray-600">{n.detail}</div>
+                  <div className="mt-1 text-xs text-gray-400">Raised {dateLong(n.raisedAt)}</div>
                 </div>
                 <div className="flex gap-1">
-                  {n.href && <AppLink href={n.href} className="inline-flex h-8 items-center rounded-lg border border-line bg-white px-3 text-xs font-semibold text-ink hover:bg-slate-50">Open</AppLink>}
+                  {n.href && <AppLink href={n.href} className="inline-flex h-8 items-center rounded-lg border border-line bg-white px-3 text-xs font-semibold text-ink hover:bg-gray-50">Open</AppLink>}
                   <Button size="sm" variant="ghost" onClick={() => act(dismissFinanceNotice, n.id)}>Dismiss</Button>
                 </div>
               </div>
             </Card>
           ))}
           {cleared.length > 0 && (
-            <details className="rounded-xl border border-line bg-white p-3 text-[12.5px]">
-              <summary className="cursor-pointer font-semibold text-slate-600">Resolved ({cleared.length})</summary>
-              <ul className="mt-2 space-y-1 text-slate-500">{cleared.map((n) => <li key={n.id}>{dateLong(n.raisedAt)} · {n.title}</li>)}</ul>
+            <details className="rounded-xl border border-line bg-white p-3 text-xs">
+              <summary className="cursor-pointer font-semibold text-gray-600">Resolved ({cleared.length})</summary>
+              <ul className="mt-2 space-y-1 text-gray-500">{cleared.map((n) => <li key={n.id}>{dateLong(n.raisedAt)} · {n.title}</li>)}</ul>
             </details>
           )}
         </div>
         <Card className="p-4">
-          <div className="mb-2 text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Your alert rules</div>
-          {(db.financeAlertRules ?? []).length === 0 && <p className="text-[12.5px] text-slate-500">No rules yet. Built-in alerts still run.</p>}
+          <div className="mb-2 text-xxs font-bold uppercase tracking-[0.12em] text-gray-400">Your alert rules</div>
+          {(db.financeAlertRules ?? []).length === 0 && <p className="text-xs text-gray-500">No rules yet. Built-in alerts still run.</p>}
           <div className="divide-y divide-line">
             {(db.financeAlertRules ?? []).map((r) => {
               const v = ruleValue(db, r, now());
@@ -562,7 +562,7 @@ function Alerts() {
               return (
                 <div key={r.id} className={`py-2.5 ${r.active ? "" : "opacity-60"}`}>
                   <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0 text-[13px]"><div className="font-semibold text-ink">{r.name}</div><div className="text-[11.5px] text-slate-500">{METRIC[r.metric]}{r.costCode ? ` (${r.costCode})` : ""}{r.vendorId ? ` (${byId(db.vendors, r.vendorId)?.name})` : ""} {r.comparator} {pct ? `${r.threshold}%` : cents(r.threshold)} per {PERIOD[r.period]}</div><div className="text-[11.5px] text-slate-600">Now: {pct ? `${v.toFixed(1)}%` : cents(v)}</div></div>
+                    <div className="min-w-0 text-sm"><div className="font-semibold text-ink">{r.name}</div><div className="text-xs text-gray-500">{METRIC[r.metric]}{r.costCode ? ` (${r.costCode})` : ""}{r.vendorId ? ` (${byId(db.vendors, r.vendorId)?.name})` : ""} {r.comparator} {pct ? `${r.threshold}%` : cents(r.threshold)} per {PERIOD[r.period]}</div><div className="text-xs text-gray-600">Now: {pct ? `${v.toFixed(1)}%` : cents(v)}</div></div>
                     <div className="flex shrink-0 gap-1">
                       <Button size="icon" variant="ghost" aria-label={`Edit ${r.name}`} onClick={() => setEditing(r)}><Pencil className="h-3.5 w-3.5" /></Button>
                       <Button size="icon" variant="ghost" aria-label={`Delete ${r.name}`} onClick={() => setDeleting(r.id)}><Trash2 className="h-3.5 w-3.5 text-red-500" /></Button>
@@ -572,7 +572,7 @@ function Alerts() {
               );
             })}
           </div>
-          <p className="mt-3 border-t border-line pt-3 text-[11.5px] text-slate-500">Built in: a cost code more than {Math.round((db.financeSettings.alertDefaults?.highExpenseFactor ?? 0.5) * 100)}% above its {db.financeSettings.alertDefaults?.rollingMonths ?? 3}-month average, invoices past {db.financeSettings.arTermsDays ?? 30}-day terms, bills past their due date, a job margin {db.financeSettings.alertDefaults?.marginDropPts ?? 5} points below estimate, and recurring payments inside their reminder window.</p>
+          <p className="mt-3 border-t border-line pt-3 text-xs text-gray-500">Built in: a cost code more than {Math.round((db.financeSettings.alertDefaults?.highExpenseFactor ?? 0.5) * 100)}% above its {db.financeSettings.alertDefaults?.rollingMonths ?? 3}-month average, invoices past {db.financeSettings.arTermsDays ?? 30}-day terms, bills past their due date, a job margin {db.financeSettings.alertDefaults?.marginDropPts ?? 5} points below estimate, and recurring payments inside their reminder window.</p>
         </Card>
       </div>
       {editing && <RuleForm rule={editing === "new" ? undefined : editing} onClose={() => setEditing(undefined)} />}
@@ -631,9 +631,9 @@ function FinanceSearch() {
   const kinds = [...new Set(hits.map((h) => h.kind))];
   return (
     <>
-      <PageHeader title="Search the books" subtitle="Search by any field: reference, payee, vendor, amount, job, cost code, memo, date or status. Every word must match." />
+      <PageHeader title="Search the Books" subtitle="Search by any field: reference, payee, vendor, amount, job, cost code, memo, date or status. Every word must match." />
       <div className="relative mb-3">
-        <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+        <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
         <Input autoFocus value={q} onChange={(e) => setQ(e.target.value)} placeholder="e.g. sherwin JOB-2026-1, 450, check 1188, fuel" className="pl-9" aria-label="Search the books" />
       </div>
       {q.trim() && kinds.length > 1 && (
@@ -651,17 +651,17 @@ function FinanceSearch() {
               {shown.map((h) => (
                 <TR key={`${h.kind}-${h.id}`}>
                   <TD><Badge tone="gray">{KIND_LABEL[h.kind]}</Badge></TD>
-                  <TD className="min-w-56"><AppLink href={h.href} className="font-semibold text-brand hover:underline">{h.title}</AppLink><div className="text-[11.5px] text-slate-500">{h.detail}</div></TD>
-                  <TD className="whitespace-nowrap text-[12px]">{h.date ? dateLong(h.date) : "—"}</TD>
+                  <TD className="min-w-56"><AppLink href={h.href} className="font-semibold text-brand hover:underline">{h.title}</AppLink><div className="text-xs text-gray-500">{h.detail}</div></TD>
+                  <TD className="whitespace-nowrap text-xs">{h.date ? dateLong(h.date) : "—"}</TD>
                   <TD className="text-right tabular-nums">{h.amount !== undefined ? cents(h.amount) : "—"}</TD>
-                  <TD className="text-[11.5px] text-slate-500">{h.matched.join(", ")}</TD>
+                  <TD className="text-xs text-gray-500">{h.matched.join(", ")}</TD>
                 </TR>
               ))}
             </tbody>
           </Table>
         </Card>
       )}
-      {shown.length >= 200 && <p className="mt-2 text-[11.5px] text-slate-500">Showing the first 200. Add a word to narrow it down.</p>}
+      {shown.length >= 200 && <p className="mt-2 text-xs text-gray-500">Showing the first 200. Add a word to narrow it down.</p>}
     </>
   );
 }

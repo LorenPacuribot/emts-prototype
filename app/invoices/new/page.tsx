@@ -158,7 +158,7 @@ function NewInvoiceForm() {
 
         {/* Line item preview */}
         <div>
-          <div className="mb-2 text-[11px] font-bold uppercase tracking-wide text-gray-600">Line Items</div>
+          <div className="mb-2 text-xs font-bold uppercase tracking-wide text-gray-600">Line Items</div>
           {lines.length === 0 ? (
             <div className="flex items-center gap-3 rounded-xl border border-dashed border-gray-200 bg-gray-50 p-4 text-sm text-gray-500">
               <Receipt className="h-5 w-5 text-gray-400" />

@@ -41,7 +41,7 @@ export function SettingsCard({
 
 export function NoteBox({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
-    <div className={cn('flex items-center gap-2 rounded-lg border border-blue-100 bg-blue-50 px-3 py-2 text-[11px] text-blue-700', className)}>
+    <div className={cn('flex items-center gap-2 rounded-lg border border-blue-100 bg-blue-50 px-3 py-2 text-xs text-blue-700', className)}>
       <span className="font-bold">Note:</span>
       <span>{children}</span>
     </div>
@@ -153,5 +153,5 @@ export function readImageFile(file: File, maxMb: number): Promise<{ url?: string
 
 /** Big bold page title block used by pages that do not fit SettingsPage's layout. */
 export function SmallLabel({ children, className }: { children: React.ReactNode; className?: string }) {
-  return <div className={cn('text-[10px] font-bold uppercase tracking-widest text-gray-400', className)}>{children}</div>;
+  return <div className={cn('text-xxs font-bold uppercase tracking-widest text-gray-400', className)}>{children}</div>;
 }

@@ -37,7 +37,7 @@ export function EstimateTemplateChecklist({ value, onChange }: { value: string[]
         if (!list.length) return null;
         return (
           <div key={t.id}>
-            <div className="px-2 pb-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">{t.name}</div>
+            <div className="px-2 pb-1 text-xxs font-bold uppercase tracking-wider text-gray-400">{t.name}</div>
             {list.map((x) => (
               <div key={x.id} className={cn('rounded-lg p-2', value.includes(x.id) ? 'bg-primary-50' : 'hover:bg-gray-50')}>
                 <Checkbox checked={value.includes(x.id)} onChange={() => toggle(x.id)} label={<span className="font-medium">{x.name}</span>} />
@@ -174,7 +174,7 @@ function ShareForm({ p }: { p: Presentation }) {
         <p className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs font-medium text-amber-800">This presentation is a draft. Sharing it by email will publish it.</p>
       )}
       <div>
-        <div className="mb-1.5 text-[11px] font-bold uppercase tracking-wide text-gray-600">Presentation Link</div>
+        <div className="mb-1.5 text-xs font-bold uppercase tracking-wide text-gray-600">Presentation Link</div>
         <div className="flex gap-2">
           <Input readOnly value={link} leftIcon={<Link2 className="h-4 w-4" />} onFocus={(e) => e.target.select()} />
           <Button variant="secondary" icon={<Copy className="h-4 w-4" />} onClick={copy}>Copy</Button>
@@ -189,7 +189,7 @@ function ShareForm({ p }: { p: Presentation }) {
         </Field>
       </div>
       <div>
-        <div className="mb-2 flex items-center justify-between text-[11px] font-bold uppercase tracking-wide text-gray-600">
+        <div className="mb-2 flex items-center justify-between text-xs font-bold uppercase tracking-wide text-gray-600">
           <span>Shared With</span>
           <span className="flex items-center gap-1 normal-case tracking-normal text-gray-400"><Eye className="h-3.5 w-3.5" /> {p.views} {p.views === 1 ? 'view' : 'views'}</span>
         </div>

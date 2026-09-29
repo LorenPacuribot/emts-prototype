@@ -80,15 +80,15 @@ function Suppliers() {
                         const open = branchCommitments(db, b.id);
                         return (
                           <TR key={b.id}>
-                            <TD className="font-semibold text-ink">{b.name}{b.address && <div className="text-[11px] font-normal text-slate-400">{b.address}</div>}</TD>
+                            <TD className="font-semibold text-ink">{b.name}{b.address && <div className="text-xs font-normal text-gray-400">{b.address}</div>}</TD>
                             <TD>{b.storeNumber || <span className="italic text-red-500">Missing</span>}</TD>
-                            {perms.seeAccount && <TD className="font-mono text-[12px]">{b.accountNumber || <span className="italic text-red-500">Missing</span>}</TD>}
+                            {perms.seeAccount && <TD className="font-mono text-xs">{b.accountNumber || <span className="italic text-red-500">Missing</span>}</TD>}
                             <TD>{b.phone || <span className="italic text-red-500">Missing</span>}</TD>
                             <TD>
                               {b.active === false ? <Badge tone="gray">Deactivated</Badge> : gaps.length ? <Badge tone="amber">Setup incomplete</Badge> : <Badge tone="green">Ready for orders</Badge>}
-                              {gaps.length > 0 && <div className="mt-0.5 text-[11px] text-slate-500">Missing {gaps.map((g) => g.label.toLowerCase()).join(", ")}</div>}
+                              {gaps.length > 0 && <div className="mt-0.5 text-xs text-gray-500">Missing {gaps.map((g) => g.label.toLowerCase()).join(", ")}</div>}
                             </TD>
-                            <TD>{open.length ? open.map((p) => p.id).join(", ") : <span className="text-slate-300">None</span>}</TD>
+                            <TD>{open.length ? open.map((p) => p.id).join(", ") : <span className="text-gray-300">None</span>}</TD>
                             <TD>
                               {perms.setup && (
                                 <RowMenu items={[
@@ -112,19 +112,19 @@ function Suppliers() {
         <div className="grid gap-4 lg:grid-cols-2">
           <Card className="p-4">
             <CardLabel icon={<CalendarDays />}>Working calendar</CardLabel>
-            <p className="mt-2 text-[12.5px] text-slate-600">Monday to Friday, 7:00 a.m. to 4:00 p.m. branch-local time. The acknowledgment clock pauses outside these hours and on observed US federal holidays.</p>
+            <p className="mt-2 text-xs text-gray-600">Monday to Friday, 7:00 a.m. to 4:00 p.m. branch-local time. The acknowledgment clock pauses outside these hours and on observed US federal holidays.</p>
             <div className="mt-3 flex flex-wrap gap-1.5">
               {holidays.map((h) => <Badge key={h} tone="gray">{dateLong(`${h}T12:00:00`)}</Badge>)}
             </div>
-            <p className="mt-2 text-[11.5px] text-slate-400">Maintained by the office manager. Both branches use the same calendar at launch.</p>
+            <p className="mt-2 text-xs text-gray-400">Maintained by the office manager. Both branches use the same calendar at launch.</p>
           </Card>
           <Card className="p-4">
             <CardLabel icon={<Plug />}>Connection access</CardLabel>
-            <p className="mt-2 text-[12.5px] text-slate-600">
+            <p className="mt-2 text-xs text-gray-600">
               Each supplier has a connection type. <strong>Manual</strong> and <strong>Email</strong> orders are sent by a person with evidence recorded. <strong>API / EDI</strong> orders are transmitted as a structured order and the supplier's status replies update the order automatically.
             </p>
-            <p className="mt-2 text-[12px] text-amber-800"><FlaskConical className="mr-1 inline h-3.5 w-3.5" />API / EDI runs through a sandbox connector in this build. No real supplier is contacted.</p>
-            <p className="mt-2 flex items-center gap-1.5 text-[11.5px] text-slate-500"><ShieldCheck className="h-3.5 w-3.5" /> Only connection health shows here. Credentials are write-only and never displayed.</p>
+            <p className="mt-2 text-xs text-amber-800"><FlaskConical className="mr-1 inline h-3.5 w-3.5" />API / EDI runs through a sandbox connector in this build. No real supplier is contacted.</p>
+            <p className="mt-2 flex items-center gap-1.5 text-xs text-gray-500"><ShieldCheck className="h-3.5 w-3.5" /> Only connection health shows here. Credentials are write-only and never displayed.</p>
           </Card>
         </div>
       </div>
@@ -144,10 +144,10 @@ function Suppliers() {
 }
 
 const HEALTH: Record<ConnectionHealth, { label: string; tone: "green" | "amber" | "red" | "gray"; dot: string }> = {
-  healthy: { label: "Healthy", tone: "green", dot: "bg-emerald-500" },
+  healthy: { label: "Healthy", tone: "green", dot: "bg-green-500" },
   untested: { label: "Not tested", tone: "amber", dot: "bg-amber-500" },
   failing: { label: "Failing", tone: "red", dot: "bg-red-500" },
-  not_configured: { label: "No electronic connection", tone: "gray", dot: "bg-slate-300" },
+  not_configured: { label: "No electronic connection", tone: "gray", dot: "bg-gray-300" },
 };
 
 function ConnectionStrip({ supplier, canSetup, onEdit }: { supplier: Supplier; canSetup: boolean; onEdit: () => void }) {
@@ -165,21 +165,21 @@ function ConnectionStrip({ supplier, canSetup, onEdit }: { supplier: Supplier; c
     if (act(testSupplierConnection, supplier.id).ok) toast.success("Connection healthy", c.sandbox ? "Sandbox connector — no real supplier was contacted." : undefined);
   };
   return (
-    <div className="mt-3 flex flex-wrap items-center gap-2 rounded-lg border border-line bg-slate-50/60 px-3 py-2 text-[12.5px]">
-      <Plug className="h-4 w-4 text-slate-400" />
+    <div className="mt-3 flex flex-wrap items-center gap-2 rounded-lg border border-line bg-gray-50/60 px-3 py-2 text-xs">
+      <Plug className="h-4 w-4 text-gray-400" />
       <span className="font-semibold text-ink">{CONNECTION_LABEL[c.type]}</span>
-      {c.endpointLabel && <span className="text-slate-600">· {c.endpointLabel}</span>}
-      {c.orderEmail && <span className="font-mono text-[12px] text-slate-600">· {c.orderEmail}</span>}
+      {c.endpointLabel && <span className="text-gray-600">· {c.endpointLabel}</span>}
+      {c.orderEmail && <span className="font-mono text-xs text-gray-600">· {c.orderEmail}</span>}
       {c.sandbox && <Badge tone="amber"><FlaskConical className="mr-1 h-3 w-3" />Sandbox</Badge>}
       {c.mode === "live" && <Badge tone="green">Live{c.endpointHost ? ` · ${c.endpointHost}` : ""}</Badge>}
       <span className="inline-flex items-center gap-1.5" aria-label={`Connection health: ${h.label}`}>
         <span className={`h-2 w-2 rounded-full ${h.dot}`} aria-hidden />
-        <span className="text-slate-600">{h.label}</span>
+        <span className="text-gray-600">{h.label}</span>
       </span>
-      {c.lastCheckedAt && <span className="text-[11px] text-slate-400">checked {dateTime(c.lastCheckedAt)}</span>}
-      {c.lastError && <span className="text-[11px] text-red-600">{c.lastError}</span>}
+      {c.lastCheckedAt && <span className="text-xs text-gray-400">checked {dateTime(c.lastCheckedAt)}</span>}
+      {c.lastError && <span className="text-xs text-red-600">{c.lastError}</span>}
       {c.type === "api_edi" && (
-        <span className="text-[11px] text-slate-500">
+        <span className="text-xs text-gray-500">
           {c.mode === "live"
             ? c.lastCheckedAt ? (c.credentialsOnFile ? "API key set on the server" : "No API key on the server") : "Server settings not checked yet"
             : c.credentialsOnFile ? `Credential on file${c.credentialsUpdatedAt ? ` since ${dateLong(c.credentialsUpdatedAt)}` : ""}` : "No credential on file"}
@@ -213,7 +213,7 @@ function ConnectionModal({ supplier, onClose }: { supplier: Supplier; onClose: (
         <Field label="Connection type" required>
           <PillTabs value={d.type} onChange={(type) => setD({ ...d, type })} options={(Object.keys(CONNECTION_LABEL) as SupplierConnectionType[]).map((k) => ({ value: k, label: CONNECTION_LABEL[k] }))} />
         </Field>
-        {d.type === "manual" && <p className="text-[12.5px] text-slate-600">Orders are printed or phoned in, with the hand-off or call recorded as evidence.</p>}
+        {d.type === "manual" && <p className="text-xs text-gray-600">Orders are printed or phoned in, with the hand-off or call recorded as evidence.</p>}
         {d.type === "email" && (
           <Field label="Order inbox" required error={e("orderEmail")} hint="Orders are emailed here; the sent message and delivery receipt are still recorded as evidence.">
             <Input type="email" value={d.orderEmail} onChange={(ev) => setD({ ...d, orderEmail: ev.target.value })} placeholder="orders@7132.sw.example" invalid={!!e("orderEmail")} />
@@ -227,7 +227,7 @@ function ConnectionModal({ supplier, onClose }: { supplier: Supplier; onClose: (
             {d.mode === "live" ? (
               <Banner tone="info" title="Live connection">
                 Orders are posted over HTTPS to the supplier's endpoint by this app's server. The endpoint, API key and webhook secret are server settings, so they are never typed here or shown:
-                <ul className="mt-1 list-disc pl-5 font-mono text-[11px]">
+                <ul className="mt-1 list-disc pl-5 font-mono text-xs">
                   <li>{envName(supplier.id, "ENDPOINT_URL")}</li>
                   <li>{envName(supplier.id, "API_KEY")}</li>
                   <li>{envName(supplier.id, "WEBHOOK_SECRET")}</li>

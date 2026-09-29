@@ -32,8 +32,8 @@ export function RateVersionsSection() {
   if (!rates.length) return null;
 
   return (
-    <section className="mt-7 overflow-hidden rounded-2xl border border-emerald-200 bg-white shadow-lg shadow-gray-200/70" data-feature="30">
-      <div className="border-b border-gray-100 bg-emerald-50/40 px-6 py-4">
+    <section className="mt-7 overflow-hidden rounded-2xl border border-green-200 bg-white shadow-lg shadow-gray-200/70" data-feature="30">
+      <div className="border-b border-gray-100 bg-green-50/40 px-6 py-4">
         <h3 className="flex flex-wrap items-center gap-2 font-heading text-base font-bold text-gray-900">
           Rate versions from Estimating Feedback <NewBadge feature={30} />
         </h3>
@@ -46,7 +46,7 @@ export function RateVersionsSection() {
       <div className="overflow-x-auto">
         <table className="w-full min-w-[720px]">
           <thead>
-            <tr className="border-b border-gray-100 text-left text-[9px] font-bold uppercase tracking-wider text-gray-500">
+            <tr className="border-b border-gray-100 text-left text-xxs font-bold uppercase tracking-wider text-gray-500">
               <th className="px-6 py-3">Combination</th>
               <th className="px-6 py-3">Current Rate</th>
               <th className="px-6 py-3">Suggestion</th>

@@ -69,12 +69,12 @@ function Posts() {
                 const c = postChecks(db, p);
                 return (
                   <TR key={p.id}>
-                    <TD className="max-w-[280px] whitespace-normal"><AppLink href={`/marketing/compose?id=${p.id}`} className="font-semibold text-ink hover:text-brand">{p.title}</AppLink><div className="text-[11px] text-slate-400">{p.id} · v{p.version}{p.copiedFrom ? ` · copied from ${p.copiedFrom}` : ""}</div></TD>
+                    <TD className="max-w-[280px] whitespace-normal"><AppLink href={`/marketing/compose?id=${p.id}`} className="font-semibold text-ink hover:text-brand">{p.title}</AppLink><div className="text-xs text-gray-400">{p.id} · v{p.version}{p.copiedFrom ? ` · copied from ${p.copiedFrom}` : ""}</div></TD>
                     <TD>{TEMPLATE_LABEL[p.template]}</TD>
                     <TD><div className="flex gap-1">{p.platforms.map((pl) => <PlatformChip key={pl} platform={pl} status={p.publications.find((x) => x.platform === pl)?.status} />)}</div></TD>
                     <TD><div className="flex flex-wrap gap-1"><PostStateBadge state={p.state} />{p.takedown && !p.takedown.doneAt && <Badge tone="red">Takedown</Badge>}</div></TD>
-                    <TD className="text-[12px]">{!c.needsApproval ? <span className="text-slate-400">Not required</span> : c.approved ? <Badge tone="green">Approved v{p.approval!.version}</Badge> : p.approvalVoided ? <Badge tone="amber">Voided — material edit</Badge> : <Badge tone="purple">Required</Badge>}</TD>
-                    <TD className="whitespace-nowrap text-[12px] text-slate-600">{p.schedule ? localLabel(p.schedule.utc) : `Created ${dateLong(p.createdAt)}`}</TD>
+                    <TD className="text-xs">{!c.needsApproval ? <span className="text-gray-400">Not required</span> : c.approved ? <Badge tone="green">Approved v{p.approval!.version}</Badge> : p.approvalVoided ? <Badge tone="amber">Voided — material edit</Badge> : <Badge tone="purple">Required</Badge>}</TD>
+                    <TD className="whitespace-nowrap text-xs text-gray-600">{p.schedule ? localLabel(p.schedule.utc) : `Created ${dateLong(p.createdAt)}`}</TD>
                   </TR>
                 );
               })}

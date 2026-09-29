@@ -33,7 +33,7 @@ export function NotificationBell() {
         >
           <Bell className="h-6 w-6" />
           {unread > 0 && (
-            <span className="absolute right-1 top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-600 px-1 text-[11px] font-bold text-white ring-2 ring-white">
+            <span className="absolute right-1 top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-600 px-1 text-xs font-bold text-white ring-2 ring-white">
               {unread > 9 ? '9+' : unread}
             </span>
           )}
@@ -63,7 +63,7 @@ export function NotificationBell() {
                     <span className="min-w-0">
                       <span className="block text-sm font-semibold text-gray-900">{n.title}</span>
                       <span className="block text-xs text-gray-600">{n.body}</span>
-                      <span className="mt-0.5 block text-[11px] text-gray-400">{dateTime(n.createdAt)}{!n.readAt && <span className="sr-only"> · unread</span>}</span>
+                      <span className="mt-0.5 block text-xs text-gray-400">{dateTime(n.createdAt)}{!n.readAt && <span className="sr-only"> · unread</span>}</span>
                     </span>
                   </button>
                 </li>

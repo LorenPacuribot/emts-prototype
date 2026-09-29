@@ -82,14 +82,14 @@ function Labour() {
                     const mins = approvedJobMinutes(db, e.id, week).reduce((a, m) => a + m.minutes, 0);
                     return (
                       <TR key={e.id}>
-                        <TD className="font-semibold">{e.name}<div className="text-[11px] font-normal text-slate-400">{e.type === "salaried" ? "Salaried — period cost" : "Hourly"}</div></TD>
+                        <TD className="font-semibold">{e.name}<div className="text-xs font-normal text-gray-400">{e.type === "salaried" ? "Salaried — period cost" : "Hourly"}</div></TD>
                         <TD className="text-right tabular-nums">{hm(mins)}</TD>
-                        <TD className="text-right tabular-nums">{t ? money(t.amount) : <span className="text-slate-400">Not entered</span>}</TD>
+                        <TD className="text-right tabular-nums">{t ? money(t.amount) : <span className="text-gray-400">Not entered</span>}</TD>
                         <TD className="text-right tabular-nums">{t ? `${t.burdenPct}%` : "—"}</TD>
                         <TD className="text-right tabular-nums font-semibold">{t ? money(burdenedTotal(t.amount, t.burdenPct)) : "—"}</TD>
                         <TD>
                           <div className="flex flex-wrap gap-1">
-                            {t?.allocations.map((a) => <span key={a.jobId ?? "oh"} className="rounded-md bg-slate-100 px-1.5 py-0.5 text-[10.5px] font-semibold text-slate-600">{a.jobId ?? "Overhead"} {money(a.amount)}</span>)}
+                            {t?.allocations.map((a) => <span key={a.jobId ?? "oh"} className="rounded-md bg-gray-100 px-1.5 py-0.5 text-xs font-semibold text-gray-600">{a.jobId ?? "Overhead"} {money(a.amount)}</span>)}
                           </div>
                         </TD>
                         <TD>{can(user, "labour.enter") && <Button size="sm" onClick={() => setEntering(e.id)}>{t ? "Update" : "Enter total"}</Button>}</TD>
@@ -100,7 +100,7 @@ function Labour() {
               </Table>
             )}
           </div>
-          <p className="mt-2 text-[11.5px] text-slate-500">Subcontractor hours are not listed: their invoice supplies the cost. The rounding residual goes to the largest allocation, then the lowest job number (Rule 5).</p>
+          <p className="mt-2 text-xs text-gray-500">Subcontractor hours are not listed: their invoice supplies the cost. The rounding residual goes to the largest allocation, then the lowest job number (Rule 5).</p>
         </Card>
       ) : null}
 
@@ -108,7 +108,7 @@ function Labour() {
         <Card className="p-4">
           <CardLabel icon={<Scale />}>Allocated job cost · week of {dayLabel(week, false)}</CardLabel>
           <div className="mt-3">
-            {jobRows.size === 0 ? <p className="text-[12.5px] italic text-slate-400">No totals entered for this week yet.</p> : (
+            {jobRows.size === 0 ? <p className="text-xs italic text-gray-400">No totals entered for this week yet.</p> : (
               <Table>
                 <THead><tr><TH>Job</TH><TH className="text-right">Approved hours</TH><TH className="text-right">Labour cost</TH></tr></THead>
                 <tbody>
@@ -138,7 +138,7 @@ function MonthlyCheck({ months }: { months: string[] }) {
   return (
     <Card className="p-4">
       <CardLabel icon={<CheckCircle2 />}>Monthly check (office manager)</CardLabel>
-      <p className="mt-1 text-[12px] text-slate-500">Allocated cost for each period must equal the entered total exactly.</p>
+      <p className="mt-1 text-xs text-gray-500">Allocated cost for each period must equal the entered total exactly.</p>
       <div className="mt-3 flex flex-wrap items-end gap-2">
         <Field label="Month">
           <Select value={month} onChange={(e) => setMonth(e.target.value)} className="w-40">
@@ -146,7 +146,7 @@ function MonthlyCheck({ months }: { months: string[] }) {
             {months.map((m) => <option key={m} value={m}>{m}</option>)}
           </Select>
         </Field>
-        <div className="pb-2 text-[12.5px]">Entered {money(r.entered)} · allocated {money(r.allocated)} {month && <Badge tone={r.ok ? "green" : "red"}>{r.ok ? "Matches" : "Mismatch"}</Badge>}</div>
+        <div className="pb-2 text-xs">Entered {money(r.entered)} · allocated {money(r.allocated)} {month && <Badge tone={r.ok ? "green" : "red"}>{r.ok ? "Matches" : "Mismatch"}</Badge>}</div>
       </div>
       {can(user, "labour.reconcile") && (
         <div className="mt-3 flex gap-2">
@@ -154,7 +154,7 @@ function MonthlyCheck({ months }: { months: string[] }) {
           <Button onClick={() => { const res = act(recordReconciliation, month, note); if (res.ok) { toast.success("Monthly check recorded"); setNote(""); } }}>Record check</Button>
         </div>
       )}
-      <ul className="mt-3 space-y-1 text-[12px] text-slate-600">
+      <ul className="mt-3 space-y-1 text-xs text-gray-600">
         {db.payrollSettings.reconciliations.map((c, i) => <li key={i}>{c.month}: {c.ok ? "✓ matches" : "✗ mismatch"} — {userName(db, c.by)}, {dateLong(c.at)}. {c.note}</li>)}
       </ul>
     </Card>
@@ -169,7 +169,7 @@ function BurdenCard() {
   return (
     <Card className="mt-4 p-4">
       <CardLabel>Burden percentage (owner)</CardLabel>
-      <p className="mt-1 text-[12px] text-slate-500">Applied to actual paid wages, including overtime, at the same percentage. Changes apply to totals entered from now on.</p>
+      <p className="mt-1 text-xs text-gray-500">Applied to actual paid wages, including overtime, at the same percentage. Changes apply to totals entered from now on.</p>
       <div className="mt-3 flex gap-2">
         <Input type="number" value={value} onChange={(e) => setValue(e.target.value)} className="w-32" aria-label="Burden percent" />
         <Button onClick={() => act(setBurden, Number(value)).ok && toast.success("Burden updated")}>Save</Button>
@@ -210,7 +210,7 @@ function EnterModal({ employeeId, week, onClose }: { employeeId?: string; week: 
         <Field label="Burden (%)" error={err?.field === "burden" ? err.msg : undefined}>
           <Input type="number" value={burden} placeholder={String(existing?.burdenPct ?? db.payrollSettings.burdenPct)} onChange={(e) => setBurdenV(e.target.value)} />
         </Field>
-        {err && !err.field && <p className="text-[12px] text-red-600 sm:col-span-2">{err.msg}</p>}
+        {err && !err.field && <p className="text-xs text-red-600 sm:col-span-2">{err.msg}</p>}
       </div>
     </Modal>
   );

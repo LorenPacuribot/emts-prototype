@@ -10,8 +10,7 @@ import type { Crumb } from "./top-bar";
  * The replica's main Sidebar is rendered by app/layout.tsx.
  */
 export function Screen({ crumbs, sidebar, children, className, bare }: { crumbs: Crumb[]; sidebar?: ReactNode; children: ReactNode; className?: string; bare?: boolean }) {
-  const title = crumbs[crumbs.length - 1]?.label ?? "";
-  const breadcrumbs = crumbs.slice(0, -1).map((c) => ({ label: c.label, href: c.href }));
+  const { title, breadcrumbs } = headerCrumbs(crumbs);
   return (
     <>
       <AppHeader title={title} breadcrumbs={breadcrumbs} />
@@ -23,14 +22,31 @@ export function Screen({ crumbs, sidebar, children, className, bare }: { crumbs:
   );
 }
 
+const sameLabel = (a: string, b: string) => a.trim().toLowerCase() === b.trim().toLowerCase();
+
+/**
+ * Header crumbs without repeats (N1, H5). The last crumb is the title pill.
+ * A crumb that repeats the one before it, or the title, is dropped, so a
+ * module's landing page reads "Supplier Orders" (not "Supplier Orders |
+ * Supplier Orders") and a sub-page reads "Supplier Orders | Returns".
+ */
+export function headerCrumbs(crumbs: Crumb[]) {
+  const title = crumbs[crumbs.length - 1]?.label ?? "";
+  const breadcrumbs = crumbs
+    .slice(0, -1)
+    .filter((c, i, all) => !sameLabel(c.label, title) && (i === 0 || !sameLabel(c.label, all[i - 1]!.label)))
+    .map((c) => ({ label: c.label, href: c.href }));
+  return { title, breadcrumbs };
+}
+
 /** Page title block: "Job Management / Mission control for active projects." plus actions. */
 export function PageHeader({ title, subtitle, actions, eyebrow }: { title: ReactNode; subtitle?: ReactNode; actions?: ReactNode; eyebrow?: ReactNode }) {
   return (
     <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
       <div className="min-w-0">
         {eyebrow && <div className="mb-2 flex flex-wrap items-center gap-1.5">{eyebrow}</div>}
-        <h1 className="font-display text-[26px] font-bold leading-tight tracking-tight text-ink md:text-[28px]">{title}</h1>
-        {subtitle && <p className="mt-1.5 text-[14px] text-slate-500">{subtitle}</p>}
+        <h1 className="font-heading text-3xl font-bold leading-tight tracking-tight text-balance text-ink md:text-4xl">{title}</h1>
+        {subtitle && <p className="mt-1.5 text-sm text-gray-500">{subtitle}</p>}
       </div>
       {actions && <div className="no-print flex flex-wrap items-center gap-2" data-tour="page-actions">{actions}</div>}
     </div>

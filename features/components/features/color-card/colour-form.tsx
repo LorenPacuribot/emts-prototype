@@ -101,7 +101,7 @@ export function ColourForm({ open, onOpenChange, jobId, colour }: { open: boolea
           <Input id="c-ref" value={draft.sampleRef} onChange={(e) => set("sampleRef", e.target.value)} />
         </Field>
         <div className="sm:col-span-2">
-          <Switch checked={draft.customMatch} onCheckedChange={(v) => set("customMatch", v)} label={<span>Custom colour match <span className="text-slate-500">— starts in Pending sample until a sample is accepted</span></span>} />
+          <Switch checked={draft.customMatch} onCheckedChange={(v) => set("customMatch", v)} label={<span>Custom colour match <span className="text-gray-500">— starts in Pending sample until a sample is accepted</span></span>} />
         </div>
       </div>
     </Modal>

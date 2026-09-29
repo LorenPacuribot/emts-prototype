@@ -48,14 +48,14 @@ export function PricingPanel({ rep, property, readOnly }: { rep: RepeatEstimate;
       <div className="mt-3 space-y-3">
         <KV
           items={[
-            ["Wage rate", <span key="w">${CURRENT_BASIS.wageRate}/hr <span className="block text-[11px] font-normal text-slate-400">{CURRENT_BASIS.wageSource}</span></span>],
-            ["Markup", <span key="m">{CURRENT_BASIS.markupPct}% <span className="block text-[11px] font-normal text-slate-400">{CURRENT_BASIS.markupSource}</span></span>],
-            ["Tax rate", <span key="t">{CURRENT_BASIS.taxRatePct}% <span className="block text-[11px] font-normal text-slate-400">{CURRENT_BASIS.taxSource}</span></span>],
+            ["Wage rate", <span key="w">${CURRENT_BASIS.wageRate}/hr <span className="block text-xs font-normal text-gray-400">{CURRENT_BASIS.wageSource}</span></span>],
+            ["Markup", <span key="m">{CURRENT_BASIS.markupPct}% <span className="block text-xs font-normal text-gray-400">{CURRENT_BASIS.markupSource}</span></span>],
+            ["Tax rate", <span key="t">{CURRENT_BASIS.taxRatePct}% <span className="block text-xs font-normal text-gray-400">{CURRENT_BASIS.taxSource}</span></span>],
           ]}
         />
         <div className="rounded-xl border border-line p-3">
           <MicroLabel>Labour, material and paint pricing</MicroLabel>
-          <div role="radiogroup" aria-label="Pricing basis" className="mt-2 grid grid-cols-2 gap-1 rounded-lg bg-slate-100 p-1">
+          <div role="radiogroup" aria-label="Pricing basis" className="mt-2 grid grid-cols-2 gap-1 rounded-lg bg-gray-100 p-1">
             {([["current", "Current pricing"], ["previous", "Last time's pricing"]] as const).map(([value, label]) => (
               <button
                 key={value}
@@ -64,13 +64,13 @@ export function PricingPanel({ rep, property, readOnly }: { rep: RepeatEstimate;
                 aria-checked={mode === value}
                 disabled={readOnly}
                 onClick={() => mode !== value && setSwitchTo(value)}
-                className={`rounded-md px-2 py-1.5 text-[12px] font-semibold ${mode === value ? "bg-white text-ink shadow-sm" : "text-slate-500 hover:text-ink"} disabled:cursor-not-allowed`}
+                className={`rounded-md px-2 py-1.5 text-xs font-semibold ${mode === value ? "bg-white text-ink shadow-sm" : "text-gray-500 hover:text-ink"} disabled:cursor-not-allowed`}
               >
                 {label}
               </button>
             ))}
           </div>
-          <p className="mt-2 text-[11.5px] text-slate-500">
+          <p className="mt-2 text-xs text-gray-500">
             {mode === "previous"
               ? `Each surface keeps the price it had last time, scaled if its measurement changed. ${pricing.lines.filter((l) => l.basisSource === "current").length} surface(s) with no earlier price use current pricing.`
               : "Today's labour rate, material prices and markup."}{" "}Tax is always today's rate.
@@ -79,7 +79,7 @@ export function PricingPanel({ rep, property, readOnly }: { rep: RepeatEstimate;
 
         <div>
           <MicroLabel>Current material prices (paint library)</MicroLabel>
-          <ul className="mt-1 space-y-0.5 text-[12px] text-slate-600">
+          <ul className="mt-1 space-y-0.5 text-xs text-gray-600">
             {products.map(([product, cat]) => (
               <li key={product} className="flex justify-between gap-2">
                 <span className="truncate">{product}</span>
@@ -88,9 +88,9 @@ export function PricingPanel({ rep, property, readOnly }: { rep: RepeatEstimate;
                 </span>
               </li>
             ))}
-            {products.length === 0 && <li className="italic text-slate-400">No lines yet.</li>}
+            {products.length === 0 && <li className="italic text-gray-400">No lines yet.</li>}
           </ul>
-          {!seePrices && <p className="mt-1 text-[11px] text-slate-400">Cost per gallon is visible to the Owner and Office Manager.</p>}
+          {!seePrices && <p className="mt-1 text-xs text-gray-400">Cost per gallon is visible to the Owner and Office Manager.</p>}
         </div>
 
         {discounts.map((j) => (
@@ -102,13 +102,13 @@ export function PricingPanel({ rep, property, readOnly }: { rep: RepeatEstimate;
         <div className="rounded-xl border border-line p-3">
           <div className="flex items-center justify-between gap-2">
             <div>
-              <div className="flex items-center gap-1.5 text-[12.5px] font-semibold text-ink">
+              <div className="flex items-center gap-1.5 text-xs font-semibold text-ink">
                 <History className="h-3.5 w-3.5 text-brand" /> Historical productivity
               </div>
-              <div className="text-[11.5px] text-slate-500">
+              <div className="text-xs text-gray-500">
                 {pricing.policy ? (
                   <span className="inline-flex items-center gap-1">
-                    <ShieldCheck className="h-3 w-3 text-emerald-600" /> Owner policy for {titleCase(property.type)} approved {dateLong(pricing.policy.approvedAt)} by {byId(db.users, pricing.policy.approvedBy)?.name}
+                    <ShieldCheck className="h-3 w-3 text-green-600" /> Owner policy for {titleCase(property.type)} approved {dateLong(pricing.policy.approvedAt)} by {byId(db.users, pricing.policy.approvedBy)?.name}
                   </span>
                 ) : (
                   NO_POLICY_MESSAGE

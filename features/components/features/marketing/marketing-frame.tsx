@@ -66,8 +66,8 @@ export function MarketingFrame({ tab, children }: { tab: MarketingTabKey; childr
         <SubNav
           header={
             <div className="hidden lg:block">
-              <div className="flex items-center gap-2 font-display text-[14px] font-bold text-ink"><Megaphone className="h-4 w-4 text-brand" /> Marketing</div>
-              <div className="mt-0.5 text-[11.5px] text-slate-500">Social publishing and inbox, campaigns with their leads, spend and ROI, ads, landing pages, offers, reviews, email/SMS and automations. Sandbox: nothing is sent to a provider or platform.</div>
+              <div className="flex items-center gap-2 font-display text-sm font-bold text-ink"><Megaphone className="h-4 w-4 text-brand" /> Marketing</div>
+              <div className="mt-0.5 text-xs text-gray-500">Social publishing and inbox, campaigns with their leads, spend and ROI, ads, landing pages, offers, reviews, email/SMS and automations. Sandbox: nothing is sent to a provider or platform.</div>
             </div>
           }
           groups={[{

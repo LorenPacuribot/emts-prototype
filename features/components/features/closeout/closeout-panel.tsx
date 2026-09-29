@@ -174,7 +174,7 @@ function RowCard({ row, closed, canConfirm, canUnknown, onEdit, onUnknown }: { r
     if (gaps.includes(field as never)) return <span className="font-semibold text-red-600">Missing</span>;
     return <>{children}</>;
   };
-  const NR = ({ v, unit }: { v?: number; unit: string }) => (v === undefined ? <span className="italic text-slate-400">Not recorded</span> : <>{v} {unit}</>);
+  const NR = ({ v, unit }: { v?: number; unit: string }) => (v === undefined ? <span className="italic text-gray-400">Not recorded</span> : <>{v} {unit}</>);
 
   return (
     <div className={incomplete && !closed ? "rounded-xl border border-amber-200 bg-amber-50/30 p-4" : "rounded-xl border border-line bg-white p-4"}>
@@ -182,8 +182,8 @@ function RowCard({ row, closed, canConfirm, canUnknown, onEdit, onUnknown }: { r
         <Swatch hex={row.hex} />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="font-display text-[14px] font-bold text-ink">{surfaceLabel(db, row.surfaceId)}</span>
-            {row.specId && <span className="text-[11px] text-slate-400">{row.specId}</span>}
+            <span className="font-display text-sm font-bold text-ink">{surfaceLabel(db, row.surfaceId)}</span>
+            {row.specId && <span className="text-xs text-gray-400">{row.specId}</span>}
             {!row.painted ? (
               <Badge tone="gray">Not painted</Badge>
             ) : row.confirmedBy ? (
@@ -193,19 +193,19 @@ function RowCard({ row, closed, canConfirm, canUnknown, onEdit, onUnknown }: { r
             )}
           </div>
           {row.painted ? (
-            <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-2 text-[12.5px] sm:grid-cols-4 lg:grid-cols-8">
+            <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-2 text-xs sm:grid-cols-4 lg:grid-cols-8">
               <Cell label="Colour" className="col-span-2"><Val field="colour">{row.manufacturer} {row.colourName} {row.colourNumber}</Val></Cell>
-              <Cell label="Product" className="col-span-2">{row.product || <span className="italic text-slate-400">—</span>}</Cell>
+              <Cell label="Product" className="col-span-2">{row.product || <span className="italic text-gray-400">—</span>}</Cell>
               <Cell label="Sheen"><Val field="sheen">{row.sheen}</Val></Cell>
               <Cell label="Coats"><Val field="coats">{row.coats}</Val></Cell>
               <Cell label="Completed" className="col-span-2"><Val field="completedAt">{dateLong(row.completedAt)}</Val></Cell>
               <Cell label="Hours"><NR v={row.actualHours} unit="hrs" /></Cell>
               <Cell label="Gallons"><NR v={row.actualGallons} unit="gal" /></Cell>
               <Cell label="Photos"><NR v={row.photoCount} unit="" /></Cell>
-              <Cell label="Tint formula" className="col-span-2 lg:col-span-5">{row.tintFormula ? row.tintFormula : <span className="italic text-slate-400">Not recorded</span>}</Cell>
+              <Cell label="Tint formula" className="col-span-2 lg:col-span-5">{row.tintFormula ? row.tintFormula : <span className="italic text-gray-400">Not recorded</span>}</Cell>
             </div>
           ) : (
-            <p className="mt-1 text-[12.5px] text-slate-600">Reason: {row.notPaintedReason}</p>
+            <p className="mt-1 text-xs text-gray-600">Reason: {row.notPaintedReason}</p>
           )}
         </div>
         {!closed && (
@@ -229,8 +229,8 @@ function RowCard({ row, closed, canConfirm, canUnknown, onEdit, onUnknown }: { r
 function Cell({ label, children, className }: { label: string; children: React.ReactNode; className?: string }) {
   return (
     <div className={className}>
-      <div className="text-[9px] font-bold uppercase tracking-[0.12em] text-slate-400">{label}</div>
-      <div className="mt-0.5 text-slate-700">{children}</div>
+      <div className="text-xxs font-bold uppercase tracking-[0.12em] text-gray-400">{label}</div>
+      <div className="mt-0.5 text-gray-700">{children}</div>
     </div>
   );
 }

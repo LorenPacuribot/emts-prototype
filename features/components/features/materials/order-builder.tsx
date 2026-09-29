@@ -123,25 +123,25 @@ export function OrderBuilder({ open, job, lines, onClose, onViewOrder }: { open:
           </div>
 
           <div>
-            <div className="mb-2 text-[12px] font-semibold text-slate-700">Lines <span className="font-normal text-slate-400">— quantities default to orderable now (Rule 2)</span></div>
-            {e("lines") && <p className="mb-2 text-[11.5px] font-medium text-red-600">{e("lines")}</p>}
+            <div className="mb-2 text-xs font-semibold text-gray-700">Lines <span className="font-normal text-gray-400">— quantities default to orderable now (Rule 2)</span></div>
+            {e("lines") && <p className="mb-2 text-xs font-medium text-red-600">{e("lines")}</p>}
             <div className="space-y-2">
-              {orderable.length === 0 && <p className="text-[12.5px] italic text-slate-400">No orderable lines.</p>}
+              {orderable.length === 0 && <p className="text-xs italic text-gray-400">No orderable lines.</p>}
               {orderable.map(({ l, s }) => {
                 const v = sel[l.specId] ?? { on: false, qty: "" };
                 const q = Number(v.qty);
                 const packs = q > 0 && l.catalog ? packContainers(q, l.catalog.available, { strategy: db.procurementSettings?.packingStrategy, cost: l.catalog.cost }) : undefined;
                 const disabled = s.orderableNow <= 0;
                 return (
-                  <div key={l.specId} className={cn("flex flex-wrap items-center gap-3 rounded-lg border px-3 py-2 text-[12.5px]", v.on ? "border-brand/40 bg-brand-soft/30" : "border-line")}>
+                  <div key={l.specId} className={cn("flex flex-wrap items-center gap-3 rounded-lg border px-3 py-2 text-xs", v.on ? "border-brand/40 bg-brand-soft/30" : "border-line")}>
                     <Checkbox checked={v.on} disabled={disabled} onCheckedChange={(on) => setSel({ ...sel, [l.specId]: { ...v, on } })} label={<span className="font-semibold text-ink">{l.colourName} · {l.spec.product}</span>} />
-                    <span className="text-slate-500">{l.specId} · orderable now {s.orderableNow.toFixed(2)} gal</span>
+                    <span className="text-gray-500">{l.specId} · orderable now {s.orderableNow.toFixed(2)} gal</span>
                     {disabled && <Badge tone={s.sentUnacknowledged > 0 ? "blue" : "gray"}>{s.sentUnacknowledged > 0 && s.outstanding > 0 ? "Already ordered, awaiting acknowledgment" : "Nothing outstanding"}</Badge>}
                     {!disabled && (
                       <span className="ml-auto flex items-center gap-2">
                         <Input type="number" step="0.25" className="h-8 w-24" value={v.qty} onChange={(ev) => setSel({ ...sel, [l.specId]: { ...v, qty: ev.target.value } })} aria-label={`Quantity for ${l.specId}`} />
-                        <span className="whitespace-nowrap text-slate-600">{packs ? formatPacks(packs.packs) : "—"}</span>
-                        {perms.seePrices && packs && l.catalog && <span className="whitespace-nowrap tabular-nums text-slate-500">{money(packsCost(packs.packs, l.catalog.cost))}</span>}
+                        <span className="whitespace-nowrap text-gray-600">{packs ? formatPacks(packs.packs) : "—"}</span>
+                        {perms.seePrices && packs && l.catalog && <span className="whitespace-nowrap tabular-nums text-gray-500">{money(packsCost(packs.packs, l.catalog.cost))}</span>}
                       </span>
                     )}
                   </div>
@@ -166,30 +166,30 @@ function LimitPanel({ limit, error, seePrices }: { limit?: { orderValue: number;
   const pctWindow = limit ? Math.min(100, (limit.windowTotal / ESTIMATOR_ORDER_LIMIT) * 100) : 0;
   const pctLife = limit ? Math.min(100, (limit.lifetimeTotal / OWNER_LIFETIME_LIMIT) * 100) : 0;
   return (
-    <div className="space-y-3 rounded-xl border border-line bg-slate-50/60 p-4">
-      <div className="text-[10.5px] font-bold uppercase tracking-[0.14em] text-slate-600">Limit check</div>
+    <div className="space-y-3 rounded-xl border border-line bg-gray-50/60 p-4">
+      <div className="text-xxs font-bold uppercase tracking-[0.14em] text-gray-600">Limit check</div>
       {!limit ? (
-        <p className="text-[12px] text-slate-500">{error ?? "Complete the order to run the check."}</p>
+        <p className="text-xs text-gray-500">{error ?? "Complete the order to run the check."}</p>
       ) : (
         <>
           <div className="flex items-center gap-2">
             <Badge tone={limit.needs === "none" ? "green" : "red"}>{limit.needs === "none" ? "Pass" : "Fail"}</Badge>
-            <span className="text-[12px] text-slate-600">{limit.needs === "none" ? "No extra approval needed" : limit.needs === "owner" ? "Owner approval required" : "Office manager approval required"}</span>
+            <span className="text-xs text-gray-600">{limit.needs === "none" ? "No extra approval needed" : limit.needs === "owner" ? "Owner approval required" : "Office manager approval required"}</span>
           </div>
           <div>
-            <div className="flex justify-between text-[11.5px] text-slate-600"><span>Estimator 7-day window</span><span>{seePrices ? `${money(limit.windowTotal)} / $1,500` : `${Math.round(pctWindow)}% of limit`}</span></div>
-            <div className="mt-1 h-2 overflow-hidden rounded-full bg-slate-200"><div className={cn("h-full rounded-full", limit.estimatorPass ? "bg-emerald-500" : "bg-red-500")} style={{ width: `${pctWindow}%` }} /></div>
+            <div className="flex justify-between text-xs text-gray-600"><span>Estimator 7-day window</span><span>{seePrices ? `${money(limit.windowTotal)} / $1,500` : `${Math.round(pctWindow)}% of limit`}</span></div>
+            <div className="mt-1 h-2 overflow-hidden rounded-full bg-gray-200"><div className={cn("h-full rounded-full", limit.estimatorPass ? "bg-green-500" : "bg-red-500")} style={{ width: `${pctWindow}%` }} /></div>
           </div>
           <div>
-            <div className="flex justify-between text-[11.5px] text-slate-600"><span>Lifetime job purchasing</span><span>{seePrices ? `${money(limit.lifetimeTotal)} / $3,000` : `${Math.round(pctLife)}% of limit`}</span></div>
-            <div className="mt-1 h-2 overflow-hidden rounded-full bg-slate-200"><div className={cn("h-full rounded-full", limit.needs === "owner" ? "bg-red-500" : "bg-brand")} style={{ width: `${pctLife}%` }} /></div>
+            <div className="flex justify-between text-xs text-gray-600"><span>Lifetime job purchasing</span><span>{seePrices ? `${money(limit.lifetimeTotal)} / $3,000` : `${Math.round(pctLife)}% of limit`}</span></div>
+            <div className="mt-1 h-2 overflow-hidden rounded-full bg-gray-200"><div className={cn("h-full rounded-full", limit.needs === "owner" ? "bg-red-500" : "bg-brand")} style={{ width: `${pctLife}%` }} /></div>
           </div>
-          {seePrices && <div className="text-[12px] text-slate-600">This order: <strong className="text-ink">{money(limit.orderValue)}</strong> pre-tax, pre-shipping</div>}
-          <p className="text-[11px] text-slate-400">Same-job orders in the last seven calendar days combine. Confirmed cancellations and issued credits reduce both totals; unconfirmed requests don't.{!seePrices && " Prices are not shown for your role."}</p>
+          {seePrices && <div className="text-xs text-gray-600">This order: <strong className="text-ink">{money(limit.orderValue)}</strong> pre-tax, pre-shipping</div>}
+          <p className="text-xs text-gray-400">Same-job orders in the last seven calendar days combine. Confirmed cancellations and issued credits reduce both totals; unconfirmed requests don't.{!seePrices && " Prices are not shown for your role."}</p>
           {error && <Banner tone="danger">{error}</Banner>}
         </>
       )}
-      <p className="text-[11px] text-slate-400">Checked {new Date(now()).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}</p>
+      <p className="text-xs text-gray-400">Checked {new Date(now()).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}</p>
     </div>
   );
 }

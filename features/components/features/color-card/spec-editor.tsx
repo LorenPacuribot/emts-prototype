@@ -155,7 +155,7 @@ export function SpecEditor({ open, onOpenChange, jobId, colourId, spec }: {
         )}
 
         <section>
-          <h3 className="mb-3 text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500">Application detail · required before approval</h3>
+          <h3 className="mb-3 text-xs font-bold uppercase tracking-[0.12em] text-gray-500">Application detail · required before approval</h3>
           <div className="grid gap-4 sm:grid-cols-3">
             <Field label="Sheen" required htmlFor="sp-sheen" error={error?.field === "sheen" ? error.message : undefined}>
               <Select id="sp-sheen" value={draft.sheen ?? ""} onChange={(e) => set("sheen", (e.target.value || undefined) as SpecDraft["sheen"])}>
@@ -189,16 +189,16 @@ export function SpecEditor({ open, onOpenChange, jobId, colourId, spec }: {
           <Field label="Coat sequence" required className="mt-4" error={error?.field === "coatSequence" ? error.message : undefined}>
             <ol className="space-y-1.5">
               {draft.coatSequence.map((step, i) => (
-                <li key={`${step}-${i}`} className="flex items-center gap-2 rounded-lg border border-line bg-slate-50 px-3 py-1.5 text-[12.5px]">
-                  <span className="w-5 text-[11px] font-bold text-slate-400">{i + 1}.</span>
+                <li key={`${step}-${i}`} className="flex items-center gap-2 rounded-lg border border-line bg-gray-50 px-3 py-1.5 text-xs">
+                  <span className="w-5 text-xs font-bold text-gray-400">{i + 1}.</span>
                   <span className="flex-1 font-medium">{step}</span>
-                  <button aria-label="Move up" disabled={i === 0} onClick={() => set("coatSequence", swap(draft.coatSequence, i, i - 1))} className="text-slate-400 hover:text-ink disabled:opacity-30">
+                  <button aria-label="Move up" disabled={i === 0} onClick={() => set("coatSequence", swap(draft.coatSequence, i, i - 1))} className="text-gray-400 hover:text-ink disabled:opacity-30">
                     <ArrowUp className="h-3.5 w-3.5" />
                   </button>
-                  <button aria-label="Move down" disabled={i === draft.coatSequence.length - 1} onClick={() => set("coatSequence", swap(draft.coatSequence, i, i + 1))} className="text-slate-400 hover:text-ink disabled:opacity-30">
+                  <button aria-label="Move down" disabled={i === draft.coatSequence.length - 1} onClick={() => set("coatSequence", swap(draft.coatSequence, i, i + 1))} className="text-gray-400 hover:text-ink disabled:opacity-30">
                     <ArrowDown className="h-3.5 w-3.5" />
                   </button>
-                  <button aria-label={`Remove ${step}`} onClick={() => set("coatSequence", draft.coatSequence.filter((_, j) => j !== i))} className="text-slate-400 hover:text-red-600">
+                  <button aria-label={`Remove ${step}`} onClick={() => set("coatSequence", draft.coatSequence.filter((_, j) => j !== i))} className="text-gray-400 hover:text-red-600">
                     <X className="h-3.5 w-3.5" />
                   </button>
                 </li>
@@ -219,15 +219,15 @@ export function SpecEditor({ open, onOpenChange, jobId, colourId, spec }: {
         </section>
 
         <section>
-          <h3 className="mb-3 text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500">Assign surfaces · required before approval</h3>
-          {error?.field === "surfaceIds" && <p className="mb-2 text-[12px] text-red-600">{error.message}</p>}
+          <h3 className="mb-3 text-xs font-bold uppercase tracking-[0.12em] text-gray-500">Assign surfaces · required before approval</h3>
+          {error?.field === "surfaceIds" && <p className="mb-2 text-xs text-red-600">{error.message}</p>}
           <div className="grid gap-3 sm:grid-cols-2">
             {Object.entries(byArea).map(([areaId, list]) => {
               const area = byId(db.areas, areaId);
               return (
                 <div key={areaId} className="rounded-xl border border-line p-3">
-                  <div className="mb-2 text-[12px] font-bold text-ink">
-                    {area?.name} <span className="font-normal text-slate-400">· {labelRoomType(area?.roomType ?? "")}</span>
+                  <div className="mb-2 text-xs font-bold text-ink">
+                    {area?.name} <span className="font-normal text-gray-400">· {labelRoomType(area?.roomType ?? "")}</span>
                   </div>
                   <div className="space-y-1.5">
                     {list.map((s) => {
@@ -239,8 +239,8 @@ export function SpecEditor({ open, onOpenChange, jobId, colourId, spec }: {
                             onCheckedChange={(v) => set("surfaceIds", v ? [...draft.surfaceIds, s.id] : draft.surfaceIds.filter((x) => x !== s.id))}
                             label={
                               <span>
-                                {s.name} <span className="text-slate-400">({s.areaSqft} sq ft)</span>
-                                {other && <span className="ml-1 text-[11px] text-amber-600">also on {other.id}</span>}
+                                {s.name} <span className="text-gray-400">({s.areaSqft} sq ft)</span>
+                                {other && <span className="ml-1 text-xs text-amber-600">also on {other.id}</span>}
                               </span>
                             }
                           />
@@ -268,7 +268,7 @@ export function SpecEditor({ open, onOpenChange, jobId, colourId, spec }: {
           >
             {lifespanLocked ? (
               <Tooltip content="Locked by owner override">
-                <div className="flex h-10 items-center gap-2 rounded-lg border border-line bg-slate-50 px-3 text-[13px] text-slate-400">
+                <div className="flex h-10 items-center gap-2 rounded-lg border border-line bg-gray-50 px-3 text-sm text-gray-400">
                   <Lock className="h-3.5 w-3.5" /> {draft.lifespanYears} yrs
                 </div>
               </Tooltip>
@@ -293,7 +293,7 @@ export function SpecEditor({ open, onOpenChange, jobId, colourId, spec }: {
         </section>
 
         <section>
-          <h3 className="mb-3 text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500">Ordering detail · required before ordering, not before approval</h3>
+          <h3 className="mb-3 text-xs font-bold uppercase tracking-[0.12em] text-gray-500">Ordering detail · required before ordering, not before approval</h3>
           <div className="grid gap-4 sm:grid-cols-3">
             <Field label="Product line" htmlFor="sp-line">
               <Select id="sp-line" value={draft.productLine} onChange={(e) => setDraft((d) => ({ ...d, productLine: e.target.value, product: "" }))}>
@@ -322,18 +322,18 @@ export function SpecEditor({ open, onOpenChange, jobId, colourId, spec }: {
           </div>
         </section>
 
-        <div className="grid gap-3 rounded-xl bg-slate-50 p-4 text-[12px] sm:grid-cols-2">
+        <div className="grid gap-3 rounded-xl bg-gray-50 p-4 text-xs sm:grid-cols-2">
           <div>
             <div className="font-bold text-ink">Approval readiness</div>
-            {gaps.length === 0 ? <div className="text-emerald-700">Ready to send for approval.</div> : gaps.map((g) => <div key={g.field} className="text-amber-700">• {g.message}</div>)}
+            {gaps.length === 0 ? <div className="text-green-700">Ready to send for approval.</div> : gaps.map((g) => <div key={g.field} className="text-amber-700">• {g.message}</div>)}
           </div>
           <div>
             <div className="font-bold text-ink">Ordering readiness</div>
-            {orderGaps.length === 0 ? <div className="text-emerald-700">All ordering fields filled. Orderable once approved.</div> : <div className="text-amber-700">Missing: {orderGaps.join(", ")}.</div>}
+            {orderGaps.length === 0 ? <div className="text-green-700">All ordering fields filled. Orderable once approved.</div> : <div className="text-amber-700">Missing: {orderGaps.join(", ")}.</div>}
           </div>
         </div>
         {!spec && (
-          <p className="flex items-center gap-1 text-[11.5px] text-slate-400">
+          <p className="flex items-center gap-1 text-xs text-gray-400">
             <Plus className="h-3 w-3" /> Each specification is a separate line. Adding one never overwrites another under the same colour.
           </p>
         )}

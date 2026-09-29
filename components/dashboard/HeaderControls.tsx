@@ -64,11 +64,11 @@ export function PeriodFilter({ value, onChange }: { value: PeriodValue; onChange
             ))}
           </div>
           <div className="rounded-b-xl bg-gray-50 p-4">
-            <span className="mb-3 block text-[10px] font-bold uppercase tracking-widest text-gray-400">Custom Range</span>
+            <span className="mb-3 block text-xxs font-bold uppercase tracking-widest text-gray-400">Custom Range</span>
             <div className="space-y-3">
               {(['from', 'to'] as const).map((f) => (
                 <label key={f} className="block">
-                  <span className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-gray-500">{f === 'from' ? 'From' : 'To'}</span>
+                  <span className="mb-1 block text-xxs font-bold uppercase tracking-wider text-gray-500">{f === 'from' ? 'From' : 'To'}</span>
                   <input
                     type="date"
                     value={value.preset === 'custom' ? value[f] ?? '' : ''}
@@ -89,7 +89,7 @@ export function PeriodFilter({ value, onChange }: { value: PeriodValue; onChange
 const CREATE_ITEMS = [
   { href: '/leads?new=1', label: 'New Lead', icon: UserPlus, color: 'text-blue-500' },
   { href: '/estimates/new', label: 'New Estimate', icon: FileText, color: 'text-primary-500' },
-  { href: '/invoices/new', label: 'New Invoice', icon: Receipt, color: 'text-emerald-500' },
+  { href: '/invoices/new', label: 'New Invoice', icon: Receipt, color: 'text-green-500' },
   { href: '/calendar?new=1', label: 'New Event', icon: CalendarPlus, color: 'text-purple-500' },
 ];
 

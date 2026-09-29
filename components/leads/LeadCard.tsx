@@ -29,7 +29,7 @@ export function LeadCard({
 }) {
   const lifecycle = LEAD_LIFECYCLE[lead.status];
   const next = followUpId ? null : NEXT_STAGE_MAP[lead.status];
-  const chip = 'inline-flex items-center rounded border border-gray-200 bg-gray-100 px-1.5 py-0.5 text-[9px] font-medium text-gray-600';
+  const chip = 'inline-flex items-center rounded border border-gray-200 bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-600';
 
   return (
     <div
@@ -56,16 +56,16 @@ export function LeadCard({
             <MapPin className="h-3 w-3 shrink-0" />
             <span className="truncate">{lead.city}, {lead.state}</span>
           </span>
-          <span className={cn('shrink-0 rounded-full px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wide', lifecycle.color)}>{lifecycle.label}</span>
+          <span className={cn('shrink-0 rounded-full px-1.5 py-0.5 text-xxs font-bold uppercase tracking-wide', lifecycle.color)}>{lifecycle.label}</span>
         </div>
         <div className="mt-1 flex flex-wrap items-center gap-1.5">
-          <span className="whitespace-nowrap text-[9px] font-bold text-gray-700">{lead.leadNumber}</span>
+          <span className="whitespace-nowrap text-xs font-bold text-gray-700">{lead.leadNumber}</span>
           {estimate && (
             <Link
               href={`/estimates/${estimate.id}`}
               onClick={(e) => e.stopPropagation()}
               title="View Estimate"
-              className="relative z-20 inline-flex items-center whitespace-nowrap rounded border border-primary-100 bg-primary-50 px-2 py-0.5 text-[9px] font-medium text-primary-700 hover:bg-primary-100"
+              className="relative z-20 inline-flex items-center whitespace-nowrap rounded border border-primary-100 bg-primary-50 px-2 py-0.5 text-xs font-medium text-primary-700 hover:bg-primary-100"
             >
               <FileText className="mr-1 h-3 w-3" />
               {estimate.estimateNumber}
@@ -76,7 +76,7 @@ export function LeadCard({
 
       <div className="mb-3 flex flex-wrap gap-1.5">
         <span className={chip}><Calendar className="mr-1 h-3 w-3 text-gray-400" />{longDate(lead.date)}</span>
-        <LeadSourceChip lead={lead} className="text-[9px]" fallback={<span className={chip}>{lead.leadSource}</span>} />
+        <LeadSourceChip lead={lead} className="text-xs" fallback={<span className={chip}>{lead.leadSource}</span>} />
         <span className={chip}>{timeAgo(lead.date)}</span>
       </div>
 

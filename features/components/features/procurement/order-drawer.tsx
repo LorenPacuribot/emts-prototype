@@ -137,11 +137,11 @@ function OrderBody({ po }: { po: PurchaseOrder }) {
       {/* ----- Summary ----- */}
       <KV
         items={[
-          ["Status", <span key="s" className="flex flex-wrap items-center gap-2"><PoStatusBadge po={po} /> {po.lines.some((l) => l.status === "ready_for_pickup") && po.status === "acknowledged" && <span className="text-[11.5px] text-slate-500">{po.lines.filter((l) => l.status === "ready_for_pickup").length} of {po.lines.length} lines ready — order not fulfilled</span>}</span>],
+          ["Status", <span key="s" className="flex flex-wrap items-center gap-2"><PoStatusBadge po={po} /> {po.lines.some((l) => l.status === "ready_for_pickup") && po.status === "acknowledged" && <span className="text-xs text-gray-500">{po.lines.filter((l) => l.status === "ready_for_pickup").length} of {po.lines.length} lines ready — order not fulfilled</span>}</span>],
           ["Sent", po.sentAt ? `${dateTime(po.sentAt)} by ${userName(db, po.sentBy)} via ${po.sendMethod}` : "Not sent"],
           ["Evidence", po.sentEvidence ?? "—"],
           ["Acknowledgment", po.ackAt ? `${dateTime(po.ackAt)} · ${po.ackRef}` : waitingAck ? <AckClockChip key="c" po={po} nowIso={nowIso} /> : "—"],
-          ["Delivery / pickup", <span key="d">{dateLong(po.deliveryDate)} {po.originalDeliveryDate && po.originalDeliveryDate.slice(0, 10) !== po.deliveryDate?.slice(0, 10) && <span className="text-slate-500">(original {dateLong(po.originalDeliveryDate)})</span>}</span>],
+          ["Delivery / pickup", <span key="d">{dateLong(po.deliveryDate)} {po.originalDeliveryDate && po.originalDeliveryDate.slice(0, 10) !== po.deliveryDate?.slice(0, 10) && <span className="text-gray-500">(original {dateLong(po.originalDeliveryDate)})</span>}</span>],
           ...(perms.seePrices ? ([["Order total", `${money(poValue(po))}${po.approvedTotal !== undefined && Math.abs(poValue(po) - po.approvedTotal) > 0.005 ? ` (approved ${money(po.approvedTotal)})` : ""}`]] as [string, string][]) : []),
           ["Created", `${dateTime(po.createdAt)} by ${userName(db, po.createdBy)}${po.requestId ? ` from ${po.requestId}` : ""}`],
         ]}
@@ -182,8 +182,8 @@ function OrderBody({ po }: { po: PurchaseOrder }) {
                       {l.tinted === false ? <Badge tone="blue">Untinted · returnable</Badge> : <Badge tone="gray">Tinted · non-returnable</Badge>}
                       {unmapped && <Badge tone="amber">No item code — manual order only</Badge>}
                     </div>
-                    <div className="mt-1 text-[12px] text-slate-600">{[lineIdentity(db, l).manufacturer, l.colourLabel, l.sheen, lineIdentity(db, l).tintBase].filter(Boolean).join(" · ")} · {formatPacks(l.packs)} ({l.gallons} gal){!unmapped && ` · ${codes.join(", ")}`}</div>
-                    <div className="mt-1.5 grid grid-cols-2 gap-x-4 gap-y-1 text-[11.5px] sm:grid-cols-4">
+                    <div className="mt-1 text-xs text-gray-600">{[lineIdentity(db, l).manufacturer, l.colourLabel, l.sheen, lineIdentity(db, l).tintBase].filter(Boolean).join(" · ")} · {formatPacks(l.packs)} ({l.gallons} gal){!unmapped && ` · ${codes.join(", ")}`}</div>
+                    <div className="mt-1.5 grid grid-cols-2 gap-x-4 gap-y-1 text-xs sm:grid-cols-4">
                       <span>Received <strong className="text-ink">{l.receivedGal}</strong></span>
                       <span>Unfilled <strong className={open > 0 && po.ackAt ? "text-amber-700" : "text-ink"}>{Math.max(0, open).toFixed(2)}</strong></span>
                       <span>Cancelled <strong className="text-ink">{l.cancelledGal}</strong></span>
@@ -191,17 +191,17 @@ function OrderBody({ po }: { po: PurchaseOrder }) {
                       {perms.seePrices && <span className="col-span-2">Amount <strong className="text-ink">{money(lineValue(l))}</strong> ({money(l.unitCostPerGal)}/gal)</span>}
                     </div>
                     {l.supplierStatusText && (
-                      <div className={`mt-2 rounded-lg border px-2.5 py-1.5 text-[11.5px] ${known ? "border-line bg-slate-50 text-slate-600" : "border-amber-200 bg-amber-50 text-amber-900"}`}>
+                      <div className={`mt-2 rounded-lg border px-2.5 py-1.5 text-xs ${known ? "border-line bg-gray-50 text-gray-600" : "border-amber-200 bg-amber-50 text-amber-900"}`}>
                         {!known && <strong>Needs review · </strong>}Supplier text, kept verbatim: <span className="font-mono">“{l.supplierStatusText}”</span>
                       </div>
                     )}
                     {l.substituteOffer && l.status === "substitute_available" && (
-                      <div className="mt-2 flex flex-wrap items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-[11.5px] text-amber-900">
+                      <div className="mt-2 flex flex-wrap items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-xs text-amber-900">
                         <span><strong>Substitute offered:</strong> {l.substituteOffer.product}{l.substituteOffer.packSize ? ` (${l.substituteOffer.packSize})` : ""} · {dateTime(l.substituteOffer.at)}</span>
                         {perms.submit && <Button size="sm" className="ml-auto" onClick={() => setModal({ kind: "replace", line: l })}><Repeat2 className="h-3.5 w-3.5" /> Review substitute</Button>}
                       </div>
                     )}
-                    {pendingCx.length > 0 && <div className="mt-2 text-[11.5px] text-slate-500">Cancellation of {pendingCx.reduce((a, c) => a + c.qtyGal, 0)} gal requested {dateTime(pendingCx[0].requestedAt)} — not confirmed by the branch, so nothing is released.</div>}
+                    {pendingCx.length > 0 && <div className="mt-2 text-xs text-gray-500">Cancellation of {pendingCx.reduce((a, c) => a + c.qtyGal, 0)} gal requested {dateTime(pendingCx[0].requestedAt)} — not confirmed by the branch, so nothing is released.</div>}
                   </div>
                   {(perms.receive || perms.submit) && (
                     <RowMenu items={[
@@ -232,7 +232,7 @@ function OrderBody({ po }: { po: PurchaseOrder }) {
             <Button size="sm" onClick={exportCsv}><Download className="h-3.5 w-3.5" /> CSV</Button>
           </div>
         )}>Supplier-facing order</CardLabel>
-        {!perms.generate && <p className="mt-1 text-[11.5px] text-slate-500">Prices and account numbers are not shown for your role. Only the owner and office manager download or send priced orders.</p>}
+        {!perms.generate && <p className="mt-1 text-xs text-gray-500">Prices and account numbers are not shown for your role. Only the owner and office manager download or send priced orders.</p>}
         <div className="mt-3">
           <OrderDocument ref={docRef} db={db} po={po} showPrices={perms.seePrices} showAccount={perms.seeAccount} />
         </div>
@@ -242,7 +242,7 @@ function OrderBody({ po }: { po: PurchaseOrder }) {
       {((po.replacements?.length ?? 0) > 0 || (po.deliveryChanges?.length ?? 0) > 0 || returns.length > 0) && (
         <div>
           <CardLabel icon={<RotateCcw />}>Changes, returns and credits</CardLabel>
-          <div className="mt-3 space-y-2 text-[12.5px]">
+          <div className="mt-3 space-y-2 text-xs">
             {po.deliveryChanges?.map((c) => (
               <div key={c.id} className="rounded-lg border border-line px-3 py-2">
                 <strong>Delivery</strong> {dateLong(c.from)} → {dateLong(c.to)} ({c.days} days) · {c.status === "approved" ? `approved by ${userName(db, c.approvedBy)}` : c.status === "rejected" ? `rejected by ${userName(db, c.approvedBy)}` : "waiting for owner"} · {c.reason}
@@ -269,9 +269,9 @@ function OrderBody({ po }: { po: PurchaseOrder }) {
           {[...po.events, ...(po.calls ?? []).map((c) => ({ at: c.at, by: c.by, text: `Call with ${c.employee}: ${c.outcome.replace(/_/g, " ")}${c.note ? ` — ${c.note}` : ""}` }))]
             .sort((a, b) => b.at.localeCompare(a.at))
             .map((ev, i) => (
-              <div key={i} className="border-l-2 border-line pl-3 text-[12.5px]">
-                <div className="text-[10.5px] font-bold uppercase text-slate-400">{dateTime(ev.at)} · {sourceName(db, ev)}</div>
-                <div className="text-slate-700">{ev.text}</div>
+              <div key={i} className="border-l-2 border-line pl-3 text-xs">
+                <div className="text-xxs font-bold uppercase text-gray-400">{dateTime(ev.at)} · {sourceName(db, ev)}</div>
+                <div className="text-gray-700">{ev.text}</div>
               </div>
             ))}
         </div>
@@ -325,7 +325,7 @@ function SubmitPanel({ po, onEdit, canEdit }: { po: PurchaseOrder; onEdit: (mode
           <Button size="sm" onClick={() => onEdit("amounts")}><Pencil className="h-3.5 w-3.5" /> Edit</Button>
         </div>
       )}>Submit to {supplier?.name ?? "supplier"}</CardLabel>
-      <p className="mt-1 text-[12px] text-slate-500">Status stays Preparing until the destination is confirmed and the evidence is recorded.</p>
+      <p className="mt-1 text-xs text-gray-500">Status stays Preparing until the destination is confirmed and the evidence is recorded.</p>
       {gaps.length > 0 && <Banner tone="danger" className="mt-3">{branch?.name} setup is incomplete (missing {gaps.map((g) => g.label.toLowerCase()).join(", ")}).</Banner>}
       <div className={`mt-3 rounded-lg border bg-white p-3 ${e("destination") ? "border-red-300" : "border-line"}`}>
         <Checkbox
@@ -333,7 +333,7 @@ function SubmitPanel({ po, onEdit, canEdit }: { po: PurchaseOrder; onEdit: (mode
           onCheckedChange={(v) => act(confirmDestination, po.id, v)}
           label={<span>I confirm this order goes to <strong>{branch?.name} (store {branch?.storeNumber || "—"})</strong> for <strong>{po.fulfilment === "delivery" ? "delivery to the job site" : "pickup at the branch"}</strong>.</span>}
         />
-        {e("destination") && <p className="mt-1 text-[11.5px] font-medium text-red-600">{e("destination")}</p>}
+        {e("destination") && <p className="mt-1 text-xs font-medium text-red-600">{e("destination")}</p>}
       </div>
       <div className="mt-3">
         <EvidenceFields method={method} setMethod={setMethod} ev={ev} setEv={setEv} e={e} electronic={electronic ? { po } : undefined} />
@@ -371,7 +371,7 @@ function SandboxSupplierPanel({ po }: { po: PurchaseOrder }) {
   return (
     <div className="rounded-xl border border-dashed border-amber-300 bg-amber-50/40 p-4">
       <CardLabel icon={<FlaskConical />} right={<Badge tone="amber">Sandbox</Badge>}>Simulate supplier replies</CardLabel>
-      <p className="mt-1 text-[12px] text-slate-600">No real supplier is connected. These stand in for messages from {po.transmission!.connector} (message {po.transmission!.messageId}).</p>
+      <p className="mt-1 text-xs text-gray-600">No real supplier is connected. These stand in for messages from {po.transmission!.connector} (message {po.transmission!.messageId}).</p>
       {!po.ackAt ? (
         <div className="mt-3">
           <Button size="sm" onClick={() => send({ poId: po.id, kind: "order_received", reference: `${po.transmission!.messageId}-ACK` })}><CheckCircle2 className="h-3.5 w-3.5" /> Supplier: order received</Button>
@@ -419,7 +419,7 @@ function AckPanel({ po, onCall, onUncertain }: { po: PurchaseOrder; onCall: () =
   };
   return (
     <div className="rounded-xl border border-line p-4">
-      <CardLabel icon={<CheckCircle2 />} right={ex && <span className="text-[12px] text-slate-500">{ex.overdue ? "Clock expired" : `${minutesLabel(ex.remainingMinutes)} working time left`}</span>}>Record acknowledgment</CardLabel>
+      <CardLabel icon={<CheckCircle2 />} right={ex && <span className="text-xs text-gray-500">{ex.overdue ? "Clock expired" : `${minutesLabel(ex.remainingMinutes)} working time left`}</span>}>Record acknowledgment</CardLabel>
       <div className="mt-3 grid gap-3 sm:grid-cols-2">
         <Field label="What came back?" required error={e("method")}>
           <Select value={method} onChange={(ev) => setMethod(ev.target.value as typeof method)} invalid={!!e("method")}>

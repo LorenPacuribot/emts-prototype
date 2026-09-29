@@ -46,8 +46,8 @@ export function UnverifiedBadge({ note }: { note?: string }) {
 export function Cell({ label, children, className }: { label: string; children: ReactNode; className?: string }) {
   return (
     <div className={className}>
-      <div className="text-[9px] font-bold uppercase tracking-[0.12em] text-slate-400">{label}</div>
-      <div className="mt-0.5 text-[12.5px] text-slate-700">{children}</div>
+      <div className="text-xxs font-bold uppercase tracking-[0.12em] text-gray-400">{label}</div>
+      <div className="mt-0.5 text-xs text-gray-700">{children}</div>
     </div>
   );
 }
@@ -129,7 +129,7 @@ export function OwnershipBanner({ db, property }: { db: Database; property: Prop
       className="mb-4"
       title={ctx.hiddenCount ? "Restricted: prior-owner work is hidden" : "Restricted: prior-owner work is specification only"}
       action={
-        <AppLink href={propertyHref(property.id, "ownership")} className="whitespace-nowrap text-[12px] font-semibold underline">
+        <AppLink href={propertyHref(property.id, "ownership")} className="whitespace-nowrap text-xs font-semibold underline">
           Owners & Consent
         </AppLink>
       }

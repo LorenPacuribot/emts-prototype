@@ -105,13 +105,13 @@ export function InspectionModal({ rep, open, onOpenChange }: { rep: RepeatEstima
                 key={p}
                 onClick={() => { setPath(p); setErr(undefined); }}
                 aria-pressed={path === p}
-                className={cn("rounded-xl border px-3 py-3 text-left text-[12.5px]", path === p ? "border-brand bg-brand-soft/40" : "border-line hover:bg-slate-50", unavailable && "opacity-60")}
+                className={cn("rounded-xl border px-3 py-3 text-left text-xs", path === p ? "border-brand bg-brand-soft/40" : "border-line hover:bg-gray-50", unavailable && "opacity-60")}
               >
                 <div className="flex items-center gap-2 font-semibold text-ink">
                   {p === "site_visit" ? <Ruler className="h-4 w-4" /> : <PhoneCall className="h-4 w-4" />}
                   {p === "site_visit" ? "Site visit" : "Small interior: photos + call"}
                 </div>
-                <div className="mt-1 text-slate-500">
+                <div className="mt-1 text-gray-500">
                   {p === "site_visit" ? "Visit date, measurement date, at least one photograph." : unavailable ? (scope.hasExterior ? "Not available for exterior work." : `Not available: over ${SMALL_INTERIOR_MAX_SQFT} sq ft and more than one room.`) : "One room, or up to 400 sq ft of walls and ceilings."}
                 </div>
               </button>
@@ -144,11 +144,11 @@ export function InspectionModal({ rep, open, onOpenChange }: { rep: RepeatEstima
             <Button size="sm" onClick={() => setPhotos((n) => n + 1)}>
               <Camera className="h-3.5 w-3.5" /> Attach photograph
             </Button>
-            <span className="text-[12.5px] text-slate-600">{photos} attached</span>
+            <span className="text-xs text-gray-600">{photos} attached</span>
             {photos > 0 && (
               <>
-                <span className="inline-flex items-center gap-1 text-[12px] text-emerald-700"><CheckCircle2 className="h-3.5 w-3.5" /> OK</span>
-                <button className="text-[11.5px] text-slate-400 hover:text-red-600" onClick={() => setPhotos((n) => Math.max(0, n - 1))}>Remove one</button>
+                <span className="inline-flex items-center gap-1 text-xs text-green-700"><CheckCircle2 className="h-3.5 w-3.5" /> OK</span>
+                <button className="text-xs text-gray-400 hover:text-red-600" onClick={() => setPhotos((n) => Math.max(0, n - 1))}>Remove one</button>
               </>
             )}
           </div>

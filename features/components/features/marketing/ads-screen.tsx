@@ -72,9 +72,9 @@ function Ads() {
                 <tbody>
                   {ads.map((a) => (
                     <TR key={a.id}>
-                      <TD className="min-w-52"><div className="font-semibold text-ink">{a.name}</div><div className="text-[11.5px] text-slate-500">{a.id} · {PLATFORM_LABEL[a.platform]} · {byId(db.mktCampaigns ?? [], a.campaignId)?.name ?? "No campaign"}</div></TD>
+                      <TD className="min-w-52"><div className="font-semibold text-ink">{a.name}</div><div className="text-xs text-gray-500">{a.id} · {PLATFORM_LABEL[a.platform]} · {byId(db.mktCampaigns ?? [], a.campaignId)?.name ?? "No campaign"}</div></TD>
                       <TD className="whitespace-nowrap">{budgetText(a)}</TD>
-                      <TD className="whitespace-nowrap text-[12px]">{dateLong(a.schedule.start)} – {a.schedule.end ? dateLong(a.schedule.end) : "no end"}</TD>
+                      <TD className="whitespace-nowrap text-xs">{dateLong(a.schedule.start)} – {a.schedule.end ? dateLong(a.schedule.end) : "no end"}</TD>
                       <TD><Badge tone={STATUS_TONE[a.status]}>{AD_STATUS_LABEL[a.status]}</Badge></TD>
                       <TD className="text-right tabular-nums">{a.performance ? cents(a.performance.spend) : "—"}</TD>
                       <TD className="text-right tabular-nums">{a.performance ? num(a.performance.clicks) : "—"}</TD>
@@ -176,8 +176,8 @@ function AdDrawer({ id, onClose, onEdit }: { id: string; onClose: () => void; on
         <section>
           <SectionTitle>Creative</SectionTitle>
           <div className="grid gap-3 sm:grid-cols-[140px_minmax(0,1fr)]">
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-1">{cr.assetIds.map((id) => { const asset = byId(db.mediaAssets, id); return asset ? <AssetTile key={id} asset={asset} compact /> : <div key={id} className="text-[12px] text-slate-500">{id} (removed)</div>; })}</div>
-            <div className="rounded-xl border border-line p-3 text-[13px]"><div className="font-semibold text-ink">{cr.headline}</div><p className="mt-1 text-slate-700">{cr.text}</p><div className="mt-2 text-[12px] text-slate-500">Button: {AD_CTA_LABEL[cr.cta]}{cr.url && ` → ${cr.url}`}</div></div>
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-1">{cr.assetIds.map((id) => { const asset = byId(db.mediaAssets, id); return asset ? <AssetTile key={id} asset={asset} compact /> : <div key={id} className="text-xs text-gray-500">{id} (removed)</div>; })}</div>
+            <div className="rounded-xl border border-line p-3 text-sm"><div className="font-semibold text-ink">{cr.headline}</div><p className="mt-1 text-gray-700">{cr.text}</p><div className="mt-2 text-xs text-gray-500">Button: {AD_CTA_LABEL[cr.cta]}{cr.url && ` → ${cr.url}`}</div></div>
           </div>
         </section>
       )}
@@ -191,13 +191,13 @@ function AdDrawer({ id, onClose, onEdit }: { id: string; onClose: () => void; on
               <Stat label="Clicks" value={num(p.clicks)} hint={p.impressions ? `${((p.clicks / p.impressions) * 100).toFixed(2)}% click rate` : undefined} />
               <Stat label="Leads" value={num(p.leads)} hint={p.leads ? `${cents(p.spend / p.leads)} per lead` : "None yet"} />
             </StatStrip>
-            <p className="mt-2 text-[11.5px] text-slate-500">Read-only. Updated {dateTime(p.at)}.</p>
+            <p className="mt-2 text-xs text-gray-500">Read-only. Updated {dateTime(p.at)}.</p>
           </>
-        ) : <p className="text-[12.5px] text-slate-500">No results yet. They appear once the ad is approved and running.</p>}
+        ) : <p className="text-xs text-gray-500">No results yet. They appear once the ad is approved and running.</p>}
       </section>
       <section>
         <SectionTitle>History</SectionTitle>
-        <ul className="space-y-1 text-[12.5px] text-slate-600">{[...a.history].reverse().map((h, i) => <li key={i}>{dateTime(h.at)} · {byId(db.users, h.by)?.name ?? "—"}: {h.note}</li>)}</ul>
+        <ul className="space-y-1 text-xs text-gray-600">{[...a.history].reverse().map((h, i) => <li key={i}>{dateTime(h.at)} · {byId(db.users, h.by)?.name ?? "—"}: {h.note}</li>)}</ul>
       </section>
       {rejecting && <RejectForm ad={a} onClose={() => setRejecting(false)} />}
       {dialog}
@@ -269,7 +269,7 @@ function AdForm({ ad, onClose, onSaved }: { ad?: SocialAdCampaign; onClose: () =
           <Field label="Goal" htmlFor="ad-obj"><Select id="ad-obj" value={f.objective} onChange={(x) => setF({ ...f, objective: x.target.value as SocialAdCampaign["objective"] })}>{Object.entries(AD_OBJECTIVE_LABEL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</Select></Field>
         </div>
         <fieldset className="rounded-lg border border-line p-3">
-          <legend className="px-1 text-[12px] font-semibold text-slate-700">Budget and dates</legend>
+          <legend className="px-1 text-xs font-semibold text-gray-700">Budget and dates</legend>
           <PillTabs className="mb-3" value={f.budgetType} onChange={(t) => setF({ ...f, budgetType: t })} options={[{ value: "daily", label: "Daily budget" }, { value: "lifetime", label: "Total (lifetime) budget" }]} />
           <div className="grid gap-3 sm:grid-cols-3">
             <Field label={f.budgetType === "daily" ? "Per day (USD)" : "Total (USD)"} htmlFor="ad-amt" required error={e("budgetAmount")} hint={total !== undefined ? `Up to ${cents(total)} in total` : undefined}>
@@ -280,7 +280,7 @@ function AdForm({ ad, onClose, onSaved }: { ad?: SocialAdCampaign; onClose: () =
           </div>
         </fieldset>
         <fieldset className="rounded-lg border border-line p-3">
-          <legend className="px-1 text-[12px] font-semibold text-slate-700">Audience</legend>
+          <legend className="px-1 text-xs font-semibold text-gray-700">Audience</legend>
           <div className="grid gap-3 sm:grid-cols-4">
             <Field label="Towns or ZIP codes" htmlFor="ad-loc" required error={e("locations")} hint="Separate with commas. Never a street address." className="sm:col-span-3"><Input id="ad-loc" value={f.locations} invalid={!!e("locations")} onChange={(x) => setF({ ...f, locations: x.target.value })} placeholder="Dallas, 75214" /></Field>
             <Field label="Radius (miles)" htmlFor="ad-rad"><Input id="ad-rad" type="number" min={0} step={1} value={f.radiusMiles} onChange={(x) => setF({ ...f, radiusMiles: x.target.value })} /></Field>
@@ -290,11 +290,11 @@ function AdForm({ ad, onClose, onSaved }: { ad?: SocialAdCampaign; onClose: () =
           </div>
         </fieldset>
         <fieldset className="rounded-lg border border-line p-3">
-          <legend className="px-1 text-[12px] font-semibold text-slate-700">Creative</legend>
-          <div className="mb-1 text-[12px] font-semibold text-slate-700">Photos or video from the media library <span className="text-red-500">*</span></div>
-          <p className="mb-2 text-[11.5px] text-slate-500">Locked items have no photo release or were withdrawn, so they can&apos;t be used.</p>
+          <legend className="px-1 text-xs font-semibold text-gray-700">Creative</legend>
+          <div className="mb-1 text-xs font-semibold text-gray-700">Photos or video from the media library <span className="text-red-500">*</span></div>
+          <p className="mb-2 text-xs text-gray-500">Locked items have no photo release or were withdrawn, so they can&apos;t be used.</p>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">{media.map((m) => <AssetTile key={m.id} asset={m} compact selected={f.assetIds.includes(m.id)} onClick={() => setF({ ...f, assetIds: f.assetIds.includes(m.id) ? f.assetIds.filter((x) => x !== m.id) : [...f.assetIds, m.id] })} />)}</div>
-          {e("assetIds") && <p className="mt-2 text-[11.5px] font-medium text-red-600">{e("assetIds")}</p>}
+          {e("assetIds") && <p className="mt-2 text-xs font-medium text-red-600">{e("assetIds")}</p>}
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
             <Field label="Headline" htmlFor="ad-head" required error={e("creative")}><Input id="ad-head" value={f.headline} invalid={!!e("creative")} onChange={(x) => setF({ ...f, headline: x.target.value })} /></Field>
             <Field label="Button" htmlFor="ad-cta"><Select id="ad-cta" value={f.cta} onChange={(x) => setF({ ...f, cta: x.target.value as AdDraft["cta"] })}>{Object.entries(AD_CTA_LABEL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</Select></Field>

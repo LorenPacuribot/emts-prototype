@@ -40,7 +40,7 @@ export function SettingsSidebar() {
                   )}
                 >
                   <Icon className={cn('h-5 w-5 shrink-0', active ? 'text-primary-600' : 'text-gray-400')} />
-                  <span className="min-w-0 flex-1 truncate text-sm leading-tight lg:text-[0.95rem]">{item.label}</span>
+                  <span className="min-w-0 flex-1 truncate text-sm leading-tight">{item.label}</span>
                   {item.isNew && <NewBadge feature={item.feature} />}
                 </Link>
               );

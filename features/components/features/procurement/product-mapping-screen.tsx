@@ -59,7 +59,7 @@ function Mapping() {
       <div className="space-y-4">
         <Card className="p-4">
           <CardLabel icon={<ListChecks />}>Pack availability</CardLabel>
-          <p className="mt-1 text-[12px] text-slate-500">Only sizes marked available are offered when packing an order. Units are quarts, gallons and five-gallon pails — litres are not supported.</p>
+          <p className="mt-1 text-xs text-gray-500">Only sizes marked available are offered when packing an order. Units are quarts, gallons and five-gallon pails — litres are not supported.</p>
           <div className="mt-3">
             <Table>
               <THead><tr><TH>Product</TH><TH>Manufacturer · line</TH>{SIZES.map((s) => <TH key={s}>{PACK_LABEL[s]}</TH>)}</tr></THead>
@@ -74,7 +74,7 @@ function Mapping() {
                           checked={c.available.includes(s)}
                           disabled={!perms.editCatalog || c.cost[s] === undefined}
                           onCheckedChange={(v) => act(setPackAvailability, c.id, s, v).ok && toast.success(`${c.product} ${PACK_LABEL[s].toLowerCase()} ${v ? "available" : "unavailable"}`)}
-                          label={c.cost[s] === undefined ? <span className="text-[11px] text-slate-400">not sold</span> : undefined}
+                          label={c.cost[s] === undefined ? <span className="text-xs text-gray-400">not sold</span> : undefined}
                         />
                       </TD>
                     ))}
@@ -98,10 +98,10 @@ function Mapping() {
                       <TR key={m.id}>
                         <TD className="font-semibold text-ink">{cat?.product}</TD>
                         <TD>{m.unit}</TD>
-                        <TD>{m.branchId ? byId(db.branches, m.branchId)?.name : <span className="text-slate-500">All branches</span>}</TD>
-                        <TD className="font-mono text-[12px]">{m.itemCode}</TD>
-                        <TD>{m.colourNumber || m.tintFormula ? <>{m.colourNumber}{m.tintFormula && <div className="text-[11px] text-slate-500">{m.tintFormula}</div>}</> : <span className="text-slate-300">—</span>}</TD>
-                        <TD>{dateLong(m.updatedAt)}<div className="text-[11px] text-slate-400">{userName(db, m.updatedBy)}</div></TD>
+                        <TD>{m.branchId ? byId(db.branches, m.branchId)?.name : <span className="text-gray-500">All branches</span>}</TD>
+                        <TD className="font-mono text-xs">{m.itemCode}</TD>
+                        <TD>{m.colourNumber || m.tintFormula ? <>{m.colourNumber}{m.tintFormula && <div className="text-xs text-gray-500">{m.tintFormula}</div>}</> : <span className="text-gray-300">—</span>}</TD>
+                        <TD>{dateLong(m.updatedAt)}<div className="text-xs text-gray-400">{userName(db, m.updatedBy)}</div></TD>
                         <TD>
                           {perms.setup && <RowMenu items={[
                             { label: "Edit mapping", icon: <Pencil />, onSelect: () => setEdit({ open: true, mapping: m }) },
@@ -119,17 +119,17 @@ function Mapping() {
 
         <Card className="p-4">
           <CardLabel icon={<ListChecks />}>Review unmapped</CardLabel>
-          <p className="mt-1 text-[12px] text-slate-500">An unmapped line blocks electronic submission, but not a manual order — the readable specification is enough at the counter.</p>
+          <p className="mt-1 text-xs text-gray-500">An unmapped line blocks electronic submission, but not a manual order — the readable specification is enough at the counter.</p>
           <div className="mt-3 space-y-2">
             {unmapped.length === 0 && unmappedOnOrders.length === 0 && <EmptyState title="Everything available is mapped." />}
             {unmappedOnOrders.map(({ po, l, size }) => (
-              <div key={`${po.id}${l.id}${size}`} className="flex flex-wrap items-center gap-2 rounded-lg border border-amber-200 bg-amber-50/50 px-3 py-2 text-[12.5px]">
+              <div key={`${po.id}${l.id}${size}`} className="flex flex-wrap items-center gap-2 rounded-lg border border-amber-200 bg-amber-50/50 px-3 py-2 text-xs">
                 <Badge tone="amber">No item code — manual order only</Badge>
                 <span className="font-semibold text-ink">{l.product}</span> · {PACK_LABEL[size]} · on open order {po.id} line {l.id}
               </div>
             ))}
             {unmapped.map(({ cat, size }) => (
-              <div key={`${cat.id}${size}`} className="flex flex-wrap items-center gap-2 rounded-lg border border-line px-3 py-2 text-[12.5px]">
+              <div key={`${cat.id}${size}`} className="flex flex-wrap items-center gap-2 rounded-lg border border-line px-3 py-2 text-xs">
                 <span className="font-semibold text-ink">{cat.product}</span> · {PACK_LABEL[size]}
                 {perms.setup && <Button size="sm" className="ml-auto" onClick={() => setEdit({ open: true, preset: { catalogId: cat.id, packSize: size, supplierId: cat.manufacturer === "Benjamin Moore" ? "SUP-BM" : "SUP-SW" } })}>Map it</Button>}
               </div>
@@ -233,7 +233,7 @@ function BulkModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   return (
     <Modal open={open} onOpenChange={(v) => !v && onClose()} title="Bulk import mappings" description="One row per mapping: product, pack, item code."
       footer={<><Button onClick={onClose}>Close</Button><Button variant="primary" onClick={importRows}>Import</Button></>}>
-      <Textarea className="min-h-40 font-mono text-[12px]" value={text} onChange={(e) => setText(e.target.value)} placeholder={"SuperPaint Exterior, 5gal, A89W00155\nPRD-PM200, 5gal, B30W02655"} />
+      <Textarea className="min-h-40 font-mono text-xs" value={text} onChange={(e) => setText(e.target.value)} placeholder={"SuperPaint Exterior, 5gal, A89W00155\nPRD-PM200, 5gal, B30W02655"} />
       {result.length > 0 && <Banner tone="warn" className="mt-3" title="Some rows were skipped">{result.map((r) => <div key={r}>{r}</div>)}</Banner>}
     </Modal>
   );

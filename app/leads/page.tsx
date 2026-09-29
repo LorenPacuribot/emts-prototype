@@ -135,7 +135,7 @@ function LeadPipeline() {
               )}
             >
               <b.icon className="h-4 w-4" />
-              <span className="text-[10px] font-bold uppercase">{b.label}</span>
+              <span className="text-xxs font-bold uppercase">{b.label}</span>
             </button>
           ))}
           <button
@@ -149,8 +149,8 @@ function LeadPipeline() {
             )}
           >
             <Globe className="h-4 w-4" />
-            <span className="text-[10px] font-bold uppercase">Website</span>
-            {openReviews > 0 && <span className="rounded-full bg-amber-100 px-1.5 text-[10px] font-bold text-amber-700">{openReviews}</span>}
+            <span className="text-xxs font-bold uppercase">Website</span>
+            {openReviews > 0 && <span className="rounded-full bg-amber-100 px-1.5 text-xs font-bold text-amber-700">{openReviews}</span>}
             <NewBadge feature={34} />
           </button>
         </div>

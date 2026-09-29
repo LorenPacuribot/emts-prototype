@@ -45,7 +45,7 @@ export function DocHeader({
       <div className="flex flex-col items-center justify-between gap-6 lg:flex-row">
         <CompanyBlock bp={bp} />
         <div className="flex w-full shrink-0 flex-col items-center lg:w-auto lg:items-end">
-          <div className="mb-2 text-[10px] font-bold uppercase tracking-widest text-gray-400 md:text-xs">Estimator</div>
+          <div className="mb-2 text-xxs font-bold uppercase tracking-widest text-gray-400 md:text-xs">Estimator</div>
           <button
             type="button"
             onClick={readOnly ? undefined : () => setOpen(true)}
@@ -109,7 +109,7 @@ function Column({ title, editable, onEdit, children, className }: { title: strin
       onClick={editable ? onEdit : undefined}
     >
       <div className="mb-3 flex items-center justify-between border-b border-gray-100 pb-2">
-        <h4 className="text-[10px] font-bold uppercase tracking-widest text-gray-400 md:text-xs">{title}</h4>
+        <h4 className="text-xxs font-bold uppercase tracking-widest text-gray-400 md:text-xs">{title}</h4>
         {editable && (
           <div className="rounded-lg p-1.5 text-gray-300 group-hover:bg-primary-50 group-hover:text-primary-600">
             <Edit2 className="h-3.5 w-3.5" />
@@ -165,11 +165,11 @@ export function ClientInfo({
         <Column title="Dates" editable={!readOnly} onEdit={() => open('dates')} className="col-span-2 lg:col-span-1">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <div className="mb-1 text-[10px] font-semibold uppercase text-gray-400 md:text-xs">Estimate Date</div>
+              <div className="mb-1 text-xxs font-semibold uppercase text-gray-400 md:text-xs">Estimate Date</div>
               <div className="text-sm font-bold text-gray-900 md:text-lg">{longDate(estimate.date)}</div>
             </div>
             <div>
-              <div className="mb-1 text-[10px] font-semibold uppercase text-gray-400 md:text-xs">Valid Until</div>
+              <div className="mb-1 text-xxs font-semibold uppercase text-gray-400 md:text-xs">Valid Until</div>
               <div className="text-sm font-bold text-gray-900 md:text-lg">{longDate(estimate.validUntil)}</div>
             </div>
           </div>

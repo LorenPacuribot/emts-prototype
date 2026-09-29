@@ -54,7 +54,7 @@ export function LeadSourceChip({ lead, className, fallback }: { lead: Pick<Lead,
   const repaint = useIsRepaintLead(lead);
   if (!repaint) return <>{fallback}</>;
   return (
-    <span className={cn('inline-flex items-center gap-1 whitespace-nowrap rounded border border-primary-200 bg-primary-50 px-2 py-0.5 text-[10px] font-semibold text-primary-800', className)}>
+    <span className={cn('inline-flex items-center gap-1 whitespace-nowrap rounded border border-primary-200 bg-primary-50 px-2 py-0.5 text-xs font-semibold text-primary-800', className)}>
       <BellRing className="h-3 w-3" /> Repaint alert <NewBadge feature={29} />
     </span>
   );
@@ -64,7 +64,7 @@ export function LeadSourceChip({ lead, className, fallback }: { lead: Pick<Lead,
 export function FollowUpLockNote({ fu, className, compact }: { fu: Pick<FollowUp, 'id'>; className?: string; compact?: boolean }) {
   if (compact) {
     return (
-      <div className={cn('flex items-center gap-1.5 rounded-md border border-primary-100 bg-primary-50/60 px-2 py-1 text-[11px] text-primary-800', className)}>
+      <div className={cn('flex items-center gap-1.5 rounded-md border border-primary-100 bg-primary-50/60 px-2 py-1 text-xs text-primary-800', className)}>
         <BellRing className="h-3 w-3 shrink-0" /> Stage follows repaint follow-up {fu.id}
       </div>
     );

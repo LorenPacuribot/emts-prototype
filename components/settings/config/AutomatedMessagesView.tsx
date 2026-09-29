@@ -93,7 +93,7 @@ export function AutomatedMessagesView() {
                       label="Template active"
                     />
                   </span>
-                  <span className="rounded-full bg-gray-100 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-gray-500">Template</span>
+                  <span className="rounded-full bg-gray-100 px-3 py-1 text-xxs font-bold uppercase tracking-wider text-gray-500">Template</span>
                 </div>
               </div>
               <div className="flex-1 space-y-6">
@@ -112,7 +112,7 @@ export function AutomatedMessagesView() {
                       onChange={(e) => setBody(e.target.value)}
                       className="block min-h-[220px] w-full resize-y border-0 px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-0"
                     />
-                    {bp.emailFooter && <div className="select-none whitespace-pre-wrap border-t border-gray-200 bg-gray-50 px-5 py-4 text-[11px] text-gray-500">{bp.emailFooter}</div>}
+                    {bp.emailFooter && <div className="select-none whitespace-pre-wrap border-t border-gray-200 bg-gray-50 px-5 py-4 text-xs text-gray-500">{bp.emailFooter}</div>}
                   </div>
                 </div>
                 <VariablesBox
@@ -152,7 +152,7 @@ function EmailLayoutSection() {
     <div>
       <div className="mb-2 flex items-center justify-between">
         <Label className="mb-0">{label}</Label>
-        <span className="flex items-center gap-2 text-[11px] font-bold text-gray-600">
+        <span className="flex items-center gap-2 text-xs font-bold text-gray-600">
           <Switch checked={html[key]} onChange={(v) => setHtml((h) => ({ ...h, [key]: v }))} label={`${label} HTML editor`} />
           <Code2 className="h-3.5 w-3.5" /> HTML Editor
         </span>
@@ -161,7 +161,7 @@ function EmailLayoutSection() {
         value={value}
         onChange={(e) => set(e.target.value)}
         rows={key === 'header' ? 3 : 5}
-        className={html[key] ? 'bg-slate-900 font-mono text-xs text-green-300' : key === 'header' ? 'text-center font-bold' : 'text-sm'}
+        className={html[key] ? 'bg-gray-900 font-mono text-xs text-green-300' : key === 'header' ? 'text-center font-bold' : 'text-sm'}
       />
     </div>
   );

@@ -25,7 +25,7 @@ export function EstimateStatusBadge({ status, size = 'sm', className }: { status
     <span
       className={cn(
         'inline-flex w-fit items-center gap-1 rounded-full border font-bold whitespace-nowrap',
-        size === 'sm' ? 'px-2 py-0.5 text-[10px]' : 'rounded-lg px-3 py-1.5 text-xs tracking-wide',
+        size === 'sm' ? 'px-2 py-0.5 text-xs' : 'rounded-lg px-3 py-1.5 text-xs tracking-wide',
         ESTIMATE_STATUS_BADGE[status],
         className,
       )}

@@ -78,7 +78,7 @@ function Library() {
               {(lib.productDefaults ?? []).map((d) => (
                 <TR key={`${d.manufacturer}|${d.productLine}|${d.product ?? ""}|${d.surfaceType ?? ""}`}>
                   <TD>
-                    {d.product ?? `${d.productLine} line (any product)`}{d.surfaceType ? ` on ${labelSurfaceType(d.surfaceType).toLowerCase()}` : ""} <span className="text-[11px] text-slate-500">· {d.manufacturer}</span>
+                    {d.product ?? `${d.productLine} line (any product)`}{d.surfaceType ? ` on ${labelSurfaceType(d.surfaceType).toLowerCase()}` : ""} <span className="text-xs text-gray-500">· {d.manufacturer}</span>
                     <Badge tone="blue" className="ml-1">{d.surfaceType ? "product + surface wins" : d.product ? "product wins" : "product line wins"}</Badge>
                   </TD>
                   <TD className="font-semibold text-ink">{d.years} years</TD>
@@ -89,13 +89,13 @@ function Library() {
         </Card>
         <Card className="p-4">
           <CardLabel icon={<Calculator />}>Adjustment rules (applied in this order, each once)</CardLabel>
-          <ol className="mt-3 space-y-2 text-[12.5px]">
+          <ol className="mt-3 space-y-2 text-xs">
             <Rule n={1} text="Start with the colour card lifespan; else product, product line, surface type, then room" value="—" />
             <Rule n={2} text="South or west exterior exposure (counts once, even if both)" value={`−${lib.southWestDeduction} yr`} />
             <Rule n={3} text="Premium product tier" value={`+${lib.premiumBonus} yr`} />
             <Rule n={4} text="Poor preparation or failing coating (counts once)" value={`−${lib.poorPrepDeduction} yrs`} />
           </ol>
-          <p className="mt-3 text-[11.5px] text-slate-500">Coats and colour are never factors. Day of month is kept where possible, else the last day of the month. Advance notice: 9 months commercial (wins), 6 exterior, 3 interior.</p>
+          <p className="mt-3 text-xs text-gray-500">Coats and colour are never factors. Day of month is kept where possible, else the last day of the month. Advance notice: 9 months commercial (wins), 6 exterior, 3 interior.</p>
         </Card>
       </div>
 
@@ -105,9 +105,9 @@ function Library() {
           <div className="mt-3 space-y-2">
             {pending.map((s) => (
               <div key={s.id} className="flex flex-col gap-2 rounded-lg border border-amber-200 bg-amber-50/50 p-3 sm:flex-row sm:items-center">
-                <div className="flex-1 text-[12.5px]">
+                <div className="flex-1 text-xs">
                   <div className="font-semibold text-ink">{surfaceLabel(db, s.surfaceId)} · {propertyAddress(byId(db.properties, s.propertyId))}</div>
-                  <div className="text-slate-600">
+                  <div className="text-gray-600">
                     {date(s.dueDate)} → <strong>{date(s.extension!.proposedDate)}</strong> · proposed by {byId(db.users, s.extension!.proposedBy)?.name} · photo {s.extension!.photoId} taken {date(s.extension!.photoDate)} — {s.extension!.reason}
                   </div>
                 </div>
@@ -136,7 +136,7 @@ function Library() {
         >
           Stored expected dates
         </CardLabel>
-        <p className="mt-1 text-[12px] text-slate-500">Library changes never move these. {can(user, "alerts.recalculate") ? "Tick the records to recalculate under the current version — there is no select-all." : ""}</p>
+        <p className="mt-1 text-xs text-gray-500">Library changes never move these. {can(user, "alerts.recalculate") ? "Tick the records to recalculate under the current version — there is no select-all." : ""}</p>
         {schedules.length === 0 ? (
           <EmptyState className="mt-3" icon={<Calculator />} title="No stored dates yet" body="Dates are stored at closeout and by the nightly run." />
         ) : (
@@ -155,18 +155,18 @@ function Library() {
                     {can(user, "alerts.recalculate") && (
                       <TD><Checkbox checked={sel.includes(s.id)} onCheckedChange={(v) => setSel((x) => (v ? [...x, s.id] : x.filter((y) => y !== s.id)))} /></TD>
                     )}
-                    <TD><div className="font-semibold text-ink">{surfaceLabel(db, s.surfaceId)}</div><div className="text-[11px] text-slate-500">{s.surfaceId}</div></TD>
-                    <TD className="text-[12px]">{byId(db.properties, s.propertyId)?.address}</TD>
+                    <TD><div className="font-semibold text-ink">{surfaceLabel(db, s.surfaceId)}</div><div className="text-xs text-gray-500">{s.surfaceId}</div></TD>
+                    <TD className="text-xs">{byId(db.properties, s.propertyId)?.address}</TD>
                     <TD>{date(s.completedAt)}</TD>
                     <TD className="font-semibold text-ink">
                       {date(effectiveDue(s))}
-                      {s.extension?.status === "approved" && <div className="text-[10.5px] font-normal text-emerald-700">extended from {date(s.dueDate)}</div>}
-                      {s.extension?.status === "pending" && <div className="text-[10.5px] font-normal text-amber-700">extension pending</div>}
-                      {!!s.recalculated?.length && <div className="text-[10.5px] font-normal text-slate-500">was {date(s.recalculated[s.recalculated.length - 1].oldDue)}</div>}
+                      {s.extension?.status === "approved" && <div className="text-xs font-normal text-green-700">extended from {date(s.dueDate)}</div>}
+                      {s.extension?.status === "pending" && <div className="text-xs font-normal text-amber-700">extension pending</div>}
+                      {!!s.recalculated?.length && <div className="text-xs font-normal text-gray-500">was {date(s.recalculated[s.recalculated.length - 1].oldDue)}</div>}
                     </TD>
                     <TD>{s.years} yrs</TD>
                     <TD><Badge tone={stale ? "gray" : "blue"}>v{s.ruleVersion}</Badge></TD>
-                    <TD className="max-w-[320px] whitespace-normal text-[11.5px] text-slate-500">{s.basis.join(" · ")}</TD>
+                    <TD className="max-w-[320px] whitespace-normal text-xs text-gray-500">{s.basis.join(" · ")}</TD>
                     <TD>
                       {can(user, "alerts.proposeExtension") && !s.extension?.status?.match(/pending|approved/) && (
                         <Button size="sm" variant="ghost" onClick={() => setExtFor(s)}><Sparkles className="h-3.5 w-3.5" /> Extend</Button>
@@ -183,12 +183,12 @@ function Library() {
       <div className="mt-4 grid gap-4 xl:grid-cols-2">
         <Card className="p-4">
           <CardLabel icon={<GitBranch />}>Rule version history</CardLabel>
-          <ul className="mt-3 space-y-2 text-[12.5px]">
+          <ul className="mt-3 space-y-2 text-xs">
             <li className="rounded-lg border border-blue-100 bg-brand-soft/40 px-3 py-2"><strong>v{lib.version}</strong> (current) · {date(lib.updatedAt)} · {lib.note}</li>
             {history.map((h) => (
-              <li key={h.version} className="rounded-lg border border-line px-3 py-2 text-slate-600">
+              <li key={h.version} className="rounded-lg border border-line px-3 py-2 text-gray-600">
                 <strong className="text-ink">v{h.version}</strong> · {date(h.updatedAt)} · {byId(db.users, h.updatedBy)?.name} · {h.note ?? "—"}
-                <div className="text-[11px] text-slate-400">{h.defaults.map((d) => `${labelRoomType(d.roomType)} ${d.years}`).join(" · ")}</div>
+                <div className="text-xs text-gray-400">{h.defaults.map((d) => `${labelRoomType(d.roomType)} ${d.years}`).join(" · ")}</div>
               </li>
             ))}
           </ul>
@@ -196,14 +196,14 @@ function Library() {
         <Card className="p-4">
           <CardLabel icon={<RefreshCw />}>Historical recalculations</CardLabel>
           {(db.recalculations ?? []).length === 0 ? (
-            <p className="mt-3 text-[12.5px] italic text-slate-400">None yet. Old dates are always kept when the owner recalculates.</p>
+            <p className="mt-3 text-xs italic text-gray-400">None yet. Old dates are always kept when the owner recalculates.</p>
           ) : (
             <ul className="mt-3 space-y-3">
               {(db.recalculations ?? []).map((r) => (
-                <li key={r.id} className="rounded-lg border border-line p-3 text-[12.5px]">
+                <li key={r.id} className="rounded-lg border border-line p-3 text-xs">
                   <div className="flex flex-wrap items-center gap-2"><IdChip>{r.id}</IdChip> {dateTime(r.at)} · {byId(db.users, r.by)?.name} · {r.items.length} records → v{r.toVersion}</div>
-                  <div className="mt-1 text-slate-600">Reason: {r.reason}</div>
-                  <ul className="mt-1 text-[11.5px] text-slate-500">
+                  <div className="mt-1 text-gray-600">Reason: {r.reason}</div>
+                  <ul className="mt-1 text-xs text-gray-500">
                     {r.items.map((i) => <li key={i.scheduleId}>{i.surfaceId}: {date(i.oldDue)} (v{i.oldVersion}) → {date(i.newDue)}</li>)}
                   </ul>
                 </li>
@@ -223,7 +223,7 @@ function Library() {
 function Rule({ n, text, value }: { n: number; text: string; value: string }) {
   return (
     <li className="flex items-center gap-3 rounded-lg border border-line px-3 py-2">
-      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-100 text-[11px] font-bold text-slate-600">{n}</span>
+      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-bold text-gray-600">{n}</span>
       <span className="flex-1">{text}</span>
       <span className="font-bold text-ink">{value}</span>
     </li>
@@ -321,7 +321,7 @@ function ProductDefaultsEditor({ rows, errField, errMessage, onChange }: {
   };
   return (
     <div>
-      <div className="mb-2 text-[12.5px] font-semibold text-slate-600">Product and product-line defaults <span className="font-normal text-slate-400">— win over surface and room defaults; a product on one surface type wins over all</span></div>
+      <div className="mb-2 text-xs font-semibold text-gray-600">Product and product-line defaults <span className="font-normal text-gray-400">— win over surface and room defaults; a product on one surface type wins over all</span></div>
       <div className="grid gap-3 sm:grid-cols-2">
         {rows.map((d, i) => (
           <Field key={key(d)} label={`${d.product ?? `${d.productLine} line`}${d.surfaceType ? ` on ${labelSurfaceType(d.surfaceType).toLowerCase()}` : ""} (years)`} error={errField === `years-${key(d)}` ? errMessage : undefined}>
@@ -348,7 +348,7 @@ function ProductDefaultsEditor({ rows, errField, errMessage, onChange }: {
         </Select>
         <Button onClick={add} disabled={!pick || duplicate}><Plus className="h-4 w-4" /> Add</Button>
       </div>
-      {duplicate && <p className="mt-1 text-[11.5px] text-amber-700">That product and surface is already listed. Change its years above.</p>}
+      {duplicate && <p className="mt-1 text-xs text-amber-700">That product and surface is already listed. Change its years above.</p>}
     </div>
   );
 }

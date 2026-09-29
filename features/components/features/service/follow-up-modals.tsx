@@ -69,7 +69,7 @@ export function AssignModal({ fu, onClose }: { fu?: FollowUp; onClose: () => voi
             ))}
           </Select>
         </Field>
-        {fu?.assigneeId && <p className="text-[12px] text-slate-500">Reassignment restarts the 7-day assigned clock. It never restarts the 14-day alert clock.</p>}
+        {fu?.assigneeId && <p className="text-xs text-gray-500">Reassignment restarts the 7-day assigned clock. It never restarts the 14-day alert clock.</p>}
         {f.general && <Banner tone="danger">{f.general}</Banner>}
       </div>
     </Modal>
@@ -125,7 +125,7 @@ export function CallModal({ fu, attemptN, onClose }: { fu?: FollowUp; attemptN: 
           </Select>
         </Field>
         {meta && (
-          <p className="text-[12px] text-slate-500">
+          <p className="text-xs text-gray-500">
             {meta.conversation ? "Counts as a conversation with the customer." : "Counts as an attempt only — never as a conversation."}
             {outcome === "wants_quote" && " A quote request enters the quote queue."}
             {outcome === "declined" && " The current opportunity closes as Lost (not a permanent opt-out)."}
@@ -169,13 +169,13 @@ export function EmailModal({ fu, onClose }: { fu?: FollowUp; onClose: () => void
       description="A person must press Send. The email offers a Request a quote link — there is no self-booking calendar."
       footer={<><Button onClick={onClose}>Cancel</Button><Button variant="primary" onClick={submit}><Mail className="h-4 w-4" /> Send email</Button></>}>
       <div className="space-y-4">
-        <div className="rounded-xl border border-line bg-slate-50/60 p-4 text-[12.5px] leading-relaxed text-slate-700">
-          <div className="mb-2 text-[11px] text-slate-500">To: {owner?.email ?? "—"} · Subject: Time for a fresh coat at {property?.address}?</div>
+        <div className="rounded-xl border border-line bg-gray-50/60 p-4 text-xs leading-relaxed text-gray-700">
+          <div className="mb-2 text-xs text-gray-500">To: {owner?.email ?? "—"} · Subject: Time for a fresh coat at {property?.address}?</div>
           <p>Hi {owner?.name?.split(" ")[0]},</p>
           <p className="mt-2">Our records show some of the paint we applied at {propertyAddress(property)} is coming up to its usual repaint time. This is an estimate from our experience, not a warranty.</p>
           <p className="mt-2">If you would like a price, use the link below and we will be in touch.</p>
-          <p className="mt-3"><span className="rounded-lg bg-brand px-3 py-1.5 text-[12px] font-semibold text-white">Request a quote</span></p>
-          <p className="mt-3 text-slate-500">Reply STOP or tell us if you would rather not hear from us about future work.</p>
+          <p className="mt-3"><span className="rounded-lg bg-brand px-3 py-1.5 text-xs font-semibold text-white">Request a quote</span></p>
+          <p className="mt-3 text-gray-500">Reply STOP or tell us if you would rather not hear from us about future work.</p>
         </div>
         <Field label="Next action date" required error={f.of("nextActionDate")}>
           <Input type="date" value={next} min={toInputDate(now())} onChange={(e) => setNext(e.target.value)} invalid={!!f.of("nextActionDate")} />
@@ -253,7 +253,7 @@ export function CloseModal({ fu, initial, onClose }: { fu?: FollowUp; initial?: 
                 <Input value={newPhone} onChange={(e) => setNewPhone(e.target.value)} />
               </Field>
             </div>
-            <p className="text-[11.5px] text-slate-500">The old owner's consent is never copied to the new owner.</p>
+            <p className="text-xs text-gray-500">The old owner's consent is never copied to the new owner.</p>
           </div>
         ) : (
           <Field label="Reason" required={status === "lost" || status === "do_not_contact"} error={f.of("reason")}>
@@ -372,7 +372,7 @@ export function LinkRepaintModal({ fu, onClose }: { fu?: FollowUp; onClose: () =
           {jobs.map((j) => <option key={j.id} value={j.id}>{j.id} · {j.name} · {j.status.replace(/_/g, " ")}</option>)}
         </Select>
       </Field>
-      {jobs.length === 0 && <p className="mt-2 text-[12px] text-slate-500">No jobs at this property yet.</p>}
+      {jobs.length === 0 && <p className="mt-2 text-xs text-gray-500">No jobs at this property yet.</p>}
     </Modal>
   );
 }

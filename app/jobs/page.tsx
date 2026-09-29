@@ -78,8 +78,8 @@ export default function JobsPage() {
                 <div className="flex flex-col items-start gap-4 lg:flex-row lg:items-center">
                   <div className="min-w-0 flex-1">
                     <div className="mb-2 flex flex-wrap items-center gap-2">
-                      <span className="rounded border border-gray-100 bg-gray-50 px-2 py-1 font-mono text-[10px] font-bold text-gray-400">{job.jobNumber}</span>
-                      <JobStatusBadge status={job.status} className="px-2 text-[10px]" />
+                      <span className="rounded border border-gray-100 bg-gray-50 px-2 py-1 font-mono text-xs font-bold text-gray-400">{job.jobNumber}</span>
+                      <JobStatusBadge status={job.status} className="px-2 text-xs" />
                       {est && <RefChip href={`/estimates/${est.id}`}>{est.estimateNumber}</RefChip>}
                       {lead && <RefChip kind="lead" href={`/leads/${lead.id}`}>{lead.leadNumber}</RefChip>}
                     </div>
@@ -92,7 +92,7 @@ export default function JobsPage() {
                   </div>
 
                   <div className="min-w-[150px] border-gray-100 lg:border-l lg:border-r lg:px-6">
-                    <div className="mb-2 text-[8px] font-bold uppercase tracking-wider text-gray-400">Schedule</div>
+                    <div className="mb-2 text-xxs font-bold uppercase tracking-wider text-gray-400">Schedule</div>
                     {job.startDate ? (
                       <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
                         <Calendar className="h-4 w-4 text-blue-500" />

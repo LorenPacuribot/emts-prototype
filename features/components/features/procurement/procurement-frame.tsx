@@ -46,10 +46,10 @@ export function ProcurementFrame({ tab, children }: { tab: ProcurementTabKey; ch
         <SubNav
           header={
             <div className="hidden space-y-1.5 lg:block">
-              <div className="flex items-center gap-2 font-display text-[14px] font-bold text-ink">
+              <div className="flex items-center gap-2 font-display text-sm font-bold text-ink">
                 <PackageSearch className="h-4 w-4 text-brand" /> Supplier Orders <NewBadge feature={19} />
               </div>
-              <div className="text-[11.5px] text-slate-500">Manual ordering · two Sherwin-Williams branches</div>
+              <div className="text-xs text-gray-500">Manual ordering · two Sherwin-Williams branches</div>
               <div className="flex flex-wrap gap-1.5 pt-1">
                 {exceptions > 0 && <Badge tone="red">{exceptions} exception{exceptions === 1 ? "" : "s"}</Badge>}
                 {requests > 0 && <Badge tone="amber">{requests} request{requests === 1 ? "" : "s"}</Badge>}

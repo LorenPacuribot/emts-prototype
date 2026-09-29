@@ -115,7 +115,7 @@ export default function PresentationBuilderPage() {
       const last = i === draft.sections.length - 1;
       return (
         <div className="absolute right-4 top-4 z-40 flex gap-2 opacity-100 transition-opacity lg:opacity-0 lg:group-hover:opacity-100" onClick={(e) => e.stopPropagation()}>
-          <button className={cn(btn, 'px-3 text-[10px] font-black uppercase tracking-widest')} onClick={() => updateSection(s.id, { variant: (((s.variant ?? 1) % 3) + 1) as 1 | 2 | 3 })} title="Change style">
+          <button className={cn(btn, 'px-3 text-xxs font-black uppercase tracking-widest')} onClick={() => updateSection(s.id, { variant: (((s.variant ?? 1) % 3) + 1) as 1 | 2 | 3 })} title="Change style">
             Style {s.variant ?? 1}
           </button>
           <button className={btn} onClick={() => updateSection(s.id, { enabled: !s.enabled })} title={s.enabled ? 'Hide section' : 'Show section'}>
@@ -163,11 +163,11 @@ export default function PresentationBuilderPage() {
           <button
             onClick={toggleStatus}
             title={draft.status === 'Published' ? 'Click to unpublish' : 'Click to publish'}
-            className={cn('shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider transition-all hover:scale-105', draft.status === 'Published' ? 'bg-green-50 text-green-700' : 'bg-blue-50 text-blue-700')}
+            className={cn('shrink-0 rounded-full px-2 py-0.5 text-xxs font-bold uppercase tracking-wider transition-all hover:scale-105', draft.status === 'Published' ? 'bg-green-50 text-green-700' : 'bg-blue-50 text-blue-700')}
           >
             {draft.status}
           </button>
-          {dirty && <span className="hidden text-[11px] font-medium text-amber-600 xl:inline">Unsaved changes</span>}
+          {dirty && <span className="hidden text-xs font-medium text-amber-600 xl:inline">Unsaved changes</span>}
         </div>
 
         <div className="absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 items-center rounded-lg border border-gray-200 bg-gray-100 p-1 xl:flex">

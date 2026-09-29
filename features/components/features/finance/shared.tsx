@@ -47,14 +47,14 @@ export function RecordFlags({ r }: { r: FinanceRecord }) {
 /** Always-visible reminder of who owns which fields (33.Q02). */
 export function OwnershipLegend() {
   return (
-    <div className="grid gap-3 rounded-xl border border-line bg-white p-4 text-[12px] sm:grid-cols-2 [&>*]:min-w-0">
+    <div className="grid gap-3 rounded-xl border border-line bg-white p-4 text-xs sm:grid-cols-2 [&>*]:min-w-0">
       <div>
-        <div className="text-[10px] font-bold uppercase tracking-[0.12em] text-emerald-700">Owned and edited here</div>
-        <p className="mt-1 text-slate-600">Job number, cost code, job allocation, estimate and change-order values, purchase-order lines, material issues.</p>
+        <div className="text-xxs font-bold uppercase tracking-[0.12em] text-green-700">Owned and edited here</div>
+        <p className="mt-1 text-gray-600">Job number, cost code, job allocation, estimate and change-order values, purchase-order lines, material issues.</p>
       </div>
       <div>
-        <div className="text-[10px] font-bold uppercase tracking-[0.12em] text-blue-700">Returned read-only from QuickBooks</div>
-        <p className="mt-1 text-slate-600">Invoice amount and date, payment status, amount and date paid, bill amount and date, credit amount and date, deletion status (a review flag).</p>
+        <div className="text-xxs font-bold uppercase tracking-[0.12em] text-blue-700">Returned read-only from QuickBooks</div>
+        <p className="mt-1 text-gray-600">Invoice amount and date, payment status, amount and date paid, bill amount and date, credit amount and date, deletion status (a review flag).</p>
       </div>
     </div>
   );

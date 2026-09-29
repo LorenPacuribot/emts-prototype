@@ -64,7 +64,7 @@ function Empty({ text }: { text: string }) {
 
 const cardCls = 'group block cursor-pointer rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition-all hover:border-primary-300 hover:shadow-md';
 const pill = 'shrink-0 rounded-full border px-3 py-1 text-xs font-bold';
-const chip = 'inline-flex items-center gap-1 rounded border border-gray-200 bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-600';
+const chip = 'inline-flex items-center gap-1 rounded border border-gray-200 bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600';
 const viewLink = 'inline-flex items-center gap-1 text-xs font-bold text-primary-600 transition-transform group-hover:translate-x-0.5';
 
 export function LeadsTab({ leads }: { leads: Lead[] }) {
@@ -121,7 +121,7 @@ export function EstimatesTab({ estimates }: { estimates: Estimate[] }) {
             <section key={g.address} aria-label={`Estimates for ${g.address}`}>
               <div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gray-500">
                 <MapPin className="h-3.5 w-3.5" /> {g.address}
-                <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] text-gray-600">{g.rows.length} estimate{g.rows.length === 1 ? '' : 's'}</span>
+                <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600">{g.rows.length} estimate{g.rows.length === 1 ? '' : 's'}</span>
               </div>
               <div className="space-y-4">
           {g.rows.map((e) => (
@@ -233,7 +233,7 @@ export function JobHistoryTab({ jobs, customerId }: { jobs: Job[]; customerId: s
                   <div className="mb-2 flex h-2 w-full overflow-hidden rounded-full bg-gray-100">
                     <div className={cn('h-full', done ? 'bg-green-500' : 'bg-blue-500')} style={{ width: idx < 0 ? '0%' : `${((idx + 0.5) / JOB_STAGES.length) * 100}%` }} />
                   </div>
-                  <div className="hidden justify-between text-[10px] font-bold uppercase tracking-wider text-gray-400 sm:flex">
+                  <div className="hidden justify-between text-xxs font-bold uppercase tracking-wider text-gray-400 sm:flex">
                     {STAGE_LABELS.map((s, i) => <span key={s} className={i <= idx ? (done ? 'text-green-600' : 'text-blue-600') : ''}>{s}</span>)}
                   </div>
                 </div>
@@ -284,7 +284,7 @@ export function ConversationsTab({ messages }: { messages: Message[] }) {
               <span className="text-xs text-gray-400">{shortDate(m.date)}</span>
             </div>
             <p className="mt-0.5 text-sm text-gray-600">{m.preview}</p>
-            <span className="mt-1 inline-block text-[10px] font-bold uppercase tracking-wider text-gray-400">{m.channel}</span>
+            <span className="mt-1 inline-block text-xxs font-bold uppercase tracking-wider text-gray-400">{m.channel}</span>
           </div>
         </div>
       ))}

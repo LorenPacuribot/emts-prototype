@@ -12,7 +12,8 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
   return (
     <>
       {/* Mirrors the waste and deposit settings into the feature store. */}
-      <AppHeader title={title} breadcrumbs={[{ label: 'Settings', href: '/settings' }]} />
+      {/* No "Settings | Settings" on the settings landing page (N1). */}
+      <AppHeader title={title} breadcrumbs={title === 'Settings' ? [] : [{ label: 'Settings', href: '/settings' }]} />
       <div className="flex-1 overflow-auto">
         <div className="flex min-h-full flex-col bg-gray-50/50 lg:flex-row">
           <SettingsSidebar />

@@ -17,7 +17,7 @@ export function NewBadge({ feature, className }: { feature?: number | number[]; 
     <span
       data-new-badge
       className={cn(
-        "inline-flex shrink-0 items-center rounded-md bg-emerald-500 px-1.5 py-px text-[9px] font-black uppercase leading-4 tracking-wider text-white align-middle",
+        "inline-flex shrink-0 items-center rounded-md bg-emerald-500 px-1.5 py-px text-xxs font-black uppercase leading-4 tracking-wider text-white align-middle",
         className,
       )}
     >
@@ -32,7 +32,7 @@ export function NewBadge({ feature, className }: { feature?: number | number[]; 
 export function ConfirmBadge({ className }: { className?: string }) {
   return (
     <Tooltip content="Not in the client's walkthrough. The host screen is a suggestion that needs client confirmation.">
-      <span className={cn("inline-flex shrink-0 items-center rounded-md border border-amber-300 bg-amber-50 px-1.5 py-px text-[9px] font-bold uppercase leading-4 tracking-wider text-amber-800", className)}>
+      <span className={cn("inline-flex shrink-0 items-center rounded-md border border-amber-300 bg-amber-50 px-1.5 py-px text-xxs font-bold uppercase leading-4 tracking-wider text-amber-800", className)}>
         Needs client confirmation
       </span>
     </Tooltip>
@@ -73,7 +73,7 @@ export function SectionHeader({ icon, title, badge, right, subtitle, className }
 /** Estimate-page section wrapper (`border-b pb-12 mb-12 scroll-mt-24`). */
 export function EstimateSection({ id, children, isNew, className }: { id?: string; children: ReactNode; isNew?: boolean; className?: string }) {
   return (
-    <section id={id} className={cn("scroll-mt-24 border-b border-gray-200 pb-10 mb-10 last:mb-0 last:border-0 last:pb-0 md:pb-12 md:mb-12", isNew && "rounded-2xl ring-1 ring-emerald-200 ring-offset-8", className)}>
+    <section id={id} className={cn("scroll-mt-24 border-b border-gray-200 pb-10 mb-10 last:mb-0 last:border-0 last:pb-0 md:pb-12 md:mb-12", isNew && "rounded-2xl ring-1 ring-green-200 ring-offset-8", className)}>
       {children}
     </section>
   );
@@ -82,7 +82,7 @@ export function EstimateSection({ id, children, isNew, className }: { id?: strin
 /** Work-order / job page card (`bg-white rounded-2xl shadow-sm border p-6 md:p-8`). */
 export function LiveCard({ children, className, isNew, ...rest }: { children: ReactNode; className?: string; isNew?: boolean } & React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={cn("rounded-2xl border border-gray-200 bg-white p-5 shadow-sm md:p-8", isNew && "border-emerald-300 ring-1 ring-emerald-100", className)} {...rest}>
+    <div className={cn("rounded-2xl border border-gray-200 bg-white p-5 shadow-sm md:p-8", isNew && "border-green-300 ring-1 ring-green-100", className)} {...rest}>
       {children}
     </div>
   );
@@ -104,9 +104,9 @@ export function CardTitle({ icon, children, badge, right, className }: { icon?: 
   );
 }
 
-/** Small label used across the live app (`text-[10px] font-bold text-gray-400 uppercase tracking-widest`). */
+/** Small label used across the live app (`text-xxs font-bold text-gray-400 uppercase tracking-widest`). */
 export function LiveLabel({ children, className }: { children: ReactNode; className?: string }) {
-  return <div className={cn("text-[10px] font-bold uppercase tracking-widest text-gray-400", className)}>{children}</div>;
+  return <div className={cn("text-xxs font-bold uppercase tracking-widest text-gray-400", className)}>{children}</div>;
 }
 
 /** Live page title block for list and settings pages (`text-3xl md:text-4xl font-bold`). */

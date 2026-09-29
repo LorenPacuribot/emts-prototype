@@ -34,12 +34,12 @@ export function DateRangeInputs({ value, onChange, labels = ['Start Date', 'End 
   return (
     <div className="flex w-full items-end gap-2 sm:w-auto">
       <label className="block min-w-0 flex-1 sm:w-40 sm:flex-none">
-        <span className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-gray-500">{labels[0]}</span>
+        <span className="mb-1 block text-xxs font-bold uppercase tracking-wider text-gray-500">{labels[0]}</span>
         <input type="date" value={value.start} max={value.end || undefined} onChange={(e) => onChange({ ...value, start: e.target.value })} className={input} />
       </label>
       <span className="mb-2.5 font-bold text-gray-400">-</span>
       <label className="block min-w-0 flex-1 sm:w-40 sm:flex-none">
-        <span className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-gray-500">{labels[1]}</span>
+        <span className="mb-1 block text-xxs font-bold uppercase tracking-wider text-gray-500">{labels[1]}</span>
         <input type="date" value={value.end} min={value.start || undefined} onChange={(e) => onChange({ ...value, end: e.target.value })} className={input} />
       </label>
     </div>
@@ -95,7 +95,7 @@ export function MultiSelect({
                     const all = vals.every((v) => value.includes(v));
                     onChange(all ? value.filter((v) => !vals.includes(v)) : [...new Set([...value, ...vals])]);
                   }}
-                  className="w-full px-2 pb-1 pt-2 text-left text-[10px] font-bold uppercase tracking-widest text-gray-400 hover:text-primary-600"
+                  className="w-full px-2 pb-1 pt-2 text-left text-xxs font-bold uppercase tracking-widest text-gray-400 hover:text-primary-600"
                 >
                   {g.label}
                 </button>

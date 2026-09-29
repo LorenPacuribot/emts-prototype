@@ -113,12 +113,12 @@ function Automations() {
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div className="min-w-0">
                     <div className="font-semibold text-ink">{a.name}</div>
-                    <div className="text-[11.5px] text-slate-500">{AUTOMATION_LABEL[a.kind]} · {a.channel === "email" ? "Email" : "SMS"} · {a.id}</div>
+                    <div className="text-xs text-gray-500">{AUTOMATION_LABEL[a.kind]} · {a.channel === "email" ? "Email" : "SMS"} · {a.id}</div>
                   </div>
                   <Badge tone={a.active ? "green" : "gray"}>{a.active ? "On" : "Off"}</Badge>
                 </div>
-                <p className="mt-2 text-[12.5px] text-slate-700">{triggerText(a)}.</p>
-                <p className="mt-1 text-[12px] text-slate-500">{a.active ? <><b className="text-ink">{targets.length}</b> due today</> : "Off — nobody is due"} · {sent} sent in total{a.lastRunAt ? ` · last run ${dateLong(a.lastRunAt)}` : ""}</p>
+                <p className="mt-2 text-xs text-gray-700">{triggerText(a)}.</p>
+                <p className="mt-1 text-xs text-gray-500">{a.active ? <><b className="text-ink">{targets.length}</b> due today</> : "Off — nobody is due"} · {sent} sent in total{a.lastRunAt ? ` · last run ${dateLong(a.lastRunAt)}` : ""}</p>
                 <div className={`mt-3 flex flex-wrap gap-2 ${TAP_SCOPE}`}>
                   <GatedButton allowed={a.active ? canPost : canApprove} reason={a.active ? postReason : ownerReason} size="sm" variant={a.active ? "ghost" : "primary"} onClick={() => toggle(a)}>{a.active ? "Turn off" : "Turn on"}</GatedButton>
                   <GatedButton allowed={canPost} reason={postReason} size="sm" onClick={() => setEditing(a)}><Pencil className="h-3.5 w-3.5" /> Edit template</GatedButton>
@@ -128,11 +128,11 @@ function Automations() {
                   {a.active && targets.length > 0 && <Button size="sm" variant="ghost" className={TAP} aria-expanded={showDue === a.id} onClick={() => setShowDue(showDue === a.id ? undefined : a.id)}>{showDue === a.id ? "Hide who is due" : "Show who is due"}</Button>}
                 </div>
                 {showDue === a.id && (
-                  <ul className="mt-3 divide-y divide-line rounded-lg border border-line text-[12.5px]">
+                  <ul className="mt-3 divide-y divide-line rounded-lg border border-line text-xs">
                     {targets.map((t) => (
                       <li key={t.targetKey} className="flex flex-wrap items-center justify-between gap-2 px-3 py-2">
                         <span><b className="text-ink">{t.name}</b> · {t.reason}</span>
-                        {t.optedOut ? <Badge tone="amber">Opted out — will be skipped</Badge> : !t.to ? <Badge tone="amber">No {a.channel === "email" ? "email" : "mobile"} — will be skipped</Badge> : <span className="text-slate-500">{t.to}</span>}
+                        {t.optedOut ? <Badge tone="amber">Opted out — will be skipped</Badge> : !t.to ? <Badge tone="amber">No {a.channel === "email" ? "email" : "mobile"} — will be skipped</Badge> : <span className="text-gray-500">{t.to}</span>}
                       </li>
                     ))}
                   </ul>
@@ -149,7 +149,7 @@ function Automations() {
               <Select id="run-filter" value={historyFor} onChange={(e) => setHistoryFor(e.target.value)}><option value="all">All automations</option>{autos.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}</Select>
             </div>
           }>Run history ({shownRuns.length})</SectionTitle>
-          {shownRuns.length === 0 ? <p className="text-[12.5px] text-slate-500">Nothing has been sent yet. Runs appear here with who received each message and who was skipped.</p> : (
+          {shownRuns.length === 0 ? <p className="text-xs text-gray-500">Nothing has been sent yet. Runs appear here with who received each message and who was skipped.</p> : (
             <div className="overflow-x-auto">
               <Table className="relative">
                 <THead><tr><TH>When</TH><TH>Automation</TH><TH>Customer</TH><TH>To</TH><TH>Result</TH><TH>How</TH><TH>Message ID</TH></tr></THead>
@@ -162,7 +162,7 @@ function Automations() {
                       <TD>{r.to ?? "—"}</TD>
                       <TD><Badge tone={r.status === "sandbox" || r.status === "sent" ? "green" : r.status === "failed" ? "red" : "gray"}>{RUN_LABEL[r.status]}</Badge></TD>
                       <TD className="whitespace-nowrap">{r.trigger === "manual" ? "Run now" : r.trigger === "daily" ? "Daily run" : "Recommendation"}</TD>
-                      <TD className="font-mono text-[11px]">{r.messageId ?? "—"}</TD>
+                      <TD className="font-mono text-xs">{r.messageId ?? "—"}</TD>
                     </TR>
                   ))}
                 </tbody>
@@ -211,10 +211,10 @@ function AutomationForm({ auto, sample, onClose }: { auto: MarketingAutomation; 
         <Field label="Message" htmlFor="au-body" required error={e("body")} hint={f.channel === "sms" ? `${f.body.length} of ${SMS_MAX} characters. Must include "Reply STOP to opt out".` : 'Must say how to unsubscribe, e.g. "Reply UNSUBSCRIBE to stop these emails."'}>
           <Textarea id="au-body" className="min-h-36" value={f.body} invalid={!!e("body")} onChange={(x) => setF({ ...f, body: x.target.value })} />
         </Field>
-        <div className="rounded-lg border border-line bg-slate-50 p-3 text-[12.5px]">
-          <div className="mb-1 font-semibold text-slate-700">Preview for {vars.name}</div>
+        <div className="rounded-lg border border-line bg-gray-50 p-3 text-xs">
+          <div className="mb-1 font-semibold text-gray-700">Preview for {vars.name}</div>
           {f.channel === "email" && f.subject && <div className="font-semibold text-ink">{fillTemplate(f.subject, vars)}</div>}
-          <div className="whitespace-pre-wrap text-slate-600">{fillTemplate(f.body, vars)}</div>
+          <div className="whitespace-pre-wrap text-gray-600">{fillTemplate(f.body, vars)}</div>
         </div>
         {err && !["delayDays", "subject", "body", "seasonMonth", "seasonDay", "inactiveDays"].includes(err.field ?? "") && <Banner tone="danger">{err.message}</Banner>}
       </div>

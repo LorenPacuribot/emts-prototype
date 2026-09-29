@@ -91,7 +91,7 @@ export function ChangeOrderExceptionsPanel() {
             <div className="mt-4 space-y-4">
               {failures.filter((g) => g.items.length).map((g) => (
                 <div key={g.key}>
-                  <div className="mb-2 flex items-center gap-2 text-[12.5px] font-semibold text-ink [&>svg]:h-4 [&>svg]:w-4 [&>svg]:text-slate-400">
+                  <div className="mb-2 flex items-center gap-2 text-xs font-semibold text-ink [&>svg]:h-4 [&>svg]:w-4 [&>svg]:text-gray-400">
                     {ICON[g.key]} {DOWNSTREAM_LABEL[g.key]} <Badge tone="red">{g.items.length}</Badge>
                   </div>
                   <Table>
@@ -113,7 +113,7 @@ export function ChangeOrderExceptionsPanel() {
                           <TD>{dateTime(c.downstreamMeta?.[g.key]?.at)}</TD>
                           <TD className="w-56 min-w-56 max-w-64 whitespace-normal text-red-700">{c.downstreamMeta?.[g.key]?.error ?? "Failed"}</TD>
                           <TD className="w-56 min-w-56 max-w-64 whitespace-normal">
-                            <span className="text-[11.5px] text-slate-500">
+                            <span className="text-xs text-gray-500">
                               {DOWNSTREAM_KEYS.filter((k) => k !== g.key).map((k) => `${DOWNSTREAM_LABEL[k]}: ${c.downstream[k] === "done" ? "done (locked)" : c.downstream[k].replace("_", " ")}`).join(" · ")}
                             </span>
                           </TD>
@@ -197,8 +197,8 @@ function CoLink({ co }: { co: ChangeOrder }) {
   return (
     <AppLink href={coHref(db, co)} className="group block">
       <IdChip tone="blue">{co.id}</IdChip>
-      <div className="mt-0.5 max-w-60 truncate text-[12px] font-medium text-ink group-hover:text-brand">{co.title}</div>
-      <div className="text-[11px] text-slate-400">{job?.name}</div>
+      <div className="mt-0.5 max-w-60 truncate text-xs font-medium text-ink group-hover:text-brand">{co.title}</div>
+      <div className="text-xs text-gray-400">{job?.name}</div>
     </AppLink>
   );
 }
@@ -211,7 +211,7 @@ function List({ items, empty }: { items: { co: ChangeOrder; detail: string; badg
         <div key={i.co.id} className="flex flex-wrap items-start justify-between gap-2 py-3">
           <div className="min-w-0">
             <CoLink co={i.co} />
-            <div className="mt-1 text-[11.5px] text-slate-500">{i.detail}</div>
+            <div className="mt-1 text-xs text-gray-500">{i.detail}</div>
           </div>
           {i.badge}
         </div>

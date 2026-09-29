@@ -68,8 +68,8 @@ export function PaintCatalogSection() {
   }
 
   return (
-    <section className="mt-8 overflow-hidden rounded-2xl border border-emerald-200 bg-white shadow-lg shadow-gray-200/70">
-      <div className="flex flex-col gap-3 border-b border-gray-100 bg-emerald-50/40 px-6 py-4 sm:flex-row sm:items-start sm:justify-between">
+    <section className="mt-8 overflow-hidden rounded-2xl border border-green-200 bg-white shadow-lg shadow-gray-200/70">
+      <div className="flex flex-col gap-3 border-b border-gray-100 bg-green-50/40 px-6 py-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <h3 className="flex flex-wrap items-center gap-2 font-heading text-base font-bold text-gray-900">
             Colour card &amp; paint order catalogue <NewBadge feature={[3, 18]} />
@@ -88,7 +88,7 @@ export function PaintCatalogSection() {
       <div className="overflow-x-auto">
         <table className="w-full min-w-[760px]">
           <thead>
-            <tr className="border-b border-gray-100 text-left text-[9px] font-bold uppercase tracking-wider text-gray-500">
+            <tr className="border-b border-gray-100 text-left text-xxs font-bold uppercase tracking-wider text-gray-500">
               <th className="px-6 py-3">Product</th>
               <th className="px-4 py-3">Coverage (sqft/gal)</th>
               <th className="px-4 py-3">Pack sizes</th>
@@ -102,7 +102,7 @@ export function PaintCatalogSection() {
               return (
                 <tr key={c.id} className={cn("align-top transition-colors hover:bg-primary-50/20", c.discontinued && "bg-gray-50/60")}>
                   <td className="px-6 py-3">
-                    <div className="text-[9px] font-bold uppercase tracking-widest text-gray-500">{c.manufacturer} · {c.productLine}</div>
+                    <div className="text-xxs font-bold uppercase tracking-widest text-gray-500">{c.manufacturer} · {c.productLine}</div>
                     <div className="mt-0.5 flex items-center gap-1.5 text-sm font-bold text-gray-900">
                       {c.product}
                       <Star className={cn("h-3.5 w-3.5 shrink-0", c.tier === "premium" ? "fill-amber-300 text-amber-400" : "text-gray-300")} aria-label={c.tier === "premium" ? "Premium" : "Standard"} />
@@ -114,13 +114,13 @@ export function PaintCatalogSection() {
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-700">
                     <div>Spread {c.spreadRate}</div>
-                    {c.fieldRate && <div className="font-semibold text-emerald-700">Field {c.fieldRate}</div>}
+                    {c.fieldRate && <div className="font-semibold text-green-700">Field {c.fieldRate}</div>}
                     {c.conditionRates?.rough && <div className="text-xs text-gray-500">Rough {c.conditionRates.rough}</div>}
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex flex-wrap gap-1">
                       {PACKS.map((p) => (
-                        <span key={p} className={cn("rounded-md border px-1.5 py-0.5 text-[10px] font-bold", c.available.includes(p) ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-gray-200 bg-gray-50 text-gray-300 line-through")}>
+                        <span key={p} className={cn("rounded-md border px-1.5 py-0.5 text-xs font-bold", c.available.includes(p) ? "border-green-200 bg-green-50 text-green-700" : "border-gray-200 bg-gray-50 text-gray-300 line-through")}>
                           {PACK_LABEL[p]}
                         </span>
                       ))}

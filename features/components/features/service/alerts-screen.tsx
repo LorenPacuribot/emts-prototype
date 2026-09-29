@@ -118,7 +118,7 @@ function AlertsQueue() {
         <Stat label="Escalated" value={counts.escalated} hint="to the business owner" tone={counts.escalated ? "danger" : "good"} />
         <Stat label="Snoozed" value={counts.snoozed} />
         <Stat label="Backlog remaining" value={counts.backlog} hint="imported overdue" tone={counts.backlog ? "warn" : "good"} />
-        <Stat label="Last successful run" value={<span className="text-[15px]">{lastOk ? dateTime(lastOk.ranAt) : "—"}</span>} hint={lastOk ? `${lastOk.id} · ${lastOk.created} created` : undefined} />
+        <Stat label="Last successful run" value={<span className="text-base">{lastOk ? dateTime(lastOk.ranAt) : "—"}</span>} hint={lastOk ? `${lastOk.id} · ${lastOk.created} created` : undefined} />
       </StatStrip>
 
       <PillTabs
@@ -159,7 +159,7 @@ function AlertsQueue() {
               </THead>
               <tbody>
                 {shown.map(({ a, st, esc, optOut }) => (
-                  <TR key={a.id} className={`cursor-pointer ${st.state === "suppressed" ? "bg-slate-50 text-slate-500" : ""}`} onClick={() => setOpen(a.id)}>
+                  <TR key={a.id} className={`cursor-pointer ${st.state === "suppressed" ? "bg-gray-50 text-gray-500" : ""}`} onClick={() => setOpen(a.id)}>
                     <TD>
                       <div className="flex items-start gap-2">
                         <IdChip>{a.id}</IdChip>
@@ -171,7 +171,7 @@ function AlertsQueue() {
                     <TD>{a.surfaces.length}</TD>
                     <TD><NoticeBadge basis={a.noticeBasis} /></TD>
                     <TD>{esc.age} d</TD>
-                    <TD>{st.state === "resolved" ? <span className="text-[11.5px] text-slate-400">—</span> : <EscalationBadge escalated={st.escalated} age={esc.age} daysLeft={esc.running ? esc.daysLeft : undefined} />}</TD>
+                    <TD>{st.state === "resolved" ? <span className="text-xs text-gray-400">—</span> : <EscalationBadge escalated={st.escalated} age={esc.age} daysLeft={esc.running ? esc.daysLeft : undefined} />}</TD>
                     <TD>{byId(db.users, a.ownerId ?? (st.escalated ? "U-OWNER" : "U-OFFICE"))?.name}</TD>
                     <TD>
                       <div className="flex flex-wrap gap-1">
@@ -194,18 +194,18 @@ function AlertsQueue() {
 
       <Card className="mt-4 p-4">
         <CardLabel icon={<CircleSlash />}>Data gaps — no completion date</CardLabel>
-        <p className="mt-1 text-[12px] text-slate-500">These surfaces cannot be scheduled. No expected date is ever invented for them.</p>
+        <p className="mt-1 text-xs text-gray-500">These surfaces cannot be scheduled. No expected date is ever invented for them.</p>
         {gaps.length === 0 ? (
-          <p className="mt-3 text-[12.5px] italic text-slate-400">Every painted surface has a completion date.</p>
+          <p className="mt-3 text-xs italic text-gray-400">Every painted surface has a completion date.</p>
         ) : (
           <ul className="mt-3 space-y-2">
             {gaps.map(({ s, src }) => (
-              <li key={s.id} className="flex flex-wrap items-center gap-2 rounded-lg border border-dashed border-line px-3 py-2 text-[12.5px]">
+              <li key={s.id} className="flex flex-wrap items-center gap-2 rounded-lg border border-dashed border-line px-3 py-2 text-xs">
                 <IdChip>{s.id}</IdChip>
                 <span className="font-semibold text-ink">{surfaceLabel(db, s.id)}</span>
-                <span className="text-slate-500">{propertyAddress(byId(db.properties, s.propertyId))}</span>
+                <span className="text-gray-500">{propertyAddress(byId(db.properties, s.propertyId))}</span>
                 <Badge tone="amber">Unresolved</Badge>
-                <span className="text-[11.5px] text-slate-500">{src.unresolved?.id} · {src.unresolved?.source}. No completion date recorded. This surface cannot be scheduled.</span>
+                <span className="text-xs text-gray-500">{src.unresolved?.id} · {src.unresolved?.source}. No completion date recorded. This surface cannot be scheduled.</span>
               </li>
             ))}
           </ul>
@@ -252,14 +252,14 @@ function BacklogPanel({ rows, onOpen }: { rows: import("@/features/types").Repai
   return (
     <Card className="p-4">
       <CardLabel icon={<BellRing />} right={<Badge tone="purple">{rows.length} remaining</Badge>}>Backlog — imported overdue records</CardLabel>
-      <p className="mt-1 text-[12px] text-slate-500">Kept out of the live queue. Qualify individually or in batches of at most {BACKLOG_BATCH_MAX}. A property with an open follow-up is skipped.</p>
+      <p className="mt-1 text-xs text-gray-500">Kept out of the live queue. Qualify individually or in batches of at most {BACKLOG_BATCH_MAX}. A property with an open follow-up is skipped.</p>
       {rows.length === 0 ? (
         <EmptyState className="mt-4" icon={<Inbox />} title="Backlog is clear" body="Every imported overdue record has been qualified or dismissed." />
       ) : (
         <>
           {office && (
-            <div className="mt-4 flex flex-col gap-3 rounded-xl border border-line bg-slate-50/60 p-3 sm:flex-row sm:items-end">
-              <div className="flex items-center gap-2 text-[12.5px]">
+            <div className="mt-4 flex flex-col gap-3 rounded-xl border border-line bg-gray-50/60 p-3 sm:flex-row sm:items-end">
+              <div className="flex items-center gap-2 text-xs">
                 <Button size="sm" onClick={selectAll}>Select eligible (max {BACKLOG_BATCH_MAX})</Button>
                 <span className="font-semibold text-ink">{sel.length} / {BACKLOG_BATCH_MAX} selected</span>
               </div>
@@ -298,7 +298,7 @@ function BacklogPanel({ rows, onOpen }: { rows: import("@/features/types").Repai
                   <TD className="font-semibold text-ink">{date(a.earliestDue)}</TD>
                   <TD>{Math.max(0, Math.floor((new Date(t).getTime() - new Date(a.earliestDue).getTime()) / 86_400_000))} d</TD>
                   <TD>{a.surfaces.length}</TD>
-                  <TD>{dup ? <Badge tone="amber">Open {dup.id} — will skip</Badge> : <span className="text-[11.5px] text-slate-400">None</span>}</TD>
+                  <TD>{dup ? <Badge tone="amber">Open {dup.id} — will skip</Badge> : <span className="text-xs text-gray-400">None</span>}</TD>
                   <TD><SuppressionBadge s={st.suppression} /></TD>
                 </TR>
               ))}

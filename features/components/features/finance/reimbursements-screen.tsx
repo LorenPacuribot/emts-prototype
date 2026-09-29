@@ -62,20 +62,20 @@ function Reimbursements() {
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="font-display text-[15px] font-bold text-ink">{c.id} · {money(c.amount)}</span>
+                    <span className="font-display text-base font-bold text-ink">{c.id} · {money(c.amount)}</span>
                     {c.status === "rejected" ? <Badge tone="red">Rejected</Badge> : c.status === "owner_approved" ? <Badge tone="green">Approved{c.expenseRef ? ` · ${c.expenseRef}` : ""}</Badge> : <Badge tone="amber">Waiting: {due ? STEP_LABEL[due] : "—"}</Badge>}
                     {dup && <Badge tone="amber">Duplicate suspected — matches {dup.ref}</Badge>}
                   </div>
-                  <div className="mt-1 text-[12.5px] text-slate-600">{emp?.name} · {c.merchant} · {c.description} · {dateLong(c.date)}</div>
-                  <div className="mt-1 text-[12px] text-slate-500">{c.jobId ?? "No job"} · {c.costCode} · <Camera className="inline h-3 w-3" /> {c.receiptPhoto}</div>
-                  <div className="mt-2 flex flex-wrap gap-1.5 text-[11.5px]">
+                  <div className="mt-1 text-xs text-gray-600">{emp?.name} · {c.merchant} · {c.description} · {dateLong(c.date)}</div>
+                  <div className="mt-1 text-xs text-gray-500">{c.jobId ?? "No job"} · {c.costCode} · <Camera className="inline h-3 w-3" /> {c.receiptPhoto}</div>
+                  <div className="mt-2 flex flex-wrap gap-1.5 text-xs">
                     {steps.map((s) => (
-                      <span key={s} className={`rounded-full border px-2 py-0.5 ${done[s] ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-line text-slate-500"}`}>
+                      <span key={s} className={`rounded-full border px-2 py-0.5 ${done[s] ? "border-green-200 bg-green-50 text-green-700" : "border-line text-gray-500"}`}>
                         {done[s] ? "✓ " : ""}{STEP_LABEL[s]}{done[s] ? ` — ${userName(db, s === "crew_lead" ? c.crewApprovedBy : s === "office" ? c.officeReviewedBy : c.ownerApprovedBy)}` : ""}
                       </span>
                     ))}
                   </div>
-                  {c.rejectedReason && <p className="mt-1 text-[12px] text-red-700">{c.rejectedReason}</p>}
+                  {c.rejectedReason && <p className="mt-1 text-xs text-red-700">{c.rejectedReason}</p>}
                 </div>
                 {!closed && (
                   <div className="flex gap-2">

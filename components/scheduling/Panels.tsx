@@ -80,7 +80,7 @@ export function JobDetailsPanel({
               <button key={t} type="button" onClick={() => setTab(t)}
                 className={cn('border-b-2 pb-2.5 text-sm font-bold capitalize', tab === t ? 'border-primary-600 text-primary-600' : 'border-transparent text-gray-400 hover:text-gray-600')}>
                 {t}
-                {t === 'notes' && notes.length > 0 && <span className="ml-1.5 inline-flex h-[1.1rem] min-w-[1.1rem] items-center justify-center rounded-full bg-primary-500 px-1 text-[10px] font-black text-white">{notes.length}</span>}
+                {t === 'notes' && notes.length > 0 && <span className="ml-1.5 inline-flex h-[1.1rem] min-w-[1.1rem] items-center justify-center rounded-full bg-primary-500 px-1 text-xs font-black text-white">{notes.length}</span>}
               </button>
             ))}
           </div>
@@ -99,7 +99,7 @@ export function JobDetailsPanel({
                       return (
                         <div key={c.memberId} className="flex items-center gap-2">
                           <Avatar name={fullName(m)} color={m?.color} size="sm" />
-                          <div><div className="text-sm font-medium text-gray-700">{fullName(m)}</div><div className="text-[11px] font-normal text-gray-400">{c.role} · {Math.round(job.crew.filter((entry) => entry.memberId === c.memberId).reduce((n, entry) => n + entry.hours, 0) * 10) / 10}h</div></div>
+                          <div><div className="text-sm font-medium text-gray-700">{fullName(m)}</div><div className="text-xs font-normal text-gray-400">{c.role} · {Math.round(job.crew.filter((entry) => entry.memberId === c.memberId).reduce((n, entry) => n + entry.hours, 0) * 10) / 10}h</div></div>
                         </div>
                       );
                     })}
@@ -246,7 +246,7 @@ export function BulkRescheduleModal({ open, onOpenChange }: { open: boolean; onO
           </Field>
         </div>
         <div>
-          <div className="mb-2 flex items-center justify-between text-[11px] font-black uppercase tracking-[0.12em] text-gray-400">
+          <div className="mb-2 flex items-center justify-between text-xs font-black uppercase tracking-[0.12em] text-gray-400">
             <span>Reschedule preview</span>
             {affected.length > 0 && (
               <span className="flex gap-3 normal-case tracking-normal">
@@ -288,12 +288,12 @@ export function BulkRescheduleModal({ open, onOpenChange }: { open: boolean; onO
                           : !on ? <span className="ml-2 text-gray-400">Not moving</span> : null}
                       </div>
                       {on && conflicts.length > 0 && (
-                        <div className="mt-1 text-[11px] font-semibold text-amber-700" title={conflicts.map((c) => c.message).join('\n')}>
+                        <div className="mt-1 text-xs font-semibold text-amber-700" title={conflicts.map((c) => c.message).join('\n')}>
                           <AlertTriangle className="mr-1 inline h-3 w-3" />
                           {mode === 'push' && !leapfrog ? '' : 'On the requested dates: '}{conflicts[0]!.message}{conflicts.length > 1 ? ` (+${conflicts.length - 1} more)` : ''}
                         </div>
                       )}
-                      {rowError && <div className="mt-1 text-[11px] font-semibold text-red-600">{rowError}</div>}
+                      {rowError && <div className="mt-1 text-xs font-semibold text-red-600">{rowError}</div>}
                     </div>
                     {mode === 'dates' && on && (
                       <Input type="date" value={newDates[j.id] ?? ''} onChange={(e) => setNewDates((d) => ({ ...d, [j.id]: e.target.value }))} className="h-9 w-40" aria-label={`New start date for ${j.jobNumber}`} />

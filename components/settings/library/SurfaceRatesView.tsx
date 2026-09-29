@@ -148,7 +148,7 @@ export function SurfaceRatesView() {
                 <div className="flex items-center justify-between gap-4 border-b border-gray-100 bg-gray-50/50 px-6 py-4">
                   <h3 className="font-heading text-base font-bold text-gray-900">{group.name}</h3>
                   <div className="flex items-center gap-2">
-                    <Button size="xs" variant="secondary" icon={<Plus className="h-3 w-3" />} className="text-[10px]" onClick={() => openAddRate(group.name)}>Add Item</Button>
+                    <Button size="xs" variant="secondary" icon={<Plus className="h-3 w-3" />} className="text-xs" onClick={() => openAddRate(group.name)}>Add Item</Button>
                     <RowMenu
                       items={[
                         { label: 'Edit Group', icon: <Edit2 />, onClick: () => { setEditingGroup(group); setGroupOpen(true); } },
@@ -160,7 +160,7 @@ export function SurfaceRatesView() {
                 <div className="overflow-x-auto">
                   <table className="w-full min-w-[600px]">
                     <thead>
-                      <tr className="border-b border-gray-100 text-left text-[9px] font-bold uppercase tracking-wider text-gray-500">
+                      <tr className="border-b border-gray-100 text-left text-xxs font-bold uppercase tracking-wider text-gray-500">
                         <th className="w-1/3 px-6 py-3">Item Name</th>
                         <th className="px-6 py-3">Unit</th>
                         <th className="px-6 py-3">Base Rate (1st Coat)</th>
@@ -175,7 +175,7 @@ export function SurfaceRatesView() {
                             {r.name}
                             {r.feedback && (
                               <span
-                                className="mt-1 block w-fit rounded-md bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700"
+                                className="mt-1 block w-fit rounded-md bg-green-50 px-2 py-0.5 text-xs font-semibold text-green-700"
                                 title={`Coat 1 was ${r.feedback.previous.rateCoat1}/hr before ${r.feedback.rateId} v${r.feedback.version}`}
                               >
                                 Updated from feedback {new Date(r.feedback.at).toLocaleDateString()} ({r.feedback.pct >= 0 ? '+' : ''}{r.feedback.pct}%)
@@ -183,7 +183,7 @@ export function SurfaceRatesView() {
                             )}
                           </td>
                           <td className="px-6 py-4">
-                            <span className="rounded-md border border-gray-200 bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-gray-600">{UNIT_LABELS[r.unit] ?? r.unit}</span>
+                            <span className="rounded-md border border-gray-200 bg-gray-100 px-2 py-0.5 text-xs font-bold text-gray-600">{UNIT_LABELS[r.unit] ?? r.unit}</span>
                           </td>
                           <td className="px-6 py-4 text-sm font-medium text-gray-900">
                             {r.rateCoat1 || 0} <span className="text-xs text-gray-400">/hr</span>
@@ -388,10 +388,10 @@ function SurfaceRateModal({
 
         <div className="space-y-3 rounded-xl border border-gray-100 bg-gray-50 p-4">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Production Rates ({entry === 'hours' ? `labor hours per 100 ${unit}` : `${unit} per labor hour`})</span>
+            <span className="text-xxs font-bold uppercase tracking-widest text-gray-500">Production Rates ({entry === 'hours' ? `labor hours per 100 ${unit}` : `${unit} per labor hour`})</span>
             <div className="flex flex-wrap items-center justify-end gap-3">
               {!multOn && (
-                <div role="radiogroup" aria-label="Enter rates as" className="inline-flex rounded-lg border border-gray-200 bg-white p-0.5 text-[11px] font-bold">
+                <div role="radiogroup" aria-label="Enter rates as" className="inline-flex rounded-lg border border-gray-200 bg-white p-0.5 text-xs font-bold">
                   {([['rate', `${unit} / hr`], ['hours', `Hrs / 100 ${unit}`]] as const).map(([v, label]) => (
                     <button key={v} type="button" role="radio" aria-checked={entry === v} onClick={() => switchEntry(v)} className={cn('rounded-md px-2 py-1', entry === v ? 'bg-primary-600 text-white' : 'text-gray-600 hover:bg-gray-50')}>
                       {label}
@@ -401,7 +401,7 @@ function SurfaceRateModal({
               )}
               <div className="flex items-center gap-2">
               <Wand2 className={cn('h-3 w-3', multOn ? 'text-indigo-600' : 'text-gray-400')} />
-              <span className={cn('text-[10px] font-bold uppercase tracking-wider', multOn ? 'text-indigo-600' : 'text-gray-400')}>Multiplier</span>
+              <span className={cn('text-xxs font-bold uppercase tracking-wider', multOn ? 'text-indigo-600' : 'text-gray-400')}>Multiplier</span>
               <Switch
                 checked={multOn}
                 label="Use multipliers"
@@ -444,7 +444,7 @@ function SurfaceRateModal({
                         applyMult(form.rateCoat1, next);
                       }}
                     />
-                    <div className="mt-1 text-[10px] font-bold text-indigo-700">= {Math.round(form.rateCoat1 * mult[k])}</div>
+                    <div className="mt-1 text-xs font-bold text-indigo-700">= {Math.round(form.rateCoat1 * mult[k])}</div>
                   </div>
                 ))}
               </div>
@@ -457,7 +457,7 @@ function SurfaceRateModal({
                   <div key={label}>
                     <Label required={i === 0}>{label}</Label>
                     <Input type="number" min={0} step={0.05} value={hoursText[i]} invalid={i === 0 && !!errors.rateCoat1} onChange={(e) => setHours(i, e.target.value)} placeholder={i === 0 ? 'Required' : `Same as coat ${i}`} aria-label={`${label} hours per 100 ${unit}`} />
-                    {r > 0 && <div className="mt-1 text-[10px] font-semibold text-gray-500">= {r} {unit}/hr</div>}
+                    {r > 0 && <div className="mt-1 text-xs font-semibold text-gray-500">= {r} {unit}/hr</div>}
                   </div>
                 );
               })}
@@ -511,7 +511,7 @@ function CoverageOverrides({ rows, error, onChange }: {
   const set = (i: number, patch: Partial<(typeof rows)[number]>) => onChange(rows.map((r, j) => (j === i ? { ...r, ...patch } : r)));
   return (
     <div className="space-y-3 rounded-xl border border-gray-100 bg-gray-50 p-4">
-      <div className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Coverage for specific products (sq ft per gallon)</div>
+      <div className="text-xxs font-bold uppercase tracking-widest text-gray-500">Coverage for specific products (sq ft per gallon)</div>
       <p className="text-xs text-gray-500">Optional. When a line on this surface uses one of these products, this coverage is used instead of the product&apos;s own coverage in the Paint Library.</p>
       {rows.map((r, i) => {
         const paint = paints.find((p) => p.id === r.paintProductId);

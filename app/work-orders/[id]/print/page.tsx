@@ -58,38 +58,38 @@ export default function WorkOrderPrintPage() {
 
         <div className="mt-6 grid grid-cols-2 gap-6 text-sm">
           <div>
-            <div className="mb-1 text-[11px] font-bold uppercase tracking-widest text-gray-500">Customer</div>
+            <div className="mb-1 text-xs font-bold uppercase tracking-widest text-gray-500">Customer</div>
             <div className="font-bold">{fullName(customer)}</div>
             <div>{customer?.phone}</div>
             <div>{customer?.email}</div>
           </div>
           <div>
-            <div className="mb-1 text-[11px] font-bold uppercase tracking-widest text-gray-500">Job Site</div>
+            <div className="mb-1 text-xs font-bold uppercase tracking-widest text-gray-500">Job Site</div>
             <div>{job?.address || 'No address set'}</div>
           </div>
           <div>
-            <div className="mb-1 text-[11px] font-bold uppercase tracking-widest text-gray-500">Schedule</div>
+            <div className="mb-1 text-xs font-bold uppercase tracking-widest text-gray-500">Schedule</div>
             <div>{job?.startDate ? `${shortDate(job.startDate)} – ${shortDate(job.endDate)}` : 'Not scheduled'}</div>
             {job?.startTime && <div>{fmtTime(job.startTime)} – {fmtTime(job.endTime)}</div>}
           </div>
           <div>
-            <div className="mb-1 text-[11px] font-bold uppercase tracking-widest text-gray-500">Crew</div>
+            <div className="mb-1 text-xs font-bold uppercase tracking-widest text-gray-500">Crew</div>
             {wo.assignedTo.length ? wo.assignedTo.map((m) => <div key={m}>{fullName(look.member(m))}</div>) : <div>Unassigned</div>}
           </div>
         </div>
 
         <div className="mt-6">
-          <div className="mb-1 text-[11px] font-bold uppercase tracking-widest text-gray-500">Instructions</div>
+          <div className="mb-1 text-xs font-bold uppercase tracking-widest text-gray-500">Instructions</div>
           <p className="whitespace-pre-wrap rounded border border-gray-300 p-3 text-sm">{wo.instructions || '--'}</p>
         </div>
 
         <div className="mt-6">
-          <div className="mb-2 text-[11px] font-bold uppercase tracking-widest text-gray-500">Tasks</div>
+          <div className="mb-2 text-xs font-bold uppercase tracking-widest text-gray-500">Tasks</div>
           <table className="w-full border-collapse text-sm">
             <tbody>
               {wo.tasks.map((t, i) => (
                 <tr key={t.id} className="border-b border-gray-200">
-                  <td className="w-8 py-2"><span className="inline-block h-4 w-4 border border-gray-500 text-center text-[11px] leading-4">{t.done ? '✓' : ''}</span></td>
+                  <td className="w-8 py-2"><span className="inline-block h-4 w-4 border border-gray-500 text-center text-xs leading-4">{t.done ? '✓' : ''}</span></td>
                   <td className="py-2">{i + 1}. {t.text}</td>
                   <td className="w-32 py-2 text-right text-gray-400">Initials ______</td>
                 </tr>

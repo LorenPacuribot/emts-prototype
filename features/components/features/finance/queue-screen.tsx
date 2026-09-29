@@ -74,10 +74,10 @@ function Queue() {
                 const fails = q.attempts.filter((a) => !a.ok);
                 return (
                   <TR key={q.id} className={q.supersededBy ? "opacity-60" : ""}>
-                    <TD className="font-semibold">{q.id}<div className="text-[11px] font-normal text-slate-400">v{q.version} · key {q.idempotencyKey}</div></TD>
-                    <TD className="max-w-[240px] whitespace-normal">{q.payload.description}<div className="text-[11px] text-slate-400">{r?.ref}</div></TD>
+                    <TD className="font-semibold">{q.id}<div className="text-xs font-normal text-gray-400">v{q.version} · key {q.idempotencyKey}</div></TD>
+                    <TD className="max-w-[240px] whitespace-normal">{q.payload.description}<div className="text-xs text-gray-400">{r?.ref}</div></TD>
                     <TD className="text-right tabular-nums">{money(q.payload.amount)}</TD>
-                    <TD>{q.payload.jobId ?? "—"}<div className="text-[11px] text-slate-400">{q.payload.costCode ?? ""}</div></TD>
+                    <TD>{q.payload.jobId ?? "—"}<div className="text-xs text-gray-400">{q.payload.costCode ?? ""}</div></TD>
                     <TD>
                       <div className="flex flex-wrap gap-1">
                         <Badge tone={s.tone}>{s.label}</Badge>
@@ -85,9 +85,9 @@ function Queue() {
                         {q.supersededBy && <Badge tone="gray">Replaced by {q.supersededBy}</Badge>}
                         {q.correctionOf && <Badge tone="purple">Correction of {q.correctionOf}</Badge>}
                       </div>
-                      {fails.length > 0 && <div className="mt-1 text-[11px] text-red-700">{fails[fails.length - 1].error}</div>}
+                      {fails.length > 0 && <div className="mt-1 text-xs text-red-700">{fails[fails.length - 1].error}</div>}
                     </TD>
-                    <TD className="text-[12px]">{q.attempts.length ? `${q.attempts.length} (${fails.length} failed)` : "—"}<div className="text-[11px] text-slate-400">{q.sentAt ? `sent ${dateTime(q.sentAt)}` : `queued ${dateTime(q.queuedAt)} by ${userName(db, q.queuedBy)}`}</div></TD>
+                    <TD className="text-xs">{q.attempts.length ? `${q.attempts.length} (${fails.length} failed)` : "—"}<div className="text-xs text-gray-400">{q.sentAt ? `sent ${dateTime(q.sentAt)}` : `queued ${dateTime(q.queuedAt)} by ${userName(db, q.queuedBy)}`}</div></TD>
                     <TD>
                       {can(user, "finance.exchange") && !q.supersededBy && (
                         <div className="flex gap-1">

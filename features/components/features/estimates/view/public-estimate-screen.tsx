@@ -118,7 +118,7 @@ function PublicEstimate() {
               </div>
             </div>
             <div className="text-right text-sm">
-              <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Estimator</div>
+              <div className="text-xxs font-bold uppercase tracking-widest text-gray-400">Estimator</div>
               <div className="font-semibold">{byId(db.users, estimate.estimatorId)?.name ?? "Not assigned"}</div>
               <div className="mt-1 font-mono text-xs text-gray-500">#{estimate.id}</div>
             </div>
@@ -143,7 +143,7 @@ function PublicEstimate() {
 
           {estimate.signatureName && estimate.status === "ACCEPTED" && (
             <div className="mt-8 rounded-xl border border-gray-200 p-4">
-              <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Acceptance</div>
+              <div className="text-xxs font-bold uppercase tracking-widest text-gray-400">Acceptance</div>
               <div className="mt-2 font-heading text-xl italic text-gray-800">{estimate.signatureName}</div>
               <div className="mt-1 grid grid-cols-2 border-t border-gray-200 pt-1 text-xs text-gray-400"><span>Signature</span><span className="text-right">Date: {dateLong(estimate.acceptedAt)}</span></div>
             </div>
@@ -185,7 +185,7 @@ function PublicEstimate() {
 function Info({ label, lines }: { label: string; lines: string[] }) {
   return (
     <div>
-      <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400">{label}</div>
+      <div className="text-xxs font-bold uppercase tracking-widest text-gray-400">{label}</div>
       {lines.filter(Boolean).map((l, i) => <div key={i} className={i === 0 ? "font-semibold text-gray-900" : "text-sm text-gray-500"}>{l}</div>)}
     </div>
   );
@@ -242,7 +242,7 @@ function PaintColorsSection({ jobId }: { jobId: string }) {
                 <div className="text-xs text-gray-500">{specs.map((s) => `${s.product ?? c.manufacturer} · ${s.sheen ?? ""}`).join(" / ") || c.manufacturer}</div>
               </div>
               <span className="flex items-center gap-1.5">
-                <span className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${approved ? "bg-green-50 text-green-700" : "bg-amber-50 text-amber-700"}`}>
+                <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${approved ? "bg-green-50 text-green-700" : "bg-amber-50 text-amber-700"}`}>
                   {approved ? "Approved" : "Awaiting your approval"}
                 </span>
                 <NewBadge feature={3} className="no-print" />
@@ -292,11 +292,11 @@ function AcceptModal({ open, onOpenChange, estimate }: { open: boolean; onOpenCh
         </Field>
         <div>
           <div className="mb-1.5 flex items-center justify-between">
-            <span className="text-[12px] font-semibold text-slate-700">E-Signature<span className="ml-0.5 text-red-500">*</span></span>
+            <span className="text-xs font-semibold text-gray-700">E-Signature<span className="ml-0.5 text-red-500">*</span></span>
             <button onClick={() => setClearKey((k) => k + 1)} className="text-xs font-bold text-primary-700 hover:underline">Clear</button>
           </div>
           <SignatureCanvas onChange={setSigned} clearKey={clearKey} />
-          {error?.field === "signature" && <p className="mt-1 text-[11.5px] font-medium text-red-600">{error.message}</p>}
+          {error?.field === "signature" && <p className="mt-1 text-xs font-medium text-red-600">{error.message}</p>}
         </div>
         {error && !error.field && <Banner tone="danger">{error.message}</Banner>}
         <p className="text-xs text-gray-500">By signing above, you agree to the terms and conditions detailed in this estimate.</p>
@@ -310,7 +310,7 @@ function ChangeOrdersForApproval({ cos, defaultSigner }: { cos: ChangeOrder[]; d
   const db = useDb((d) => d);
   const [open, setOpen] = useState<ChangeOrder>();
   return (
-    <div className="mx-auto mb-8 max-w-[8.5in] rounded-2xl border-2 border-emerald-300 bg-white p-5 shadow-lg" data-tour="public-change-orders">
+    <div className="mx-auto mb-8 max-w-[8.5in] rounded-2xl border-2 border-green-300 bg-white p-5 shadow-lg" data-tour="public-change-orders">
       <div className="flex items-center gap-2">
         <FileDiff className="h-5 w-5 text-primary-600" />
         <h2 className="font-heading text-lg font-bold text-gray-900">Change orders for your approval</h2>
@@ -367,11 +367,11 @@ function CoDecisionModal({ co, onClose, defaultSigner }: { co?: ChangeOrder; onC
           {mode === "approve" ? (
             <div>
               <div className="mb-1.5 flex items-center justify-between">
-                <span className="text-[12px] font-semibold text-slate-700">E-Signature<span className="ml-0.5 text-red-500">*</span></span>
+                <span className="text-xs font-semibold text-gray-700">E-Signature<span className="ml-0.5 text-red-500">*</span></span>
                 <button onClick={() => setClearKey((k) => k + 1)} className="text-xs font-bold text-primary-700 hover:underline">Clear</button>
               </div>
               <SignatureCanvas onChange={setSigned} clearKey={clearKey} />
-              {error?.field === "signature" && <p className="mt-1 text-[11.5px] font-medium text-red-600">{error.message}</p>}
+              {error?.field === "signature" && <p className="mt-1 text-xs font-medium text-red-600">{error.message}</p>}
             </div>
           ) : (
             <Field label="Reason" required error={error?.field === "reason" ? error.message : undefined}>

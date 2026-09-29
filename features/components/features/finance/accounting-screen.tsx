@@ -94,17 +94,17 @@ function Accounting() {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-2">
             <Landmark className="h-4 w-4 text-brand" />
-            <span className="font-display text-[14px] font-bold text-ink">QuickBooks Online</span>
+            <span className="font-display text-sm font-bold text-ink">QuickBooks Online</span>
             {qbo.connected ? <Badge tone="green">Connected · {qbo.realm}</Badge> : <Badge tone="red">Not connected</Badge>}
             <Badge tone={inExchangeWindow(t) ? "blue" : "gray"}>{inExchangeWindow(t) ? "Exchange window open" : "Outside exchange window"}</Badge>
           </div>
           {!qbo.connected && can(user, "finance.connect") && <Button size="sm" variant="primary" onClick={() => act(connectQuickBooks).ok && toast.success("QuickBooks connected")}>Connect</Button>}
         </div>
-        <div className="mt-3 grid gap-3 text-[12.5px] sm:grid-cols-4 [&>*]:min-w-0">
-          <div><div className="text-slate-400">Last successful exchange</div><div className="font-semibold">{dateTime(qbo.lastExchangeAt)}</div></div>
-          <div><div className="text-slate-400">Next scheduled run</div><div className="font-semibold">{dateTime(nextExchangeRun(t).toISOString())}</div></div>
-          <div><div className="text-slate-400">Window</div><div className="font-semibold">Hourly, 6:00 a.m.–6:00 p.m., Mon–Sat</div></div>
-          <div><div className="text-slate-400">Bank feeds</div><div className="font-semibold">Chase feeds stay in QuickBooks — never duplicated here</div></div>
+        <div className="mt-3 grid gap-3 text-xs sm:grid-cols-4 [&>*]:min-w-0">
+          <div><div className="text-gray-400">Last successful exchange</div><div className="font-semibold">{dateTime(qbo.lastExchangeAt)}</div></div>
+          <div><div className="text-gray-400">Next scheduled run</div><div className="font-semibold">{dateTime(nextExchangeRun(t).toISOString())}</div></div>
+          <div><div className="text-gray-400">Window</div><div className="font-semibold">Hourly, 6:00 a.m.–6:00 p.m., Mon–Sat</div></div>
+          <div><div className="text-gray-400">Bank feeds</div><div className="font-semibold">Chase feeds stay in QuickBooks — never duplicated here</div></div>
         </div>
       </Card>
 
@@ -142,12 +142,12 @@ function Accounting() {
                 return (
                   <TR key={r.id} className="cursor-pointer" onClick={() => setOpenId(r.id)}>
                     <TD><TypeBadge type={r.type} /></TD>
-                    <TD className="font-semibold text-ink">{r.ref}<div className="text-[11px] font-normal text-slate-400">{r.externalRef ?? "Not yet in QuickBooks"}</div></TD>
+                    <TD className="font-semibold text-ink">{r.ref}<div className="text-xs font-normal text-gray-400">{r.externalRef ?? "Not yet in QuickBooks"}</div></TD>
                     <TD className="max-w-[220px] whitespace-normal">{r.party}</TD>
-                    <TD className="text-right tabular-nums">{money(r.amount)}{r.salesTax ? <div className="text-[10.5px] text-slate-400">+ {money(r.salesTax)} sales tax</div> : r.purchaseTax ? <div className="text-[10.5px] text-slate-400">+ {money(r.purchaseTax)} purchase tax</div> : null}</TD>
-                    <TD className="whitespace-nowrap">{dateLong(r.date)}<div className="text-[10.5px] text-slate-400">Period {r.period}</div></TD>
-                    <TD>{r.allocations?.length ? `${r.allocations.length} row${r.allocations.length === 1 ? "" : "s"}` : r.jobId ?? <span className="text-amber-700">—</span>}<div className="text-[11px] text-slate-400">{r.costCode ?? ""}</div></TD>
-                    <TD>{q ? <Badge tone={EXCHANGE_STATUS[q.status].tone}>{EXCHANGE_STATUS[q.status].label} v{q.version}</Badge> : r.origin === "quickbooks" ? <Badge tone="gray">From QuickBooks</Badge> : <span className="text-slate-300">—</span>}</TD>
+                    <TD className="text-right tabular-nums">{money(r.amount)}{r.salesTax ? <div className="text-xs text-gray-400">+ {money(r.salesTax)} sales tax</div> : r.purchaseTax ? <div className="text-xs text-gray-400">+ {money(r.purchaseTax)} purchase tax</div> : null}</TD>
+                    <TD className="whitespace-nowrap">{dateLong(r.date)}<div className="text-xs text-gray-400">Period {r.period}</div></TD>
+                    <TD>{r.allocations?.length ? `${r.allocations.length} row${r.allocations.length === 1 ? "" : "s"}` : r.jobId ?? <span className="text-amber-700">—</span>}<div className="text-xs text-gray-400">{r.costCode ?? ""}</div></TD>
+                    <TD>{q ? <Badge tone={EXCHANGE_STATUS[q.status].tone}>{EXCHANGE_STATUS[q.status].label} v{q.version}</Badge> : r.origin === "quickbooks" ? <Badge tone="gray">From QuickBooks</Badge> : <span className="text-gray-300">—</span>}</TD>
                     <TD><RecordFlags r={r} /></TD>
                   </TR>
                 );
@@ -201,7 +201,7 @@ function RecordDrawer({ recordId, onClose }: { recordId?: string; onClose: () =>
       )}
       <KV
         items={[
-          ["Amount (pre-tax)", <span key="a" className="inline-flex items-center gap-1.5">{money(r.amount)} {sent && <Lock className="h-3 w-3 text-slate-400" />}</span>],
+          ["Amount (pre-tax)", <span key="a" className="inline-flex items-center gap-1.5">{money(r.amount)} {sent && <Lock className="h-3 w-3 text-gray-400" />}</span>],
           ...(r.salesTax ? [["Customer sales tax", `${money(r.salesTax)} — never counted as revenue`] as [string, string]] : []),
           ...(r.purchaseTax ? [["Purchase tax", `${money(r.purchaseTax)} — included in gross job cost`] as [string, string]] : []),
           ["Date · period", `${dateLong(r.date)} · ${r.period}${r.postedFromClosedPeriod ? ` (from closed ${r.postedFromClosedPeriod})` : ""}`],
@@ -220,9 +220,9 @@ function RecordDrawer({ recordId, onClose }: { recordId?: string; onClose: () =>
         <Card className="p-4">
           <CardLabel>Amount</CardLabel>
           {sent ? (
-            <p className="mt-2 text-[12.5px] text-slate-600">This record is in QuickBooks. Amounts are edited in QuickBooks; the new value returns on the next exchange.</p>
+            <p className="mt-2 text-xs text-gray-600">This record is in QuickBooks. Amounts are edited in QuickBooks; the new value returns on the next exchange.</p>
           ) : (
-            <p className="mt-2 text-[12.5px] text-slate-600">Queued, not yet sent — the amount can still be edited here.</p>
+            <p className="mt-2 text-xs text-gray-600">Queued, not yet sent — the amount can still be edited here.</p>
           )}
           <div className="mt-2 flex gap-2">
             <Input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder={String(r.amount)} className="w-40" />
@@ -234,7 +234,7 @@ function RecordDrawer({ recordId, onClose }: { recordId?: string; onClose: () =>
       {r.type === "deposit" && r.liability && can(user, "finance.recordPayment") && (
         <Card className="p-4">
           <CardLabel>Apply deposit</CardLabel>
-          <p className="mt-1 text-[12px] text-slate-500">A deposit stays a liability until it is applied to an invoice.</p>
+          <p className="mt-1 text-xs text-gray-500">A deposit stays a liability until it is applied to an invoice.</p>
           <div className="mt-2 flex gap-2">
             <Select value={invoice} onChange={(e) => setInvoice(e.target.value)}>
               <option value="">— Choose invoice —</option>
@@ -248,7 +248,7 @@ function RecordDrawer({ recordId, onClose }: { recordId?: string; onClose: () =>
       {can(user, "finance.config") && (
         <Card className="p-4">
           <CardLabel>Retainage note (bookkeeper)</CardLabel>
-          <p className="mt-1 text-[12px] text-slate-500">A manual note. There is no retainage engine; bad-debt entries stay in QuickBooks.</p>
+          <p className="mt-1 text-xs text-gray-500">A manual note. There is no retainage engine; bad-debt entries stay in QuickBooks.</p>
           <Textarea className="mt-2" value={retain ?? r.retainageNote ?? ""} onChange={(e) => setRetain(e.target.value)} />
           <Button size="sm" className="mt-2" onClick={() => act(setRetainageNote, r.id, retain ?? "").ok && toast.success("Note saved")}>Save note</Button>
         </Card>

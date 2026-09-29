@@ -135,7 +135,7 @@ export function Feedback() {
               {combos.map((k) => <option key={k} value={k}>{comboLabel(k)}</option>)}
             </Select>
           </Field>
-          <p className="max-w-xl text-[12px] text-slate-500">Grouped by surface type, interior or exterior, product tier, application method and condition. A suggestion needs {MIN_JOBS} verified single-combination jobs of at least 400 sq ft, completed in the last 18 months.</p>
+          <p className="max-w-xl text-xs text-gray-500">Grouped by surface type, interior or exterior, product tier, application method and condition. A suggestion needs {MIN_JOBS} verified single-combination jobs of at least 400 sq ft, completed in the last 18 months.</p>
         </div>
       </Card>
 
@@ -158,13 +158,13 @@ export function Feedback() {
             <tbody>
               {shown.map((s) => (
                 <TR key={s.rate.id} className={`cursor-pointer ${current?.rate.id === s.rate.id ? "bg-brand-soft" : ""}`} onClick={() => select(s.rate.id)}>
-                  <TD className="max-w-[240px] whitespace-normal font-semibold text-ink">{s.pool.label}<div className="text-[11px] font-normal text-slate-400">{s.rate.id}</div></TD>
+                  <TD className="max-w-[240px] whitespace-normal font-semibold text-ink">{s.pool.label}<div className="text-xs font-normal text-gray-400">{s.rate.id}</div></TD>
                   <TD>{kindLabel(s.rate)}</TD>
-                  <TD className="text-right tabular-nums">{s.status === "disabled" ? "—" : s.rate.value ? rateText(s.rate, s.rate.value) : <span className="text-slate-400">None on file</span>}</TD>
+                  <TD className="text-right tabular-nums">{s.status === "disabled" ? "—" : s.rate.value ? rateText(s.rate, s.rate.value) : <span className="text-gray-400">None on file</span>}</TD>
                   <TD className="text-right tabular-nums">{s.status === "insufficient" || s.status === "disabled" ? "—" : rateText(s.rate, s.observed)}</TD>
-                  <TD className="text-right tabular-nums">{s.status === "insufficient" || s.status === "disabled" ? "—" : s.deviation === null ? <span className="text-slate-400">Not applicable</span> : pct(s.deviation)}</TD>
+                  <TD className="text-right tabular-nums">{s.status === "insufficient" || s.status === "disabled" ? "—" : s.deviation === null ? <span className="text-gray-400">Not applicable</span> : pct(s.deviation)}</TD>
                   <TD className="text-right tabular-nums">{s.pool.eligible.length} of {MIN_JOBS}</TD>
-                  <TD>{s.status === "insufficient" || s.status === "disabled" ? "—" : s.flag === "prominent" ? <Badge tone="red">Above 20%</Badge> : s.flag === "flagged" ? <Badge tone="amber">Above 15%</Badge> : <span className="text-[12px] text-slate-400">Within 15%</span>}</TD>
+                  <TD>{s.status === "insufficient" || s.status === "disabled" ? "—" : s.flag === "prominent" ? <Badge tone="red">Above 20%</Badge> : s.flag === "flagged" ? <Badge tone="amber">Above 15%</Badge> : <span className="text-xs text-gray-400">Within 15%</span>}</TD>
                   <TD><Badge tone={STATUS[s.status].tone}>{STATUS[s.status].label}</Badge></TD>
                 </TR>
               ))}
@@ -212,7 +212,7 @@ function Evidence({ s, view, setView }: { s: Suggestion; view: "pooled" | "media
     <Card className={`p-4 ${prominent ? "ring-2 ring-red-300" : ""}`} data-tour="feedback-evidence">
       <CardLabel right={prod && <PillTabs value={view} onChange={setView} options={[{ value: "pooled", label: "Pooled" }, { value: "median", label: "Median" }]} />}>Evidence · {s.pool.label}</CardLabel>
       {prominent && <Banner tone="danger" className="mt-3">The deviation is above 20 percent. Check every included job before deciding.</Banner>}
-      <p className="mt-2 text-[12px] text-slate-500">Consumed gallons include spills. Preparation, travel, setup and rework hours are captured but excluded from the application rate.</p>
+      <p className="mt-2 text-xs text-gray-500">Consumed gallons include spills. Preparation, travel, setup and rework hours are captured but excluded from the application rate.</p>
       <div className="mt-3">
         {s.pool.eligible.length === 0 ? <EmptyState title="No eligible jobs" /> : (
           <Table>
@@ -225,11 +225,11 @@ function Evidence({ s, view, setView }: { s: Suggestion; view: "pooled" | "media
             <tbody>
               {s.pool.eligible.map(({ job, combo: c }) => (
                 <TR key={job.id}>
-                  <TD className="whitespace-nowrap font-semibold text-ink">{job.id}<div className="text-[11px] font-normal text-slate-400">{dateLong(job.completedAt)}</div></TD>
+                  <TD className="whitespace-nowrap font-semibold text-ink">{job.id}<div className="text-xs font-normal text-gray-400">{dateLong(job.completedAt)}</div></TD>
                   <TD className="text-right tabular-nums">{c.measuredSqft.toLocaleString()}</TD>
                   <TD className="text-right tabular-nums">{c.applicationHours.toFixed(1)}</TD>
-                  <TD className="text-right tabular-nums text-slate-400" title="Prep, travel, setup, rework — excluded">{(c.prepHours + c.travelHours + c.setupHours + c.reworkHours).toFixed(1)}</TD>
-                  <TD className="text-right tabular-nums">{c.consumedGal.toFixed(2)}{c.spillsGal > 0 && <div className="text-[10.5px] text-slate-400">incl. {c.spillsGal.toFixed(2)} spilt</div>}</TD>
+                  <TD className="text-right tabular-nums text-gray-400" title="Prep, travel, setup, rework — excluded">{(c.prepHours + c.travelHours + c.setupHours + c.reworkHours).toFixed(1)}</TD>
+                  <TD className="text-right tabular-nums">{c.consumedGal.toFixed(2)}{c.spillsGal > 0 && <div className="text-xs text-gray-400">incl. {c.spillsGal.toFixed(2)} spilt</div>}</TD>
                   <TD className="text-right tabular-nums">{Math.round(c.wasteAllowance * 100)}%</TD>
                   <TD className="text-right tabular-nums">{c.coats}</TD>
                   <TD className="text-right tabular-nums">{(c.measuredSqft * c.coats).toLocaleString()}</TD>
@@ -237,11 +237,11 @@ function Evidence({ s, view, setView }: { s: Suggestion; view: "pooled" | "media
                   {can(user, "feedback.exclude") && <TD><Button size="sm" variant="ghost" onClick={() => setExcluding(job.id)}>Exclude</Button></TD>}
                 </TR>
               ))}
-              <TR className="bg-slate-50 font-semibold">
+              <TR className="bg-gray-50 font-semibold">
                 <TD>Totals · {s.pool.eligible.length} jobs</TD>
                 <TD className="text-right tabular-nums">{s.totals.sqft.toLocaleString()}</TD>
                 <TD className="text-right tabular-nums">{s.totals.hours.toFixed(1)}</TD>
-                <TD /><TD className="text-right tabular-nums">{s.totals.wasteAdjustedGal.toFixed(2)}<div className="text-[10.5px] font-normal text-slate-400">waste-adjusted</div></TD><TD /><TD />
+                <TD /><TD className="text-right tabular-nums">{s.totals.wasteAdjustedGal.toFixed(2)}<div className="text-xs font-normal text-gray-400">waste-adjusted</div></TD><TD /><TD />
                 <TD className="text-right tabular-nums">{s.totals.coatSqft.toLocaleString()}</TD>
                 <TD className="text-right tabular-nums">{prod && view === "median" ? `${s.median?.toFixed(1)} median` : s.observed.toFixed(1)}</TD>
                 {can(user, "feedback.exclude") && <TD />}
@@ -250,7 +250,7 @@ function Evidence({ s, view, setView }: { s: Suggestion; view: "pooled" | "media
           </Table>
         )}
       </div>
-      {prod && <p className="mt-2 text-[12px] text-slate-600">Pooled <strong>{s.observed.toFixed(1)} sq ft/h</strong> · median per job <strong>{s.median?.toFixed(1)} sq ft/h</strong>. The suggestion uses the pooled rate; per-job percentages are never averaged into it.</p>}
+      {prod && <p className="mt-2 text-xs text-gray-600">Pooled <strong>{s.observed.toFixed(1)} sq ft/h</strong> · median per job <strong>{s.median?.toFixed(1)} sq ft/h</strong>. The suggestion uses the pooled rate; per-job percentages are never averaged into it.</p>}
       <ReasonModal
         open={!!excluding} onClose={() => setExcluding(undefined)} title={`Exclude ${excluding} from this evidence`} label="Reason" confirm="Exclude" done="Job excluded, reason recorded"
         description="Excluded jobs and their reasons are kept permanently. A restore is logged too."
@@ -281,11 +281,11 @@ function Calculation({ s, view }: { s: Suggestion; view: "pooled" | "median" }) 
   return (
     <Card className="p-4" data-tour="feedback-calc">
       <CardLabel icon={<Calculator />} right={<Button size="sm" variant="ghost" onClick={() => navigator.clipboard?.writeText(text).then(() => toast.success("Figures copied"), () => toast.error("Copy failed"))}><ClipboardCopy className="h-3.5 w-3.5" /> Copy figures</Button>}>Calculation</CardLabel>
-      <pre className="mt-3 overflow-x-auto whitespace-pre-wrap rounded-lg bg-slate-50 p-3 font-mono text-[11.5px] leading-relaxed text-slate-700">{text}</pre>
+      <pre className="mt-3 overflow-x-auto whitespace-pre-wrap rounded-lg bg-gray-50 p-3 font-mono text-xs leading-relaxed text-gray-700">{text}</pre>
       {s.status !== "insufficient" && (
-        <div className="mt-2 flex flex-wrap items-center gap-2 text-[12px]">
+        <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
           {s.flag === "prominent" ? <Badge tone="red">Strictly above 20% — evidence shown prominently</Badge> : s.flag === "flagged" ? <Badge tone="amber">Strictly above 15% — flagged</Badge> : <Badge tone="gray">Within 15% — not flagged</Badge>}
-          <span className="text-slate-500">Owner approval is required whatever the size.</span>
+          <span className="text-gray-500">Owner approval is required whatever the size.</span>
         </div>
       )}
     </Card>
@@ -299,22 +299,22 @@ function Exclusions({ s }: { s: Suggestion }) {
   return (
     <Card className="p-4">
       <CardLabel>Exclusions and ineligible jobs</CardLabel>
-      <p className="mt-1 text-[12px] text-slate-500">Every job left out, and why. Mixed jobs stay ineligible — no per-surface allocation is invented.</p>
+      <p className="mt-1 text-xs text-gray-500">Every job left out, and why. Mixed jobs stay ineligible — no per-surface allocation is invented.</p>
       <div className="mt-3 space-y-2">
-        {history.length === 0 && s.pool.ineligible.length === 0 && <p className="text-[12.5px] italic text-slate-400">Nothing excluded.</p>}
+        {history.length === 0 && s.pool.ineligible.length === 0 && <p className="text-xs italic text-gray-400">Nothing excluded.</p>}
         {history.map((e) => (
-          <div key={e.id} className="rounded-lg border border-line px-3 py-2 text-[12.5px]">
+          <div key={e.id} className="rounded-lg border border-line px-3 py-2 text-xs">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <span><strong>{e.jobId}</strong> <Badge tone={e.restoredAt ? "gray" : "amber"}>{e.restoredAt ? "Restored" : "Excluded"}</Badge></span>
               {!e.restoredAt && can(user, "feedback.exclude") && <Button size="sm" onClick={() => act(restoreEvidence, e.id).ok && toast.success(`${e.jobId} restored`, "Both actions stay in the log.")}><RotateCcw className="h-3.5 w-3.5" /> Restore</Button>}
             </div>
-            <div className="text-slate-500">{e.reason} · excluded by {userName(db, e.by)} on {dateLong(e.at)}{e.restoredAt ? ` · restored by ${userName(db, e.restoredBy)} on ${dateLong(e.restoredAt)}` : ""}</div>
+            <div className="text-gray-500">{e.reason} · excluded by {userName(db, e.by)} on {dateLong(e.at)}{e.restoredAt ? ` · restored by ${userName(db, e.restoredBy)} on ${dateLong(e.restoredAt)}` : ""}</div>
           </div>
         ))}
         {s.pool.ineligible.map(({ job, check }) => (
-          <div key={job.id} className="rounded-lg border border-dashed border-line px-3 py-2 text-[12.5px]">
-            <div><strong>{job.id}</strong> <Badge tone="gray">Ineligible</Badge> <span className="text-slate-500">{job.name}</span></div>
-            <div className="text-slate-600">Failed check: {check.reason}</div>
+          <div key={job.id} className="rounded-lg border border-dashed border-line px-3 py-2 text-xs">
+            <div><strong>{job.id}</strong> <Badge tone="gray">Ineligible</Badge> <span className="text-gray-500">{job.name}</span></div>
+            <div className="text-gray-600">Failed check: {check.reason}</div>
           </div>
         ))}
       </div>
@@ -331,10 +331,10 @@ function Preview({ s }: { s: Suggestion }) {
   return (
     <Card className="p-4" data-tour="feedback-preview">
       <CardLabel right={open ? <Button size="sm" variant="ghost" onClick={() => setOpen(false)}>Close preview</Button> : <Button size="sm" onClick={() => { if (act(runPreview, s.rate.id).ok) setOpen(true); }}>Run preview</Button>}>Impact preview</CardLabel>
-      <p className="mt-1 text-[12px] text-slate-500">What this rate would have meant on real jobs. Scope, measurements, historical selling price, markup and material unit prices are held fixed. Nothing stored changes.</p>
+      <p className="mt-1 text-xs text-gray-500">What this rate would have meant on real jobs. Scope, measurements, historical selling price, markup and material unit prices are held fixed. Nothing stored changes.</p>
       {open && (
         <div className="mt-3 space-y-2">
-          <div className="flex flex-wrap gap-2 text-[12px]"><Badge tone="blue">Preview based on {p.count} eligible jobs.</Badge><Badge tone="purple">Variable moved: {p.variable === "Labour" ? "Labour" : "Material quantity and its cost"}</Badge></div>
+          <div className="flex flex-wrap gap-2 text-xs"><Badge tone="blue">Preview based on {p.count} eligible jobs.</Badge><Badge tone="purple">Variable moved: {p.variable === "Labour" ? "Labour" : "Material quantity and its cost"}</Badge></div>
           <Table>
             <THead><tr><TH>Job</TH><TH className="text-right">Selling price (fixed)</TH><TH className="text-right">Labour before → after</TH><TH className="text-right">Material before → after</TH><TH className="text-right">Cost change</TH></tr></THead>
             <tbody>
@@ -347,10 +347,10 @@ function Preview({ s }: { s: Suggestion }) {
                   <TD className="text-right tabular-nums">{r.after - r.before > 0 ? "+" : ""}{money(r.after - r.before)}</TD>
                 </TR>
               ))}
-              <TR className="bg-slate-50 font-semibold"><TD>Total</TD><TD /><TD /><TD /><TD className="text-right tabular-nums">{total("after") - total("before") > 0 ? "+" : ""}{money(total("after") - total("before"))}</TD></TR>
+              <TR className="bg-gray-50 font-semibold"><TD>Total</TD><TD /><TD /><TD /><TD className="text-right tabular-nums">{total("after") - total("before") > 0 ? "+" : ""}{money(total("after") - total("before"))}</TD></TR>
             </tbody>
           </Table>
-          <p className="text-[11px] text-slate-400">Prototype constants: blended labour {money(PREVIEW_WAGE_PER_HOUR)}/h, material {money(PREVIEW_PRICE_PER_GAL)}/gal, historical markup {Math.round(PREVIEW_MARKUP * 100)}%.</p>
+          <p className="text-xs text-gray-400">Prototype constants: blended labour {money(PREVIEW_WAGE_PER_HOUR)}/h, material {money(PREVIEW_PRICE_PER_GAL)}/gal, historical markup {Math.round(PREVIEW_MARKUP * 100)}%.</p>
         </div>
       )}
     </Card>
@@ -369,11 +369,11 @@ function Approval({ s }: { s: Suggestion }) {
   return (
     <Card className="p-4" data-tour="feedback-approval">
       <CardLabel icon={<ShieldCheck />}>Approval</CardLabel>
-      <div className="mt-3 rounded-lg border border-line bg-slate-50 px-3 py-2 text-[12.5px]">
+      <div className="mt-3 rounded-lg border border-line bg-gray-50 px-3 py-2 text-xs">
         Rate record affected: <strong>{s.rate.id}</strong> — {kindLabel(s.rate)} for {s.pool.label}. No other rate in the family changes.
         <div className="mt-1 tabular-nums">{s.rate.value ? rateText(s.rate, s.rate.value) : "No current rate"} → <strong>{rateText(s.rate, s.observed)}</strong></div>
         {s.status === "suggested" && s.rate.kind === "productivity" && (
-          <div className="mt-1 text-slate-600">
+          <div className="mt-1 text-gray-600">
             {affected.length
               ? <>Approving also updates Settings → Surface Rates: <strong>{affected.map((r) => r.name).join(", ")}</strong> (every coat, same proportion).</>
               : "No surface rate matches this combination, so Surface Rates will not change."}
@@ -393,7 +393,7 @@ function Approval({ s }: { s: Suggestion }) {
             <Button variant="danger" onClick={() => setRejecting(true)}>Reject</Button>
           </div>
         ) : (
-          <p className="mt-3 text-[12px] text-slate-500">Approve is unavailable — only the business owner approves a rate change.{curated ? " You curated this evidence, so you could not approve it in any case." : ""}</p>
+          <p className="mt-3 text-xs text-gray-500">Approve is unavailable — only the business owner approves a rate change.{curated ? " You curated this evidence, so you could not approve it in any case." : ""}</p>
         )
       )}
       {s.status === "suppressed" && d && s.suppression && (
@@ -408,7 +408,7 @@ function Approval({ s }: { s: Suggestion }) {
           {!!d.draftsFlagged?.length && <Banner tone="info" className="mt-2">{d.draftsFlagged.length} open draft estimate{d.draftsFlagged.length === 1 ? "" : "s"} use{d.draftsFlagged.length === 1 ? "s" : ""} this rate ({d.draftsFlagged.join(", ")}). Estimators can choose to refresh them. Sent and accepted estimates, templates already used and generated orders are unchanged.</Banner>}
         </>
       )}
-      {s.status === "suggested" && d?.decision === "approved" && <p className="mt-2 text-[12px] text-slate-500">{s.newSince} eligible jobs have completed since the last approval, so there is a fresh suggestion.</p>}
+      {s.status === "suggested" && d?.decision === "approved" && <p className="mt-2 text-xs text-gray-500">{s.newSince} eligible jobs have completed since the last approval, so there is a fresh suggestion.</p>}
       <ReasonModal open={rejecting} onClose={() => setRejecting(false)} title={`Reject the suggestion for ${s.rate.id}`} label="Reason" confirm="Reject" done="Suggestion rejected, suppressed for 90 days" tone="danger"
         description="The suggestion is suppressed for 90 days, unless three new eligible jobs complete and the estimating manager reopens it."
         onSubmit={(reason) => act(rejectRate, s.rate.id, reason)} />
@@ -439,7 +439,7 @@ function VersionHistory({ rate, onClose }: { rate?: RateRecord; onClose: () => v
                 <TD className="text-right tabular-nums font-semibold">{rateText(live, v.value)}</TD>
                 <TD>{userName(db, v.by)}</TD>
                 <TD className="whitespace-nowrap">{dateLong(v.at)}</TD>
-                <TD className="max-w-[220px] whitespace-normal text-[12px]">{v.reason}{v.review && <div className="text-slate-500">Reviewed {dateLong(v.review.at)}: {v.review.outcome}</div>}</TD>
+                <TD className="max-w-[220px] whitespace-normal text-xs">{v.reason}{v.review && <div className="text-gray-500">Reviewed {dateLong(v.review.at)}: {v.review.outcome}</div>}</TD>
               </TR>
             ))}
           </tbody>
@@ -469,17 +469,17 @@ function Reviews() {
     <Card className="p-4" data-tour="feedback-reviews">
       <div id="feedback-reviews" className="scroll-mt-24" />
       <CardLabel icon={<CalendarClock />} right={<Button size="sm" onClick={() => { const r = act(runReviewCheck); if (r.ok) toast.success(r.value ? `${r.value} overdue review${r.value === 1 ? "" : "s"} escalated` : "Nothing new to escalate", r.value ? `Escalated to ${owner?.name}.` : undefined); }}>Run daily review check</Button>}>Day-90 reviews and day-120 escalations</CardLabel>
-      <p className="mt-1 text-[12px] text-slate-500">The estimating manager reviews every approved change at day 90. A review still outstanding at day 120 escalates to the business owner.</p>
+      <p className="mt-1 text-xs text-gray-500">The estimating manager reviews every approved change at day 90. A review still outstanding at day 120 escalates to the business owner.</p>
       <div className="mt-3 space-y-2">
-        {list.length === 0 && <p className="text-[12.5px] italic text-slate-400">No approved changes yet.</p>}
+        {list.length === 0 && <p className="text-xs italic text-gray-400">No approved changes yet.</p>}
         {list.map((r) => (
-          <div key={r.rate.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-line px-3 py-2 text-[12.5px]">
+          <div key={r.rate.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-line px-3 py-2 text-xs">
             <div>
               <div className="flex flex-wrap items-center gap-1.5">
-                <strong>{r.rate.id}</strong> <span className="text-slate-500">{comboLabel(r.rate.comboKey)}</span>
+                <strong>{r.rate.id}</strong> <span className="text-gray-500">{comboLabel(r.rate.comboKey)}</span>
                 {r.state === "reviewed" ? <Badge tone="green">Reviewed</Badge> : r.state === "escalated" ? <Badge tone="red">{r.version.escalatedAt ? `Escalated to ${owner?.name}` : "Overdue — day 120 passed"}</Badge> : r.state === "due" ? <Badge tone="amber">Review due · day {r.days}</Badge> : <Badge tone="gray">Day {r.days} of 90</Badge>}
               </div>
-              <div className="text-slate-500">v{r.version.version} approved {dateLong(r.version.at)} · review due {dateLong(r.dueAt)} · escalates {dateLong(r.escalateAt)}{r.version.review ? ` · ${userName(db, r.version.review.by)}: ${r.version.review.outcome}` : ""}</div>
+              <div className="text-gray-500">v{r.version.version} approved {dateLong(r.version.at)} · review due {dateLong(r.dueAt)} · escalates {dateLong(r.escalateAt)}{r.version.review ? ` · ${userName(db, r.version.review.by)}: ${r.version.review.outcome}` : ""}</div>
             </div>
             {(r.state === "due" || r.state === "escalated") && can(user, "feedback.review") && <Button size="sm" variant="primary" onClick={() => setReviewing(r.rate.id)}>Mark review complete</Button>}
           </div>

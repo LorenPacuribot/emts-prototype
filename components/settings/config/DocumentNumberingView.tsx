@@ -94,7 +94,7 @@ function NumberingCard({ cfg }: { cfg: DocumentNumbering }) {
           </Field>
         )}
         <div className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3" title="Changes will apply to newly created documents. Existing document numbers will not be affected.">
-          <p className="mb-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">Preview</p>
+          <p className="mb-1 text-xxs font-bold uppercase tracking-wider text-gray-400">Preview</p>
           <p className="font-mono text-base font-bold text-primary-600">{preview}</p>
         </div>
       </div>
@@ -103,14 +103,14 @@ function NumberingCard({ cfg }: { cfg: DocumentNumbering }) {
           <div className="flex items-start gap-2">
             <Lock className="mt-0.5 h-3.5 w-3.5 text-gray-400" />
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Starting Number Set</p>
+              <p className="text-xxs font-bold uppercase tracking-wider text-gray-400">Starting Number Set</p>
               <p className="text-xs text-gray-500">Next document will be #{cfg.nextSerial}. This was a one-time setting.</p>
             </div>
           </div>
         ) : (
           <>
-            <div className="mb-1 flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-gray-500"><Hash className="h-3.5 w-3.5" /> Set Starting Number</div>
-            <p className="mb-2 text-[11px] text-gray-400">One-time only. Useful for migrating from offline systems.</p>
+            <div className="mb-1 flex items-center gap-2 text-xxs font-bold uppercase tracking-wider text-gray-500"><Hash className="h-3.5 w-3.5" /> Set Starting Number</div>
+            <p className="mb-2 text-xs text-gray-400">One-time only. Useful for migrating from offline systems.</p>
             <div className="flex gap-2">
               <div className="flex-1">
                 <Input type="number" min="1" step="1" value={start} placeholder="e.g. 100" invalid={!!startError} onChange={(e) => { setStart(e.target.value); setStartError(''); }} />

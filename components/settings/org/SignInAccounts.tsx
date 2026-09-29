@@ -68,7 +68,7 @@ export function SignInAccounts() {
       </p>
       <div className="mt-4 overflow-x-auto rounded-2xl border border-gray-200 bg-white">
         <table className="w-full text-sm">
-          <thead className="bg-gray-50 text-left text-[11px] font-bold uppercase tracking-wide text-gray-500">
+          <thead className="bg-gray-50 text-left text-xs font-bold uppercase tracking-wide text-gray-500">
             <tr>
               <th className="px-4 py-2.5">Name</th>
               <th className="px-4 py-2.5">Username</th>

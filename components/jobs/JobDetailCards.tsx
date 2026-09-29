@@ -178,7 +178,7 @@ export function JobProgress({ status, onChange }: { status: JobStatus; onChange:
                 )}>
                   {done ? <Check className="h-3.5 w-3.5 stroke-[4]" /> : <div className="h-2 w-2 rounded-full bg-gray-200" />}
                 </div>
-                <span className={cn('max-w-[80px] text-center text-[9px] font-black uppercase tracking-wider', current ? 'text-primary-700' : 'text-gray-400 group-hover:text-gray-600')}>
+                <span className={cn('max-w-[80px] text-center text-xxs font-black uppercase tracking-wider', current ? 'text-primary-700' : 'text-gray-400 group-hover:text-gray-600')}>
                   {STAGE_LABELS[s] ?? s}
                 </span>
               </button>
@@ -208,12 +208,12 @@ export function WorkOrdersCard({ job, workOrders, onCreate, statusOf }: { job: J
         </div>
         <div className="flex items-center gap-6">
           <div className="text-right">
-            <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Assigned</div>
+            <div className="text-xxs font-bold uppercase tracking-widest text-gray-400">Assigned</div>
             <div className="text-xl font-black text-primary-600">{assigned.toFixed(2)} hrs</div>
           </div>
           <div className="hidden h-8 w-px bg-gray-100 sm:block" />
           <div className="text-right">
-            <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Total Hours</div>
+            <div className="text-xxs font-bold uppercase tracking-widest text-gray-400">Total Hours</div>
             <div className="text-xl font-black text-gray-900">{job.estimatedHours.toFixed(2)} hrs</div>
           </div>
         </div>
@@ -287,7 +287,7 @@ export function CrewCard({ job }: { job: Job }) {
                   <Avatar name={fullName(m)} color={m?.color} size="sm" />
                   <div className="min-w-0 flex-1">
                     <div className="truncate text-sm font-bold text-gray-900">{fullName(m)}</div>
-                    <div className="text-[11px] text-gray-500">{c.role} · {c.hours}h on this job</div>
+                    <div className="text-xs text-gray-500">{c.role} · {c.hours}h on this job</div>
                   </div>
                   <button
                     onClick={() => { setCrew(job.id, job.crew.filter((x) => x.memberId !== c.memberId), `${fullName(m)} removed from crew`); toast('Crew member removed'); }}
@@ -296,7 +296,7 @@ export function CrewCard({ job }: { job: Job }) {
                     <Trash2 className="h-4 w-4" />
                   </button>
                 </div>
-                <div className="mt-2 flex items-center justify-between text-[11px]">
+                <div className="mt-2 flex items-center justify-between text-xs">
                   <span className={cn('font-bold', tone.text)}>{load} / {cap}h booked</span>
                   <span className="text-gray-400">{load > cap ? `${Math.round((load - cap) * 10) / 10}h over` : `${Math.round((cap - load) * 10) / 10}h free`}</span>
                 </div>
@@ -429,7 +429,7 @@ export function NotesCard({ job }: { job: Job }) {
                 <div className="min-w-0 flex-1 rounded-2xl border border-gray-100 bg-gray-50 p-3">
                   <div className="mb-1 flex items-center gap-2 text-xs">
                     <span className="font-bold text-gray-900">{fullName(a)}</span>
-                    <span className={cn('rounded-full px-2 py-0.5 text-[9px] font-black uppercase tracking-wider', n.type === 'daily-log' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700')}>
+                    <span className={cn('rounded-full px-2 py-0.5 text-xxs font-black uppercase tracking-wider', n.type === 'daily-log' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700')}>
                       {n.type === 'daily-log' ? 'Daily Log' : 'Note'}
                     </span>
                     <span className="text-gray-400">{longDate(n.date)}</span>

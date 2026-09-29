@@ -53,12 +53,12 @@ function Bills() {
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="font-display text-[15px] font-bold text-ink">{b.ref}</span>
+                    <span className="font-display text-base font-bold text-ink">{b.ref}</span>
                     <Badge tone="amber">{b.costCode === "SUB" ? "Subcontractor bill" : "Supplier bill"}</Badge>
                     {b.paymentStatus === "paid" ? <Badge tone="green">Paid</Badge> : <Badge tone="gray">Unpaid</Badge>}
                   </div>
-                  <div className="mt-1 text-[12.5px] text-slate-500">{b.party} · {dateLong(b.date)} · {b.jobId ? <AppLink className="text-brand hover:underline" href={jobHref(b.jobId, "materials")}>{b.jobId}</AppLink> : "no job"}</div>
-                  <div className="mt-1 text-[13px] font-semibold text-ink">{money(b.amount)} <span className="font-normal text-slate-500">+ {money(b.purchaseTax ?? 0)} purchase tax = {money(b.amount + (b.purchaseTax ?? 0))} gross job cost</span></div>
+                  <div className="mt-1 text-xs text-gray-500">{b.party} · {dateLong(b.date)} · {b.jobId ? <AppLink className="text-brand hover:underline" href={jobHref(b.jobId, "materials")}>{b.jobId}</AppLink> : "no job"}</div>
+                  <div className="mt-1 text-sm font-semibold text-ink">{money(b.amount)} <span className="font-normal text-gray-500">+ {money(b.purchaseTax ?? 0)} purchase tax = {money(b.amount + (b.purchaseTax ?? 0))} gross job cost</span></div>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {po && can(user, "finance.code") && <Button size="sm" onClick={() => { const r = act(matchSupplierBill, b.id); if (r.ok) { const m = r.value as { matched: boolean; unmatchedValue: number }; toast.success(m.matched ? "Bill matches" : "Discrepancy flagged", m.matched ? "Billed quantities agree with received quantities." : `${money(m.unmatchedValue)} billed but not received.`); } }}><Scale className="h-3.5 w-3.5" /> Match bill</Button>}
@@ -67,13 +67,13 @@ function Bills() {
               </div>
 
               {po && (
-                <div className="mt-3 grid gap-2 text-[12px] sm:grid-cols-3 [&>*]:min-w-0">
+                <div className="mt-3 grid gap-2 text-xs sm:grid-cols-3 [&>*]:min-w-0">
                   {po.lines.map((l) => {
                     const got = receipts.filter((x) => x.lineId === l.id).reduce((a, x) => a + x.qtyGal, 0);
                     return (
                       <div key={l.id} className={`rounded-lg border px-3 py-2 ${got < l.gallons ? "border-amber-200 bg-amber-50/50" : "border-line"}`}>
                         <div className="font-semibold text-ink">{l.id} · {l.colourLabel}</div>
-                        <div className="text-slate-600">Billed {l.gallons} gal · received {got} gal</div>
+                        <div className="text-gray-600">Billed {l.gallons} gal · received {got} gal</div>
                       </div>
                     );
                   })}
@@ -87,7 +87,7 @@ function Bills() {
                   <Banner tone="success" className="mt-3" title="Fully matched">{b.match.note}</Banner>
                 )
               )}
-              <div className="mt-3 flex flex-wrap gap-2 text-[12px]">
+              <div className="mt-3 flex flex-wrap gap-2 text-xs">
                 {credits.map((c) => <Badge key={c.id} tone="pink" className="whitespace-normal">Credit {c.ref} {money(c.amount)} — kept against this bill and {c.jobId}</Badge>)}
                 {settlement && <Badge tone="indigo" className="whitespace-normal" icon={<CheckCircle2 className="h-3 w-3" />}>Paid by {settlement.ref} — not a second expense</Badge>}
               </div>

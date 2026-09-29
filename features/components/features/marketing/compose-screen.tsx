@@ -95,7 +95,7 @@ function Composer({ post }: { post?: MarketingPost }) {
             <div className="mt-3 flex flex-wrap gap-4">
               {(["facebook", "instagram"] as const).map((p) => <Checkbox key={p} checked={form.platforms.includes(p)} disabled={locked} onCheckedChange={() => togglePlatform(p)} label={PLATFORM_LABEL[p]} />)}
             </div>
-            <div className="mt-3 flex flex-wrap gap-4 text-[12.5px]">
+            <div className="mt-3 flex flex-wrap gap-4 text-xs">
               <Checkbox checked={form.flags.customerProperty} disabled={locked} onCheckedChange={(v) => set("flags", { ...form.flags, customerProperty: v })} label="Shows a customer's property" />
               <Checkbox checked={form.flags.testimonial} disabled={locked} onCheckedChange={(v) => set("flags", { ...form.flags, testimonial: v })} label="Includes a testimonial" />
               <Checkbox checked={form.flags.namedCrew} disabled={locked} onCheckedChange={(v) => set("flags", { ...form.flags, namedCrew: v })} label="Names a crew member" />
@@ -108,8 +108,8 @@ function Composer({ post }: { post?: MarketingPost }) {
           </Card>
 
           <Card className="p-4" data-tour="marketing-media">
-            <CardLabel right={<AppLink href="/marketing/media" className="text-[12px] font-semibold text-brand">Crop or upload in the Media Library</AppLink>}>Media</CardLabel>
-            <p className="mt-1 text-[12px] text-slate-500">Without a release, only surface images can be used. Withdrawn media can&apos;t be selected. Crops keep the original job media untouched.</p>
+            <CardLabel right={<AppLink href="/marketing/media" className="text-xs font-semibold text-brand">Crop or upload in the Media Library</AppLink>}>Media</CardLabel>
+            <p className="mt-1 text-xs text-gray-500">Without a release, only surface images can be used. Withdrawn media can&apos;t be selected. Crops keep the original job media untouched.</p>
             <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
               {assets.map((a) => <AssetTile key={a.id} asset={a} selected={form.assetIds.includes(a.id)} onClick={locked ? undefined : () => toggleAsset(a.id)} />)}
             </div>
@@ -126,7 +126,7 @@ function Composer({ post }: { post?: MarketingPost }) {
             <Publishing post={post} />
           </div>
         ) : (
-          <Card className="p-4 text-[12.5px] text-slate-500">Save the draft to run the consent check, the checklist and the approval route.{!can(user, "marketing.post") && " Your role can't draft posts."}</Card>
+          <Card className="p-4 text-xs text-gray-500">Save the draft to run the consent check, the checklist and the approval route.{!can(user, "marketing.post") && " Your role can't draft posts."}</Card>
         )}
       </div>
     </>
@@ -141,8 +141,8 @@ function Checks({ post }: { post: MarketingPost }) {
   return (
     <Card className="p-4" data-tour="marketing-checks">
       <CardLabel icon={<ShieldCheck />}>Consent and checklist</CardLabel>
-      <div className="mt-3 space-y-2 text-[12.5px]">
-        {c.consent.ok ? <div className="flex items-start gap-1.5 text-emerald-700"><CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" /> Consent check passes.{c.consent.releases.length ? ` Release: ${c.consent.releases.join("; ")}.` : " No identifiable customer content."}</div>
+      <div className="mt-3 space-y-2 text-xs">
+        {c.consent.ok ? <div className="flex items-start gap-1.5 text-green-700"><CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" /> Consent check passes.{c.consent.releases.length ? ` Release: ${c.consent.releases.join("; ")}.` : " No identifiable customer content."}</div>
           : c.consent.failures.map((f) => <div key={f} className="flex items-start gap-1.5 text-red-700"><XCircle className="mt-0.5 h-4 w-4 shrink-0" /> Blocked — {f}</div>)}
         {c.addressAssets.map((a) => <div key={a.id} className="flex items-start gap-1.5 text-red-700"><XCircle className="mt-0.5 h-4 w-4 shrink-0" /> Flagged — {a.id}: {a.identifyingNote}. Use a publication crop.</div>)}
       </div>
@@ -166,10 +166,10 @@ function Approval({ post }: { post: MarketingPost }) {
   return (
     <Card className="p-4" data-tour="marketing-approval">
       <CardLabel>Owner approval</CardLabel>
-      <div className="mt-2 text-[12.5px]">
+      <div className="mt-2 text-xs">
         {c.needsApproval
           ? <p>Required because the post contains {c.reasons.map((r) => REASON_LABEL[r]).join(", ")}. Approval attaches to the version reviewed; a changed image, identifying text or claim voids it — a typo doesn&apos;t.</p>
-          : <p className="text-slate-600">Not required — routine content with no identifiers.</p>}
+          : <p className="text-gray-600">Not required — routine content with no identifiers.</p>}
         {post.approval && <p className="mt-1.5">Approved <strong>v{post.approval.version}</strong> by {userName(db, post.approval.by)} on {dateTime(post.approval.at)}{c.approved ? " — current version." : ` — this is v${post.version}, so it no longer applies.`}</p>}
       </div>
       <div className="mt-3 flex flex-wrap gap-2">
@@ -203,7 +203,7 @@ function Schedule({ post }: { post: MarketingPost }) {
     <Card className="p-4" data-tour="marketing-schedule">
       <CardLabel icon={<CalendarClock />}>Schedule</CardLabel>
       {post.schedule && (
-        <p className="mt-2 text-[12.5px]">
+        <p className="mt-2 text-xs">
           {post.state === "missed" ? <Badge tone="amber">Missed</Badge> : <Badge tone="indigo">Scheduled</Badge>} {localLabel(post.schedule.utc)} (America/Chicago) on {post.platforms.map((p) => PLATFORM_LABEL[p]).join(" and ")}.
           {post.schedule.adjustment === "first_occurrence" && " That time happens twice as the clocks go back; the first occurrence is used."}
           {post.schedule.adjustment === "moved_to_first_valid" && " That time doesn't exist as the clocks go forward; moved to the first valid time after the gap."}
@@ -218,7 +218,7 @@ function Schedule({ post }: { post: MarketingPost }) {
           {preview && preview.adjustment !== "none" && (
             <Banner tone="info" className="mt-2">{preview.adjustment === "moved_to_first_valid" ? `${time} doesn't exist on ${date} (clocks go forward). It will post at ${preview.resolvedLocal.slice(11)}, the first valid time after the gap.` : `${time} happens twice on ${date} (clocks go back). The first occurrence is used.`}</Banner>
           )}
-          {c.blockers.length > 0 ? <p className="mt-2 text-[12px] text-red-700">Scheduling is disabled: {c.blockers[0]}</p> : null}
+          {c.blockers.length > 0 ? <p className="mt-2 text-xs text-red-700">Scheduling is disabled: {c.blockers[0]}</p> : null}
           <div className="mt-3 flex justify-end">
             <Button variant="primary" disabled={c.blockers.length > 0} onClick={() => { const r = act(schedulePost, post.id, date, time); if (r.ok) toast.success(post.state === "missed" ? "Rescheduled" : "Scheduled", localLabel(r.value!.utc)); }}>{post.state === "missed" ? "Reschedule" : post.state === "scheduled" ? "Change time" : "Schedule"}</Button>
           </div>
@@ -238,11 +238,11 @@ function Publishing({ post }: { post: MarketingPost }) {
   return (
     <Card className="p-4" data-tour="marketing-publishing">
       <CardLabel>Publishing</CardLabel>
-      <p className="mt-1 text-[12px] text-slate-500">Organic posts only. Publishing never creates advertising spend, and a post is never treated as an advertisement.</p>
+      <p className="mt-1 text-xs text-gray-500">Organic posts only. Publishing never creates advertising spend, and a post is never treated as an advertisement.</p>
       {post.publications.length > 0 && (
         <div className="mt-3 space-y-2">
           {post.publications.map((p) => (
-            <div key={p.platform} className="rounded-lg border border-line px-3 py-2 text-[12.5px]">
+            <div key={p.platform} className="rounded-lg border border-line px-3 py-2 text-xs">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <span className="flex items-center gap-1.5"><PlatformChip platform={p.platform} status={p.status} /> <strong>{p.status === "uncertain" ? "Outcome unclear" : p.status[0].toUpperCase() + p.status.slice(1)}</strong></span>
                 {p.status === "uncertain" && office && (
@@ -252,7 +252,7 @@ function Publishing({ post }: { post: MarketingPost }) {
                   </span>
                 )}
               </div>
-              <div className="text-slate-500">{p.externalRef ? `Reference ${p.externalRef}` : ""}{p.at ? ` · ${localLabel(p.at)}` : ""}{p.error ? ` · ${p.error}` : ""}</div>
+              <div className="text-gray-500">{p.externalRef ? `Reference ${p.externalRef}` : ""}{p.at ? ` · ${localLabel(p.at)}` : ""}{p.error ? ` · ${p.error}` : ""}</div>
               {p.status === "uncertain" && <div className="text-amber-700">Publication outcome unclear. Check the platform before retrying.</div>}
             </div>
           ))}
@@ -267,9 +267,9 @@ function Publishing({ post }: { post: MarketingPost }) {
         {office && !["published", "partially_failed", "cancelled"].includes(post.state) && <Button variant="ghost" onClick={() => act(cancelPost, post.id).ok && toast.success("Cancelled")}>Cancel post</Button>}
       </div>
       {post.takedown && (
-        <div className="mt-3 rounded-lg border border-red-200 bg-red-50/60 px-3 py-2 text-[12.5px]">
+        <div className="mt-3 rounded-lg border border-red-200 bg-red-50/60 px-3 py-2 text-xs">
           <div className="font-semibold text-red-800">Takedown review</div>
-          <div className="text-slate-600">{post.takedown.reason}. Removing a queued post is not a takedown — confirm once it is off the platforms.</div>
+          <div className="text-gray-600">{post.takedown.reason}. Removing a queued post is not a takedown — confirm once it is off the platforms.</div>
           <div className="mt-2 flex flex-wrap items-center gap-2">
             {!post.takedown.doneAt ? (office && <Button size="sm" variant="danger" onClick={() => act(confirmTakedown, post.id).ok && toast.success("Takedown confirmed", "The owner spot-checks it next.")}>Confirm taken down</Button>)
               : <Badge tone="green">Taken down {dateTime(post.takedown.doneAt)} by {userName(db, post.takedown.doneBy)}</Badge>}
@@ -288,10 +288,10 @@ function Versions({ post }: { post: MarketingPost }) {
       <CardLabel icon={<History />}>Version history</CardLabel>
       <div className="mt-3 space-y-2">
         {[...post.versions].reverse().map((v, i) => (
-          <div key={i} className="rounded-lg border border-line px-3 py-2 text-[12.5px]">
-            <div className="flex flex-wrap items-center gap-1.5"><strong>v{v.version}</strong> <span className="text-slate-500">{v.note} · {userName(db, v.by)} · {dateTime(v.at)}</span>{post.approval?.version === v.version && <Badge tone="green">Approved version</Badge>}</div>
-            <div className="mt-0.5 text-slate-600">{v.copy}</div>
-            <div className="text-[11px] text-slate-400">Media: {v.assetIds.join(", ") || "none"}</div>
+          <div key={i} className="rounded-lg border border-line px-3 py-2 text-xs">
+            <div className="flex flex-wrap items-center gap-1.5"><strong>v{v.version}</strong> <span className="text-gray-500">{v.note} · {userName(db, v.by)} · {dateTime(v.at)}</span>{post.approval?.version === v.version && <Badge tone="green">Approved version</Badge>}</div>
+            <div className="mt-0.5 text-gray-600">{v.copy}</div>
+            <div className="text-xs text-gray-400">Media: {v.assetIds.join(", ") || "none"}</div>
           </div>
         ))}
       </div>

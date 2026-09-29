@@ -44,7 +44,7 @@ export function LibraryToolbar({
       <SearchInput value={search} onChange={onSearch} placeholder={placeholder} className="md:w-[300px] md:max-w-md" />
       {sortOptions && onSort && (
         <div className="w-full md:w-auto md:min-w-[150px]">
-          <Select value={sort} onChange={onSort} options={sortOptions} size="sm" className="h-8 rounded-lg text-[10px]" />
+          <Select value={sort} onChange={onSort} options={sortOptions} size="sm" className="h-8 rounded-lg text-xs" />
         </div>
       )}
       {children}
@@ -102,7 +102,7 @@ const PILL = {
 } as const;
 
 export function Pill({ children, color = 'gray', className }: { children: React.ReactNode; color?: keyof typeof PILL; className?: string }) {
-  return <span className={cn('inline-flex items-center rounded-md border px-2 py-0.5 text-[10px] font-bold', PILL[color], className)}>{children}</span>;
+  return <span className={cn('inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-bold', PILL[color], className)}>{children}</span>;
 }
 
 export function FormActions({
@@ -126,7 +126,7 @@ export function FormActions({
 export function SectionHeading({ icon, children, right }: { icon?: React.ReactNode; children: React.ReactNode; right?: React.ReactNode }) {
   return (
     <div className="mb-2 flex items-center justify-between">
-      <h4 className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-gray-400 [&>svg]:h-3.5 [&>svg]:w-3.5">
+      <h4 className="flex items-center gap-2 text-xxs font-bold uppercase tracking-widest text-gray-400 [&>svg]:h-3.5 [&>svg]:w-3.5">
         {icon}
         {children}
       </h4>

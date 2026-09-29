@@ -30,7 +30,7 @@ export function TiersPanel() {
       <div>
         <div className="mb-3 flex items-center justify-between">
           <h4 className="font-heading text-base font-bold text-gray-900">{title}</h4>
-          <button type="button" onClick={() => setEditing({ type })} className="flex items-center gap-0.5 text-[11px] font-bold text-primary-600 hover:underline">
+          <button type="button" onClick={() => setEditing({ type })} className="flex items-center gap-0.5 text-xs font-bold text-primary-600 hover:underline">
             Add <Plus className="h-3 w-3" />
           </button>
         </div>
@@ -42,7 +42,7 @@ export function TiersPanel() {
               <div key={t.id} className="flex items-center justify-between rounded-xl border border-gray-200 bg-gray-50/60 px-3 py-2.5">
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-semibold text-gray-900">{t.name}</span>
-                  <span className={cn('rounded-full border px-1.5 py-0.5 text-[9px] font-bold', type === 'HEIGHT' ? 'border-blue-200 bg-blue-50 text-blue-700' : 'border-amber-200 bg-amber-50 text-amber-700')}>
+                  <span className={cn('rounded-full border px-1.5 py-0.5 text-xs font-bold', type === 'HEIGHT' ? 'border-blue-200 bg-blue-50 text-blue-700' : 'border-amber-200 bg-amber-50 text-amber-700')}>
                     x{+t.multiplier.toFixed(3)}
                   </span>
                 </div>
@@ -111,7 +111,7 @@ function TierFormModal({ tier, defaultType, onClose }: { tier?: DifficultyTier; 
           <Input value={name} placeholder="e.g. Standard (8-9ft)" invalid={!!errors.name} onChange={(e) => setName(e.target.value)} />
         </Field>
         <div>
-          <div className="mb-1.5 text-[11px] font-bold uppercase tracking-wide text-gray-600">Tier Type</div>
+          <div className="mb-1.5 text-xs font-bold uppercase tracking-wide text-gray-600">Tier Type</div>
           <SegmentedToggle value={type} onChange={setType} options={[{ value: 'HEIGHT', label: 'Height' }, { value: 'ACCESS', label: 'Access' }]} />
         </div>
         <Field label="Multiplier" required error={errors.multiplier} hint="1 = no change, 1.2 = 20% more labor">

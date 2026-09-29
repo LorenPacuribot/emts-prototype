@@ -79,7 +79,7 @@ export function EstimateTemplatesView() {
                 {t.isDefault && <Pill color="blue">Default</Pill>}
               </div>
               <p className="mb-6 h-10 text-xs text-gray-500 line-clamp-2">{t.description || 'No description provided.'}</p>
-              <div className="mt-auto flex items-center justify-between border-t border-gray-100 pt-4 text-[10px] font-bold uppercase tracking-wider text-gray-400">
+              <div className="mt-auto flex items-center justify-between border-t border-gray-100 pt-4 text-xxs font-bold uppercase tracking-wider text-gray-400">
                 <span>{t.areaTemplateIds.length} Areas</span>
                 <span>{t.lineItemTemplateIds.length} Items</span>
               </div>

@@ -57,24 +57,24 @@ export function PrintCardModal({ open, onOpenChange, jobId, initial = "crew" }: 
         <div className="mb-4 flex items-start justify-between border-b border-line pb-3">
           <div>
             <div className="font-display text-lg font-bold">{layout === "crew" ? "Crew colour card" : "Your colour selections"}</div>
-            <div className="text-[12px] text-slate-500">
+            <div className="text-xs text-gray-500">
               {job.name} · {propertyAddress(property, true)}
             </div>
           </div>
-          <div className="text-right text-[11px] text-slate-500">
+          <div className="text-right text-xs text-gray-500">
             {job.id}
             <br />
             Card v{job.cardVersion}
           </div>
         </div>
-        {rows.length === 0 && <p className="text-[13px] italic text-slate-400">No surfaces assigned yet.</p>}
+        {rows.length === 0 && <p className="text-sm italic text-gray-400">No surfaces assigned yet.</p>}
         {layout === "crew"
           ? Object.entries(byArea).map(([area, list]) => (
               <div key={area} className="mb-4">
-                <div className="mb-1 text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500">{area}</div>
-                <table className="w-full border-collapse text-[12px]">
+                <div className="mb-1 text-xs font-bold uppercase tracking-[0.12em] text-gray-500">{area}</div>
+                <table className="w-full border-collapse text-xs">
                   <thead>
-                    <tr className="text-left text-[10px] uppercase tracking-wider text-slate-400">
+                    <tr className="text-left text-xxs uppercase tracking-wider text-gray-400">
                       <th className="border-b py-1">Surface</th>
                       <th className="border-b py-1">Colour</th>
                       <th className="border-b py-1">Sheen</th>
@@ -107,12 +107,12 @@ export function PrintCardModal({ open, onOpenChange, jobId, initial = "crew" }: 
               {rows.map((r) => (
                 <div key={r.spec.id + r.surface.id} className="flex items-center gap-3 rounded-lg border border-line p-3">
                   <Swatch hex={r.colour.hex} size="lg" />
-                  <div className="text-[12.5px]">
+                  <div className="text-xs">
                     <div className="font-bold">
                       {r.colour.name} · {r.colour.number}
                     </div>
-                    <div className="text-slate-600">{r.spec.sheen ?? "Sheen to be confirmed"}</div>
-                    <div className="text-slate-500">
+                    <div className="text-gray-600">{r.spec.sheen ?? "Sheen to be confirmed"}</div>
+                    <div className="text-gray-500">
                       {r.area.name} — {r.surface.name}
                     </div>
                   </div>
@@ -120,7 +120,7 @@ export function PrintCardModal({ open, onOpenChange, jobId, initial = "crew" }: 
               ))}
             </div>
           )}
-        {layout === "customer" && <p className="mt-4 text-[10.5px] text-slate-400">On-screen swatches are a guide only and are not a guarantee of physical colour match.</p>}
+        {layout === "customer" && <p className="mt-4 text-xs text-gray-400">On-screen swatches are a guide only and are not a guarantee of physical colour match.</p>}
       </div>
     </Modal>
   );

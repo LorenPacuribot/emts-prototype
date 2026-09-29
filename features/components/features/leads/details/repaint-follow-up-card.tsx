@@ -57,7 +57,7 @@ export function RepaintFollowUpCard({ lead }: { lead: Lead }) {
       </dl>
       {surfaces.length > 0 && (
         <div className="mt-4">
-          <div className="mb-1.5 text-[10px] font-bold uppercase tracking-widest text-gray-400">Surfaces due</div>
+          <div className="mb-1.5 text-xxs font-bold uppercase tracking-widest text-gray-400">Surfaces due</div>
           <ul className="space-y-1 text-sm text-gray-700">{surfaces.slice(0, 4).map((s) => <li key={s} className="truncate">• {surfaceLabel(db, s)}</li>)}</ul>
           {surfaces.length > 4 && <div className="mt-1 text-xs text-gray-400">+ {surfaces.length - 4} more</div>}
         </div>
@@ -79,7 +79,7 @@ export function RepaintFollowUpCard({ lead }: { lead: Lead }) {
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex items-start justify-between gap-3">
-      <dt className="text-[10px] font-bold uppercase tracking-widest text-gray-400">{label}</dt>
+      <dt className="text-xxs font-bold uppercase tracking-widest text-gray-400">{label}</dt>
       <dd className="text-right text-gray-900">{children}</dd>
     </div>
   );

@@ -89,8 +89,8 @@ function JobDetails({ job }: { job: Job }) {
             <div className="flex flex-wrap items-center gap-2">
               <StatusPill tone={display.tone} dot>{display.label}</StatusPill>
               <NumberChip>{job.id}</NumberChip>
-              {job.estimateId && <AppLink href={estimateHref(job.estimateId)} className="rounded-md border border-blue-100 bg-blue-50 px-1.5 py-0.5 text-[10px] font-bold text-blue-700">EST {job.estimateId}</AppLink>}
-              {job.leadId && <AppLink href={leadHref(job.leadId)} className="rounded-md border border-blue-100 bg-blue-50 px-1.5 py-0.5 text-[10px] font-bold text-blue-700">LEAD {job.leadId}</AppLink>}
+              {job.estimateId && <AppLink href={estimateHref(job.estimateId)} className="rounded-md border border-blue-100 bg-blue-50 px-1.5 py-0.5 text-xs font-bold text-blue-700">EST {job.estimateId}</AppLink>}
+              {job.leadId && <AppLink href={leadHref(job.leadId)} className="rounded-md border border-blue-100 bg-blue-50 px-1.5 py-0.5 text-xs font-bold text-blue-700">LEAD {job.leadId}</AppLink>}
             </div>
             <h1 className="mt-3 font-heading text-3xl font-extrabold tracking-tight text-gray-900">{job.name}</h1>
             <div className="text-sm text-gray-500">{byId(db.customers, job.customerId)?.name}</div>

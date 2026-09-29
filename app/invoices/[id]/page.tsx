@@ -142,7 +142,7 @@ export default function InvoiceDetailPage() {
                     <td className="px-6 py-4 font-medium text-gray-900">{shortDate(p.date)}</td>
                     <td className="px-6 py-4 text-gray-600">Charge</td>
                     <td className="px-6 py-4 text-gray-600">{methodLabel(p.method)}{p.cardLast4 && <span className="ml-1 text-xs text-gray-400">••••{p.cardLast4}</span>}</td>
-                    <td className="px-6 py-4"><span className="rounded-full border border-green-200 bg-green-50 px-2 py-0.5 text-[10px] font-bold text-green-700">Approved</span></td>
+                    <td className="px-6 py-4"><span className="rounded-full border border-green-200 bg-green-50 px-2 py-0.5 text-xs font-bold text-green-700">Approved</span></td>
                     <td className="px-6 py-4 text-right font-bold text-green-700">{usd(p.amount)}</td>
                     <td className="px-6 py-4 font-mono text-xs text-gray-600">{p.reference || '—'}</td>
                     <td className="px-6 py-4 text-xs text-gray-500">{p.note || '—'}</td>

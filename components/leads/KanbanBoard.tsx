@@ -97,7 +97,7 @@ export function KanbanBoard({
               >
                 <h3 className="text-xs font-bold uppercase tracking-wide text-gray-900">{stage.displayName}</h3>
                 <span
-                  className="flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[10px] font-bold"
+                  className="flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-xs font-bold"
                   style={{ backgroundColor: `${stage.color}22`, color: stage.color }}
                 >
                   {stageLeads.length}

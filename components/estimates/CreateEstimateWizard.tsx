@@ -119,8 +119,8 @@ function ClientStep({ onPick }: { onPick: (p: ClientPick) => void }) {
               <div key={l.id} className={card} onClick={() => onPick({ kind: 'lead', lead: l })}>
                 <div className="mb-2 flex flex-wrap items-center gap-2">
                   <h4 className="text-lg font-bold text-gray-900 group-hover:text-primary-700">{fullName(l)}</h4>
-                  <span className="rounded-full border border-blue-100 bg-blue-50 px-2 py-0.5 text-[10px] font-bold uppercase text-blue-700">{l.leadNumber}</span>
-                  <span className="rounded-full border border-gray-200 bg-gray-50 px-2 py-0.5 text-[10px] font-bold uppercase text-gray-500">{l.status}</span>
+                  <span className="rounded-full border border-blue-100 bg-blue-50 px-2 py-0.5 text-xxs font-bold uppercase text-blue-700">{l.leadNumber}</span>
+                  <span className="rounded-full border border-gray-200 bg-gray-50 px-2 py-0.5 text-xxs font-bold uppercase text-gray-500">{l.status}</span>
                 </div>
                 <div className="space-y-1.5 text-sm text-gray-600">
                   <div className="flex items-center gap-2"><MapPin className="h-3.5 w-3.5 shrink-0 text-gray-400" /><span className="truncate">{addressOf(l)}</span></div>
@@ -145,7 +145,7 @@ function ClientStep({ onPick }: { onPick: (p: ClientPick) => void }) {
                 <div className="mb-2 flex flex-wrap items-center gap-2">
                   <h4 className="text-lg font-bold text-gray-900 group-hover:text-primary-700">{fullName(c)}</h4>
                   {c.companyName && <span className="text-sm text-gray-500">{c.companyName}</span>}
-                  <span className="rounded-full border border-purple-100 bg-purple-50 px-2 py-0.5 text-[10px] font-bold uppercase text-purple-700">{c.type}</span>
+                  <span className="rounded-full border border-purple-100 bg-purple-50 px-2 py-0.5 text-xxs font-bold uppercase text-purple-700">{c.type}</span>
                 </div>
                 <div className="space-y-1.5 text-sm text-gray-600">
                   <div className="flex items-center gap-2"><MapPin className="h-3.5 w-3.5 shrink-0 text-gray-400" /><span className="truncate">{addressOf(c)}</span></div>

@@ -15,7 +15,7 @@ import { cn } from '@/lib/utils';
 
 export function Label({ children, required, className, htmlFor }: { children: React.ReactNode; required?: boolean; className?: string; htmlFor?: string }) {
   return (
-    <label htmlFor={htmlFor} className={cn('block text-[11px] font-bold uppercase tracking-wide text-gray-600 mb-1.5', className)}>
+    <label htmlFor={htmlFor} className={cn('block text-xs font-bold uppercase tracking-wide text-gray-600 mb-1.5', className)}>
       {children}
       {required && <span className="text-red-500 ml-0.5">*</span>}
     </label>

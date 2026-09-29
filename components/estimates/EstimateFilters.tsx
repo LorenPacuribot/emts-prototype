@@ -91,7 +91,7 @@ function DateRangeFilter({ value, onChange }: { value: DateRange | null; onChang
           <div className="space-y-2">
             {(['from', 'to'] as const).map((k) => (
               <label key={k} className="block">
-                <span className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-gray-500">{k === 'from' ? 'From' : 'To'}</span>
+                <span className="mb-1 block text-xs font-bold uppercase tracking-wide text-gray-500">{k === 'from' ? 'From' : 'To'}</span>
                 <input
                   type="date"
                   value={value?.[k] ?? ''}

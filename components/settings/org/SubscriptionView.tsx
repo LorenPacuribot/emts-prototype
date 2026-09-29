@@ -121,9 +121,9 @@ export function SubscriptionView() {
       subtitle="Manage your platform access and professional setup services."
       actions={
         <div className="flex items-center gap-4 rounded-2xl border border-gray-200 bg-white p-3 shadow-sm">
-          <div className="flex h-8 w-12 items-center justify-center rounded-md bg-[#1a1f71] text-[10px] font-black italic text-white">{pm.brand.toUpperCase().slice(0, 4)}</div>
+          <div className="flex h-8 w-12 items-center justify-center rounded-md bg-[#1a1f71] text-xs font-black italic text-white">{pm.brand.toUpperCase().slice(0, 4)}</div>
           <div>
-            <div className="mb-1 text-[10px] font-bold uppercase leading-none tracking-widest text-gray-400">Current Method</div>
+            <div className="mb-1 text-xxs font-bold uppercase leading-none tracking-widest text-gray-400">Current Method</div>
             <div className="text-sm font-bold leading-none text-gray-900">{pm.brand} •••• {pm.last4}</div>
           </div>
           <button type="button" onClick={() => setPayOpen(true)} className="ml-2 text-sm font-bold text-primary-600 hover:underline">Update</button>
@@ -134,7 +134,7 @@ export function SubscriptionView() {
         {/* Current plan */}
         <div className="flex items-start justify-between gap-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
           <div>
-            <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Current Plan</div>
+            <div className="text-xxs font-bold uppercase tracking-widest text-gray-400">Current Plan</div>
             <div className="mt-1 font-heading text-base font-bold text-gray-900">
               {sub.planName} — ${sub.price}/mo {cancelled && <Badge className="ml-2 border-red-200 bg-red-50 text-red-700">Cancelled</Badge>}
             </div>
@@ -151,7 +151,7 @@ export function SubscriptionView() {
         {/* Usage */}
         <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
           <div className="mb-5 flex flex-wrap items-baseline justify-between gap-3">
-            <h3 className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Usage This Billing Cycle</h3>
+            <h3 className="text-xxs font-bold uppercase tracking-widest text-gray-400">Usage This Billing Cycle</h3>
             <span className="text-xs text-gray-500">{longDate(toISODate(cycleStart))} – {longDate(sub.renewsAt)}</span>
           </div>
           <div className="grid grid-cols-1 gap-x-8 gap-y-5 md:grid-cols-2">
@@ -183,14 +183,14 @@ export function SubscriptionView() {
                 <h3 className="font-heading text-lg font-bold text-gray-900">{p.name}</h3>
                 <div className="mb-3 flex items-baseline gap-1">
                   <span className="text-2xl font-black text-gray-900">${p.price}</span>
-                  <span className="text-[10px] font-bold text-gray-400">/mo</span>
+                  <span className="text-xs font-bold text-gray-400">/mo</span>
                 </div>
                 <p className="min-h-[40px] text-xs leading-relaxed text-gray-500">{p.description}</p>
                 <div className="mb-8 mt-5 flex-1 space-y-3">
                   {p.features.map((f) => (
                     <div key={f} className="flex items-center gap-3">
                       <span className={cn('flex h-4 w-4 shrink-0 items-center justify-center rounded-full', isCurrent ? 'bg-primary-100 text-primary-600' : 'bg-gray-100 text-gray-400')}><Check className="h-2.5 w-2.5" /></span>
-                      <span className="text-[10px] font-medium uppercase text-gray-600">{f}</span>
+                      <span className="text-xxs font-medium uppercase text-gray-600">{f}</span>
                     </div>
                   ))}
                 </div>
@@ -221,23 +221,23 @@ export function SubscriptionView() {
                   <div className="min-w-0 flex-1">
                     <div className="mb-1 flex items-start justify-between gap-2">
                       <h4 className="font-bold text-gray-900 group-hover:text-primary-700">{a.name}</h4>
-                      <div className="whitespace-nowrap font-black text-primary-600">{dollars(a.prices[h]!)}<span className="ml-0.5 text-[10px] font-bold text-gray-400">{CADENCE_SUFFIX[h]}</span></div>
+                      <div className="whitespace-nowrap font-black text-primary-600">{dollars(a.prices[h]!)}<span className="ml-0.5 text-xs font-bold text-gray-400">{CADENCE_SUFFIX[h]}</span></div>
                     </div>
                     <p className="mb-3 line-clamp-2 text-xs leading-relaxed text-gray-500">{a.description}</p>
                     {!has && (
                       <div className="mb-3 grid grid-cols-3 gap-1.5">
                         {(['MONTHLY', 'YEARLY', 'LIFETIME'] as Cadence[]).map((c) => (
                           <div key={c} className={cn('rounded-lg border px-2 py-1 text-center', a.prices[c] ? 'border-gray-200 bg-white' : 'border-dashed border-gray-200 opacity-50')}>
-                            <div className="text-[7px] font-bold uppercase tracking-wider text-gray-400">{CADENCE_LABEL[c]}</div>
-                            <div className="text-[10px] font-black text-gray-900">{a.prices[c] ? dollars(a.prices[c]!) : '—'}</div>
+                            <div className="text-xxs font-bold uppercase tracking-wider text-gray-400">{CADENCE_LABEL[c]}</div>
+                            <div className="text-xs font-black text-gray-900">{a.prices[c] ? dollars(a.prices[c]!) : '—'}</div>
                           </div>
                         ))}
                       </div>
                     )}
                     {has ? (
-                      <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-green-600"><Check className="h-3 w-3" /> Already Active</div>
+                      <div className="flex items-center gap-1.5 text-xxs font-black uppercase tracking-widest text-green-600"><Check className="h-3 w-3" /> Already Active</div>
                     ) : (
-                      <button type="button" onClick={() => setBuy(a)} className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-primary-600 transition-all hover:gap-3">
+                      <button type="button" onClick={() => setBuy(a)} className="flex items-center gap-1.5 text-xxs font-black uppercase tracking-widest text-primary-600 transition-all hover:gap-3">
                         Order Setup <ArrowRight className="h-3 w-3" />
                       </button>
                     )}
@@ -260,7 +260,7 @@ export function SubscriptionView() {
             <div className="overflow-x-auto rounded-3xl border border-gray-200 bg-white shadow-sm">
               <table className="w-full text-left text-xs">
                 <thead>
-                  <tr className="border-b border-gray-100 bg-gray-50 text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                  <tr className="border-b border-gray-100 bg-gray-50 text-xxs font-bold uppercase tracking-widest text-gray-500">
                     {['Date', 'Invoice', 'Description', 'Type', 'Method', 'Amount', 'Status'].map((h) => <th key={h} className="px-4 py-3">{h}</th>)}
                   </tr>
                 </thead>
@@ -270,10 +270,10 @@ export function SubscriptionView() {
                     return (
                       <tr key={t.id} className="hover:bg-gray-50/50">
                         <td className="whitespace-nowrap px-4 py-3.5 font-medium text-gray-900">{new Date(t.date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })}</td>
-                        <td className="whitespace-nowrap px-4 py-3.5 font-mono text-[10px] text-gray-400">{t.invoiceNumber ?? '—'}</td>
+                        <td className="whitespace-nowrap px-4 py-3.5 font-mono text-xs text-gray-400">{t.invoiceNumber ?? '—'}</td>
                         <td className="px-4 py-3.5 text-gray-600">{t.description}</td>
                         <td className="px-4 py-3.5">
-                          <span className="flex items-center gap-1.5 text-[10px] font-bold text-gray-500">
+                          <span className="flex items-center gap-1.5 text-xs font-bold text-gray-500">
                             {credit ? <ArrowDownCircle className="h-3.5 w-3.5 text-blue-500" /> : <ArrowUpCircle className="h-3.5 w-3.5 text-green-500" />}
                             {t.type === 'refund' ? 'Refund' : t.type === 'credit' ? 'Credit' : 'Charge'}
                           </span>
@@ -295,13 +295,13 @@ export function SubscriptionView() {
         </div>
 
         {/* Support banner */}
-        <div className="relative mt-6 flex flex-col items-center justify-between gap-8 overflow-hidden rounded-[2.5rem] bg-slate-900 p-8 text-white md:flex-row md:p-10">
+        <div className="relative mt-6 flex flex-col items-center justify-between gap-8 overflow-hidden rounded-[2.5rem] bg-gray-900 p-8 text-white md:flex-row md:p-10">
           <Settings className="absolute -bottom-10 right-10 h-40 w-40 opacity-10" />
           <div className="relative z-10 max-w-xl text-center md:text-left">
             <h4 className="mb-3 font-heading text-xl font-bold">Need a completely custom workflow?</h4>
-            <p className="text-sm leading-relaxed text-slate-400">Our implementation engineers can build custom API integrations or high-volume enterprise templates tailored to your specific business model.</p>
+            <p className="text-sm leading-relaxed text-gray-400">Our implementation engineers can build custom API integrations or high-volume enterprise templates tailored to your specific business model.</p>
           </div>
-          <a href="/support" className="relative z-10 inline-flex h-12 shrink-0 items-center rounded-xl bg-white px-8 text-sm font-bold text-slate-900 shadow-lg hover:bg-slate-100">
+          <a href="/support" className="relative z-10 inline-flex h-12 shrink-0 items-center rounded-xl bg-white px-8 text-sm font-bold text-gray-900 shadow-lg hover:bg-gray-100">
             <LifeBuoy className="mr-2 h-4 w-4" /> Contact Support
           </a>
         </div>

@@ -100,7 +100,7 @@ export default function LeadDetailPage() {
                 <LeadSourceChip
                   lead={lead}
                   className="rounded-full uppercase tracking-wider"
-                  fallback={<span className="rounded-full border border-gray-200 bg-gray-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-gray-600">{lead.leadSource || 'Website'}</span>}
+                  fallback={<span className="rounded-full border border-gray-200 bg-gray-100 px-2 py-0.5 text-xxs font-bold uppercase tracking-wider text-gray-600">{lead.leadSource || 'Website'}</span>}
                 />
                 <span className="text-gray-400">Created: {shortDate(lead.date)}</span>
                 <span className="text-xs font-semibold text-gray-400">{lead.leadNumber}</span>
@@ -211,7 +211,7 @@ function InfoTile({ icon, iconCls, label, value }: { icon: React.ReactNode; icon
     <div className="flex items-center gap-4 rounded-xl bg-gray-50 p-4">
       <div className={cn('flex h-10 w-10 shrink-0 items-center justify-center rounded-full [&>svg]:h-5 [&>svg]:w-5', iconCls)}>{icon}</div>
       <div className="min-w-0">
-        <div className="mb-0.5 text-[10px] font-bold uppercase tracking-widest text-gray-400">{label}</div>
+        <div className="mb-0.5 text-xxs font-bold uppercase tracking-widest text-gray-400">{label}</div>
         <div className="truncate text-base font-bold text-gray-900">{value}</div>
       </div>
     </div>
@@ -280,7 +280,7 @@ function JobLocationCard({ lead }: { lead: Lead }) {
       </div>
       {customer && (customer.serviceLocations?.length ?? 0) > 0 && (
         <div className="mb-4 space-y-2">
-          <div className="text-[11px] font-bold uppercase tracking-wider text-gray-400">Other service locations</div>
+          <div className="text-xs font-bold uppercase tracking-wider text-gray-400">Other service locations</div>
           {customer.serviceLocations!.map((l) => (
             <div key={l.id} className="rounded-lg border border-gray-100 bg-white px-3 py-2 text-sm">
               <div className="font-semibold text-gray-800">{[l.street, l.unit].filter(Boolean).join(' ')}</div>

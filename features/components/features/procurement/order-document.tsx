@@ -22,41 +22,41 @@ export const OrderDocument = forwardRef<HTMLDivElement, { db: Database; po: Purc
   const branch = byId(db.branches, po.branchId);
   const supplier = byId(db.suppliers, po.supplierId);
   return (
-    <div ref={ref} className="rounded-xl border border-line bg-white p-5 text-[12.5px]">
+    <div ref={ref} className="rounded-xl border border-line bg-white p-5 text-xs">
       <div className="flex flex-wrap items-start justify-between gap-3 border-b border-line pb-3">
         <div>
-          <div className="font-display text-[16px] font-bold text-ink">Purchase Order {po.id}</div>
-          <div className="text-slate-500">Estimate Master Painting · (214) 555-0100</div>
+          <div className="font-display text-base font-bold text-ink">Purchase Order {po.id}</div>
+          <div className="text-gray-500">Estimate Master Painting · (214) 555-0100</div>
         </div>
         <div className="text-right">
           <div className="font-semibold text-ink">{supplier?.name}</div>
-          <div className="text-slate-600">
+          <div className="text-gray-600">
             {branch?.name} · Store {branch?.storeNumber || "—"}
           </div>
-          <div className="text-slate-500">{branch?.phone}</div>
-          {showAccount && branch?.accountNumber && <div className="text-slate-600">Account {branch.accountNumber}</div>}
+          <div className="text-gray-500">{branch?.phone}</div>
+          {showAccount && branch?.accountNumber && <div className="text-gray-600">Account {branch.accountNumber}</div>}
         </div>
       </div>
       <div className="grid gap-3 border-b border-line py-3 sm:grid-cols-3">
         <div>
-          <div className="text-[9.5px] font-bold uppercase tracking-[0.12em] text-slate-400">Job</div>
+          <div className="text-xxs font-bold uppercase tracking-[0.12em] text-gray-400">Job</div>
           <div className="font-medium text-ink">{job?.name} ({po.jobId})</div>
-          <div className="text-slate-600">{propertyAddress(property, true)}</div>
+          <div className="text-gray-600">{propertyAddress(property, true)}</div>
         </div>
         <div>
-          <div className="text-[9.5px] font-bold uppercase tracking-[0.12em] text-slate-400">{po.fulfilment === "delivery" ? "Delivery" : "Pickup"}</div>
+          <div className="text-xxs font-bold uppercase tracking-[0.12em] text-gray-400">{po.fulfilment === "delivery" ? "Delivery" : "Pickup"}</div>
           <div className="font-medium text-ink">{po.fulfilment === "delivery" ? "Deliver to job site" : "Customer pickup at branch"}</div>
-          <div className="text-slate-600">{dateLong(po.deliveryDate)} · {po.phase}</div>
+          <div className="text-gray-600">{dateLong(po.deliveryDate)} · {po.phase}</div>
         </div>
         <div>
-          <div className="text-[9.5px] font-bold uppercase tracking-[0.12em] text-slate-400">Pickup contact</div>
+          <div className="text-xxs font-bold uppercase tracking-[0.12em] text-gray-400">Pickup contact</div>
           <div className="font-medium text-ink">{po.pickupContact ?? "—"}</div>
-          <div className="text-slate-600">{po.pickupPhone ?? "—"}</div>
+          <div className="text-gray-600">{po.pickupPhone ?? "—"}</div>
         </div>
       </div>
       <table className="mt-3 w-full border-collapse text-left">
         <thead>
-          <tr className="text-[9.5px] uppercase tracking-[0.12em] text-slate-400">
+          <tr className="text-xxs uppercase tracking-[0.12em] text-gray-400">
             <th className="border-b border-line py-1.5 pr-2">Line</th>
             <th className="border-b border-line py-1.5 pr-2">Manufacturer / product</th>
             <th className="border-b border-line py-1.5 pr-2">Colour / number</th>
@@ -74,17 +74,17 @@ export const OrderDocument = forwardRef<HTMLDivElement, { db: Database; po: Purc
               <tr key={l.id} className="align-top">
                 <td className="border-b border-line py-2 pr-2 font-semibold">{l.id}</td>
                 <td className="border-b border-line py-2 pr-2">
-                  <div className="text-slate-600">{id.manufacturer ?? "—"}</div>
+                  <div className="text-gray-600">{id.manufacturer ?? "—"}</div>
                   <div className="font-medium text-ink">{l.product}</div>
                 </td>
                 <td className="border-b border-line py-2 pr-2">
                   <div className="font-medium text-ink">{id.colourName}</div>
-                  <div className="font-mono text-slate-600">{id.colourNumber ?? "—"}</div>
-                  {l.tintFormula && <div className="text-[11px] text-slate-500">Tint formula: {l.tintFormula}</div>}
+                  <div className="font-mono text-gray-600">{id.colourNumber ?? "—"}</div>
+                  {l.tintFormula && <div className="text-xs text-gray-500">Tint formula: {l.tintFormula}</div>}
                 </td>
                 <td className="border-b border-line py-2 pr-2">
                   <div className="text-ink">{l.sheen || "—"}</div>
-                  <div className="text-slate-600">{id.tintBase ?? "—"}</div>
+                  <div className="text-gray-600">{id.tintBase ?? "—"}</div>
                 </td>
                 <td className="border-b border-line py-2 pr-2 whitespace-nowrap">{formatPacks(l.packs)}</td>
                 <td className="border-b border-line py-2 pr-2">
@@ -104,7 +104,7 @@ export const OrderDocument = forwardRef<HTMLDivElement, { db: Database; po: Purc
           </tfoot>
         )}
       </table>
-      <p className="mt-4 text-[10.5px] text-slate-400">Reference {po.id} on every call, pickup ticket and invoice. Page 1 of 1.</p>
+      <p className="mt-4 text-xs text-gray-400">Reference {po.id} on every call, pickup ticket and invoice. Page 1 of 1.</p>
     </div>
   );
 });

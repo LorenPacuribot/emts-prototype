@@ -90,11 +90,11 @@ export function LineItemsView() {
                   <p className="mb-5 whitespace-pre-line border-b border-gray-100 pb-5 text-sm text-gray-600">{t.description}</p>
                   <div className="mt-auto flex items-center justify-between gap-4">
                     <div className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-2.5 py-1.5 shadow-sm">
-                      <span className="text-[9px] font-bold uppercase text-gray-400">{isPercent ? 'Percent' : 'Unit Price'}</span>
+                      <span className="text-xxs font-bold uppercase text-gray-400">{isPercent ? 'Percent' : 'Unit Price'}</span>
                       <span className="text-sm font-bold text-gray-900">{isPercent ? `${value}%` : `$${value}`}</span>
                     </div>
                     <div className="text-right">
-                      <div className="mb-0.5 text-[9px] font-bold uppercase text-gray-400">Total Client Price</div>
+                      <div className="mb-0.5 text-xxs font-bold uppercase text-gray-400">Total Client Price</div>
                       <div className="font-heading text-2xl font-bold leading-none text-gray-900">{isPercent ? `${value}%` : `$${client.toFixed(2)}`}</div>
                     </div>
                   </div>

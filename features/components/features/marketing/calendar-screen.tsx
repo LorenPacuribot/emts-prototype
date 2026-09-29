@@ -82,23 +82,23 @@ function Calendar() {
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center gap-1">
               <Button size="icon" variant="ghost" aria-label="Previous month" onClick={() => shift(-1)}><ChevronLeft className="h-4 w-4" /></Button>
-              <div className="min-w-[150px] text-center font-display text-[15px] font-bold">{first.toLocaleDateString("en-US", { month: "long", year: "numeric", timeZone: "UTC" })}</div>
+              <div className="min-w-[150px] text-center font-display text-base font-bold">{first.toLocaleDateString("en-US", { month: "long", year: "numeric", timeZone: "UTC" })}</div>
               <Button size="icon" variant="ghost" aria-label="Next month" onClick={() => shift(1)}><ChevronRight className="h-4 w-4" /></Button>
             </div>
-            <span className="text-[12px] text-slate-500">{scheduledThisMonth} posts this month · local time, America/Chicago</span>
+            <span className="text-xs text-gray-500">{scheduledThisMonth} posts this month · local time, America/Chicago</span>
           </div>
           <div className="overflow-x-auto">
             <div className="grid min-w-[680px] grid-cols-7 gap-px overflow-hidden rounded-lg border border-line bg-line">
-              {WEEKDAYS.map((w) => <div key={w} className="bg-slate-50 px-2 py-1.5 text-[10.5px] font-bold uppercase tracking-wide text-slate-500">{w}</div>)}
+              {WEEKDAYS.map((w) => <div key={w} className="bg-gray-50 px-2 py-1.5 text-xxs font-bold uppercase tracking-wide text-gray-500">{w}</div>)}
               {cells.map((day, i) => (
-                <div key={i} className={cn("min-h-[92px] bg-white p-1.5", !day && "bg-slate-50/60")}>
+                <div key={i} className={cn("min-h-[92px] bg-white p-1.5", !day && "bg-gray-50/60")}>
                   {day && (
                     <>
-                      <div className={cn("mb-1 text-[11px] font-semibold", day === today ? "inline-flex h-5 w-5 items-center justify-center rounded-full bg-brand text-white" : "text-slate-500")}>{Number(day.slice(8))}</div>
+                      <div className={cn("mb-1 text-xs font-semibold", day === today ? "inline-flex h-5 w-5 items-center justify-center rounded-full bg-brand text-white" : "text-gray-500")}>{Number(day.slice(8))}</div>
                       <div className="space-y-1">
                         {posts.filter((p) => postDay(p) === day).map((p) => (
-                          <button key={p.id} type="button" onClick={() => push(`/marketing/compose?id=${p.id}`)} className="block w-full rounded-md border border-line bg-white px-1.5 py-1 text-left hover:border-slate-300">
-                            <div className="flex items-center gap-1"><span className={cn("h-1.5 w-1.5 shrink-0 rounded-full", POST_STATE[p.state].dot)} /><span className="truncate text-[10.5px] font-semibold text-ink">{p.title}</span></div>
+                          <button key={p.id} type="button" onClick={() => push(`/marketing/compose?id=${p.id}`)} className="block w-full rounded-md border border-line bg-white px-1.5 py-1 text-left hover:border-gray-300">
+                            <div className="flex items-center gap-1"><span className={cn("h-1.5 w-1.5 shrink-0 rounded-full", POST_STATE[p.state].dot)} /><span className="truncate text-xs font-semibold text-ink">{p.title}</span></div>
                             <div className="mt-0.5 flex gap-0.5">{p.platforms.map((pl) => <PlatformChip key={pl} platform={pl} status={p.publications.find((x) => x.platform === pl)?.status} />)}</div>
                           </button>
                         ))}
@@ -109,7 +109,7 @@ function Calendar() {
               ))}
             </div>
           </div>
-          <div className="mt-3 flex flex-wrap gap-3 text-[11.5px] text-slate-600">
+          <div className="mt-3 flex flex-wrap gap-3 text-xs text-gray-600">
             {(["draft", "awaiting_approval", "approved", "scheduled", "published", "missed", "partially_failed"] as const).map((s) => (
               <span key={s} className="inline-flex items-center gap-1.5"><span className={cn("h-2 w-2 rounded-full", POST_STATE[s].dot)} />{POST_STATE[s].label}</span>
             ))}
@@ -118,14 +118,14 @@ function Calendar() {
 
         <Card className="p-4" data-tour="marketing-attention">
           <CardLabel>Needs a person</CardLabel>
-          <p className="mt-1 text-[12px] text-slate-500">A post that turns up unexpectedly is worse than one that turns up late and deliberately.</p>
+          <p className="mt-1 text-xs text-gray-500">A post that turns up unexpectedly is worse than one that turns up late and deliberately.</p>
           <div className="mt-3 space-y-2">
-            {attention.length === 0 && <p className="text-[12.5px] italic text-slate-400">Nothing waiting.</p>}
+            {attention.length === 0 && <p className="text-xs italic text-gray-400">Nothing waiting.</p>}
             {attention.map(({ p, why }, i) => (
-              <AppLink key={`${p.id}-${i}`} href={`/marketing/compose?id=${p.id}`} className="block rounded-lg border border-line px-3 py-2 text-[12.5px] hover:border-slate-300">
+              <AppLink key={`${p.id}-${i}`} href={`/marketing/compose?id=${p.id}`} className="block rounded-lg border border-line px-3 py-2 text-xs hover:border-gray-300">
                 <div className="flex flex-wrap items-center gap-1.5"><strong>{p.id}</strong><PostStateBadge state={p.state} />{p.takedown && !p.takedown.doneAt && <Badge tone="red">Takedown</Badge>}</div>
                 <div className="mt-0.5 font-medium text-ink">{p.title}</div>
-                <div className="text-slate-500">{why}</div>
+                <div className="text-gray-500">{why}</div>
               </AppLink>
             ))}
           </div>

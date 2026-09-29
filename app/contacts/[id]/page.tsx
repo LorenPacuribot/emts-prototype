@@ -199,7 +199,7 @@ function ContactDetail() {
                     <div className="min-w-0 flex-1">
                       <div className="text-sm font-bold text-gray-900">{[loc.street, loc.unit].filter(Boolean).join(' ') || '-'}</div>
                       <div className="text-xs text-gray-500">{[loc.city, [loc.state, loc.zip].filter(Boolean).join(' ')].filter(Boolean).join(', ')}</div>
-                      <div className="mt-1 flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                      <div className="mt-1 flex items-center gap-2 text-xxs font-bold uppercase tracking-wider text-gray-400">
                         {loc.label}
                         {loc.street && (
                           <Link

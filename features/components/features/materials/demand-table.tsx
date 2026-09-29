@@ -55,22 +55,22 @@ export function DemandTable({ lines, snapshot, stale, readOnly }: { lines: Deman
               <Fragment key={l.specId}>
                 <TR className={cn(blocked && "bg-red-50/30")}>
                   <TD className={cn("border-l-2", blocked ? "border-l-red-400" : "border-l-transparent")}>
-                    <button onClick={() => setOpen({ ...open, [l.specId]: !expanded })} className="rounded p-1 text-slate-400 hover:bg-slate-100" aria-label={expanded ? "Collapse line" : "Expand line"} aria-expanded={!!expanded}>
+                    <button onClick={() => setOpen({ ...open, [l.specId]: !expanded })} className="rounded p-1 text-gray-400 hover:bg-gray-100" aria-label={expanded ? "Collapse line" : "Expand line"} aria-expanded={!!expanded}>
                       {expanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                     </button>
                   </TD>
                   <TD>
                     <div className="max-w-[150px] font-semibold leading-snug text-ink">{l.spec.product ?? <span className="italic text-red-500">No product</span>}</div>
-                    <div className="text-[11px] text-slate-400">{l.specId}{l.spec.productLine ? ` · ${l.spec.productLine}` : ""}</div>
+                    <div className="text-xs text-gray-400">{l.specId}{l.spec.productLine ? ` · ${l.spec.productLine}` : ""}</div>
                   </TD>
                   <TD>
                     <span className="flex max-w-[150px] items-start gap-2 leading-snug"><Swatch hex={l.hex} size="sm" className="mt-0.5" /> <span>{l.colourName}</span></span>
-                    <div className="text-[11px] text-slate-400">{l.colourNumber} · {l.spec.sheen ?? "No sheen"}</div>
+                    <div className="text-xs text-gray-400">{l.colourNumber} · {l.spec.sheen ?? "No sheen"}</div>
                   </TD>
-                  <TD className="text-right tabular-nums">{num(l.coatSqft)}<div className="text-[11px] text-slate-400">{l.parts.length} surf. · {num(l.measuredSqft)} × {l.coats}</div></TD>
+                  <TD className="text-right tabular-nums">{num(l.coatSqft)}<div className="text-xs text-gray-400">{l.parts.length} surf. · {num(l.measuredSqft)} × {l.coats}</div></TD>
                   <TD>
                     <button onClick={() => setRate(l)} className="text-left">
-                      <span className="tabular-nums font-medium text-ink">{l.rate || "—"}</span> <span className="text-slate-400">sq ft/gal</span>
+                      <span className="tabular-nums font-medium text-ink">{l.rate || "—"}</span> <span className="text-gray-400">sq ft/gal</span>
                       <div className="mt-0.5 flex flex-col items-start gap-0.5"><Badge tone={l.source === "override" ? "purple" : l.source === "field_rate" ? "blue" : "gray"}>{COVERAGE_LABEL[l.source]}</Badge>{l.conditionRates.map((c) => <Badge key={c.condition} tone="amber">{CONDITION_LABEL[c.condition]} {c.rate}</Badge>)}</div>
                     </button>
                   </TD>
@@ -84,10 +84,10 @@ export function DemandTable({ lines, snapshot, stale, readOnly }: { lines: Deman
                   </TD>
                   <TD className="text-right tabular-nums">
                     <span className="font-semibold text-ink">{g2(l.needGal)}</span>
-                    {l.adjustment && <div className="text-[10.5px] text-purple-700">adjusted from {g2(l.calculatedNeedGal)}</div>}
-                    {stale && prev && prev.adjustedNeedGal !== l.calculatedNeedGal && <div className="text-[10.5px] text-amber-700">was {g2(prev.adjustedNeedGal)}</div>}
+                    {l.adjustment && <div className="text-xs text-purple-700">adjusted from {g2(l.calculatedNeedGal)}</div>}
+                    {stale && prev && prev.adjustedNeedGal !== l.calculatedNeedGal && <div className="text-xs text-amber-700">was {g2(prev.adjustedNeedGal)}</div>}
                   </TD>
-                  <TD>{blocked ? <span className="text-slate-400">—</span> : <div className="max-w-[120px] leading-snug">{formatPacks(l.packs.packs)}</div>}</TD>
+                  <TD>{blocked ? <span className="text-gray-400">—</span> : <div className="max-w-[120px] leading-snug">{formatPacks(l.packs.packs)}</div>}</TD>
                   <TD className="text-right tabular-nums">{blocked ? "—" : g2(l.packs.excessGal)}</TD>
                   {perms.seePrices && <TD className="text-right tabular-nums">{blocked || !l.catalog ? "—" : money(packsCost(l.packs.packs, l.catalog.cost))}</TD>}
                   <TD>
@@ -105,18 +105,18 @@ export function DemandTable({ lines, snapshot, stale, readOnly }: { lines: Deman
                   </TD>
                 </TR>
                 {expanded && (
-                  <tr className="border-b border-line bg-slate-50/60">
+                  <tr className="border-b border-line bg-gray-50/60">
                     <td colSpan={perms.seePrices ? 12 : 11} className="px-4 py-3">
-                      <div className="text-[9.5px] font-bold uppercase tracking-[0.12em] text-slate-400">Measured area, coats and the rate used per surface</div>
-                      <table className="mt-2 w-full text-[12px]">
+                      <div className="text-xxs font-bold uppercase tracking-[0.12em] text-gray-400">Measured area, coats and the rate used per surface</div>
+                      <table className="mt-2 w-full text-xs">
                         <thead>
-                          <tr className="text-left text-[10px] uppercase tracking-wider text-slate-400">
+                          <tr className="text-left text-xxs uppercase tracking-wider text-gray-400">
                             <th className="py-1 pr-3">Surface</th><th className="py-1 pr-3">Condition</th><th className="py-1 pr-3 text-right">Measured</th><th className="py-1 pr-3 text-right">Coats</th><th className="py-1 pr-3 text-right">Coat-adj.</th><th className="py-1 pr-3 text-right">Rate</th><th className="py-1 pr-3">Source</th><th className="py-1 text-right">Base need (full precision)</th>
                           </tr>
                         </thead>
                         <tbody>
                           {l.parts.map((p) => (
-                            <tr key={p.surfaceId} className={p.rate <= 0 ? "text-red-600" : "text-slate-700"}>
+                            <tr key={p.surfaceId} className={p.rate <= 0 ? "text-red-600" : "text-gray-700"}>
                               <td className="py-1 pr-3">{p.areaName} · {p.name}</td>
                               <td className="py-1 pr-3">{CONDITION_LABEL[p.condition]}</td>
                               <td className="py-1 pr-3 text-right tabular-nums">{num(p.sqft)} sq ft</td>
@@ -129,12 +129,12 @@ export function DemandTable({ lines, snapshot, stale, readOnly }: { lines: Deman
                           ))}
                         </tbody>
                       </table>
-                      <div className="mt-2 flex flex-wrap gap-x-6 gap-y-1 text-[11.5px] text-slate-600">
+                      <div className="mt-2 flex flex-wrap gap-x-6 gap-y-1 text-xs text-gray-600">
                         <span>Base {l.baseNeedGal.toFixed(6)} × (1 + {Math.round(l.waste * 100)}%) = {l.unroundedNeedGal.toFixed(6)} → rounded once to <strong>{l.calculatedNeedGal.toFixed(3)}</strong> gal</span>
                         <span>Openings over 20 sq ft are already deducted from measured area.</span>
                         {!blocked && <span>Packs: {l.packs.packs.map((p) => `${p.count} × ${PACK_LABEL[p.size]}`).join(" + ")} = {l.packs.totalGal} gal, leftover {l.packs.excessGal.toFixed(3)} gal</span>}
                       </div>
-                      {l.adjustment && <div className="mt-1 text-[11.5px] text-purple-700">Adjustment {l.adjustment.id}: {l.adjustment.baselineGal.toFixed(3)} → {l.adjustment.proposedGal.toFixed(3)} gal ({(l.adjustment.pct * 100).toFixed(1)}%). “{l.adjustment.note}”</div>}
+                      {l.adjustment && <div className="mt-1 text-xs text-purple-700">Adjustment {l.adjustment.id}: {l.adjustment.baselineGal.toFixed(3)} → {l.adjustment.proposedGal.toFixed(3)} gal ({(l.adjustment.pct * 100).toFixed(1)}%). “{l.adjustment.note}”</div>}
                       {blocked && <Banner tone="danger" className="mt-2" title="Blocked from ordering">{l.blocked.map((b) => <div key={b}>{b}</div>)}</Banner>}
                     </td>
                   </tr>
@@ -217,7 +217,7 @@ function RateModal({ line, onClose, canEdit }: { line?: DemandLine; onClose: () 
               <Field label="Override rate (sq ft/gal)" required error={e("rate")}><Input type="number" value={rate} onChange={(ev) => setRate(ev.target.value)} invalid={!!e("rate")} /></Field>
               <Field label="Reason" required error={e("reason")}><Input value={reason} onChange={(ev) => setReason(ev.target.value)} placeholder="e.g. Chalky siding, test patch" invalid={!!e("reason")} /></Field>
             </div>
-          ) : <p className="text-[12px] text-slate-500">Read-only for your role. The office manager or owner sets project overrides.</p>}
+          ) : <p className="text-xs text-gray-500">Read-only for your role. The office manager or owner sets project overrides.</p>}
         </div>
       )}
     </Modal>

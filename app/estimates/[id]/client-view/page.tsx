@@ -141,7 +141,7 @@ function ClientView() {
           <div className="hidden text-sm font-bold text-gray-700 sm:block">{e.estimateNumber} · {money(total)}</div>
           <div className="flex items-center gap-2">
             {twin?.publicToken && (
-              <Link href={publicEstimateHref(twin.publicToken)} className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-3 text-xs font-bold text-emerald-800 hover:bg-emerald-100" title="Colour approvals and change order decisions">
+              <Link href={publicEstimateHref(twin.publicToken)} className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-green-200 bg-green-50 px-3 text-xs font-bold text-green-800 hover:bg-green-100" title="Colour approvals and change order decisions">
                 Customer page <NewBadge feature={[3, 24]} />
               </Link>
             )}
@@ -225,7 +225,7 @@ function ClientView() {
             <Input placeholder="e.g. John Smith" value={name} invalid={!!errors.name} onChange={(ev) => setName(ev.target.value)} autoFocus />
           </Field>
           <div>
-            <div className="mb-1.5 text-[11px] font-bold uppercase tracking-wide text-gray-600">E-Signature</div>
+            <div className="mb-1.5 text-xs font-bold uppercase tracking-wide text-gray-600">E-Signature</div>
             <div className="relative flex h-32 items-center justify-center rounded-xl border border-gray-200 bg-white">
               {name.trim() ? (
                 <span className="font-[cursive] text-4xl italic text-gray-800">{name}</span>

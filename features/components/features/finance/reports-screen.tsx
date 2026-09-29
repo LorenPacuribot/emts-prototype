@@ -24,7 +24,7 @@ import { Badge, Banner, Button, Card, PillTabs, Table, TD, TH, THead, TR } from 
 type View = "margin" | "income" | "receivables";
 
 
-const NA = <span className="text-slate-400">Not applicable</span>;
+const NA = <span className="text-gray-400">Not applicable</span>;
 
 export function FinanceReportsBody({ view }: { view: View }) {
   const db = useDb((d) => d);
@@ -66,7 +66,7 @@ function Margin({ cutoff }: { cutoff?: string }) {
   return (
     <Card className="p-4" data-tour="job-margin">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <p className="text-[12px] text-slate-500">Actual margin = (invoiced revenue ex tax − job cost to date) ÷ invoiced revenue ex tax. Projected margin, for jobs in progress = (contract ex tax − forecast cost) ÷ contract ex tax. The two are never blended.</p>
+        <p className="text-xs text-gray-500">Actual margin = (invoiced revenue ex tax − job cost to date) ÷ invoiced revenue ex tax. Projected margin, for jobs in progress = (contract ex tax − forecast cost) ÷ contract ex tax. The two are never blended.</p>
         <Button size="sm" onClick={csv}><Download className="h-3.5 w-3.5" /> CSV</Button>
       </div>
       <Table>
@@ -74,20 +74,20 @@ function Margin({ cutoff }: { cutoff?: string }) {
         <tbody>
           {rows.map(({ job, f }) => (
             <TR key={job.id}>
-              <TD className="font-semibold">{job.id}<div className="text-[11px] font-normal text-slate-400">{job.name}</div>{f.unmatched > 0 && <Badge tone="amber" icon={<AlertTriangle className="h-3 w-3" />}>{money(f.unmatched)} unmatched</Badge>}</TD>
+              <TD className="font-semibold">{job.id}<div className="text-xs font-normal text-gray-400">{job.name}</div>{f.unmatched > 0 && <Badge tone="amber" icon={<AlertTriangle className="h-3 w-3" />}>{money(f.unmatched)} unmatched</Badge>}</TD>
               <TD className="text-right tabular-nums">{money(f.contractExTax)}</TD>
               <TD className="text-right tabular-nums">{money(f.invoicedExTax)}</TD>
               <TD className="text-right tabular-nums">{money(f.labour)}</TD>
-              <TD className="text-right tabular-nums">{money(f.material)}<div className="text-[10.5px] text-slate-400">incl. purchase tax</div></TD>
+              <TD className="text-right tabular-nums">{money(f.material)}<div className="text-xs text-gray-400">incl. purchase tax</div></TD>
               <TD className="text-right tabular-nums">{money(f.subcontractor + f.other)}</TD>
-              <TD className="text-right tabular-nums font-semibold">{money(f.costToDate)}{f.credits ? <div className="text-[10.5px] text-slate-400">after {money(f.credits)} credits</div> : null}</TD>
-              <TD className="text-right"><div className="text-[9.5px] font-bold uppercase tracking-wide text-slate-400">Actual margin</div>{f.actual === null ? NA : <span className="font-semibold tabular-nums">{pct(f.actual, 1)}</span>}</TD>
-              <TD className="text-right"><div className="text-[9.5px] font-bold uppercase tracking-wide text-slate-400">Projected margin</div>{f.projected === null ? (f.inProgress ? NA : <span className="text-slate-400">Job complete</span>) : <span className="font-semibold tabular-nums">{pct(f.projected, 1)}</span>}<div className="text-[10.5px] text-slate-400">forecast {money(f.forecastCost)}</div></TD>
+              <TD className="text-right tabular-nums font-semibold">{money(f.costToDate)}{f.credits ? <div className="text-xs text-gray-400">after {money(f.credits)} credits</div> : null}</TD>
+              <TD className="text-right"><div className="text-xxs font-bold uppercase tracking-wide text-gray-400">Actual margin</div>{f.actual === null ? NA : <span className="font-semibold tabular-nums">{pct(f.actual, 1)}</span>}</TD>
+              <TD className="text-right"><div className="text-xxs font-bold uppercase tracking-wide text-gray-400">Projected margin</div>{f.projected === null ? (f.inProgress ? NA : <span className="text-gray-400">Job complete</span>) : <span className="font-semibold tabular-nums">{pct(f.projected, 1)}</span>}<div className="text-xs text-gray-400">forecast {money(f.forecastCost)}</div></TD>
             </TR>
           ))}
         </tbody>
       </Table>
-      <p className="mt-2 text-[11.5px] text-slate-500">Customer sales tax is excluded from revenue; purchase tax is included in cost. Labour is the Rule 3 allocation of the bookkeeper's approved totals. Deposits are liabilities, not revenue.</p>
+      <p className="mt-2 text-xs text-gray-500">Customer sales tax is excluded from revenue; purchase tax is included in cost. Labour is the Rule 3 allocation of the bookkeeper's approved totals. Deposits are liabilities, not revenue.</p>
     </Card>
   );
 }
@@ -120,7 +120,7 @@ function Income({ cutoff }: { cutoff?: string }) {
   return (
     <div className="space-y-4">
       <Card className="p-4">
-        <div className="mb-3 flex items-center justify-between"><p className="text-[12px] text-slate-500">Monthly, by accounting period. Revenue excludes customer sales tax; costs include purchase tax.</p><Button size="sm" onClick={csv}><Download className="h-3.5 w-3.5" /> CSV</Button></div>
+        <div className="mb-3 flex items-center justify-between"><p className="text-xs text-gray-500">Monthly, by accounting period. Revenue excludes customer sales tax; costs include purchase tax.</p><Button size="sm" onClick={csv}><Download className="h-3.5 w-3.5" /> CSV</Button></div>
         <Table>
           <THead><tr><TH>Month</TH><TH className="text-right">Revenue</TH><TH className="text-right">Materials</TH><TH className="text-right">Labour</TH><TH className="text-right">Subcontractors</TH><TH className="text-right">Overhead</TH><TH className="text-right">Net</TH></tr></THead>
           <tbody>{rows.map((r) => (
@@ -131,7 +131,7 @@ function Income({ cutoff }: { cutoff?: string }) {
         </Table>
       </Card>
       <Card className="p-4">
-        <p className="mb-3 text-[12px] text-slate-500">Comparison totals from the two-year migration. Totals only — no historical transactions were imported or reposted.</p>
+        <p className="mb-3 text-xs text-gray-500">Comparison totals from the two-year migration. Totals only — no historical transactions were imported or reposted.</p>
         <Table>
           <THead><tr><TH>Year</TH>{(["revenue", "materials", "labour", "subcontractors", "overhead"] as const).map((c) => <TH key={c} className="text-right capitalize">{c}</TH>)}</tr></THead>
           <tbody>{years.map((y) => <TR key={y}><TD className="font-semibold">{y}</TD>{(["revenue", "materials", "labour", "subcontractors", "overhead"] as const).map((c) => <TD key={c} className="text-right tabular-nums">{money(db.migrationTotals.find((x) => x.year === y && x.category === c)?.amount ?? 0, { cents: false })}</TD>)}</TR>)}</tbody>
@@ -165,11 +165,11 @@ function Receivables({ cutoff }: { cutoff?: string }) {
       <Table>
         <THead><tr><TH>Invoice</TH><TH>Job</TH><TH>Customer</TH><TH>Invoice date</TH><TH className="text-right">Age</TH><TH className="text-right">Outstanding</TH></tr></THead>
         <tbody>{rows.map(({ r, age, outstanding, credit }) => (
-          <TR key={r.id}><TD className="font-semibold">{r.ref}</TD><TD>{r.jobId} <span className="text-slate-400">{byId(db.jobs, r.jobId)?.name}</span></TD><TD>{r.party}</TD><TD>{dateLong(r.date)}</TD>
-            <TD className="text-right tabular-nums">{age.days} d <Badge tone="gray">{age.bucket}</Badge></TD><TD className="text-right tabular-nums font-semibold">{money(outstanding)}{credit ? <div className="text-[10.5px] text-slate-400">after {money(credit)} credit</div> : null}</TD></TR>
+          <TR key={r.id}><TD className="font-semibold">{r.ref}</TD><TD>{r.jobId} <span className="text-gray-400">{byId(db.jobs, r.jobId)?.name}</span></TD><TD>{r.party}</TD><TD>{dateLong(r.date)}</TD>
+            <TD className="text-right tabular-nums">{age.days} d <Badge tone="gray">{age.bucket}</Badge></TD><TD className="text-right tabular-nums font-semibold">{money(outstanding)}{credit ? <div className="text-xs text-gray-400">after {money(credit)} credit</div> : null}</TD></TR>
         ))}</tbody>
       </Table>
-      <p className="mt-2 text-[11.5px] text-slate-500">Receivables age from the invoice date, never from the due date. Credits reduce receivables; bad-debt entries stay in QuickBooks.</p>
+      <p className="mt-2 text-xs text-gray-500">Receivables age from the invoice date, never from the due date. Credits reduce receivables; bad-debt entries stay in QuickBooks.</p>
     </Card>
   );
 }

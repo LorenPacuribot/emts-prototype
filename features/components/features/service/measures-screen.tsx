@@ -103,7 +103,7 @@ function Measures() {
                       {v ? (
                         <button className="rounded px-1.5 py-0.5 font-semibold text-brand hover:bg-brand-soft" onClick={() => setDrill({ key: k, month: m })}>{fmt(k, v)}</button>
                       ) : (
-                        <span className="text-slate-300">{fmt(k, 0)}</span>
+                        <span className="text-gray-300">{fmt(k, 0)}</span>
                       )}
                     </TD>
                   );
@@ -112,7 +112,7 @@ function Measures() {
             ))}
           </tbody>
         </Table>
-        <p className="mt-3 text-[11.5px] text-slate-500">
+        <p className="mt-3 text-xs text-gray-500">
           Dollars won excludes tax and any later change orders, and is attributed to the month the contract was signed. A reopened opportunity keeps its ID, so it is counted once.
           {" "}Completed repaints linked: {db.followUps.filter((f) => f.completedRepaintJobId).length} (reported separately from Won).
         </p>
@@ -129,7 +129,7 @@ function Measures() {
                 <TR key={i.key}>
                   <TD className="whitespace-nowrap">{date(i.at)}</TD>
                   <TD><div className="flex flex-wrap items-center gap-1.5">{i.followUpId && <IdChip>{i.followUpId}</IdChip>}{i.alertId && <IdChip>{i.alertId}</IdChip>}<span>{i.label}</span></div></TD>
-                  <TD className="text-[12px]">{propertyAddress(byId(db.properties, i.propertyId))}</TD>
+                  <TD className="text-xs">{propertyAddress(byId(db.properties, i.propertyId))}</TD>
                   {drill?.key === "dollars" && <TD className="text-right font-semibold">{money(i.amount)}</TD>}
                 </TR>
               ))}

@@ -46,7 +46,7 @@ function StatCards({ items }: { items: Estimate[]; }) {
     <div className="mb-8 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4">
       {cards.map(({ label, value, sub, Icon }) => (
         <Card key={label} className="flex flex-col p-5">
-          <div className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-gray-500">
+          <div className="mb-2 flex items-center gap-2 text-xxs font-bold uppercase tracking-widest text-gray-500">
             <Icon className="h-4 w-4 text-gray-400" /> {label}
           </div>
           <div className="font-heading text-2xl font-black text-gray-900">{value}</div>

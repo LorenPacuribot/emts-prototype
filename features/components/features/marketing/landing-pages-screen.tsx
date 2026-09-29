@@ -92,19 +92,19 @@ function LandingPages() {
                     const n = subs.filter((s) => s.landingPageId === p.id).length;
                     return (
                       <TR key={p.id}>
-                        <TD className="min-w-52"><div className="font-semibold text-ink">{p.title}</div><div className="font-mono text-[11.5px] text-slate-500">/lp/{p.slug}</div></TD>
-                        <TD className="min-w-36">{byId(db.mktCampaigns ?? [], p.campaignId)?.name ?? "—"}{p.promotionId && <div className="text-[11.5px] text-slate-500">Offer {byId(db.mktPromotions ?? [], p.promotionId)?.code}</div>}</TD>
+                        <TD className="min-w-52"><div className="font-semibold text-ink">{p.title}</div><div className="font-mono text-xs text-gray-500">/lp/{p.slug}</div></TD>
+                        <TD className="min-w-36">{byId(db.mktCampaigns ?? [], p.campaignId)?.name ?? "—"}{p.promotionId && <div className="text-xs text-gray-500">Offer {byId(db.mktPromotions ?? [], p.promotionId)?.code}</div>}</TD>
                         <TD className="whitespace-nowrap">{KIND_LABEL[p.form.kind]} · {p.form.fields.length} fields</TD>
-                        <TD><Badge tone={STATUS[p.status].tone}>{STATUS[p.status].label}</Badge>{p.publishedAt && p.status === "published" && <div className="text-[11px] text-slate-500">since {dateLong(p.publishedAt)}</div>}</TD>
+                        <TD><Badge tone={STATUS[p.status].tone}>{STATUS[p.status].label}</Badge>{p.publishedAt && p.status === "published" && <div className="text-xs text-gray-500">since {dateLong(p.publishedAt)}</div>}</TD>
                         <TD className="text-right tabular-nums">{p.views}</TD>
-                        <TD className="text-right tabular-nums">{n}{p.views > 0 && <div className="text-[11px] text-slate-500">{pct(n / p.views)}</div>}</TD>
+                        <TD className="text-right tabular-nums">{n}{p.views > 0 && <div className="text-xs text-gray-500">{pct(n / p.views)}</div>}</TD>
                         <TD className="whitespace-nowrap text-right">
                           <GatedButton allowed={canEdit} reason={reason} size="sm" variant="ghost" onClick={() => setEditing(p)}><Pencil className="h-3.5 w-3.5" /> Edit</GatedButton>
                           <GatedButton allowed={canEdit} reason={reason} size="sm" variant={p.status === "published" ? "ghost" : "primary"} onClick={() => togglePublish(p)}>{p.status === "published" ? "Unpublish" : "Publish"}</GatedButton>
                           {p.status === "published" && (
                             <>
                               <Button size="icon" variant="ghost" className={TAP} aria-label={`Copy link to /lp/${p.slug}`} onClick={() => copy(p)}><Copy className="h-4 w-4" /></Button>
-                              <a href={`/lp/${p.slug}`} target="_blank" rel="noreferrer" aria-label={`Open /lp/${p.slug} in a new tab`} className={`inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 ${TAP}`}><ExternalLink className="h-4 w-4" /></a>
+                              <a href={`/lp/${p.slug}`} target="_blank" rel="noreferrer" aria-label={`Open /lp/${p.slug} in a new tab`} className={`inline-flex h-8 w-8 items-center justify-center rounded-lg text-gray-600 hover:bg-gray-100 ${TAP}`}><ExternalLink className="h-4 w-4" /></a>
                             </>
                           )}
                         </TD>
@@ -117,7 +117,7 @@ function LandingPages() {
           </Card>
           <Card className="p-4">
             <SectionTitle>Recent submissions</SectionTitle>
-            {subs.filter((s) => s.landingPageId).length === 0 ? <p className="text-[12.5px] text-slate-500">None yet. Submissions from a live page show here with the lead they created.</p> : (
+            {subs.filter((s) => s.landingPageId).length === 0 ? <p className="text-xs text-gray-500">None yet. Submissions from a live page show here with the lead they created.</p> : (
               <div className="overflow-x-auto">
                 <Table className="relative">
                   <THead><tr><TH>When</TH><TH>Page</TH><TH>Name</TH><TH>Result</TH><TH>Code</TH></tr></THead>
@@ -128,14 +128,14 @@ function LandingPages() {
                       return (
                         <TR key={s.id}>
                           <TD className="whitespace-nowrap">{dateTime(s.at)}</TD>
-                          <TD className="font-mono text-[12px]">/lp/{page?.slug ?? "—"}</TD>
+                          <TD className="font-mono text-xs">/lp/{page?.slug ?? "—"}</TD>
                           <TD>{name ? s.values[name.key] : "—"}</TD>
                           <TD className="min-w-44">
                             <Badge tone={s.outcome === "new" ? "green" : "blue"}>{s.outcome === "new" ? "New lead" : "Matched existing lead"}</Badge>{" "}
-                            <AppLink className="text-[12px] underline" href={`/leads/${s.leadId}`}>{s.leadId}</AppLink>
-                            {s.appointmentRequestId && <div className="text-[11px] text-slate-500">Booking request {s.appointmentRequestId}</div>}
+                            <AppLink className="text-xs underline" href={`/leads/${s.leadId}`}>{s.leadId}</AppLink>
+                            {s.appointmentRequestId && <div className="text-xs text-gray-500">Booking request {s.appointmentRequestId}</div>}
                           </TD>
-                          <TD className="font-mono text-[12px]">{s.attribution.promoCode ?? "—"}</TD>
+                          <TD className="font-mono text-xs">{s.attribution.promoCode ?? "—"}</TD>
                         </TR>
                       );
                     })}
@@ -217,7 +217,7 @@ function PageForm({ page, onClose }: { page?: LandingPage; onClose: () => void }
           <Field label="Area" htmlFor="lp-loc" hint="Town or neighbourhood, not a street address"><Input id="lp-loc" value={f.location} onChange={(x) => setF({ ...f, location: x.target.value })} placeholder="Dallas" /></Field>
         </div>
         <fieldset className="rounded-lg border border-line p-3">
-          <legend className="px-1 text-[12px] font-semibold text-slate-700">Form</legend>
+          <legend className="px-1 text-xs font-semibold text-gray-700">Form</legend>
           <PillTabs className="mb-3" value={f.kind} onChange={(k) => { setF({ ...f, kind: k }); setRows(rowsFor(k)); }} options={(Object.keys(KIND_LABEL) as FormKind[]).map((k) => ({ value: k, label: KIND_LABEL[k] }))} />
           <div className="space-y-2">
             {rows.map((r) => (
@@ -228,18 +228,18 @@ function PageForm({ page, onClose }: { page?: LandingPage; onClose: () => void }
               </div>
             ))}
           </div>
-          {e("fields") && <p className="mt-2 text-[11.5px] font-medium text-red-600">{e("fields")}</p>}
+          {e("fields") && <p className="mt-2 text-xs font-medium text-red-600">{e("fields")}</p>}
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
             <Field label="Button text" htmlFor="lp-btn"><Input id="lp-btn" value={f.submitLabel} onChange={(x) => setF({ ...f, submitLabel: x.target.value })} /></Field>
             <Field label="Thank-you message" htmlFor="lp-thanks"><Input id="lp-thanks" value={f.successMessage} onChange={(x) => setF({ ...f, successMessage: x.target.value })} /></Field>
           </div>
         </fieldset>
-        <div className="rounded-lg border border-line bg-slate-50 p-3 text-[12.5px]">
-          <div className="mb-1 text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Preview</div>
-          <div className="font-display text-[16px] font-bold text-ink">{f.headline || "Your headline"}</div>
-          {f.body && <p className="mt-1 whitespace-pre-wrap text-slate-600">{f.body}</p>}
-          {promo && <p className="mt-1 font-semibold text-slate-700">Quote {promo.code}: {promo.discountType === "percent" ? `${promo.value}% off` : `$${promo.value.toFixed(2)} off`}</p>}
-          <p className="mt-1 text-slate-500">{fields.map((x) => `${x.label}${x.required ? " *" : ""}`).join(" · ")}</p>
+        <div className="rounded-lg border border-line bg-gray-50 p-3 text-xs">
+          <div className="mb-1 text-xxs font-bold uppercase tracking-[0.12em] text-gray-400">Preview</div>
+          <div className="font-display text-base font-bold text-ink">{f.headline || "Your headline"}</div>
+          {f.body && <p className="mt-1 whitespace-pre-wrap text-gray-600">{f.body}</p>}
+          {promo && <p className="mt-1 font-semibold text-gray-700">Quote {promo.code}: {promo.discountType === "percent" ? `${promo.value}% off` : `$${promo.value.toFixed(2)} off`}</p>}
+          <p className="mt-1 text-gray-500">{fields.map((x) => `${x.label}${x.required ? " *" : ""}`).join(" · ")}</p>
         </div>
         {err && !known.includes(err.field ?? "") && <Banner tone="danger">{err.message}</Banner>}
       </div>

@@ -107,7 +107,7 @@ export function ReorderForm({ property, open, onOpenChange, initialApp, requestI
           </div>
         )}
         {dup && (
-          <Banner tone="warn" title={`Reorder ${dup.id} is already pending for this colour`} action={<AppLink href={reorderHref(property.id, dup.id)} onClick={() => onOpenChange(false)} className="inline-flex items-center gap-1 whitespace-nowrap text-[12px] font-semibold underline">Open {dup.id} <ExternalLink className="h-3 w-3" /></AppLink>}>
+          <Banner tone="warn" title={`Reorder ${dup.id} is already pending for this colour`} action={<AppLink href={reorderHref(property.id, dup.id)} onClick={() => onOpenChange(false)} className="inline-flex items-center gap-1 whitespace-nowrap text-xs font-semibold underline">Open {dup.id} <ExternalLink className="h-3 w-3" /></AppLink>}>
             Open it instead of creating a duplicate purchase.
           </Banner>
         )}

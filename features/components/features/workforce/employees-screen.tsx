@@ -51,11 +51,11 @@ function Employees() {
           <tbody>
             {db.employees.map((e) => (
               <TR key={e.id}>
-                <TD className="font-semibold">{e.name}<div className="text-[11px] font-normal text-slate-400">{e.id}</div></TD>
+                <TD className="font-semibold">{e.name}<div className="text-xs font-normal text-gray-400">{e.id}</div></TD>
                 <TD><Badge tone={TYPE[e.type].tone}>{TYPE[e.type].label}</Badge></TD>
                 <TD>{db.crews.find((c) => c.id === e.crewId)?.name ?? "—"}</TD>
                 {detail && <TD>{e.gustoId ?? "—"}</TD>}
-                <TD>{e.userId ? byId(db.users, e.userId)?.email : <span className="text-slate-400">No login</span>}</TD>
+                <TD>{e.userId ? byId(db.users, e.userId)?.email : <span className="text-gray-400">No login</span>}</TD>
                 <TD>{e.offboardedAt ? <Badge tone="gray">Offboarded {dateLong(e.offboardedAt)} · login disabled, history kept</Badge> : <Badge tone="green">Active</Badge>}</TD>
               </TR>
             ))}
@@ -66,23 +66,23 @@ function Employees() {
         <Card className="p-4">
           <CardLabel>Crews</CardLabel>
           {db.crews.map((c) => (
-            <div key={c.id} className="mt-3 rounded-lg border border-line p-3 text-[12.5px]">
+            <div key={c.id} className="mt-3 rounded-lg border border-line p-3 text-xs">
               <div className="font-semibold text-ink">{c.name}</div>
-              <div className="text-slate-500">Lead: {byId(db.users, c.leadUserId)?.name} · {db.employees.filter((e) => e.crewId === c.id && !e.offboardedAt).length} active members</div>
+              <div className="text-gray-500">Lead: {byId(db.users, c.leadUserId)?.name} · {db.employees.filter((e) => e.crewId === c.id && !e.offboardedAt).length} active members</div>
             </div>
           ))}
         </Card>
         <Card className="p-4">
           <CardLabel>Activity codes</CardLabel>
-          <ul className="mt-3 space-y-1.5 text-[12.5px]">
+          <ul className="mt-3 space-y-1.5 text-xs">
             {(Object.keys(ACTIVITY_LABEL) as ActivityCode[]).map((a) => (
-              <li key={a} className="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2">
+              <li key={a} className="flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2">
                 <span className="font-semibold">{ACTIVITY_LABEL[a]}</span>
                 <Badge tone={OVERHEAD_ACTIVITIES.includes(a) ? "gray" : "blue"}>{ACTIVITY_NOTE[a]}</Badge>
               </li>
             ))}
           </ul>
-          <p className="mt-2 text-[11.5px] text-slate-500">PTO and holidays stay in Gusto. They are neither imported nor exported here.</p>
+          <p className="mt-2 text-xs text-gray-500">PTO and holidays stay in Gusto. They are neither imported nor exported here.</p>
         </Card>
       </div>
     </>

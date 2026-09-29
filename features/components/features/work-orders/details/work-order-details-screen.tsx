@@ -92,10 +92,10 @@ function UseInMarketing({ wo, attId }: { wo: WorkOrder; attId: string }) {
   const user = useCurrentUser();
   const att = wo.attachments.find((a) => a.id === attId);
   if (!att?.fileType.startsWith("image") || !can(user, "marketing.post")) return null;
-  if (att.mediaAssetId) return <AppLink href="/marketing/media" className="mt-1 inline-flex items-center gap-1 text-[11px] font-semibold text-primary-700 hover:underline"><Share2 className="h-3 w-3" /> In media library</AppLink>;
+  if (att.mediaAssetId) return <AppLink href="/marketing/media" className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-primary-700 hover:underline"><Share2 className="h-3 w-3" /> In media library</AppLink>;
   return (
     <button type="button" data-tour="wo-use-in-marketing" onClick={() => { const r = act(sendPhotoToMarketing, wo.id, attId); if (r.ok) toast.success("Added to the media library", `${r.value} — check it for identifying details before posting.`); }}
-      className="mt-1 inline-flex items-center gap-1 text-[11px] font-semibold text-gray-600 hover:text-primary-700">
+      className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-gray-600 hover:text-primary-700">
       <Share2 className="h-3 w-3" /> Use in marketing <NewBadge feature={34} />
     </button>
   );
@@ -131,15 +131,15 @@ function WoHeader({ wo, job, onLogHours, onSchedule, onMarkComplete }: { wo: Wor
         <div className="flex flex-wrap items-center gap-2">
           <StatusPill tone={WO_STATUS_TONE[wo.status]}>{WO_STATUS_LABEL[wo.status]}</StatusPill>
           <NumberChip>{wo.id}</NumberChip>
-          {estimate && <AppLink href={estimateHref(estimate.id)} className="rounded-md border border-blue-100 bg-blue-50 px-1.5 py-0.5 text-[10px] font-bold text-blue-700 hover:bg-blue-100">EST {estimate.id}</AppLink>}
-          {job.leadId && <AppLink href={leadHref(job.leadId)} className="rounded-md border border-blue-100 bg-blue-50 px-1.5 py-0.5 text-[10px] font-bold text-blue-700 hover:bg-blue-100">LEAD {job.leadId}</AppLink>}
+          {estimate && <AppLink href={estimateHref(estimate.id)} className="rounded-md border border-blue-100 bg-blue-50 px-1.5 py-0.5 text-xs font-bold text-blue-700 hover:bg-blue-100">EST {estimate.id}</AppLink>}
+          {job.leadId && <AppLink href={leadHref(job.leadId)} className="rounded-md border border-blue-100 bg-blue-50 px-1.5 py-0.5 text-xs font-bold text-blue-700 hover:bg-blue-100">LEAD {job.leadId}</AppLink>}
           {openCos.length > 0 && (
-            <AppLink href={estimate ? estimateHref(estimate.id, "section-change-orders") : "#"} className="inline-flex items-center gap-1 rounded-md border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[10px] font-bold text-amber-700">
+            <AppLink href={estimate ? estimateHref(estimate.id, "section-change-orders") : "#"} className="inline-flex items-center gap-1 rounded-md border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-xs font-bold text-amber-700">
               {openCos.length} open change order{openCos.length === 1 ? "" : "s"} <NewBadge feature={24} />
             </AppLink>
           )}
           {wo.status === "IN_PROGRESS" && (
-            <span className="inline-flex items-center gap-1 rounded-md border border-emerald-200 bg-emerald-50 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700">
+            <span className="inline-flex items-center gap-1 rounded-md border border-green-200 bg-green-50 px-1.5 py-0.5 text-xs font-bold text-green-700">
               Closeout {confirmed}/{rows.length} surfaces confirmed <NewBadge feature={25} />
             </span>
           )}
@@ -151,10 +151,10 @@ function WoHeader({ wo, job, onLogHours, onSchedule, onMarkComplete }: { wo: Wor
       <div className="flex flex-col gap-3 lg:items-end">
         <div className="flex gap-6 rounded-xl border border-gray-100 bg-gray-50 px-4 py-3">
           <Tooltip content="Painting hours from the estimate's production rates">
-            <div><div className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-gray-400">Total Hours <Info className="h-3 w-3" /></div><div className="text-lg font-black text-gray-900">{totalHours.toFixed(2)}</div></div>
+            <div><div className="flex items-center gap-1 text-xxs font-bold uppercase tracking-widest text-gray-400">Total Hours <Info className="h-3 w-3" /></div><div className="text-lg font-black text-gray-900">{totalHours.toFixed(2)}</div></div>
           </Tooltip>
-          <div><div className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Assigned</div><div className="text-lg font-black text-gray-900">{assigned.toFixed(1)}</div></div>
-          <div><div className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Rendered</div><div className="text-lg font-black text-primary-600">{rendered.toFixed(2)}</div></div>
+          <div><div className="text-xxs font-bold uppercase tracking-widest text-gray-400">Assigned</div><div className="text-lg font-black text-gray-900">{assigned.toFixed(1)}</div></div>
+          <div><div className="text-xxs font-bold uppercase tracking-widest text-gray-400">Rendered</div><div className="text-lg font-black text-primary-600">{rendered.toFixed(2)}</div></div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {can(user, "workOrder.logTime") && <Button className="h-11 px-5 font-black" onClick={onLogHours} data-tour="log-hours"><Timer className="h-4 w-4" /> Log Hours</Button>}

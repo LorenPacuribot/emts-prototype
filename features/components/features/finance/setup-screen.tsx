@@ -72,8 +72,8 @@ function Setup() {
           <CardLabel icon={<Building2 />}>Vendors</CardLabel>
           <div className="mt-3 space-y-1.5">
             {db.vendors.map((v) => (
-              <div key={v.id} className="flex items-center justify-between gap-2 rounded-lg border border-line px-3 py-2 text-[12.5px]">
-                <span><strong>{v.name}</strong> <span className="text-slate-400">· requested by {userName(db, v.requestedBy)}</span></span>
+              <div key={v.id} className="flex items-center justify-between gap-2 rounded-lg border border-line px-3 py-2 text-xs">
+                <span><strong>{v.name}</strong> <span className="text-gray-400">· requested by {userName(db, v.requestedBy)}</span></span>
                 {v.status === "active" ? <Badge tone="green">Active</Badge> : can(user, "finance.activateVendor") ? (
                   <Button size="sm" variant="primary" onClick={() => act(activateVendor, v.id).ok && toast.success(`${v.name} activated`)}>Activate</Button>
                 ) : <Badge tone="amber">Awaiting owner</Badge>}
@@ -92,7 +92,7 @@ function Setup() {
           <CardLabel icon={<Tags />}>Job-cost codes</CardLabel>
           <div className="mt-3 space-y-1.5">
             {db.costCodes.map((c) => (
-              <div key={c.code} className="flex items-center justify-between gap-2 rounded-lg border border-line px-3 py-2 text-[12.5px]">
+              <div key={c.code} className="flex items-center justify-between gap-2 rounded-lg border border-line px-3 py-2 text-xs">
                 <span><strong>{c.code}</strong> — {c.label}</span>
                 {c.status === "approved" ? <Badge tone="green">Approved by {userName(db, c.approvedBy)}</Badge> : can(user, "finance.approveCostCode") ? (
                   <Button size="sm" variant="primary" onClick={() => act(approveCostCode, c.code).ok && toast.success(`${c.code} approved`)}>Approve</Button>
@@ -111,7 +111,7 @@ function Setup() {
 
         <Card className="p-4">
           <CardLabel>Account mappings (bookkeeper)</CardLabel>
-          <p className="mt-1 text-[12px] text-slate-500">A mapping change never silently changes a posted transaction.</p>
+          <p className="mt-1 text-xs text-gray-500">A mapping change never silently changes a posted transaction.</p>
           <Table className="mt-3">
             <THead><tr><TH>Category</TH><TH>QuickBooks account</TH>{can(user, "finance.config") && <TH />}</tr></THead>
             <tbody>
@@ -128,18 +128,18 @@ function Setup() {
 
         <Card className="p-4">
           <CardLabel icon={<History />}>Periods, payroll journal and migration</CardLabel>
-          <div className="mt-3 space-y-3 text-[12.5px]">
+          <div className="mt-3 space-y-3 text-xs">
             <div>
-              <div className="font-semibold text-slate-700">Closed periods</div>
+              <div className="font-semibold text-gray-700">Closed periods</div>
               <div className="mt-1 flex flex-wrap items-center gap-1.5">
                 {fs.closedPeriods.map((p) => <Badge key={p} tone="gray">{p}</Badge>)}
                 {can(user, "finance.config") && openPeriod && <Button size="sm" onClick={() => act(closePeriod, openPeriod).ok && toast.success(`${openPeriod} closed`)}>Close {openPeriod}</Button>}
               </div>
-              <p className="mt-1 text-[11.5px] text-slate-500">Corrections dated in a closed period post to the next open period.</p>
+              <p className="mt-1 text-xs text-gray-500">Corrections dated in a closed period post to the next open period.</p>
             </div>
             <div>
-              <div className="font-semibold text-slate-700">Payroll journal</div>
-              <p className="text-slate-600">
+              <div className="font-semibold text-gray-700">Payroll journal</div>
+              <p className="text-gray-600">
                 {fs.gustoPostsJournal === undefined ? "Waiting for the bookkeeper's written confirmation." : fs.gustoPostsJournal ? "Gusto posts the payroll journal. Estimate Master creates no second posting." : "Gusto does not post it. The bookkeeper journals manually in QuickBooks."}
                 {" "}Estimate Master never posts payroll journals; per-job labour stays internal (Rule 3).
               </p>
@@ -151,7 +151,7 @@ function Setup() {
               )}
             </div>
             <div>
-              <div className="font-semibold text-slate-700">Migration — comparison totals only</div>
+              <div className="font-semibold text-gray-700">Migration — comparison totals only</div>
               <Table className="mt-2">
                 <THead><tr><TH>Category</TH>{years.map((y) => <TH key={y} className="text-right">{y}</TH>)}</tr></THead>
                 <tbody>
@@ -161,7 +161,7 @@ function Setup() {
                 </tbody>
               </Table>
               {fs.migrationSignOff ? (
-                <p className="mt-2 flex items-center gap-1.5 text-emerald-700"><CheckCircle2 className="h-3.5 w-3.5" /> Reconciled and signed off by {userName(db, fs.migrationSignOff.by)} on {dateLong(fs.migrationSignOff.at)}. Totals are never reposted as transactions.</p>
+                <p className="mt-2 flex items-center gap-1.5 text-green-700"><CheckCircle2 className="h-3.5 w-3.5" /> Reconciled and signed off by {userName(db, fs.migrationSignOff.by)} on {dateLong(fs.migrationSignOff.at)}. Totals are never reposted as transactions.</p>
               ) : can(user, "finance.migration") ? (
                 <Button size="sm" className="mt-2" onClick={() => act(signOffMigration).ok && toast.success("Migration signed off")}>Sign off totals</Button>
               ) : <Banner tone="warn" className="mt-2">Waiting for the bookkeeper's sign-off.</Banner>}

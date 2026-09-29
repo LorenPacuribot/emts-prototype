@@ -107,7 +107,7 @@ export default function WorkOrdersPage() {
                 <div className="flex flex-col items-start gap-6 lg:flex-row lg:items-center">
                   <div className="min-w-0 flex-1">
                     <div className="mb-1 flex flex-wrap items-center gap-3">
-                      <span className={cn('rounded-full border px-2.5 py-0.5 text-[10px] font-bold', WO_STATUS_STYLE[status])}>{status}</span>
+                      <span className={cn('rounded-full border px-2.5 py-0.5 text-xs font-bold', WO_STATUS_STYLE[status])}>{status}</span>
                       <span className="font-mono text-xs font-bold text-gray-400">{wo.workOrderNumber}</span>
                       {est && <RefChip href={`/estimates/${est.id}`}>{est.estimateNumber}</RefChip>}
                       {leadRec && <RefChip kind="lead" href={`/leads/${leadRec.id}`}>{leadRec.leadNumber}</RefChip>}
@@ -122,7 +122,7 @@ export default function WorkOrdersPage() {
                     </div>
                   </div>
                   <div className="flex-none lg:w-48">
-                    <div className="mb-1.5 text-[10px] font-bold uppercase tracking-wider text-gray-400">Crew Lead</div>
+                    <div className="mb-1.5 text-xxs font-bold uppercase tracking-wider text-gray-400">Crew Lead</div>
                     <div className="flex items-center gap-2">
                       {leadMember ? <Avatar name={fullName(leadMember)} color={leadMember.color} size="sm" /> : (
                         <div className="flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 bg-gray-100 text-gray-500"><User className="h-4 w-4" /></div>
@@ -132,7 +132,7 @@ export default function WorkOrdersPage() {
                   </div>
                   <div className="mt-2 flex w-full items-center justify-between gap-4 border-t border-gray-100 pt-4 lg:mt-0 lg:w-auto lg:justify-end lg:border-t-0 lg:pl-4 lg:pt-0">
                     <div className="mr-2 hidden text-right lg:block">
-                      <div className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Total Hours</div>
+                      <div className="text-xxs font-bold uppercase tracking-wider text-gray-400">Total Hours</div>
                       <div className="text-base font-black text-gray-900">{hours.toFixed(2)}</div>
                     </div>
                     <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>

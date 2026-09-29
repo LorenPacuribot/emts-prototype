@@ -200,7 +200,7 @@ export function MemberFormModal({
               </div>
               <span className="absolute inset-0 flex flex-col items-center justify-center rounded-full bg-black/40 text-white opacity-0 transition-opacity group-hover:opacity-100">
                 <Upload className="mb-1 h-5 w-5" />
-                <span className="text-[9px] font-bold uppercase">Change</span>
+                <span className="text-xxs font-bold uppercase">Change</span>
               </span>
               <input type="file" accept="image/*" className="hidden" onChange={onPhoto} />
             </label>
@@ -284,7 +284,7 @@ export function MemberFormModal({
                 Week of {weekStart.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
               </div>
               {weekStart.getTime() !== thisWeek.getTime() && (
-                <button type="button" onClick={() => setWeekStart(thisWeek)} className="text-[10px] font-bold uppercase tracking-wider text-primary-600 hover:underline">
+                <button type="button" onClick={() => setWeekStart(thisWeek)} className="text-xxs font-bold uppercase tracking-wider text-primary-600 hover:underline">
                   Return to current week
                 </button>
               )}
@@ -312,7 +312,7 @@ export function MemberFormModal({
               <div key={i} className={cn('flex items-center gap-3 rounded-xl border p-3', d.working ? 'border-gray-200 bg-white' : 'border-gray-100 bg-gray-50 opacity-60')}>
                 <div className="w-14 shrink-0">
                   <div className="text-sm font-bold text-gray-900">{DAY_NAMES[i]}</div>
-                  <div className="text-[11px] text-gray-500">{date.getDate()} {date.toLocaleDateString('en-US', { month: 'short' })}</div>
+                  <div className="text-xs text-gray-500">{date.getDate()} {date.toLocaleDateString('en-US', { month: 'short' })}</div>
                 </div>
                 <div className="grid flex-1 grid-cols-2 gap-2">
                   {(['start', 'end'] as const).map((k) => (
@@ -332,7 +332,7 @@ export function MemberFormModal({
                 <button
                   type="button"
                   onClick={() => setDay(i, { working: !d.working })}
-                  className={cn('w-20 shrink-0 rounded-lg px-2 py-1.5 text-[10px] font-bold uppercase tracking-wider', d.working ? 'bg-green-50 text-green-700 hover:bg-green-100' : 'bg-gray-100 text-gray-600 hover:bg-gray-200')}
+                  className={cn('w-20 shrink-0 rounded-lg px-2 py-1.5 text-xxs font-bold uppercase tracking-wider', d.working ? 'bg-green-50 text-green-700 hover:bg-green-100' : 'bg-gray-100 text-gray-600 hover:bg-gray-200')}
                 >
                   {d.working ? 'Working' : 'Off'}
                 </button>
