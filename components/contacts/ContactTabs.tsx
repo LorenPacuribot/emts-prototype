@@ -18,6 +18,7 @@ import { usText } from '@/features/lib/display-text';
 import { LEAD_STATUS_BADGE, LEAD_STATUS_DISPLAY_NAMES } from '@/components/leads/leadHelpers';
 import { PaintPassportButton } from './PaintPassport';
 import { JobFeatureActions, useImportedJobs, type ImportedJob } from './ContactFeatures';
+import { useIsOn } from '@/features/lib/feature-visibility';
 
 type Sort = 'DateNewest' | 'DateOldest' | 'AmountHigh' | 'AmountLow';
 const SORT_LABELS: Record<Sort, string> = {
@@ -201,7 +202,10 @@ const STAGE_LABELS = ['CONFIRMED', 'SCHEDULED', 'PRODUCTION', 'TOUCH UP', 'INSPE
     plus completed jobs imported into the paint history (feature prototype). */
 export function JobHistoryTab({ jobs, customerId }: { jobs: Job[]; customerId: string }) {
   const [sort, setSort] = useState<Sort>('DateNewest');
-  const imported = useImportedJobs(customerId, new Set(jobs.map((j) => j.id)));
+  // Imported jobs belong to the paint history (25): hidden with it in New Features.
+  const historyOn = useIsOn({ feature: 25 });
+  const importedAll = useImportedJobs(customerId, new Set(jobs.map((j) => j.id)));
+  const imported = historyOn ? importedAll : [];
   const all: JobRow[] = [
     ...jobs.map((j) => ({ kind: 'live' as const, job: j })),
     ...imported.map((h) => ({ kind: 'imported' as const, job: h })),

@@ -38,6 +38,8 @@ import {
   ChangeOrderExceptionsDrawer, ChangeOrderExceptionsWidget, DemoWalkthroughCard, FEATURE_CARD_TITLES, RepaintAlertsWidget, SupplierOrderExceptionsWidget,
   TimeToApproveWidget, useFeatureCardAccess, type FeatureCardId,
 } from '@/components/dashboard/FeatureWidgets';
+import { useVisibility } from '@/features/lib/feature-visibility';
+import { NewFeaturesPanel } from '@/components/dashboard/NewFeaturesPanel';
 
 const HIDDEN_KEY = 'emts-dashboard-hidden-cards-v1';
 
@@ -71,6 +73,8 @@ function DashboardInner() {
   const db = useDb();
   const user = useCurrentUser();
   const access = useFeatureCardAccess();
+  // The green NEW outline follows "Show NEW badges on screens" (New Features).
+  const showBadges = useVisibility((s) => s.showBadges);
   const [coPanel, setCoPanel] = useState(useSearchParams().get('open') === 'co-exceptions');
   const [period, setPeriod] = useState<PeriodValue>({ preset: 'this_month' });
   const [editMode, setEditMode] = useState(false);
@@ -111,7 +115,7 @@ function DashboardInner() {
             <div className="pointer-events-none absolute inset-0 rounded-2xl ring-2 ring-dashed ring-gray-300" />
           </>
         )}
-        <div className={cn('h-full overflow-hidden rounded-2xl bg-white shadow-sm', isNew && 'border border-green-300 ring-1 ring-green-100', padding)}>{content}</div>
+        <div className={cn('h-full overflow-hidden rounded-2xl bg-white shadow-sm', isNew && showBadges && 'border border-green-300 ring-1 ring-green-100', padding)}>{content}</div>
       </div>
     );
   };
@@ -192,7 +196,7 @@ function DashboardInner() {
             <p className="text-xs italic text-gray-500">All cards are showing. Use the eye button on a card to hide it.</p>
           ) : (
             <div className="flex flex-wrap gap-2">
-              {hidden.map((id) => (
+              {hidden.filter((id) => !(id in FEATURE_CARD_TITLES) || access[id as FeatureCardId]).map((id) => (
                 <button
                   key={id}
                   onClick={() => saveHidden(hidden.filter((h) => h !== id))}
@@ -205,6 +209,9 @@ function DashboardInner() {
           )}
         </div>
       )}
+
+      {/* Prototype only: switch new features on or off (#new-features). */}
+      <NewFeaturesPanel />
 
       {/* NEW: prototype-only demo journey + product tour */}
       <DemoWalkthroughCard />

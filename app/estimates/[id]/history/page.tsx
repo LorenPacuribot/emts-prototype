@@ -22,6 +22,7 @@ import { useProtoEstimate } from '@/components/estimates/FeatureSections';
 import { coPricing, jobChangeOrders } from '@/features/lib/store/actions/change-orders';
 import { byId } from '@/features/lib/selectors';
 import { NewBadge } from '@/features/components/ui';
+import { useIsOn } from '@/features/lib/feature-visibility';
 
 /** NEW (24): change-order triggers, as on the live history (EstimateHistoryEntry.trigger). */
 const CO_TRIGGER = {
@@ -58,8 +59,9 @@ export default function EstimateHistoryPage() {
 
   // NEW (24): change-order events from the prototype twin's change orders.
   const { db, job } = useProtoEstimate(id);
+  const coOn = useIsOn({ feature: 24 });
   const coEvents: CoEvent[] = [];
-  for (const co of job ? jobChangeOrders(db, job.id) : []) {
+  for (const co of job && coOn ? jobChangeOrders(db, job.id) : []) {
     const total = coPricing(db, co).total;
     const by = byId(db.users, co.createdBy)?.name ?? 'Team member';
     coEvents.push({ key: co.id + '-c', coId: co.id, trigger: 'CHANGE_ORDER_CREATED', date: co.createdAt, actor: by, total });
@@ -67,7 +69,7 @@ export default function EstimateHistoryPage() {
     if (co.decidedAt && co.status === 'approved') coEvents.push({ key: co.id + '-a', coId: co.id, trigger: 'CHANGE_ORDER_APPROVED', date: co.decidedAt, actor: co.signer ?? 'Customer', total });
     if (co.rejection) coEvents.push({ key: co.id + '-r', coId: co.id, trigger: 'CHANGE_ORDER_REJECTED', date: co.rejection.at, actor: co.rejection.signer ?? 'Customer', total });
   }
-  for (const h of db.estimateHistory.filter((x) => x.estimateId === id && (x.trigger === 'AMENDMENT_OPENED' || x.trigger === 'SENT_FOR_REAPPROVAL'))) {
+  for (const h of db.estimateHistory.filter((x) => coOn && x.estimateId === id && (x.trigger === 'AMENDMENT_OPENED' || x.trigger === 'SENT_FOR_REAPPROVAL'))) {
     coEvents.push({ key: h.id, amendment: h.amendmentNumber, trigger: h.trigger as 'AMENDMENT_OPENED', date: h.createdAt, actor: byId(db.users, h.userId)?.name ?? 'Team member', total: h.grandTotal });
   }
   type Row = { kind: 'version'; date: string; i: number } | { kind: 'co'; date: string; ev: CoEvent };

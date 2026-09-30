@@ -11,6 +11,7 @@ import { useState } from "react";
 import { Banknote, CloudOff, FlaskConical, Landmark, Link2, Lock, RefreshCw, Scissors } from "lucide-react";
 import type { FinanceRecord } from "@/features/types";
 import { act, useCurrentUser, useDb, useStore } from "@/features/lib/store";
+import { useIsOn } from "@/features/lib/feature-visibility";
 import { can } from "@/features/lib/permissions";
 import { byId } from "@/features/lib/selectors";
 import { dateLong, dateTime, money } from "@/features/lib/format";
@@ -52,9 +53,13 @@ function AccountingModes() {
   const router = useRouter();
   const pathname = usePathname();
   const dest = accountingDestination(db);
-  const mode = params.get("mode") === "books" || (params.get("mode") !== "qbo" && dest === "books") ? "books" : "qbo";
+  // New Features (dashboard): Books needs Estimate Master Books on, the QuickBooks mode feature 33.
+  const booksOn = useIsOn({ featureKey: "bk" });
+  const qboOn = useIsOn({ feature: 33 });
+  const asked = params.get("mode") === "books" || (params.get("mode") !== "qbo" && dest === "books") ? "books" : "qbo";
+  const mode = !booksOn ? "qbo" : !qboOn ? "books" : asked;
   const set = (m: "books" | "qbo") => router.replace(`${pathname}?mode=${m}`, { scroll: false });
-  const toggle = (
+  const toggle = booksOn && qboOn && (
     <div className="mb-4 flex flex-wrap items-center gap-2">
       <div className="flex rounded-xl border border-gray-200 bg-gray-100 p-1" role="tablist" aria-label="Accounting mode">
         {(["qbo", "books"] as const).map((m) => (

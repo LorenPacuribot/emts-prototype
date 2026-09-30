@@ -23,6 +23,7 @@ import { jobPerformance, measureFor, visibleTo } from '@/features/lib/store/acti
 import { WO_STATUS_LABEL } from '@/features/lib/store/actions/work-orders';
 import { money } from '@/features/lib/format';
 import { CardTitle, ConfirmBadge, LiveCard, NewBadge } from '@/features/components/ui';
+import { useFeatureFilter } from '@/features/lib/feature-visibility';
 import type { JobStatus } from '@/lib/types';
 
 /** The prototype job behind a replica job id (only once it is a real job, not an estimate's scope record). */
@@ -58,8 +59,10 @@ const ALL_TIME = { from: '2000-01-01', to: '2100-12-31' };
 export function JobCostCard({ job }: { job: PJob }) {
   const db = useDb((d) => d);
   const user = useCurrentUser();
-  const seesCost = can(user, 'finance.access');
-  const perf = visibleTo(user, jobPerformance(db, ALL_TIME)).find((p) => p.jobId === job.id);
+  // New Features (dashboard): cost needs Accounting (33), hours need Estimated vs Actual (21).
+  const featureOn = useFeatureFilter();
+  const seesCost = can(user, 'finance.access') && featureOn({ feature: 33 });
+  const perf = featureOn({ feature: 21 }) ? visibleTo(user, jobPerformance(db, ALL_TIME)).find((p) => p.jobId === job.id) : undefined;
   if (!seesCost && (!perf || !can(user, 'report.view'))) return null;
   const hoursOnly = !seesCost || measureFor(user, 'cost') === 'hours';
   const f = jobFinancials(db, job.id);

@@ -24,8 +24,8 @@ import { FinanceFrame } from "./finance-frame";
 import { TypeBadge } from "./shared";
 import { CustomerReview } from "./customer-review";
 import { customersToReview } from "@/features/lib/rules/qbo-contacts";
-import { PillTabs, VersionBadge, VersionGate } from "@/features/components/ui";
-import { useVersion } from "@/features/lib/prototype-version";
+import { PillTabs, VersionBadge, FeatureGate } from "@/features/components/ui";
+import { useIsOn } from "@/features/lib/feature-visibility";
 
 export function UnallocatedScreen() {
   return (
@@ -43,15 +43,15 @@ function Unallocated() {
   const coded = db.financeRecords.filter((r) => r.allocations?.length).slice(0, 8);
   // QB-C1 (Complete): a Customer Review tab beside the records.
   const [tab, setTab] = useState<"records" | "customers">("records");
-  const complete = useVersion((s) => s.version === "complete");
+  const complete = useIsOn({ item: "QB-C1" });
   const toReview = customersToReview(db.qboCustomers ?? []).length;
 
   return (
     <>
       <PageHeader eyebrow={<VersionBadge item="QB-M6" withNew={false} />} title="Unallocated" subtitle="QuickBooks records with no job or cost code, waiting to be coded here." details="QuickBooks never edits a job or cost code, so allocation conflicts can't happen." />
-      <VersionGate item="QB-C1">
+      <FeatureGate item="QB-C1">
         <PillTabs className="mb-4" value={tab} onChange={setTab} options={[{ value: "records", label: "Records", count: list.length }, { value: "customers", label: "Customer Review", count: toReview }]} />
-      </VersionGate>
+      </FeatureGate>
       {complete && tab === "customers" ? <CustomerReview /> : <>
       <Card className="mb-4 p-4" data-tour="unallocated-list">
         <CardLabel icon={<Inbox />}>Waiting to be coded</CardLabel>

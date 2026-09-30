@@ -16,13 +16,15 @@ import { dateLong, dateTime } from '@/features/lib/format';
 import { toast } from '@/features/lib/toast';
 import { cn } from '@/lib/utils';
 import { Badge, Banner, Button, Checkbox, ConfirmDialog, Modal, NewBadge } from '@/features/components/ui';
+import { useIsOn } from '@/features/lib/feature-visibility';
 
 const passportUrl = (ref: string) => absoluteUrl(`/paint-record/view/?token=${encodeURIComponent(ref)}`);
 
 export function PaintPassportButton({ customerId }: { customerId: string }) {
   const user = useCurrentUser();
   const [open, setOpen] = useState(false);
-  if (!can(user, 'qr.generate')) return null;
+  const on = useIsOn({ feature: 26 });
+  if (!on || !can(user, 'qr.generate')) return null;
   return (
     <>
       <button

@@ -15,7 +15,7 @@
 import { useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ApprovalsView, AutomationViewTabs, FlowView, RulesView, type AutomationView } from "@/components/marketing/AutomationExtras";
-import { VersionGate, VersionScreenGate } from "@/features/components/ui";
+import { FeatureGate, FeatureRouteGate } from "@/features/components/ui";
 import { Pencil, Play, Plus, Workflow } from "lucide-react";
 import type { AutomationRun, MarketingAutomation } from "@/features/types/marketing-growth";
 import { act, useCurrentUser, useDb } from "@/features/lib/store";
@@ -110,16 +110,16 @@ function Automations() {
   const view: AutomationView = viewParam === "rules" || viewParam === "flow" || viewParam === "approvals" ? viewParam : "list";
   const setView = (v: AutomationView) => router.replace(v === "list" ? pathname : `${pathname}?view=${v}`, { scroll: false });
   const header = <PageHeader title="Automations" subtitle="Messages that go out on their own when something happens." details="For example when an estimate goes unanswered, a job is finished, a season starts, or a customer has gone quiet." />;
-  const tabs = <VersionGate item="CRM-C4"><AutomationViewTabs view={view} onChange={setView} /></VersionGate>;
+  const tabs = <FeatureGate item="CRM-C4"><AutomationViewTabs view={view} onChange={setView} /></FeatureGate>;
 
   if (view !== "list") {
     return (
       <>
         {header}
         {tabs}
-        <VersionScreenGate item={view === "flow" ? "CRM-C5" : view === "rules" ? "CRM-C4" : "CRM-C3"}>
+        <FeatureRouteGate item={view === "flow" ? "CRM-C5" : view === "rules" ? "CRM-C4" : "CRM-C3"}>
           {view === "rules" ? <RulesView /> : view === "flow" ? <FlowView /> : <ApprovalsView />}
-        </VersionScreenGate>
+        </FeatureRouteGate>
       </>
     );
   }

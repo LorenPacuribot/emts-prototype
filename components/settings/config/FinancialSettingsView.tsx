@@ -19,7 +19,7 @@ import { useSingleton } from '@/lib/store';
 import { act, useCurrentUser } from '@/features/lib/store';
 import { can } from '@/features/lib/permissions';
 import { updateFinancialSettings } from '@/features/lib/store/actions/settings';
-import { NewBadge } from '@/features/components/ui';
+import { FeatureGate, NewBadge } from '@/features/components/ui';
 import { NoteBox, SettingsCard } from './ui';
 
 export function FinancialSettingsView() {
@@ -74,10 +74,12 @@ export function FinancialSettingsView() {
               <Input type="number" min="0" max="100" step="any" value={form.deposit} placeholder="0" invalid={!!errors.deposit} onChange={(e) => setForm({ ...form, deposit: e.target.value })} onClear={() => setForm({ ...form, deposit: '' })} />
             </Field>
             <NoteBox>Set to 0 to disable deposit requirement. Work orders will skip the pending deposit status.</NoteBox>
-            <div className="flex items-start gap-2 rounded-lg border border-green-200 bg-green-50/40 px-3 py-2 text-xs text-gray-600">
-              <NewBadge feature={33} className="mt-px" />
-              <span>Accepting an estimate creates its deposit invoice as a draft at this percentage of the estimate total. A re-signed amendment updates that draft.</span>
-            </div>
+            <FeatureGate feature={33}>
+              <div className="flex items-start gap-2 rounded-lg border border-gray-200 bg-gray-50/40 px-3 py-2 text-xs text-gray-600">
+                <NewBadge feature={33} className="mt-px" />
+                <span>Accepting an estimate creates its deposit invoice as a draft at this percentage of the estimate total. A re-signed amendment updates that draft.</span>
+              </div>
+            </FeatureGate>
           </div>
         </SettingsCard>
       </div>

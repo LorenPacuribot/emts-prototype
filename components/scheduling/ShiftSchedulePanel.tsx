@@ -19,7 +19,7 @@ import { memberDayLoad, scheduleError, requiredHoursChange } from '@/lib/schedul
 import { assignedTotal, fmtDay, fmtSpan, fmtTime, memberBookedHours, parseKey, round1, shiftWindow, todayKey, weekDays, windowHours, workingShiftDays } from './schedule-utils';
 import { boundSchedule, datedShiftCrew, moveShifts, scheduleDraft } from './shift-draft';
 import { useNotifyModal, useScheduleSaved } from './NotifyCrew';
-import { VersionBadge, VersionGate } from '@/features/components/ui';
+import { VersionBadge, FeatureGate } from '@/features/components/ui';
 
 const label = 'text-xxs font-bold uppercase tracking-wide text-gray-500';
 const dayLabel = (d: string) => fmtDay(d, { weekday: 'short', month: 'short', day: 'numeric' });
@@ -59,12 +59,12 @@ export function ShiftSchedulePanel({ job, onClose, initialStart }: { job: Job; o
         {awaitingDeposit && <div className="space-y-2 rounded-xl bg-amber-50 p-3 text-sm text-amber-800"><p>Confirm the deposit before scheduling this job.</p>{canManage && <Button size="sm" onClick={() => { if (twin?.wo) act(setWorkOrderStatus, twin.wo.id, 'UNSCHEDULED'); }}>Confirm Deposit</Button>}</div>}
         <Button variant="secondary" className="w-full" icon={<CalendarClock className="h-4 w-4" />} disabled={!shifts.length || job.scheduleProtected} onClick={() => setMoving(true)}>Move schedule</Button>
         {job.startDate && (
-          <VersionGate item="JS-C1">
+          <FeatureGate item="JS-C1">
             {/* JS-C1: the Notify crew modal, for this job only. Closes the panel first (the modal sits under it). */}
             <Button variant="secondary" className="w-full" icon={<Mail className="h-4 w-4" />} onClick={() => { onClose(); useNotifyModal.getState().show({ jobIds: [job.id] }); }}>
               Send Email <VersionBadge item="JS-C1" />
             </Button>
-          </VersionGate>
+          </FeatureGate>
         )}
         <div className="space-y-3"><h3 className={label}>Shifts</h3>
           {shifts.map((s) => <div key={s.id} className="space-y-3 rounded-2xl border border-gray-200 p-3">

@@ -34,7 +34,8 @@ import { jobChangeOrders } from '@/features/lib/store/actions/change-orders';
 import { closeoutRowsFor } from '@/features/lib/store/actions/property';
 import { sendPhotoToMarketing } from '@/features/lib/store/actions/marketing';
 import { specForSurface, jobSurfaceHours } from '@/features/lib/rules/estimate';
-import { Drawer, NewBadge } from '@/features/components/ui';
+import { Drawer, FeatureGate, NewBadge } from '@/features/components/ui';
+import { useFeatureFilter, useIsOn } from '@/features/lib/feature-visibility';
 import { CloseoutPanel } from '@/features/components/features/closeout/closeout-panel';
 import { MaterialsSections } from '@/features/components/features/materials/materials-sections';
 import { LogHoursModal } from '@/features/components/features/work-orders/details/log-hours-modal';
@@ -88,15 +89,16 @@ export function WoTwinChips({ twin }: { twin: WoTwin }) {
   const openCos = jobChangeOrders(db, job.id).filter((c) => !['approved', 'rejected', 'disputed'].includes(c.status));
   const rows = closeoutRowsFor(db, job);
   const confirmed = rows.filter((r) => r.confirmedBy).length;
+  const featureOn = useFeatureFilter();
   return (
     <>
-      {openCos.length > 0 && (
+      {openCos.length > 0 && featureOn({ feature: 24 }) && (
         <AppLink href={job.estimateId ? estimateHref(job.estimateId, 'section-change-orders') : '#'}
           className="inline-flex items-center gap-1 rounded-md border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-xs font-bold text-amber-700">
           {openCos.length} open change order{openCos.length === 1 ? '' : 's'} <NewBadge feature={24} />
         </AppLink>
       )}
-      {wo.status === 'IN_PROGRESS' && (
+      {wo.status === 'IN_PROGRESS' && featureOn({ feature: 25 }) && (
         <span className="inline-flex items-center gap-1 rounded-md border border-green-200 bg-green-50 px-1.5 py-0.5 text-xs font-bold text-green-700">
           Closeout {confirmed}/{rows.length} surfaces confirmed <NewBadge feature={25} />
         </span>
@@ -117,6 +119,7 @@ export function WoTwinActions({ twin, onLogHours, onLogMaterial, onSchedule, onM
   const canSchedule = can(user, 'workOrder.manageSchedule');
   const estimate = job.estimateId ? byId(db.estimates, job.estimateId) : undefined;
   const big = 'h-11 px-5 font-black';
+  const featureOn = useFeatureFilter();
 
   const status = (to: WorkOrder['status']) => {
     if (act(setWorkOrderStatus, wo.id, to).ok) toast.success(`Status changed to ${WO_STATUS_LABEL[to]}`);
@@ -147,10 +150,10 @@ export function WoTwinActions({ twin, onLogHours, onLogMaterial, onSchedule, onM
             <Item icon={<CalendarPlus />} onSelect={onSchedule} disabled={!canSchedule || wo.status === 'PENDING_DEPOSIT' || wo.status === 'COMPLETED'}>Edit Schedule</Item>
             <Item icon={<CalendarX2 />} disabled={!canSchedule || wo.status !== 'SCHEDULED'}
               onSelect={() => { if (act(markUnscheduled, wo.id).ok) toast.success('Status changed to Unscheduled'); }}>Mark Unscheduled</Item>
-            {estimate && job.contractSigned && can(user, 'co.build') && (
+            {estimate && job.contractSigned && can(user, 'co.build') && featureOn({ feature: 24 }) && (
               <Item icon={<FilePlus2 />} onSelect={() => router.push(`${estimateHref(estimate.id)}?newco=1#section-change-orders`)}>Create Change Order <NewBadge feature={24} /></Item>
             )}
-            {wo.status === 'IN_PROGRESS' && <Item icon={<ClipboardCheck />} onSelect={onMarkComplete}>Closeout checklist <NewBadge feature={25} /></Item>}
+            {wo.status === 'IN_PROGRESS' && featureOn({ feature: 25 }) && <Item icon={<ClipboardCheck />} onSelect={onMarkComplete}>Closeout checklist <NewBadge feature={25} /></Item>}
             <DM.Separator className="my-1 h-px bg-gray-100" />
             <Item icon={<Trash2 />} danger disabled>Delete Work Order</Item>
           </DM.Content>
@@ -179,7 +182,7 @@ function Item({ icon, children, onSelect, disabled, danger }: { icon: React.Reac
 export function WoMaterialSections({ twin }: { twin: WoTwin }) {
   return (
     <>
-      <WoPaintColorCard job={twin.job} />
+      <FeatureGate feature={[3, 18]}><WoPaintColorCard job={twin.job} /></FeatureGate>
       <MaterialsSections job={twin.job} />
     </>
   );
@@ -190,7 +193,7 @@ export function WoFieldSections({ twin }: { twin: WoTwin }) {
   return (
     <>
       <div id="wo-crew-time" className="scroll-mt-24 space-y-8">
-        <CrewClockCard wo={twin.wo} job={twin.job} />
+        <FeatureGate feature={22}><CrewClockCard wo={twin.wo} job={twin.job} /></FeatureGate>
         <TimeLogSection wo={twin.wo} job={twin.job} />
       </div>
       <div id="wo-notes" className="scroll-mt-24">
@@ -204,7 +207,8 @@ export function WoFieldSections({ twin }: { twin: WoTwin }) {
 function UseInMarketing({ wo, attId }: { wo: WorkOrder; attId: string }) {
   const user = useCurrentUser();
   const att = wo.attachments.find((a) => a.id === attId);
-  if (!att?.fileType.startsWith('image') || !can(user, 'marketing.post')) return null;
+  const on = useIsOn({ feature: 34 });
+  if (!on || !att?.fileType.startsWith('image') || !can(user, 'marketing.post')) return null;
   if (att.mediaAssetId) {
     return <AppLink href="/marketing/media" className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-primary-700 hover:underline"><Share2 className="h-3 w-3" /> In media library</AppLink>;
   }

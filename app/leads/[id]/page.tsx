@@ -34,7 +34,7 @@ import { PipelineStatusBar } from '@/components/leads/PipelineStatusBar';
 import { NotesSection } from '@/components/leads/NotesSection';
 import { LeadMessagesCard } from '@/components/leads/LeadMessagesCard';
 import { JourneyBar, StageHistoryCard } from '@/components/leads/StageHistory';
-import { VersionGate } from '@/features/components/ui';
+import { FeatureGate } from '@/features/components/ui';
 import { FollowUpLockNote, LeadSourceChip, RepaintFollowUpHost, useFollowUpLocks } from '@/components/leads/leadFeatures';
 import { PropertyMapCard, ServiceLocationModal, useAddServiceLocation } from '@/components/contacts/ServiceLocations';
 
@@ -169,7 +169,7 @@ export default function LeadDetailPage() {
       </div>
 
       {/* CRM-C7 (Complete): where the lead is in each pipeline. */}
-      <VersionGate item="CRM-C7"><div className="mb-8"><JourneyBar lead={lead} /></div></VersionGate>
+      <FeatureGate item="CRM-C7"><div className="mb-8"><JourneyBar lead={lead} /></div></FeatureGate>
 
       {/* Main grid */}
       <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-3">
@@ -181,7 +181,7 @@ export default function LeadDetailPage() {
         <div className="min-w-0 space-y-8 lg:col-span-2">
           <RepaintFollowUpHost leadId={lead.id} />
           <LeadMessagesCard lead={lead} onCancel={(id) => actions.cancelScheduled(lead, id)} />
-          <StageHistoryCard lead={lead} />
+          <FeatureGate item="CRM-M7"><StageHistoryCard lead={lead} /></FeatureGate>
           <NotesSection notes={lead.notes} onAddNote={(t) => actions.addNote(lead, t)} />
         </div>
       </div>

@@ -14,6 +14,7 @@ import { DropdownMenu } from '@/components/ui/menu';
 import { Button } from '@/components/ui/button';
 import { cn, shortDate, toISODate } from '@/lib/utils';
 import { NewBadge } from '@/features/components/ui';
+import { useIsOn, useVisibility } from '@/features/lib/feature-visibility';
 import { STATUS_LABEL } from './estimate-utils';
 
 export type StatusFilter = 'All Active' | EstimateStatus | 'From History';
@@ -22,7 +23,7 @@ export interface DateRange { from: string; to: string }
 
 export const STATUS_OPTIONS: StatusFilter[] = ['All Active', 'Draft', 'Sent', 'Viewed', 'Approved', 'Rejected', 'Expired', 'From History'];
 
-const statusLabel = (s: StatusFilter) => (s === 'All Active' ? 'All Active' : s === 'From History' ? 'From history (repeat work) · NEW' : STATUS_LABEL[s]);
+const statusLabel = (s: StatusFilter, badges = false) => (s === 'All Active' ? 'All Active' : s === 'From History' ? `From history (repeat work)${badges ? ' · NEW' : ''}` : STATUS_LABEL[s]);
 
 export const SORT_OPTIONS: { value: SortKey; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
   { value: 'date-desc', label: 'Date (Newest)', icon: Calendar },
@@ -124,6 +125,9 @@ export function EstimateFilters(p: {
 }) {
   const sortOpt = SORT_OPTIONS.find((o) => o.value === p.sort)!;
   const SortIcon = sortOpt.icon;
+  // From History (28) follows New Features; its NEW text follows the badges switch.
+  const historyOn = useIsOn({ feature: 28 });
+  const badges = useVisibility((s) => s.showBadges);
   return (
     <div className="mb-6 flex flex-col items-start justify-between gap-4 lg:flex-row lg:items-center">
       <SearchInput value={p.search} onChange={p.onSearch} placeholder="Search by client, project, or number..." className="lg:w-80" />
@@ -131,8 +135,8 @@ export function EstimateFilters(p: {
         <DateRangeFilter value={p.range} onChange={p.onRange} />
         <div className="flex w-full gap-2 md:w-auto">
           <DropdownMenu
-            items={STATUS_OPTIONS.map((s) => ({
-              label: statusLabel(s),
+            items={STATUS_OPTIONS.filter((s) => s !== 'From History' || historyOn).map((s) => ({
+              label: statusLabel(s, badges),
               icon: p.status === s ? <Check className="text-primary-600" /> : <span />,
               onClick: () => p.onStatus(s),
             }))}

@@ -27,7 +27,8 @@ import { Badge, Banner, Button, Card, CardLabel, Input, Table, TD, TH, THead, TR
 import { FinanceFrame } from "./finance-frame";
 import { MatchContactsCard } from "./match-contacts";
 import { ChartOfAccountsCard, MoveFromQuickBooks } from "./books-settings";
-import { VersionGate } from "@/features/components/ui";
+import { FeatureGate } from "@/features/components/ui";
+import { useIsOn } from "@/features/lib/feature-visibility";
 import type { AccountMapping } from "@/features/types";
 import { NewBadge, VersionBadge } from "@/features/components/ui";
 
@@ -52,6 +53,8 @@ function Setup() {
   const [code, setCode] = useState("");
   const [label, setLabel] = useState("");
   const [mapEdits, setMapEdits] = useState<Record<string, string>>({});
+  // QB-M2 (New Features): the sync-option grouping and its two added mappings.
+  const syncOn = useIsOn({ item: "QB-M2" });
   const fs = db.financeSettings;
   const years = [...new Set(db.migrationTotals.map((m) => m.year))].sort((a, b) => b - a);
   // The bookkeeper can close last month once it has ended.
@@ -129,16 +132,16 @@ function Setup() {
           <Table className="mt-3">
             <THead><tr><TH>Category</TH><TH>QuickBooks account</TH>{can(user, "finance.config") && <TH />}</tr></THead>
             <tbody>
-              <TR>
+              {syncOn && <TR>
                 <TD colSpan={3} className="bg-gray-50 text-xs font-bold uppercase tracking-wider text-gray-500">
                   <span className="inline-flex items-center gap-1.5">QuickBooks sync options <VersionBadge item="QB-M2" /></span>
                 </TD>
-              </TR>
-              {[...db.accountMappings].sort((a, b) => (a.syncOption ? SYNC_ORDER.indexOf(a.syncOption) : 99) - (b.syncOption ? SYNC_ORDER.indexOf(b.syncOption) : 99)).map((m, i, all) => (
+              </TR>}
+              {[...db.accountMappings].filter((m) => syncOn || !ADDED.includes(m.id)).sort((a, b) => (a.syncOption ? SYNC_ORDER.indexOf(a.syncOption) : 99) - (b.syncOption ? SYNC_ORDER.indexOf(b.syncOption) : 99)).map((m, i, all) => (
                 <TR key={m.id}>
                   <TD className="font-semibold">
-                    {!m.syncOption && all[i - 1]?.syncOption && <span className="mb-2 block border-t border-gray-100 pt-2 text-xs font-bold uppercase tracking-wider text-gray-500">Other categories</span>}
-                    {m.syncOption ? <span className="inline-flex flex-wrap items-center gap-1.5">{SYNC_LABEL[m.syncOption]} <span className="font-normal text-gray-500">· {m.category}</span>{ADDED.includes(m.id) && <NewBadge />}</span> : m.category}
+                    {syncOn && !m.syncOption && all[i - 1]?.syncOption && <span className="mb-2 block border-t border-gray-100 pt-2 text-xs font-bold uppercase tracking-wider text-gray-500">Other categories</span>}
+                    {syncOn && m.syncOption ? <span className="inline-flex flex-wrap items-center gap-1.5">{SYNC_LABEL[m.syncOption]} <span className="font-normal text-gray-500">· {m.category}</span>{ADDED.includes(m.id) && <NewBadge />}</span> : m.category}
                   </TD>
                   <TD>{can(user, "finance.config") ? <Input value={mapEdits[m.id] ?? m.account} onChange={(e) => setMapEdits({ ...mapEdits, [m.id]: e.target.value })} className="h-8" /> : m.account}</TD>
                   {can(user, "finance.config") && <TD><Button size="sm" disabled={(mapEdits[m.id] ?? m.account) === m.account} onClick={() => act(updateMapping, m.id, mapEdits[m.id]).ok && toast.success("Mapping updated", "Posted transactions unaffected.")}>Save</Button></TD>}
@@ -148,11 +151,11 @@ function Setup() {
           </Table>
         </Card>
 
-        <MatchContactsCard />
+        <FeatureGate item="QB-M3"><MatchContactsCard /></FeatureGate>
 
-        <VersionGate item="BK-C5"><MoveFromQuickBooks /></VersionGate>
+        <FeatureGate item="BK-C5"><MoveFromQuickBooks /></FeatureGate>
 
-        <ChartOfAccountsCard />
+        <FeatureGate item="BK-M2"><ChartOfAccountsCard /></FeatureGate>
 
         <Card className="p-4">
           <CardLabel icon={<History />}>Periods, payroll journal and migration</CardLabel>

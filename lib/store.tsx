@@ -21,6 +21,7 @@ import { createInitialDatabase } from './sampleData';
 import { migrateCollections } from './migrate';
 import { withNotifyBaseline } from './schedule-notify';
 import { withCrmBaseline } from './crm';
+import { useVisibility } from '@/features/lib/feature-visibility';
 import { uid } from './utils';
 import { applyOps, resetBridge, runSync, type BridgeOp } from './bridge/sync';
 import { BridgeSync } from './bridge/BridgeSync';
@@ -264,6 +265,8 @@ export function useDataActions() {
       }
       resetBridge();
       useFeatureStore.getState().resetDemo();
+      // The New Features panel goes back to its defaults too.
+      useVisibility.getState().reset();
       const fresh = createInitialDatabase();
       dispatch({ type: 'replace', db: withCrmBaseline(withNotifyBaseline(applyOps(fresh, runSync(fresh, { baseline: true })))) });
     },

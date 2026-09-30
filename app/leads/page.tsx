@@ -39,8 +39,8 @@ import { TrackedLinksCard } from '@/components/leads/TrackedLinksCard';
 import { FacebookLeadAdsCard } from '@/components/leads/FacebookLeadAdsCard';
 import { AddPipelineModal } from '@/components/settings/config/PipelineStagesView';
 import { useDb as useFeatureDb } from '@/features/lib/store';
-import { NewBadge, VersionBadge, VersionGate } from '@/features/components/ui';
-import { useVersion } from '@/features/lib/prototype-version';
+import { NewBadge, VersionBadge, FeatureGate } from '@/features/components/ui';
+import { useIsOn } from '@/features/lib/feature-visibility';
 import { leavesSold, pipelineColumns } from '@/features/lib/rules/lead-pipeline';
 import { WebsiteLeadsPanel } from '@/features/components/features/leads/listings/website-leads-panel';
 
@@ -82,10 +82,16 @@ function LeadPipeline() {
   const pathname = usePathname();
   const params = useSearchParams();
   const viewParam = params.get('view');
-  const view = viewParam === 'table' ? 'table' : viewParam === 'website' ? 'website' : 'kanban';
+  // New Features (dashboard): CRM Minimal brings the pipeline switch, Source filter and
+  // Tracked links; the Website view needs feature 34 or CRM.
+  const crmOn = useIsOn({ featureKey: 'crm' });
+  const websiteReviewOn = useIsOn({ feature: 34 });
+  const websiteOn = websiteReviewOn || crmOn;
+  const view = viewParam === 'table' ? 'table' : viewParam === 'website' && websiteOn ? 'website' : 'kanban';
   const featureDb = useFeatureDb((d) => d);
   const openReviews = featureDb.leads.filter((l) => l.review?.status === 'open').length;
-  const complete = useVersion((s) => s.version === 'complete');
+  // CRM Complete (New Features panel): added pipelines and Group by Source.
+  const complete = useIsOn({ featureKey: 'crm', part: 'complete' });
 
   const { items: leads } = useCollection('leads');
   const stagesCol = useCollection('pipelineStages');
@@ -106,8 +112,8 @@ function LeadPipeline() {
   const [addingPipeline, setAddingPipeline] = useState(false);
 
   const pipelines = useMemo(
-    () => [...pipelinesCol.items].filter((p) => p.kind !== 'custom' || complete).sort((a, b) => a.sortOrder - b.sortOrder),
-    [pipelinesCol.items, complete],
+    () => [...pipelinesCol.items].filter((p) => p.kind === 'sales' || (crmOn && (p.kind !== 'custom' || complete))).sort((a, b) => a.sortOrder - b.sortOrder),
+    [pipelinesCol.items, complete, crmOn],
   );
   const pipelineId = pipelines.some((p) => p.id === params.get('pipeline')) ? params.get('pipeline')! : 'sales';
   const pipeline = pipelines.find((p) => p.id === pipelineId);
@@ -130,13 +136,13 @@ function LeadPipeline() {
     return leads.filter(
       (l) =>
         // The Source filter belongs to the board; the table has its own filters.
-        (view !== 'kanban' || !source || l.leadSource === source) &&
+        (view !== 'kanban' || !crmOn || !source || l.leadSource === source) &&
         (!q ||
           `${l.firstName} ${l.lastName}`.toLowerCase().includes(q) ||
           l.email.toLowerCase().includes(q) ||
           l.city.toLowerCase().includes(q)),
     );
-  }, [leads, search, source, view]);
+  }, [leads, search, source, view, crmOn]);
 
   const active = matches.filter((l) => l.status !== 'Archived');
   const archived = matches.filter((l) => l.status === 'Archived');
@@ -144,7 +150,7 @@ function LeadPipeline() {
   /** CRM-M3: leaving Sold asks what happens to the Production card. */
   const move = (lead: Lead, status: LeadStatus) => {
     const card = cards.items.find((c) => !c.removedAt && (c.leadId === lead.id || (lead.estimateId && c.estimateId === lead.estimateId)));
-    if (card && leavesSold(lead.status, status)) setLeaving({ lead, status });
+    if (crmOn && card && leavesSold(lead.status, status)) setLeaving({ lead, status });
     else actions.changeStatus(lead, status);
   };
   const finishLeaving = (keep: boolean) => {
@@ -221,7 +227,7 @@ function LeadPipeline() {
               <span className="text-xxs font-bold uppercase">{b.label}</span>
             </button>
           ))}
-          <button
+          {websiteOn && <button
             type="button"
             title="Website Lead Review"
             data-tour="leads-website"
@@ -235,12 +241,12 @@ function LeadPipeline() {
             <span className="text-xxs font-bold uppercase">Website</span>
             {openReviews > 0 && <span className="rounded-full bg-amber-100 px-1.5 text-xs font-bold text-amber-700">{openReviews}</span>}
             <NewBadge feature={34} />
-          </button>
+          </button>}
         </div>
       </div>
 
       {/* 30 Sep call: pipeline switch, source filter, group by */}
-      {view === 'kanban' && !viewArchived && (
+      {view === 'kanban' && !viewArchived && crmOn && (
         <div className="mb-6 flex flex-wrap items-center gap-3">
           <div className={track} role="tablist" aria-label="Pipeline">
             {pipelines.map((p) => (
@@ -248,11 +254,11 @@ function LeadPipeline() {
                 {p.name}
               </button>
             ))}
-            <VersionGate item="CRM-C2">
+            <FeatureGate item="CRM-C2">
               <button type="button" onClick={() => setAddingPipeline(true)} className={seg(false)} title="Add a pipeline, e.g. Marketing">
                 <Plus className="h-3.5 w-3.5" /> Add pipeline <VersionBadge item="CRM-C2" />
               </button>
-            </VersionGate>
+            </FeatureGate>
           </div>
           <VersionBadge item="CRM-M1" />
           {pipeline?.kind !== 'production' && (
@@ -266,7 +272,7 @@ function LeadPipeline() {
             </label>
           )}
           {pipeline?.kind === 'sales' && (
-            <VersionGate item="CRM-C1">
+            <FeatureGate item="CRM-C1">
               <div className="flex items-center gap-2">
                 <span className="text-xs font-bold uppercase tracking-wide text-gray-500">Group by</span>
                 <div className={track}>
@@ -276,7 +282,7 @@ function LeadPipeline() {
                 </div>
                 <VersionBadge item="CRM-C1" />
               </div>
-            </VersionGate>
+            </FeatureGate>
           )}
         </div>
       )}
@@ -290,9 +296,9 @@ function LeadPipeline() {
 
       {view === 'website' ? (
         <div className="space-y-6">
-          <TrackedLinksCard />
-          <VersionGate item="CRM-C6"><FacebookLeadAdsCard /></VersionGate>
-          <WebsiteLeadsPanel />
+          <FeatureGate item="CRM-M5"><TrackedLinksCard /></FeatureGate>
+          <FeatureGate item="CRM-C6"><FacebookLeadAdsCard /></FeatureGate>
+          {websiteReviewOn && <WebsiteLeadsPanel />}
         </div>
       ) : viewArchived ? (
         <ArchivedView leads={archived} onRestore={actions.restore} />

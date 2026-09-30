@@ -23,7 +23,8 @@ import { useCollection } from '@/lib/store';
 import type { PipelineStage } from '@/lib/types';
 import { createPipeline } from '@/lib/crm';
 import { cn, uid } from '@/lib/utils';
-import { Field as FField, Input as FInput, Modal, NewBadge, VersionBadge, VersionGate } from '@/features/components/ui';
+import { Field as FField, Input as FInput, Modal, NewBadge, VersionBadge, FeatureGate } from '@/features/components/ui';
+import { useIsOn } from '@/features/lib/feature-visibility';
 import {
   MAX_STAGES, deleteStageProblem, insertStage, moveStage, pipelineColumns, stageCounts, stageNameProblem, stageOrderProblem, stagePipeline,
 } from '@/features/lib/rules/lead-pipeline';
@@ -36,8 +37,14 @@ export function PipelineStagesView() {
   const { items: leads } = useCollection('leads');
   const { items: cards } = useCollection('productionCards');
   const { toast } = useToast();
-  const sortedPipelines = [...pipelines.items].sort((a, b) => a.sortOrder - b.sortOrder);
-  const [tab, setTab] = useState(sortedPipelines[0]?.id ?? 'sales');
+  // New Features (dashboard): Production needs CRM Minimal, added pipelines CRM Complete.
+  const crmOn = useIsOn({ featureKey: 'crm' });
+  const crmComplete = useIsOn({ featureKey: 'crm', part: 'complete' });
+  const sortedPipelines = [...pipelines.items]
+    .filter((p) => p.kind === 'sales' || (crmOn && (p.kind !== 'custom' || crmComplete)))
+    .sort((a, b) => a.sortOrder - b.sortOrder);
+  const [tabState, setTab] = useState(sortedPipelines[0]?.id ?? 'sales');
+  const tab = sortedPipelines.some((p) => p.id === tabState) ? tabState : sortedPipelines[0]?.id ?? 'sales';
   const [draft, setDraft] = useState<PipelineStage[]>(() => stages.items);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [dragId, setDragId] = useState<string>();
@@ -120,7 +127,7 @@ export function PipelineStagesView() {
       title="Pipeline Configuration"
       subtitle="The stages of your lead and production boards. Drag to reorder."
     >
-      <div className="mb-5 flex flex-wrap items-center gap-2">
+      {crmOn && <div className="mb-5 flex flex-wrap items-center gap-2">
         <div className="flex rounded-xl border border-gray-200 bg-gray-100 p-1" role="tablist" aria-label="Pipelines">
           {sortedPipelines.map((p) => (
             <button
@@ -136,12 +143,12 @@ export function PipelineStagesView() {
           ))}
         </div>
         <VersionBadge item="CRM-M1" />
-        <VersionGate item="CRM-C2">
+        <FeatureGate item="CRM-C2">
           <Button variant="secondary" size="sm" icon={<Plus className="h-4 w-4" />} onClick={() => setAdding(true)}>
             Add pipeline <VersionBadge item="CRM-C2" />
           </Button>
-        </VersionGate>
-      </div>
+        </FeatureGate>
+      </div>}
 
       <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
         <div className="flex items-center justify-between border-b border-gray-100 px-5 py-3 text-xs font-bold uppercase tracking-wider text-gray-500">

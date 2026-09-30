@@ -68,8 +68,8 @@ export function PaintCatalogSection() {
   }
 
   return (
-    <section className="mt-8 overflow-hidden rounded-2xl border border-green-200 bg-white shadow-lg shadow-gray-200/70">
-      <div className="flex flex-col gap-3 border-b border-gray-100 bg-green-50/40 px-6 py-4 sm:flex-row sm:items-start sm:justify-between">
+    <section className="mt-8 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-lg shadow-gray-200/70">
+      <div className="flex flex-col gap-3 border-b border-gray-100 bg-gray-50/40 px-6 py-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <h3 className="flex flex-wrap items-center gap-2 font-heading text-base font-bold text-gray-900">
             Color card &amp; paint order catalog <NewBadge feature={[3, 18]} />

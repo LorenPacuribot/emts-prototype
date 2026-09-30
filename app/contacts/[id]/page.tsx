@@ -31,7 +31,8 @@ import { useDeleteContact } from '@/components/contacts/useDeleteContact';
 import { ConversationsTab, EstimatesTab, InvoicesTab, JobHistoryTab, LeadsTab } from '@/components/contacts/ContactTabs';
 import { LocationPaintChips, PaintHistoryHost } from '@/components/contacts/ContactFeatures';
 import { PropertyMapCard, ServiceLocationModal, useAddServiceLocation } from '@/components/contacts/ServiceLocations';
-import { NewBadge, VersionGate } from '@/features/components/ui';
+import { NewBadge, FeatureGate } from '@/features/components/ui';
+import { useFeatureFilter } from '@/features/lib/feature-visibility';
 import { QuickBooksContactCard, QuickBooksUpdatedNote } from '@/components/contacts/QuickBooksContact';
 
 type TabKey = 'leads' | 'estimates' | 'invoices' | 'jobs' | 'conversations' | 'notes' | 'paint-history';
@@ -75,7 +76,10 @@ function ContactDetail() {
   const addLocation = useAddServiceLocation();
 
   const tabParam = params.get('tab') as TabKey | null;
-  const tab: TabKey = tabParam && TABS.some((t) => t.key === tabParam) ? tabParam : 'leads';
+  // Paint History (features 25, 26, 28) drops out when New Features hides all three.
+  const featureOn = useFeatureFilter();
+  const tabs = TABS.filter((t) => !t.isNew || featureOn({ feature: [25, 26, 28] }));
+  const tab: TabKey = tabParam && tabs.some((t) => t.key === tabParam) ? tabParam : 'leads';
   const setTab = (t: TabKey) => {
     // Only ?tab= carries over; the Paint History filters (&location=, &view=) belong to that tab.
     const next = new URLSearchParams({ tab: t });
@@ -148,9 +152,9 @@ function ContactDetail() {
             </div>
             <div className="flex flex-wrap gap-x-6 gap-y-2 pl-1 text-sm font-medium text-gray-500 md:text-base">
               <a href={`tel:${customer.phone}`} className="flex items-center gap-2 hover:text-gray-800"><Phone className="h-4 w-4 text-gray-500" /> {formatPhone(customer.phone) || '-'}</a>
-              <VersionGate item="QB-C2"><QuickBooksUpdatedNote customerId={customer.id} field="phone" /></VersionGate>
+              <FeatureGate item="QB-C2"><QuickBooksUpdatedNote customerId={customer.id} field="phone" /></FeatureGate>
               <a href={`mailto:${customer.email}`} className="flex items-center gap-2 hover:text-gray-800"><Mail className="h-4 w-4 text-gray-500" /> {customer.email || '-'}</a>
-              <VersionGate item="QB-C2"><QuickBooksUpdatedNote customerId={customer.id} field="email" /></VersionGate>
+              <FeatureGate item="QB-C2"><QuickBooksUpdatedNote customerId={customer.id} field="email" /></FeatureGate>
               <span className="flex items-center gap-2"><MapPin className="h-4 w-4 text-gray-500" /> {address}</span>
             </div>
             {(customer.companyName || customer.secondaryPhone) && (
@@ -189,7 +193,7 @@ function ContactDetail() {
       <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-3">
         {/* Left column */}
         <div className="space-y-8">
-          <VersionGate item="QB-C4"><QuickBooksContactCard customerId={customer.id} /></VersionGate>
+          <FeatureGate item="QB-C4"><QuickBooksContactCard customerId={customer.id} /></FeatureGate>
           <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
             <div className="mb-6 flex items-center justify-between gap-2">
               <h3 className="font-heading text-lg font-bold text-gray-900">Service Locations</h3>
@@ -249,7 +253,7 @@ function ContactDetail() {
         <div className="min-w-0 lg:col-span-2">
           <div className="-mx-1 mb-6 flex gap-2 overflow-x-auto px-1 pb-1 custom-scrollbar" role="tablist" aria-label="Contact sections">
 
-            {TABS.map((t) => (
+            {tabs.map((t) => (
               <button
                 key={t.key}
                 type="button"

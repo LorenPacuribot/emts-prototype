@@ -227,13 +227,3 @@
     max-width: 75ch;
   }
 }
-
-/*
-  X-M1: "Hide markers" in the Prototype bar puts .hide-markers on <html>.
-  Unlayered, so it beats the inline-flex utility on the badges.
-*/
-.hide-markers [data-new-badge],
-.hide-markers [data-version-badge],
-.hide-markers [data-confirm-badge] {
-  display: none;
-}

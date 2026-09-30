@@ -184,11 +184,12 @@ export function Switch({ checked, onChange, disabled, label }: { checked: boolea
   );
 }
 
-export function Checkbox({ checked, onChange, disabled, label, id }: { checked: boolean; onChange: (v: boolean) => void; disabled?: boolean; label?: React.ReactNode; id?: string }) {
+export function Checkbox({ checked, onChange, disabled, label, id, ariaLabel }: { checked: boolean; onChange: (v: boolean) => void; disabled?: boolean; label?: React.ReactNode; id?: string; ariaLabel?: string }) {
   return (
     <label className={cn('inline-flex items-center gap-2 text-sm text-gray-700', disabled ? 'opacity-50' : 'cursor-pointer')}>
       <RCheckbox.Root
         id={id}
+        aria-label={ariaLabel}
         checked={checked}
         onCheckedChange={(v) => onChange(v === true)}
         disabled={disabled}

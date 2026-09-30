@@ -18,7 +18,7 @@ import { workDateOf } from "@/features/lib/rules/payroll";
 import { now } from "@/features/lib/clock";
 import { byId } from "@/features/lib/selectors";
 import { toast } from "@/features/lib/toast";
-import { Banner, Button, Field, Input, LiveLabel, Modal, NewBadge, Select, Textarea } from "@/features/components/ui";
+import { Banner, Button, FeatureGate, Field, Input, LiveLabel, Modal, NewBadge, Select, Textarea } from "@/features/components/ui";
 
 export function LogHoursModal({ open, onOpenChange, wo, job }: { open: boolean; onOpenChange: (v: boolean) => void; wo: WorkOrder; job: Job }) {
   const db = useDb((d) => d);
@@ -81,8 +81,9 @@ export function LogHoursModal({ open, onOpenChange, wo, job }: { open: boolean; 
         {!allowed && (
           <Banner tone="warn">Cannot log time when work order is in {wo.status} status. Allowed statuses: {LOG_HOURS_ALLOWED_STATUSES.join(", ")}.</Banner>
         )}
-        <div className="rounded-xl border border-green-200 bg-green-50/40 p-4">
-          <div className="mb-3 flex items-center gap-2"><LiveLabel className="text-green-800">Who and when</LiveLabel><NewBadge feature={22} /></div>
+        {/* Who and when (22): hidden with the feature, the hours are then logged for me, today. */}
+        <FeatureGate feature={22}><div className="rounded-xl border border-gray-200 bg-gray-50/40 p-4">
+          <div className="mb-3 flex items-center gap-2"><LiveLabel>Who and when</LiveLabel><NewBadge feature={22} /></div>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <Field label="Crew member" error={error?.field === "employeeId" ? error.message : undefined}>
               <Select value={employeeId} onChange={(e) => setEmployeeId(e.target.value)} disabled={!allowed} invalid={error?.field === "employeeId"}>
@@ -101,7 +102,7 @@ export function LogHoursModal({ open, onOpenChange, wo, job }: { open: boolean; 
             </Field>
           </div>
           <p className="mt-2 text-xs text-gray-500">With a start and end, the time goes to payroll as a clocked segment. Only approved hours count for payroll and job cost.</p>
-        </div>
+        </div></FeatureGate>
 
         <p className="text-sm text-gray-500">Enter rendered hours for each surface. Only surfaces with hours entered will be logged.</p>
         {areas.map((a) => {

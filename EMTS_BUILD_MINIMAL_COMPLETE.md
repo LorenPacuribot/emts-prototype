@@ -17,7 +17,7 @@ You are working in the `emts-prototype` repo (Next.js 16, React 19, Tailwind v4,
 
 - **Use the existing design only.** No new fonts, colours, radii or shadows. Roboto body, Manrope headings, `Card` (16 px radius), `Button` variants, `Badge` tones. If a part exists, reuse it.
 - **No duplicate pages.** Every item below names its host. Build inside that host. Do not add a Books sidebar item, an Automations sidebar item, a Settings › Integrations page, a Lead Capture page or an Email Events page.
-- **Build-up, never rework.** Minimal parts always render. Complete parts are wrapped in `<VersionGate item="…">` (Phase 0). Minimal code must already use the full data model, so Complete only adds screens and logic. For example, pipelines are stored as a list from day one.
+- **Build-up, never rework.** Minimal parts always render. Complete parts are wrapped in `<FeatureGate item="…">` (Phase 0; switched in the dashboard New Features panel). Minimal code must already use the full data model, so Complete only adds screens and logic. For example, pipelines are stored as a list from day one.
 - **Mark every new part.** Put `NewBadge` (with its feature number, if one applies) plus `VersionBadge item="ID"` on every new section, tab, button, column or field. Items marked "Exists" only get a `VersionBadge`.
 - **Nothing contacts a customer on its own.** Sending stays sandbox and logged, like `features/components/features/marketing/automations-screen.tsx`. Customer messages from stage emails and automations wait for approval unless the rule has been approved (Phase 3).
 - **Business rules are pure functions** in `features/lib/rules/`, with vitest tests. Store changes go through actions in `features/lib/store/actions/`, or through the replica collections for replica screens.
@@ -34,14 +34,13 @@ You are working in the `emts-prototype` repo (Next.js 16, React 19, Tailwind v4,
 
 ## Phase 0 – Version switch and markers (X-M1)
 
-1. **`features/lib/prototype-version.ts`:** a small Zustand store, persisted with the same safe localStorage wrapper the feature store uses. Key: `emts-prototype-version`. State: `version: 'minimal' | 'complete'` (default `'minimal'`) and `hideMarkers: boolean` (default `false`). Export `useVersion()`, `isCompleteItem(id)` (true when the ID contains `-C`), and `isVisible(id, version)`.
-2. **`VersionBadge` in `features/components/ui/live.tsx`:** the same classes and shape as `NewBadge`. Minimal uses `bg-primary-700 text-white`. Complete uses `bg-purple-700 text-white`. Do not use brand purple, because white on it fails 4.5:1 contrast. Add `data-version-badge`, the text MINIMAL or COMPLETE, and a `Tooltip` reading `"{ID} · Minimal version"` or `"{ID} · Complete version"`. Export it from `features/components/ui/index.ts`.
-3. **`VersionGate`:** `<VersionGate item="CRM-C4">children</VersionGate>` renders children only when the item is Minimal or the version is Complete. Add `VersionScreenGate` for Complete-only views. It shows `EmptyState` with the title "Part of the Complete version" and a "Switch to Complete" button that sets the version.
-4. **Prototype bar (`demo-bar.tsx`):** under Clock, add:
-   - a "Version" `Select` with Minimal and Complete;
-   - a "Hide markers" `Switch`.
-5. **Hide markers:** toggle a `hide-markers` class on `<html>`. In `app/globals.css`, hide `[data-new-badge]`, `[data-version-badge]` and `[data-confirm-badge]` under `.hide-markers`. Add `data-confirm-badge` to `ConfirmBadge`.
-6. **Tests:** `isVisible` for Minimal and Complete IDs in both versions.
+> **Replaced by the New Features panel** (`EMTS_NEW_FEATURES_PANEL.md`). The Prototype bar's Version select and Hide markers switch, and `features/lib/prototype-version.ts`, are gone. The dashboard's New Features panel (`/dashboard#new-features`) now switches each feature's Minimal and Complete parts on or off, and "Show NEW badges on screens" brings the markers back. In the phases below, read `VersionGate item="…"` as `FeatureGate item="…"`, and "the Complete version" as "Complete ticked for that feature".
+
+1. **`features/lib/feature-visibility.ts`** (replaces `prototype-version.ts`): a Zustand store persisted with the feature store's safe localStorage wrapper. Key: `emts-new-features`. State: `showNew` (master switch, default on), `showBadges` (default off) and one `{ minimal, complete }` row per feature (default Minimal on, Complete off). `keyForItem(id)` maps an item ID to its feature and part (the letter after the dash decides the part; X items follow QuickBooks). `isOn(state, keys, part)` answers whether a part shows. "Reset demo data" resets it. The features themselves are listed in `features/lib/feature-registry.ts`.
+2. **`VersionBadge` in `features/components/ui/live.tsx`:** the same classes and shape as `NewBadge`. Minimal uses `bg-primary-700 text-white`. Complete uses `bg-purple-700 text-white` (brand purple fails 4.5:1 contrast with white). It carries `data-version-badge`, the text MINIMAL or COMPLETE, and a `Tooltip` reading `"{ID} · Minimal version"` or `"{ID} · Complete version"`. Like `NewBadge` and `ConfirmBadge`, it renders only when "Show NEW badges on screens" is on.
+3. **`FeatureGate`:** `<FeatureGate item="CRM-C4">children</FeatureGate>` (or `feature={24}`, `featureKey="bk"`) renders children only while that part is switched on. `FeatureRouteGate` wraps whole views and routes; when off it shows an `EmptyState`: "This feature is switched off" / "Turn it on in New Features on the dashboard." with a button to `/dashboard#new-features`.
+4. **Prototype bar (`demo-bar.tsx`):** a "New features panel" button that opens `/dashboard#new-features`.
+5. **Tests:** `features/lib/feature-visibility.test.ts` (master switch, Complete implies Minimal, unticking Minimal unticks Complete, item mapping).
 
 ---
 

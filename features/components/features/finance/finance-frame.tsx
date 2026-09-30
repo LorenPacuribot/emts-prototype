@@ -18,7 +18,8 @@ import { useCurrentUser, useDb } from "@/features/lib/store";
 import { can } from "@/features/lib/permissions";
 import { PageHeaderBelow, Screen } from "@/features/components/layout/screen";
 import { AreaNav, type Area } from "@/features/components/layout/area-nav";
-import { Button, ConfirmBadge, EmptyState, VersionBadge } from "@/features/components/ui";
+import { Button, ConfirmBadge, EmptyState, FeatureGate, VersionBadge } from "@/features/components/ui";
+import { useFeatureFilter } from "@/features/lib/feature-visibility";
 import { SettingsShell } from "@/features/components/features/settings/settings-shell";
 import { dateTime } from "@/features/lib/format";
 import { toast } from "@/features/lib/toast";
@@ -68,12 +69,17 @@ export function FinanceFrame({ tab, children }: { tab: FinanceTabKey; children: 
   const claims = db.reimbursements.filter((c) => ["submitted", "crew_approved", "office_reviewed"].includes(c.status)).length;
   const toReview = (db.feedTransactions ?? []).filter((t) => t.status === "unreviewed").length;
   const alerts = (db.financeNotices ?? []).filter((n) => !n.dismissedAt && !n.readAt && n.severity !== "info").length;
+  // New Features (dashboard): Journal is Books (bk); finance reports are feature 33;
+  // the QuickBooks cards follow feature 33 or the QuickBooks integration.
+  const featureOn = useFeatureFilter();
+  const pageOn = (key: FinanceTabKey) => (key === "journal" ? featureOn({ featureKey: "bk" }) : key === "reports" ? featureOn({ feature: 33 }) : true);
+  const qboCardsOn = featureOn({ feature: 33, featureKey: "qb" });
 
   if (tab === "setup") {
     return (
       <SettingsShell page="accounting" subtitle="QuickBooks connection, vendors, cost codes, account mappings, periods and migration.">
-        <AccountingDestinationCard />
-        <QuickBooksConnectionCard />
+        <FeatureGate item="X-M2"><AccountingDestinationCard /></FeatureGate>
+        {qboCardsOn && <QuickBooksConnectionCard />}
         {children}
       </SettingsShell>
     );
@@ -87,9 +93,9 @@ export function FinanceFrame({ tab, children }: { tab: FinanceTabKey; children: 
     const t = FINANCE_TABS.find((x) => x.key === key)!;
     return { href: t.path, label: NAV_LABEL[key] ?? t.label, icon: t.icon, active: key === tab, badge: badgeFor(key), ...(key === "journal" ? { marker: <VersionBadge item="BK-M3" /> } : {}) };
   };
-  const areas: Area[] = FINANCE_AREAS.map((a) => ({ key: a.key, label: a.label, pages: a.pages.filter((k) => canSeeFinanceTab(user, k)).map(page) }));
+  const areas: Area[] = FINANCE_AREAS.map((a) => ({ key: a.key, label: a.label, pages: a.pages.filter((k) => canSeeFinanceTab(user, k) && pageOn(k)).map(page) })).filter((a) => a.pages.length > 0);
   const elsewhere = [
-    ...(canSeeFinanceTab(user, "reports") ? [{ href: FINANCE_TABS.find((t) => t.key === "reports")!.path, label: "Reports" }] : []),
+    ...(canSeeFinanceTab(user, "reports") && pageOn("reports") ? [{ href: FINANCE_TABS.find((t) => t.key === "reports")!.path, label: "Reports" }] : []),
     ...(canSeeFinanceTab(user, "setup") ? [{ href: FINANCE_TABS.find((t) => t.key === "setup")!.path, label: "Vendors & mappings" }] : []),
   ];
   const tabs = <AreaNav label="Accounting areas" areas={areas} elsewhere={elsewhere} note={<><ConfirmBadge /> <span>Nothing here moves money.</span></>} />;

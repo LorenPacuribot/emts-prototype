@@ -33,6 +33,7 @@ import { PaymentsToDepositCard } from "./books-overview";
 import { ReconcileModal } from "./books-reconcile";
 import { canKeepBooks } from "@/features/lib/store/actions/ledger";
 import { VersionBadge } from "@/features/components/ui";
+import { useIsOn } from "@/features/lib/feature-visibility";
 
 const cents = (n: number) => money(n, { cents: true });
 const today = () => now().slice(0, 10);
@@ -82,6 +83,7 @@ function Checkbook() {
   const [voiding, setVoiding] = useState<string>();
   const [reason, setReason] = useState("");
   const [reconciling, setReconciling] = useState(false);
+  const reconcileOn = useIsOn({ item: "BK-M5" });
   const acct = byId(accounts, accountId) ?? accounts[0];
   if (!acct) return <EmptyState icon={<Wallet />} title="No bank accounts yet" body="Add the operating account to start the checkbook register." />;
   const { lines, balance, cleared } = registerLines(acct, db.checkRegister ?? []);
@@ -95,7 +97,7 @@ function Checkbook() {
         subtitle="Every check written and deposit made, with the running balance." details="A check carries its job and cost code into job cost and the QuickBooks queue. Nothing here moves money."
         actions={(canWrite || canKeepBooks(user)) && (
           <div className="flex flex-wrap gap-2">
-            {canKeepBooks(user) && <Button onClick={() => setReconciling(true)}><CheckCircle2 className="h-4 w-4" /> Reconcile <VersionBadge item="BK-M5" /></Button>}
+            {canKeepBooks(user) && reconcileOn && <Button onClick={() => setReconciling(true)}><CheckCircle2 className="h-4 w-4" /> Reconcile <VersionBadge item="BK-M5" /></Button>}
             {canWrite && <><Button onClick={() => setForm("deposit")}><Plus className="h-4 w-4" /> Enter deposit</Button>
             <Button variant="primary" onClick={() => setForm("check")}><Pencil className="h-4 w-4" /> Write check</Button></>}
           </div>

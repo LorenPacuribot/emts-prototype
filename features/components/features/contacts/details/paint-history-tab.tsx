@@ -20,6 +20,7 @@ import { contactHref } from "@/features/lib/hrefs";
 import { can } from "@/features/lib/permissions";
 import { cn } from "@/features/lib/cn";
 import { Banner, Button, EmptyState, NewBadge, Select } from "@/features/components/ui";
+import { useFeatureFilter } from "@/features/lib/feature-visibility";
 import { PaintHistoryPanel } from "@/features/components/features/properties/paint-history-screen";
 import { OwnershipPanel } from "@/features/components/features/properties/ownership-screen";
 import { QrLinksPanel } from "@/features/components/features/properties/qr-links-screen";
@@ -45,7 +46,11 @@ export function PaintHistoryTab({ customer }: { customer: Customer }) {
   const viewParam = useParam("view") as View | undefined;
   const followUpParam = useParam("followUp");
   const property = locations.find((p) => p.id === locationParam) ?? locations[0];
-  const view: View = viewParam && VIEWS.some((v) => v.key === viewParam) ? viewParam : "history";
+  // Views of features switched off in New Features (dashboard) drop out.
+  const featureOn = useFeatureFilter();
+  const views = VIEWS.filter((v) => featureOn({ feature: v.feature }));
+  const view: View = viewParam && views.some((v) => v.key === viewParam) ? viewParam : views[0]?.key ?? "history";
+  const fromHistoryOn = featureOn({ feature: 28 });
   const [fromHistory, setFromHistory] = useState(useParam("newEstimate") === "1");
   const go = (patch: { location?: string; view?: View }) => nav.push(contactHref(customer.id, "paint-history", { location: patch.location ?? property?.id ?? "", view: patch.view ?? view }));
 
@@ -61,7 +66,7 @@ export function PaintHistoryTab({ customer }: { customer: Customer }) {
   return (
     <div className="space-y-4" data-tour="paint-history-tab">
       {/* One bar (H6): the service location, then the four views, then the one primary action. */}
-      <div className="rounded-2xl border border-green-200 bg-white p-3 shadow-sm">
+      <div className="rounded-2xl border border-gray-200 bg-white p-3 shadow-sm">
         <div className="flex flex-col gap-3 xl:flex-row xl:items-center">
           <div className="flex min-w-0 shrink-0 items-center gap-2">
             <MapPin className="h-4 w-4 shrink-0 text-gray-500" aria-hidden />
@@ -75,14 +80,14 @@ export function PaintHistoryTab({ customer }: { customer: Customer }) {
             <NewBadge feature={25} />
           </div>
           <div className="flex min-w-0 flex-1 gap-1 overflow-x-auto rounded-xl bg-gray-100 p-1 custom-scrollbar" role="tablist" aria-label="Paint history views" data-tour="subnav">
-            {VIEWS.map((v) => (
+            {views.map((v) => (
               <button key={v.key} role="tab" aria-selected={view === v.key} onClick={() => go({ view: v.key })}
                 className={cn("flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-bold", view === v.key ? "bg-white text-primary-700 shadow-sm ring-1 ring-black/5" : "text-gray-500 hover:text-gray-900")}>
                 {v.icon} {v.label}
               </button>
             ))}
           </div>
-          {can(user, "repeat.build") && db.applications.some((a) => a.propertyId === property.id) && (
+          {fromHistoryOn && can(user, "repeat.build") && db.applications.some((a) => a.propertyId === property.id) && (
             <Button variant="primary" className="shrink-0" onClick={() => setFromHistory(true)} data-tour="new-estimate-from-history">
               <FilePlus2 className="h-4 w-4" /> New Estimate from History <NewBadge feature={28} className="bg-white/90 text-green-700" />
             </Button>
@@ -97,7 +102,7 @@ export function PaintHistoryTab({ customer }: { customer: Customer }) {
         {view === "qr" && <QrLinksPanel property={property} />}
         {view === "reorders" && <ReordersPanel property={property} />}
       </div>
-      <NewEstimateFromHistoryModal open={fromHistory} onOpenChange={setFromHistory} property={property} followUpId={followUpParam} />
+      <NewEstimateFromHistoryModal open={fromHistory && fromHistoryOn} onOpenChange={setFromHistory} property={property} followUpId={followUpParam} />
     </div>
   );
 }

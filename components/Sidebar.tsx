@@ -18,7 +18,7 @@ import { BOTTOM_NAV, MAIN_NAV, NEW_NAV } from '@/lib/constants';
 import { useCurrentUser as useFeatureUser } from '@/features/lib/store';
 import { NewBadge } from '@/features/components/ui';
 import { useCollection } from '@/lib/store';
-import { useVersion } from '@/features/lib/prototype-version';
+import { useFeatureFilter, useIsOn, useVisibility } from '@/features/lib/feature-visibility';
 import { waitingCount } from '@/lib/automation';
 import { cn } from '@/lib/utils';
 import { ICONS } from './layout/icons';
@@ -27,10 +27,11 @@ import { useSignOut } from './auth/AuthGate';
 
 type NavItem = { href: string; label: string; icon: string; feature?: number | number[]; hiddenFor?: readonly string[] };
 
-/** NEW modules visible to the current prototype role (Prototype bar › Viewing as). */
+/** NEW modules visible to the current prototype role (Prototype bar › Viewing as) and switched on in New Features. */
 function useNewNav(): NavItem[] {
   const role = useFeatureUser().role;
-  return NEW_NAV.filter((i) => !i.hiddenFor?.includes(role));
+  const featureOn = useFeatureFilter();
+  return NEW_NAV.filter((i) => !i.hiddenFor?.includes(role) && featureOn({ feature: i.feature, ...(i.href === '/accounting' ? { featureKey: 'bk' as const } : {}) }));
 }
 
 /** True when the scroll area has content above / below its visible edge. */
@@ -103,9 +104,9 @@ export function Sidebar() {
               {(MAIN_NAV as readonly NavItem[]).map((item) => (
                 <SidebarItem key={item.href} item={item} collapsed={collapsed} active={isActive(item.href)} />
               ))}
-              <div className="mx-4 my-2 h-px bg-gray-100" />
-              {/* Group label for the new modules. It shows whenever the rail is expanded. */}
-              <div
+              {/* Divider and group label for the new modules: gone when New Features hides them all. */}
+              {newNav.length > 0 && <div className="mx-4 my-2 h-px bg-gray-100" />}
+              {newNav.length > 0 && <div
                 className={cn(
                   'overflow-hidden whitespace-nowrap px-4 text-xxs font-black uppercase tracking-[0.2em] text-gray-500 transition-opacity',
                   collapsed
@@ -114,7 +115,7 @@ export function Sidebar() {
                 )}
               >
                 Operations
-              </div>
+              </div>}
               <div className="flex flex-col gap-1" data-tour="rail-new">
                 {newNav.map((item) => (
                   <SidebarItem key={item.href} item={item} collapsed={collapsed} active={isActive(item.href)} isNew />
@@ -147,8 +148,10 @@ export function Sidebar() {
   );
 }
 
-function SidebarItem({ item, collapsed, active, onClick, isNew }: { item: NavItem; collapsed: boolean; active: boolean; onClick?: () => void; isNew?: boolean }) {
+function SidebarItem({ item, collapsed, active, onClick, isNew: newItem }: { item: NavItem; collapsed: boolean; active: boolean; onClick?: () => void; isNew?: boolean }) {
   const Icon = ICONS[item.icon] ?? LogOut;
+  // NEW markers (badge, dot, "(new)") follow "Show NEW badges on screens".
+  const isNew = useVisibility((s) => s.showBadges) && newItem;
   const className = cn(
     'relative w-full shrink-0 flex items-center px-4 py-2.5 rounded-xl font-medium transition-all duration-200 overflow-hidden whitespace-nowrap group/item border',
     active
@@ -184,7 +187,7 @@ function SidebarItem({ item, collapsed, active, onClick, isNew }: { item: NavIte
 /** CRM-C3 to C5 (Complete): customer messages waiting for approval, on the Marketing item. */
 function ApprovalCount() {
   const { items } = useCollection('preparedMessages');
-  const complete = useVersion((s) => s.version === 'complete');
+  const complete = useIsOn({ featureKey: 'crm', part: 'complete' });
   const n = complete ? waitingCount(items) : 0;
   if (!n) return null;
   return (

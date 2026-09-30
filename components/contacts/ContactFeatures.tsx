@@ -22,6 +22,7 @@ import { byId, currentOwnership, propertyAddress } from '@/features/lib/selector
 import { can } from '@/features/lib/permissions';
 import { contactHref } from '@/features/lib/hrefs';
 import { NewBadge } from '@/features/components/ui';
+import { useFeatureFilter } from '@/features/lib/feature-visibility';
 import { PaintHistoryTab } from '@/features/components/features/contacts/details/paint-history-tab';
 import { contactLocations } from '@/features/components/features/contacts/details/contact-shared';
 import { NewEstimateFromHistoryModal } from '@/features/components/features/future-estimate/new-estimate-from-history-modal';
@@ -46,21 +47,22 @@ const norm = (s?: string) => (s ?? '').trim().toLowerCase();
 /** Paint records and QR link state for the prototype property at this street. */
 export function LocationPaintChips({ customerId, street }: { customerId: string; street?: string }) {
   const db = useDb((d) => d);
+  const featureOn = useFeatureFilter();
   const property = contactLocations(db, customerId).find((p) => norm(p.address) === norm(street));
-  if (!property) return null;
+  if (!property || !featureOn({ feature: [25, 26] })) return null;
   const apps = db.applications.filter((a) => a.propertyId === property.id).length;
   const period = currentOwnership(property);
   const qr = db.qrLinks.find((q) => q.propertyId === property.id && q.ownershipPeriodId === period.id && !q.revokedAt);
   return (
     <div className="mt-2 flex flex-wrap items-center gap-1.5">
-      <Link
+      {featureOn({ feature: 25 }) && <Link
         href={contactHref(customerId, 'paint-history', { location: property.id })}
         scroll={false}
         className="inline-flex items-center gap-1 rounded-md border border-green-200 bg-white px-1.5 py-0.5 text-xs font-semibold text-green-700 hover:bg-green-50"
       >
         {apps} paint records <NewBadge feature={25} />
-      </Link>
-      {qr && (
+      </Link>}
+      {qr && featureOn({ feature: 26 }) && (
         <span className="inline-flex items-center gap-1 rounded-md border border-gray-200 bg-white px-1.5 py-0.5 text-xs font-semibold text-gray-600">
           <QrCode className="h-3 w-3" /> QR link active
         </span>
@@ -103,12 +105,13 @@ export function JobFeatureActions({ customerId, jobId, propertyId }: { customerI
   const db = useDb((d) => d);
   const user = useCurrentUser();
   const [open, setOpen] = useState(false);
+  const featureOn = useFeatureFilter();
   const pid = propertyId ?? byId(db.jobs, jobId)?.propertyId;
   const property: Property | undefined = byId(db.properties, pid);
   if (!property) return null;
   const hasHistory = db.applications.some((a) => a.propertyId === property.id);
-  const showQr = can(user, 'qr.generate');
-  const showHistory = hasHistory && can(user, 'repeat.build');
+  const showQr = can(user, 'qr.generate') && featureOn({ feature: 26 });
+  const showHistory = hasHistory && can(user, 'repeat.build') && featureOn({ feature: 28 });
   if (!showQr && !showHistory) return null;
   const btn = 'inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-bold text-gray-700 shadow-sm hover:bg-gray-50';
   return (

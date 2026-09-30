@@ -21,7 +21,7 @@ import { formatPacks } from "@/features/lib/rules/materials";
 import { COVERAGE_LABEL, assumptionChanges, isStale, jobDemand, lineState, packsCost } from "@/features/lib/rules/procurement";
 import { downloadCsv, printElement } from "@/features/lib/export";
 import { toast } from "@/features/lib/toast";
-import { Badge, Banner, Button, Card, CardLabel, CardTitle, EmptyState, LiveCard, NewBadge, Select, Stat, StatStrip, Tooltip } from "@/features/components/ui";
+import { Badge, Banner, Button, Card, CardLabel, CardTitle, EmptyState, FeatureGate, LiveCard, NewBadge, Select, Stat, StatStrip, Tooltip } from "@/features/components/ui";
 import { OrderDrawer } from "@/features/components/features/procurement/order-drawer";
 import { useSupplierInbox } from "@/features/lib/integrations/supplier-live";
 import { procurementPerms } from "@/features/components/features/procurement/shared";
@@ -78,7 +78,8 @@ export function MaterialsSections({ job }: { job: Job }) {
 
   return (
     <>
-      <LiveCard isNew id="section-materials" data-tour="wo-materials">
+      {/* New Features (dashboard): the materials card is feature 18, paint orders feature 19. */}
+      <FeatureGate feature={18}><LiveCard isNew id="section-materials" data-tour="wo-materials">
       <CardTitle icon={<Calculator />} badge={<NewBadge feature={18} />}
         right={
           <>
@@ -190,13 +191,13 @@ export function MaterialsSections({ job }: { job: Job }) {
           <RentalsPanel job={job} readOnly={readOnly} />
         </div>
       </div>
-      </LiveCard>
+      </LiveCard></FeatureGate>
 
-      <LiveCard isNew id="section-paint-orders" data-tour="wo-paint-orders">
+      <FeatureGate feature={19}><LiveCard isNew id="section-paint-orders" data-tour="wo-paint-orders">
         <CardTitle icon={<Send />} badge={<NewBadge feature={19} />}>Paint Orders</CardTitle>
         <p className="-mt-3 mb-4 text-sm text-gray-500">Supplier orders for this job. Open one to select the supplier and store, send it with evidence, and record acknowledgment, pickup or delivery.</p>
         <JobOrdersPanel job={job} onOpen={setOpenPo} />
-      </LiveCard>
+      </LiveCard></FeatureGate>
 
       {builder && <OrderBuilder key={builderKey} open={builder} job={job} lines={lines} onClose={() => setBuilder(false)} onViewOrder={(id) => { setBuilder(false); setOpenPo(id); }} />}
       <PreliminaryListModal open={prelim} job={job} lines={lines} onClose={() => setPrelim(false)} />

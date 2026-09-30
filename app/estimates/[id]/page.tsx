@@ -49,6 +49,8 @@ import {
   assignLineColour, useLineColours, useProtoEstimate,
 } from '@/components/estimates/FeatureSections';
 import { act } from '@/features/lib/store';
+import { FeatureGate } from '@/features/components/ui';
+import { useFeatureFilter, useVisibility } from '@/features/lib/feature-visibility';
 import { amendEstimate } from '@/features/lib/store/actions/estimates';
 import { publicEstimateHref } from '@/features/lib/hrefs';
 import { areaFromTemplate, newLine, priceLine, quantityFromDimensions, sendBlocker } from '@/components/estimates/estimate-utils';
@@ -95,7 +97,13 @@ export default function EstimateBuilderPage() {
     document.getElementById('section-change-orders')?.scrollIntoView({ behavior: 'smooth' });
   });
   const cardApproval = useCardApproval(id);
-  const painting = !!paintColourId && proto.editable;
+  // New Features (dashboard): colour card (3), change orders (24), from history (28).
+  const featureOn = useFeatureFilter();
+  const cardOn = featureOn({ feature: 3 });
+  const coOn = featureOn({ feature: 24 });
+  const customerPageOn = featureOn({ feature: [3, 24] });
+  const showBadges = useVisibility((s) => s.showBadges);
+  const painting = cardOn && !!paintColourId && proto.editable;
   // A colour typed on a line that hasn't reached the colour card yet: saved first, assigned once the line syncs.
   const [pendingColour, setPendingColour] = useState<{ lineId: string; colourId: string } | null>(null);
   const assignRef = useRef<(lineId: string, colourId: string) => void>(undefined);
@@ -381,19 +389,19 @@ export default function EstimateBuilderPage() {
           saving={autosavePending}
           lastSavedAt={lastSavedAt}
           f={{
-            approved: approvedActions,
+            approved: coOn ? approvedActions : undefined,
             amending,
             chips: (
               <>
-                <button
+                {cardOn && <button
                   type="button"
                   onClick={() => document.getElementById('section-paint-card')?.scrollIntoView({ behavior: 'smooth' })}
                   className={`${TOOLBAR_CHIP} border-green-200 bg-green-50 text-green-700 hover:bg-green-100`}
                 >
                   <Palette className="h-3.5 w-3.5" />
                   <span>Color Card{cardApproval && cardApproval.total > 0 ? ` · ${cardApproval.approved}/${cardApproval.total} approved` : ''}</span>
-                </button>
-                {(proto.est?.amendmentNumber ?? 0) > 0 && (
+                </button>}
+                {coOn && (proto.est?.amendmentNumber ?? 0) > 0 && (
                   <span className={`${TOOLBAR_CHIP} border-amber-200 bg-amber-50 text-amber-700`}>Amendment #{proto.est!.amendmentNumber}</span>
                 )}
                 <DeliveryBadges
@@ -407,8 +415,8 @@ export default function EstimateBuilderPage() {
               </>
             ),
             sendDisabledReason: customer?.email?.trim() ? undefined : 'The customer has no email address. Add one on the contact page, then send.',
-            menu: proto.est?.publicToken
-              ? [{ label: 'Customer Page (NEW)', icon: <ExternalLink />, onClick: () => window.open(publicEstimateHref(proto.est!.publicToken!), '_blank') }]
+            menu: proto.est?.publicToken && customerPageOn
+              ? [{ label: showBadges ? 'Customer Page (NEW)' : 'Customer Page', icon: <ExternalLink />, onClick: () => window.open(publicEstimateHref(proto.est!.publicToken!), '_blank') }]
               : [],
             sendLabel: amending ? 'Send for Re-approval' : undefined,
             hideApprove: amending,
@@ -470,8 +478,8 @@ export default function EstimateBuilderPage() {
           </div>
 
           <div className="space-y-10 p-4 md:space-y-12 md:p-12">
-            <FromHistoryBlock estimateId={draft.id} />
-            <PaintCardSection estimateId={draft.id} paintColourId={paintColourId} onPaint={setPaintColourId} onSave={save} readOnly={readOnly} />
+            <FeatureGate feature={28}><FromHistoryBlock estimateId={draft.id} /></FeatureGate>
+            {cardOn && <PaintCardSection estimateId={draft.id} paintColourId={paintColourId} onPaint={setPaintColourId} onSave={save} readOnly={readOnly} />}
 
             {/* Area & Line Items */}
             <section id="section-scope" className="scroll-mt-24 border-b border-gray-200 pb-10">
@@ -509,7 +517,7 @@ export default function EstimateBuilderPage() {
                     onAddLine={() => setSurfaceFor(a.id)}
                     onUpdateLine={updateLine}
                     onDeleteLine={(lid) => edit((e) => ({ ...e, lineItems: e.lineItems.filter((l) => l.id !== lid) }))}
-                    colourCell={lineColours.linked ? (l) => (
+                    colourCell={cardOn && lineColours.linked ? (l) => (
                       <LineColourCell
                         colour={lineColours.colours.get(l.id)}
                         painting={painting}
@@ -548,7 +556,7 @@ export default function EstimateBuilderPage() {
               )}
             </section>
 
-            <ChangeOrdersBlock estimateId={draft.id} creating={creatingCo} setCreating={setCreatingCo} />
+            <FeatureGate feature={24}><ChangeOrdersBlock estimateId={draft.id} creating={creatingCo} setCreating={setCreatingCo} /></FeatureGate>
 
             <NotesSection
               notes={draft.notes ?? ''}
@@ -617,7 +625,7 @@ export default function EstimateBuilderPage() {
         estimate={draft}
         customer={customer}
         companyName={bp.companyName}
-        customerPageHref={proto.est?.publicToken ? publicEstimateHref(proto.est.publicToken) : undefined}
+        customerPageHref={proto.est?.publicToken && customerPageOn ? publicEstimateHref(proto.est.publicToken) : undefined}
         onPreview={() => {
           if (dirty) actions.save(draft, 'Draft saved');
           setDirty(false);

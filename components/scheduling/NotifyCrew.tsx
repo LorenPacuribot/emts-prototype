@@ -23,9 +23,9 @@ import { BellRing, ChevronDown, Eye, Mail, MessageSquare, Send } from 'lucide-re
 import { useCollection, useCurrentUser, useLogActivity } from '@/lib/store';
 import type { ScheduleMessageLog, TeamMember } from '@/lib/types';
 import { cn, fullName, uid } from '@/lib/utils';
-import { Badge, Button, Checkbox, EmptyState, Modal, NewBadge, PillTabs, VersionBadge, VersionGate } from '@/features/components/ui';
+import { Badge, Button, Checkbox, EmptyState, Modal, NewBadge, PillTabs, VersionBadge, FeatureGate } from '@/features/components/ui';
 import { toast } from '@/features/lib/toast';
-import { useVersion } from '@/features/lib/prototype-version';
+import { useIsOn } from '@/features/lib/feature-visibility';
 import {
   describeView, markNotified, messageText, peopleWaiting, scheduleUpdateMessage, unsentJobIds,
   type NotifyLang, type PersonChange, type ScheduleMessage,
@@ -123,8 +123,14 @@ export function useCrewNotify() {
 /** Call after saving, moving or cancelling a schedule. Tells the office the crew was not notified. */
 export function useScheduleSaved() {
   const { items: templates } = useCollection('automatedMessages');
-  const complete = useVersion((s) => s.version === 'complete');
+  const minimal = useIsOn({ featureKey: 'js' });
+  const complete = useIsOn({ featureKey: 'js', part: 'complete' });
   return (jobIds: string[]) => {
+    // Job scheduling emails switched off in New Features: a plain confirmation.
+    if (!minimal) {
+      toast.success('Schedule saved.');
+      return;
+    }
     const t = templates.find((x) => x.id === CREW_TEMPLATE_ID);
     if (complete && t?.isActive && t.mode === 'automatic') {
       useNotifyModal.getState().queueAuto(jobIds);
@@ -146,7 +152,8 @@ export function UnsentJobsProvider({ children }: { children: React.ReactNode }) 
 
 export function ChangesNotSentPill({ jobId, className }: { jobId: string; className?: string }) {
   const unsent = useContext(UnsentContext);
-  if (!unsent.has(jobId)) return null;
+  const on = useIsOn({ item: 'JS-M2' });
+  if (!on || !unsent.has(jobId)) return null;
   return (
     <span
       title="The crew has not been told about the latest changes to this job."
@@ -162,8 +169,9 @@ export function ChangesNotSentPill({ jobId, className }: { jobId: string; classN
 
 export function UnsentChangesButton() {
   const { waiting } = useCrewNotify();
+  const on = useIsOn({ item: 'JS-M3' });
   const n = waiting().length;
-  if (!n) return null;
+  if (!on || !n) return null;
   return (
     <Button variant="primary" onClick={() => useNotifyModal.getState().show()}>
       <BellRing className="h-4 w-4" /> Unsent changes ({n}) <VersionBadge item="JS-M3" />
@@ -196,7 +204,7 @@ export function NotifyCrewHost() {
 
 function NotifyCrewModal({ jobIds, title, onClose }: { jobIds?: string[]; title?: string; onClose: () => void }) {
   const n = useCrewNotify();
-  const complete = useVersion((s) => s.version === 'complete');
+  const complete = useIsOn({ featureKey: 'js', part: 'complete' });
   const people = n.waiting(jobIds);
   const hasEmail = (m?: TeamMember) => !!m?.email;
   const hasPhone = (m?: TeamMember) => !!m?.phone;
@@ -300,13 +308,13 @@ function NotifyCrewModal({ jobIds, title, onClose }: { jobIds?: string[]; title?
                     <div className="flex flex-wrap items-center gap-3">
                       <Checkbox checked={c.ticked} disabled={unreachable} onCheckedChange={(v) => setChoice(p.memberId, { ticked: v && c.channels.length > 0 })} label={<b className={cn('text-sm', unreachable ? 'text-gray-400' : 'text-gray-900')}>{fullName(m)}</b>} />
                       {noEmail && <span className="text-xs italic text-gray-500">No email on file</span>}
-                      <VersionGate item="JS-C5">
+                      <FeatureGate item="JS-C5">
                         <span className="flex items-center gap-1.5">
                           <ChannelChip on={c.channels.includes('email')} disabled={noEmail} icon={<Mail className="h-3 w-3" />} label="Email" onClick={() => toggleChannel(p.memberId, 'email')} />
                           <ChannelChip on={c.channels.includes('sms')} disabled={!hasPhone(m)} icon={<MessageSquare className="h-3 w-3" />} label="Text" onClick={() => toggleChannel(p.memberId, 'sms')} />
                           <VersionBadge item="JS-C5" />
                         </span>
-                      </VersionGate>
+                      </FeatureGate>
                       <button onClick={() => setOpenRow(expanded ? undefined : p.memberId)} aria-expanded={expanded} className="ml-auto flex items-center gap-1 text-xs font-bold text-gray-600 hover:text-gray-900">
                         {p.changes.length} {p.changes.length === 1 ? 'job' : 'jobs'} changed
                         <ChevronDown className={cn('h-3.5 w-3.5 transition-transform', expanded && 'rotate-180')} />
@@ -317,11 +325,11 @@ function NotifyCrewModal({ jobIds, title, onClose }: { jobIds?: string[]; title?
                 );
               })}
             </ul>
-            <VersionGate item="JS-C5">
+            <FeatureGate item="JS-C5">
               {people.some((p) => choices[p.memberId]?.channels.includes('sms')) && (
                 <p className="mt-3 text-xs text-amber-700">Text: sandbox only. Needs state texting rules before go-live.</p>
               )}
-            </VersionGate>
+            </FeatureGate>
           </>
         )}
       </Modal>
@@ -375,7 +383,7 @@ function ChangeList({ changes }: { changes: PersonChange[] }) {
 
 function PreviewModal({ people, onBack, lang, setLang }: { people: { memberId: string; changes: PersonChange[] }[]; onBack: () => void; lang: NotifyLang; setLang: (l: NotifyLang) => void }) {
   const n = useCrewNotify();
-  const complete = useVersion((s) => s.version === 'complete');
+  const complete = useIsOn({ featureKey: 'js', part: 'complete' });
   const [who, setWho] = useState(people[0]?.memberId ?? '');
   const person = people.find((p) => p.memberId === who) ?? people[0];
   const m = n.member(person?.memberId ?? '');
@@ -389,12 +397,12 @@ function PreviewModal({ people, onBack, lang, setLang }: { people: { memberId: s
             {people.map((p) => <option key={p.memberId} value={p.memberId}>{fullName(n.member(p.memberId))}</option>)}
           </select>
         )}
-        <VersionGate item="JS-C6">
+        <FeatureGate item="JS-C6">
           <span className="flex items-center gap-2">
             <PillTabs kind="segment" options={[{ value: 'en', label: 'English' }, { value: 'es', label: 'Español' }]} value={lang} onChange={(v) => setLang(v as NotifyLang)} />
             <VersionBadge item="JS-C6" />
           </span>
-        </VersionGate>
+        </FeatureGate>
       </div>
       {msg && (
         <div className="overflow-hidden rounded-xl border border-gray-200">

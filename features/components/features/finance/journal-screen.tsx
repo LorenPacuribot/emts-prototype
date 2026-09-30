@@ -17,7 +17,7 @@ import { now } from "@/features/lib/clock";
 import { downloadCsv, downloadExcel } from "@/features/lib/export";
 import { toast } from "@/features/lib/toast";
 import { PageHeader } from "@/features/components/layout/screen";
-import { Badge, Button, Card, Field, Input, Modal, NewBadge, Select, Table, TD, TH, THead, TR, Textarea, VersionBadge, VersionGate } from "@/features/components/ui";
+import { Badge, Button, Card, Field, Input, Modal, NewBadge, Select, Table, TD, TH, THead, TR, Textarea, VersionBadge, FeatureGate } from "@/features/components/ui";
 import { FinanceFrame } from "./finance-frame";
 import { useBooksData } from "./books-overview";
 
@@ -67,9 +67,9 @@ function Journal() {
         details="Mistakes are reversed with a reason: the reversal is a new entry and the original stays. Nothing is ever deleted. A date in a closed month posts on the 1st of the next open month, with a note."
         actions={
           <span className="flex flex-wrap items-center gap-2">
-            <VersionGate item="BK-C2">
+            <FeatureGate item="BK-C2">
               {canKeepBooks(user) && <Button onClick={() => setGusto(true)}><Upload className="h-4 w-4" /> Import Gusto pay run <VersionBadge item="BK-C2" /></Button>}
-            </VersionGate>
+            </FeatureGate>
           </span>
         }
       />

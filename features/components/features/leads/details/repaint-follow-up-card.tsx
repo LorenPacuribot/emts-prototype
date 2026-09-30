@@ -13,6 +13,7 @@ import { useState } from "react";
 import { BellRing, CalendarClock, ExternalLink, PhoneCall } from "lucide-react";
 import type { Lead } from "@/features/types";
 import { useDb } from "@/features/lib/store";
+import { useIsOn } from "@/features/lib/feature-visibility";
 import { byId, surfaceLabel } from "@/features/lib/selectors";
 import { followUpSurfaceIds, isClosedFollowUp } from "@/features/lib/rules/alerts";
 import { FOLLOWUP_STATUS } from "@/features/lib/status";
@@ -30,6 +31,7 @@ export function RepaintFollowUpCard({ lead }: { lead: Lead }) {
   const db = useDb((d) => d);
   const [open, setOpen] = useState(false);
   const fu = db.followUps.find((f) => f.leadId === lead.id);
+  const fromHistoryOn = useIsOn({ feature: 28 });
   if (!fu) return null;
   const meta = FOLLOWUP_STATUS[fu.status];
   const closed = isClosedFollowUp(fu);
@@ -63,7 +65,7 @@ export function RepaintFollowUpCard({ lead }: { lead: Lead }) {
         </div>
       )}
       <p className="mt-4 rounded-lg bg-gray-50 p-3 text-xs text-gray-500">This lead&apos;s stage follows the follow-up. Record calls and close it from the follow-up.</p>
-      {!closed && !fu.estimateId && (
+      {!closed && !fu.estimateId && fromHistoryOn && (
         <AppLink href={propertyHref(fu.propertyId, "history", `&newEstimate=1&followUp=${fu.id}`)} className="mt-4 flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-bold text-gray-700 shadow-sm hover:bg-gray-50">
           New Estimate from History <NewBadge feature={28} />
         </AppLink>

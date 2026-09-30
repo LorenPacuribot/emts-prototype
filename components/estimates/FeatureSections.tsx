@@ -33,6 +33,7 @@ import { ChangeOrdersSection } from '@/features/components/features/change-order
 import { FromHistorySection } from '@/features/components/features/future-estimate/from-history-section';
 import { PreliminaryListModal } from '@/features/components/features/materials/side-panels';
 import { ConfirmDialog } from '@/components/Modals/Modal';
+import { useIsOn } from '@/features/lib/feature-visibility';
 import { cn } from '@/lib/utils';
 
 /** The estimate's prototype twin, its project record and work order. */
@@ -272,6 +273,7 @@ function MaterialsSummary({ estimate, job }: { estimate: PEstimate; job: PJob })
   const db = useDb((d) => d);
   const user = useCurrentUser();
   const [prelim, setPrelim] = useState(false);
+  const prelimOn = useIsOn({ feature: 18 });
   const all = useMemo(() => jobDemand(db, job.id), [db, job.id]);
   const lines = all.filter((l) => l.spec.product);
   const showPrices = can(user, 'estimate.viewFinancials');
@@ -281,7 +283,7 @@ function MaterialsSummary({ estimate, job }: { estimate: PEstimate; job: PJob })
         icon={<Package />}
         title="Paint & Materials"
         subtitle="Includes waste & container optimization"
-        right={estimate.status === 'DRAFT' && (
+        right={estimate.status === 'DRAFT' && prelimOn && (
           <FButton size="sm" onClick={() => setPrelim(true)} data-tour="preliminary-list">
             <Printer className="h-3.5 w-3.5" /> Preliminary List <NewBadge feature={18} />
           </FButton>

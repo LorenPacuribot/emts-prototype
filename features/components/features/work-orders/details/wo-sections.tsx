@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import type { Job, WorkOrder } from "@/features/types";
 import { act, useCurrentUser, useDb } from "@/features/lib/store";
+import { useIsOn } from "@/features/lib/feature-visibility";
 import {
   addAttachment, addFieldNote, addShift, FIELD_NOTE_STATUSES, LOG_HOURS_ALLOWED_STATUSES, logWorkOrderHours, removeShift, renderedHoursBySurface, scheduleWorkOrder,
   updateSiteInstructions, updateWorkOrderTimeEntry,
@@ -385,7 +386,9 @@ export function TimeLogSection({ wo, job }: { wo: WorkOrder; job: Job }) {
   const [editing, setEditing] = useState<string>();
   const [h, setH] = useState("");
   const [n, setN] = useState("");
-  const segments = db.timeSegments.filter((s) => s.jobId === job.id && !s.supersededAt).sort((a, b) => b.start.localeCompare(a.start)).slice(0, 12);
+  // Clock punches are feature 22 (New Features on the dashboard).
+  const clockOn = useIsOn({ feature: 22 });
+  const segments = clockOn ? db.timeSegments.filter((s) => s.jobId === job.id && !s.supersededAt).sort((a, b) => b.start.localeCompare(a.start)).slice(0, 12) : [];
   if (wo.timeEntries.length === 0 && segments.length === 0) return null;
   const entries = [...wo.timeEntries].sort((a, b) => b.loggedAt.localeCompare(a.loggedAt));
   const dayEntry = (employeeId?: string, workDate?: string) => (employeeId && workDate ? db.timeEntries.find((x) => x.employeeId === employeeId && x.workDate === workDate) : undefined);

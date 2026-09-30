@@ -9,6 +9,7 @@ import { ICONS } from '@/components/layout/icons';
 import { useCurrentUser as useFeatureUser } from '@/features/lib/store';
 import { can } from '@/features/lib/permissions';
 import { SETTINGS_PERMISSIONS } from '@/features/components/features/settings/settings-config';
+import { useFeatureFilter } from '@/features/lib/feature-visibility';
 import { NewBadge } from '@/features/components/ui';
 
 export function SettingsSidebar() {
@@ -16,15 +17,19 @@ export function SettingsSidebar() {
   const featureUser = useFeatureUser();
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + '/');
   // NEW pages follow the prototype's access rules (Prototype bar › Viewing as).
-  const visible = (item: { id: string; isNew?: boolean }) => !item.isNew || !SETTINGS_PERMISSIONS[item.id] || can(featureUser, SETTINGS_PERMISSIONS[item.id]);
+  const featureOn = useFeatureFilter();
+  // ...and switched on in New Features (dashboard).
+  const visible = (item: { id: string; isNew?: boolean; feature?: number | number[] }) =>
+    (!item.isNew || !SETTINGS_PERMISSIONS[item.id] || can(featureUser, SETTINGS_PERMISSIONS[item.id])) && (!item.isNew || featureOn({ feature: item.feature, ...(item.id === 'accounting' ? { featureKey: ['qb', 'bk'] as ('qb' | 'bk')[] } : {}) }));
   return (
     <aside className="sticky top-0 z-20 w-full shrink-0 self-start border-b border-gray-200 bg-white shadow-sm lg:h-[calc(100vh-5rem)] lg:w-72 lg:border-b-0 lg:border-r lg:shadow-none">
       <div className="flex h-auto items-center gap-2 overflow-x-auto p-2 custom-scrollbar lg:h-full lg:flex-col lg:items-stretch lg:gap-1.5 lg:overflow-y-auto lg:px-6 lg:py-10 lg:pb-12">
-        {SETTINGS_NAV.map((group, gi) => (
+        {/* Groups left empty by New Features drop out, with their heading and divider. */}
+        {SETTINGS_NAV.map((group) => ({ ...group, items: group.items.filter(visible) })).filter((group) => group.items.length > 0).map((group, gi) => (
           <div key={group.section} className="contents">
             {gi > 0 && <div className="my-4 hidden h-px w-full bg-gray-100 lg:block" />}
             <h2 className="mb-3 mt-2 hidden px-2 text-xxs font-black uppercase tracking-[0.2em] text-gray-500 lg:block">{group.section}</h2>
-            {group.items.filter(visible).map((item) => {
+            {group.items.map((item) => {
               const href = `/settings/${item.id}`;
               const active = isActive(href);
               const Icon = ICONS[item.icon]!;

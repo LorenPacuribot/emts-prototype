@@ -32,7 +32,8 @@ import { NativeSelect } from '@/components/ui/form';
 import { fullName } from '@/lib/utils';
 import { formatPhone, TemplateListItem, VariablesBox } from './ui';
 import { cn } from '@/lib/utils';
-import { NewBadge, VersionBadge, VersionGate } from '@/features/components/ui';
+import { NewBadge, VersionBadge, FeatureGate } from '@/features/components/ui';
+import { useIsOn } from '@/features/lib/feature-visibility';
 
 /** Inserts text at the cursor of an input/textarea and returns the new value. */
 export function insertAt(el: HTMLInputElement | HTMLTextAreaElement | null, value: string, text: string) {
@@ -48,9 +49,13 @@ export function insertAt(el: HTMLInputElement | HTMLTextAreaElement | null, valu
 }
 
 export function AutomatedMessagesView() {
-  const { items, update } = useCollection('automatedMessages');
+  const { items: all, update } = useCollection('automatedMessages');
+  // The crew schedule email (JS-M4) shows while Job scheduling emails is on (New Features).
+  const jsOn = useIsOn({ item: 'JS-M4' });
+  const items = all.filter((t) => t.id !== 'am_crew_schedule' || jsOn);
   const { toast } = useToast();
-  const [activeId, setActiveId] = useState(items[0]?.id ?? '');
+  const [activeState, setActiveId] = useState(items[0]?.id ?? '');
+  const activeId = items.some((t) => t.id === activeState) ? activeState : items[0]?.id ?? '';
   const active = items.find((t) => t.id === activeId);
   const [subject, setSubject] = useState(active?.subject ?? '');
   const [body, setBody] = useState(active?.body ?? '');
@@ -105,7 +110,7 @@ export function AutomatedMessagesView() {
               <div className="mb-6 flex items-center justify-between gap-3 border-b border-gray-100 pb-4">
                 <h3 className="font-heading text-lg font-bold text-gray-900">{active.name}</h3>
                 <div className="flex flex-wrap items-center justify-end gap-3">
-                  <VersionGate item="JS-C3">
+                  <FeatureGate item="JS-C3">
                     {/* JS-C3: Automatic sends when the trigger happens; Manual waits for someone to send it. */}
                     <span className="flex items-center gap-2 text-xs font-medium text-gray-500">
                       Mode
@@ -125,7 +130,7 @@ export function AutomatedMessagesView() {
                       </span>
                       <VersionBadge item="JS-C3" />
                     </span>
-                  </VersionGate>
+                  </FeatureGate>
                   <span className="flex items-center gap-2 text-xs font-medium text-gray-500">
                     {active.isActive ? 'Active' : 'Paused'}
                     <Switch
@@ -140,7 +145,7 @@ export function AutomatedMessagesView() {
                   <span className="rounded-full bg-gray-100 px-3 py-1 text-xxs font-bold uppercase tracking-wider text-gray-500">Template</span>
                 </div>
               </div>
-              <VersionGate item="CRM-C3">
+              <FeatureGate item="CRM-C3">
                 {/* CRM-C3: trigger and approval */}
                 <div className="mb-6 flex flex-wrap items-center gap-3 rounded-xl border border-gray-200 bg-gray-50 p-4">
                   <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-gray-500">
@@ -166,7 +171,7 @@ export function AutomatedMessagesView() {
                   )}
                   <span className="ml-auto flex items-center gap-1.5"><VersionBadge item="CRM-C3" /></span>
                 </div>
-              </VersionGate>
+              </FeatureGate>
               <div className="flex-1 space-y-6">
                 <Field label="Email Subject">
                   <Input ref={subjectRef} value={subject} onFocus={() => (lastFocus.current = 'subject')} onChange={(e) => setSubject(e.target.value)} onClear={() => setSubject('')} />

@@ -9,7 +9,7 @@
     when the lead left Sold comes back if the lead is sold again.
   - CRM-M7: a stage change made by the lead lifecycle (estimate sent,
     accepted…) is added to the lead's stage history as "Automatic".
-  - CRM-C3 to C5 (Complete version): new events run the automation rules and
+  - CRM-C3 to C5 (CRM Complete in New Features): new events run the automation rules and
     templates. Approved ones send (sandbox); the rest wait for approval.
     In Minimal, events are only marked as handled.
 */
@@ -19,7 +19,7 @@ import { newProductionCards, unrecordedSalesMove, move } from '@/lib/crm';
 import { runAutomations } from '@/lib/automation';
 import { pipelineColumns } from '@/features/lib/rules/lead-pipeline';
 import { toast } from '@/features/lib/toast';
-import { useVersion } from '@/features/lib/prototype-version';
+import { useIsOn } from '@/features/lib/feature-visibility';
 import { uid } from '@/lib/utils';
 
 export function CrmSync() {
@@ -29,7 +29,9 @@ export function CrmSync() {
   const events = useCollection('automationEvents');
   const prepared = useCollection('preparedMessages');
   const [bp] = useSingleton('businessProfile');
-  const complete = useVersion((s) => s.version === 'complete');
+  const complete = useIsOn({ featureKey: 'crm', part: 'complete' });
+  // Cards are still kept (hiding is display only); the toast follows CRM in New Features.
+  const crmOn = useIsOn({ featureKey: 'crm' });
 
   // CRM-M3: Production cards.
   useEffect(() => {
@@ -55,7 +57,7 @@ export function CrmSync() {
     if (!made.length && !changed) return;
     cards.setAll([...list, ...made]);
     const stageName = first?.displayName ?? 'Production';
-    for (const card of made) toast.success(`${card.customerName || card.title} moved to Sold. Added to Production › ${stageName}.`);
+    if (crmOn) for (const card of made) toast.success(`${card.customerName || card.title} moved to Sold. Added to Production › ${stageName}.`);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [db.collections.leads, db.collections.estimates, db.collections.jobs]);
 

@@ -20,7 +20,7 @@ import type { Lead, LeadStatus, PipelineStage, PreparedMessage } from '@/lib/typ
 import { useCollection, useCurrentUser, useLogActivity, useSingleton } from '@/lib/store';
 import { move } from '@/lib/crm';
 import { pipelineColumns, salesColumnFor } from '@/features/lib/rules/lead-pipeline';
-import { useVersion } from '@/features/lib/prototype-version';
+import { useIsOn } from '@/features/lib/feature-visibility';
 import { cancelForStageChange, deliver, leadVars, planStageSends, splitByDelay } from '@/lib/lead-messages';
 import { useToast } from '@/components/ui/toast';
 import { fullName, uid } from '@/lib/utils';
@@ -35,7 +35,7 @@ export function useLeadActions() {
   const stages = useCollection('pipelineStages');
   const prepared = useCollection('preparedMessages');
   const me = fullName(useCurrentUser());
-  const complete = useVersion((s) => s.version === 'complete');
+  const complete = useIsOn({ featureKey: 'crm', part: 'complete' });
   const [bp] = useSingleton('businessProfile');
   const log = useLogActivity();
   const { toast } = useToast();

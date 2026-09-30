@@ -3,8 +3,9 @@
  * Building blocks copied from the live app's markup, plus the NEW marker.
  *
  * Existing parts of a host screen use these classes with no badge. Every
- * part the 14 features add carries <NewBadge />, so the client and the
- * developers can see exactly what is new.
+ * part the new features add is wrapped in <FeatureGate> (shown or hidden from
+ * the New Features panel on the dashboard) and carries <NewBadge />, which
+ * shows only when "Show NEW badges on screens" is on.
  */
 import type { ReactNode } from "react";
 import { Sparkles } from "lucide-react";
@@ -12,12 +13,16 @@ import { cn } from "@/features/lib/cn";
 import { Tooltip } from "./menu";
 import { Button } from "./button";
 import { EmptyState } from "./misc";
-import { isCompleteItem, isVisible, useVersion } from "@/features/lib/prototype-version";
+import { useRouter } from "next/navigation";
+import { keyForItem, useIsOn, useVisibility, type Part } from "@/features/lib/feature-visibility";
+import type { FeatureKey } from "@/features/lib/feature-registry";
 import { useHowThisWorks } from "@/features/components/layout/how-this-works";
 
-/** Small "NEW" marker for a section, tab, button, column or field added by a feature. */
+/** Small "NEW" marker for a section, tab, button, column or field added by a feature. Shown only when "Show NEW badges on screens" is on. */
 export function NewBadge({ feature, className }: { feature?: number | number[]; className?: string }) {
+  const show = useVisibility((s) => s.showBadges);
   const list = feature === undefined ? [] : Array.isArray(feature) ? feature : [feature];
+  if (!show) return null;
   const badge = (
     <span
       data-new-badge
@@ -33,8 +38,10 @@ export function NewBadge({ feature, className }: { feature?: number | number[]; 
   return <Tooltip content={`Added by feature ${list.join(", ")}`}>{badge}</Tooltip>;
 }
 
-/** Marker for features 33 and 34, whose hosts are suggestions not in the client's walkthrough. */
+/** Marker for features 33 and 34, whose hosts are suggestions not in the client's walkthrough. Shown with the NEW badges. */
 export function ConfirmBadge({ className }: { className?: string }) {
+  const show = useVisibility((s) => s.showBadges);
+  if (!show) return null;
   return (
     <Tooltip content="Not in the client's walkthrough. The host screen is a suggestion that needs client confirmation.">
       <span data-confirm-badge className={cn("inline-flex shrink-0 items-center rounded-md border border-amber-300 bg-amber-50 px-1.5 py-px text-xxs font-bold uppercase leading-4 tracking-wider text-amber-800", className)}>
@@ -45,16 +52,15 @@ export function ConfirmBadge({ className }: { className?: string }) {
 }
 
 /**
- * Version marker for items from the 30 Sep call (X-M1). Same shape as
+ * Minimal / Complete marker for items from the 30 Sep call. Same shape as
  * NewBadge. Complete uses purple-700, not brand purple, so white text keeps
- * 4.5:1 contrast.
- *
- * Every new part carries NEW plus its version, so the NEW badge comes with
- * it. Parts that already existed (marked "Exists" in the plan) pass
- * withNew={false} and get the version marker only.
+ * 4.5:1 contrast. It brings its NEW badge; parts that already existed pass
+ * withNew={false}. Shown only when "Show NEW badges on screens" is on.
  */
 export function VersionBadge({ item, className, withNew = true }: { item: string; className?: string; withNew?: boolean }) {
-  const complete = isCompleteItem(item);
+  const show = useVisibility((s) => s.showBadges);
+  if (!show) return null;
+  const complete = keyForItem(item).part === "complete";
   const badge = (
     <Tooltip content={`${item} · ${complete ? "Complete" : "Minimal"} version`}>
       <span
@@ -78,22 +84,28 @@ export function VersionBadge({ item, className, withNew = true }: { item: string
   );
 }
 
-/** Renders children only when the item is Minimal or the prototype is set to Complete. */
-export function VersionGate({ item, children }: { item: string; children: ReactNode }) {
-  const version = useVersion((s) => s.version);
-  return isVisible(item, version) ? <>{children}</> : null;
+type GateProps = { feature?: number | number[]; item?: string; featureKey?: FeatureKey | FeatureKey[]; part?: Part };
+
+/**
+ * Renders children only when the New Features panel shows this part:
+ * <FeatureGate feature={24}>, feature={[3, 24]} (any of them on),
+ * item="CRM-C4", or featureKey="crm" part="complete". Hiding is display only.
+ */
+export function FeatureGate({ children, ...target }: GateProps & { children: ReactNode }) {
+  return useIsOn(target) ? <>{children}</> : null;
 }
 
-/** Whole view for a Complete-only item: in Minimal it explains and offers the switch. */
-export function VersionScreenGate({ item, children }: { item: string; children: ReactNode }) {
-  const version = useVersion((s) => s.version);
-  const setVersion = useVersion((s) => s.setVersion);
-  if (isVisible(item, version)) return <>{children}</>;
+/** A whole route of a feature: when it is switched off, says so and links to the panel. */
+export function FeatureRouteGate({ children, ...target }: GateProps & { children: ReactNode }) {
+  const on = useIsOn(target);
+  const router = useRouter();
+  if (on) return <>{children}</>;
   return (
     <EmptyState
-      title="Part of the Complete version"
-      body={`${item} is in the Complete version. Switch to see it.`}
-      action={<Button variant="primary" onClick={() => setVersion("complete")}>Switch to Complete</Button>}
+      className="m-6"
+      title="This feature is switched off"
+      body="Turn it on in New Features on the dashboard."
+      action={<Button variant="primary" onClick={() => router.push("/dashboard#new-features")}>Open New Features</Button>}
     />
   );
 }
@@ -136,8 +148,10 @@ export function SectionHeader({ icon, title, badge, right, subtitle, details, cl
 
 /** Estimate-page section wrapper (`border-b pb-12 mb-12 scroll-mt-24`). */
 export function EstimateSection({ id, children, isNew, className }: { id?: string; children: ReactNode; isNew?: boolean; className?: string }) {
+  // The green NEW outline follows "Show NEW badges on screens" (New Features).
+  const badges = useVisibility((s) => s.showBadges);
   return (
-    <section id={id} className={cn("scroll-mt-24 border-b border-gray-200 pb-10 mb-10 last:mb-0 last:border-0 last:pb-0 md:pb-12 md:mb-12", isNew && "rounded-2xl ring-1 ring-green-200 ring-offset-8", className)}>
+    <section id={id} className={cn("scroll-mt-24 border-b border-gray-200 pb-10 mb-10 last:mb-0 last:border-0 last:pb-0 md:pb-12 md:mb-12", isNew && badges && "rounded-2xl ring-1 ring-green-200 ring-offset-8", className)}>
       {children}
     </section>
   );
@@ -145,8 +159,9 @@ export function EstimateSection({ id, children, isNew, className }: { id?: strin
 
 /** Work-order / job page card (`bg-white rounded-2xl shadow-sm border p-6 md:p-8`). */
 export function LiveCard({ children, className, isNew, ...rest }: { children: ReactNode; className?: string; isNew?: boolean } & React.HTMLAttributes<HTMLDivElement>) {
+  const badges = useVisibility((s) => s.showBadges);
   return (
-    <div className={cn("scroll-mt-24 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm md:p-8", isNew && "border-green-300 ring-1 ring-green-100", className)} {...rest}>
+    <div className={cn("scroll-mt-24 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm md:p-8", isNew && badges && "border-green-300 ring-1 ring-green-100", className)} {...rest}>
       {children}
     </div>
   );

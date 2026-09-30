@@ -24,6 +24,7 @@ import { alertQueueState } from '@/features/lib/rules/alerts';
 import { canResume, useTour } from '@/features/lib/tour';
 import { useStartTour } from '@/features/components/tour/product-tour';
 import { Drawer, NewBadge } from '@/features/components/ui';
+import { useFeatureFilter, useVisibility } from '@/features/lib/feature-visibility';
 import { ChangeOrderExceptionsPanel } from '@/features/components/features/change-orders/exceptions-panel';
 import { ALSO_NEW, JOURNEY } from '@/features/components/features/dashboard/dashboard-screen';
 import { EmptyLine, SectionHeader } from './SectionHeader';
@@ -37,16 +38,20 @@ export const FEATURE_CARD_TITLES: Record<FeatureCardId, string> = {
   'repaint-alerts': 'Repaint Alerts',
 };
 
-/** Which NEW cards the current demo user may see. */
+/** Which NEW cards the current demo user may see, and New Features (dashboard) has on. */
 export function useFeatureCardAccess(): Record<FeatureCardId, boolean> {
   const user = useCurrentUser();
+  const on = useFeatureFilter();
   return {
-    'time-to-approve': can(user, 'time.approve'),
-    'co-exceptions': can(user, 'co.exceptions'),
-    'po-exceptions': can(user, 'supplier.submit'),
-    'repaint-alerts': can(user, 'alerts.queue'),
+    'time-to-approve': can(user, 'time.approve') && on({ feature: 22 }),
+    'co-exceptions': can(user, 'co.exceptions') && on({ feature: 24 }),
+    'po-exceptions': can(user, 'supplier.submit') && on({ feature: 19 }),
+    'repaint-alerts': can(user, 'alerts.queue') && on({ feature: [27, 29] }),
   };
 }
+
+/** '18, 19, 22' or 'Supplier orders (19)' → [18, 19, 22] / [19]. */
+const numbersIn = (s: string) => (s.match(/[0-9]+/g) ?? []).map(Number);
 
 function coExceptions(db: Database) {
   return db.changeOrders.filter((c) => !c.isColourReapproval && (Object.values(c.downstream).includes('failed') || (c.emergency && !c.emergency.writtenConfirmedAt)));
@@ -163,6 +168,13 @@ export function DemoWalkthroughCard() {
   const tourStop = useTour((s) => s.stop);
   const resumable = useTour((s) => !s.active && canResume(s));
   const btn = 'inline-flex h-9 items-center gap-1.5 rounded-xl px-3 text-xs font-bold shadow-sm transition-colors';
+  // Steps and links for features switched off in New Features drop out; with the
+  // master switch off the prototype looks like the live app, so the card goes.
+  const on = useFeatureFilter();
+  const showNew = useVisibility((s) => s.showNew);
+  const journey = JOURNEY.filter((j) => !j.features || on({ feature: numbersIn(j.features) }));
+  const alsoNew = ALSO_NEW.filter((a) => on({ feature: numbersIn(a.label) }));
+  if (!showNew) return null;
   return (
     <div className="mb-6 rounded-2xl border border-dashed border-green-300 bg-gradient-to-r from-green-50/80 to-white p-5" data-tour="walkthrough">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -182,7 +194,7 @@ export function DemoWalkthroughCard() {
         </div>
       </div>
       <ol className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
-        {JOURNEY.map((j, i) => (
+        {journey.map((j, i) => (
           <li key={j.title}>
             <Link href={j.href} className="group flex h-full items-start gap-3 rounded-xl border border-gray-200 bg-white p-3 hover:border-primary-300">
               <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gray-900 text-xs font-bold text-white">{i + 1}</span>
@@ -197,14 +209,14 @@ export function DemoWalkthroughCard() {
           </li>
         ))}
       </ol>
-      <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
+      {alsoNew.length > 0 && <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
         <span className="font-bold text-gray-500">Also new:</span>
-        {ALSO_NEW.map((a) => (
+        {alsoNew.map((a) => (
           <Link key={a.label} href={a.href} className="rounded-full border border-gray-200 bg-white px-2.5 py-1 font-semibold text-gray-700 hover:border-primary-300">
             {a.label}
           </Link>
         ))}
-      </div>
+      </div>}
       <p className="mt-3 text-xs text-gray-500">Switch roles, pin the clock to business hours or reset the demo data in the Prototype bar (bottom left).</p>
     </div>
   );

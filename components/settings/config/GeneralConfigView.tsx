@@ -19,7 +19,7 @@ import { act, useCurrentUser, useDb } from '@/features/lib/store';
 import { can } from '@/features/lib/permissions';
 import { updateWasteSettings } from '@/features/lib/store/actions/settings';
 import { setPackingStrategy } from '@/features/lib/store/actions/materials';
-import { NewBadge } from '@/features/components/ui';
+import { FeatureGate, NewBadge } from '@/features/components/ui';
 import { DiscountsPanel } from './DiscountsPanel';
 import { TiersPanel } from './TiersPanel';
 import { SettingsCard } from './ui';
@@ -118,11 +118,13 @@ export function GeneralConfigView() {
             </div>
             {cfg.calculateWaste && <div className="mt-4">{numField('defaultWastePercent', 'Waste Percentage', 'Extra paint added to each estimate to cover waste.')}</div>}
 
-            <div className="mt-5 rounded-xl border border-green-200 bg-green-50/40 p-4">
+            {/* Feature 18 (New Features on the dashboard). */}
+            <FeatureGate feature={18}>
+            <div className="mt-5 rounded-xl border border-gray-200 bg-gray-50/40 p-4">
               <div className="mb-1.5 flex items-center gap-2 text-sm font-bold text-gray-900">Waste rules for material orders <NewBadge feature={18} /></div>
               <p className="mb-3 text-xs text-gray-500">Material demand on the work order uses the single highest rule that matches a specification. Allowances are never added together.</p>
               <table className="w-full text-sm">
-                <tbody className="divide-y divide-green-100">
+                <tbody className="divide-y divide-gray-100">
                   {WASTE_RULES.map(([rule, pct]) => (
                     <tr key={rule}>
                       <td className="py-1.5 text-gray-700">{rule}</td>
@@ -132,7 +134,7 @@ export function GeneralConfigView() {
                 </tbody>
               </table>
             </div>
-            <div className="mt-4 rounded-xl border border-green-200 bg-green-50/40 p-4">
+            <div className="mt-4 rounded-xl border border-gray-200 bg-gray-50/40 p-4">
               <div className="mb-1.5 flex items-center gap-2 text-sm font-bold text-gray-900">Container packing objective <NewBadge feature={18} /></div>
               <p className="mb-3 text-xs text-gray-500">How gallons are packed into quarts, gallons and 5-gallon pails on a paint order.</p>
               <div className="w-full max-w-60">
@@ -144,6 +146,7 @@ export function GeneralConfigView() {
                 />
               </div>
             </div>
+            </FeatureGate>
           </SettingsCard>
         </div>
 

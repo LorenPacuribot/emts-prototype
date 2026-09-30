@@ -20,7 +20,8 @@ import { useCurrentUser, useDb as useFeatureDb } from '@/features/lib/store';
 import { can } from '@/features/lib/permissions';
 import { dateTime } from '@/features/lib/format';
 import { coHref } from '@/features/components/features/change-orders/shared';
-import { Button, ConfirmBadge, NewBadge, StatusPill, VersionBadge, VersionGate } from '@/features/components/ui';
+import { Button, ConfirmBadge, NewBadge, StatusPill, VersionBadge, FeatureGate } from '@/features/components/ui';
+import { useIsOn, useVisibility } from '@/features/lib/feature-visibility';
 import { invoiceBalance } from '@/features/lib/store/actions/invoices';
 import { money } from '@/features/lib/format';
 import { openInQuickBooks } from '@/components/contacts/QuickBooksContact';
@@ -47,13 +48,16 @@ function qboState(db: Database, invoiceId: string) {
   return { rec, items, state, tone };
 }
 
-/** Finance roles see the QuickBooks column and card. */
+/** Finance roles see the QuickBooks column and card, while Accounting (33) or QuickBooks is on in New Features. */
 export function useShowQuickBooks() {
-  return can(useCurrentUser(), 'finance.access');
+  const on = useIsOn({ feature: 33, featureKey: 'qb' });
+  return can(useCurrentUser(), 'finance.access') && on;
 }
 
-/** List note above the rows: marks the NEW QuickBooks column. */
+/** List note above the rows: marks the NEW QuickBooks column (only a marker, so it shows with the badges). */
 export function QuickBooksColumnNote() {
+  const badges = useVisibility((s) => s.showBadges);
+  if (!badges) return null;
   return (
     <div className="mb-3 flex flex-wrap items-center gap-2 text-xs text-gray-500">
       QuickBooks column <NewBadge feature={33} /> <ConfirmBadge /> <VersionBadge item="QB-M7" withNew={false} />
@@ -77,11 +81,12 @@ export function QuickBooksCell({ invoiceId }: { invoiceId: string }) {
 export function InvoiceKindChip({ invoiceId, withLink = false }: { invoiceId: string; withLink?: boolean }) {
   const db = useFeatureDb((d) => d);
   const inv = db.invoices.find((i) => i.id === invoiceId);
+  const coOn = useIsOn({ feature: 24 });
   if (!inv || inv.kind === 'standard') return null;
   const label = inv.kind === 'credit_note' ? 'Credit note' : 'Supplemental';
   const co = inv.changeOrderId ? db.changeOrders.find((c) => c.id === inv.changeOrderId) : undefined;
   const chip = <span className="rounded-md bg-purple-50 px-1.5 py-0.5 text-xs font-bold text-purple-700">{label}</span>;
-  if (!withLink || !co) return chip;
+  if (!withLink || !co || !coOn) return chip;
   return (
     <span className="inline-flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
       {chip}
@@ -98,13 +103,13 @@ export function QuickBooksCard({ invoiceId }: { invoiceId: string }) {
   const db = useFeatureDb((d) => d);
   const q = qboState(db, invoiceId);
   return (
-    <div className="mx-auto mt-6 max-w-[8.5in] rounded-lg border border-green-300 bg-white p-8 shadow-sm ring-1 ring-green-100 print:hidden" data-tour="invoice-qbo">
+    <div className="mx-auto mt-6 max-w-[8.5in] rounded-lg border border-gray-200 bg-white p-8 shadow-sm print:hidden" data-tour="invoice-qbo">
       <h4 className="mb-3 flex flex-wrap items-center gap-2 text-lg font-bold text-gray-900">
         <Landmark className="h-5 w-5 text-gray-500" /> QuickBooks exchange <NewBadge feature={33} /> <ConfirmBadge /> <VersionBadge item="QB-M7" withNew={false} />
       </h4>
-      <VersionGate item="QB-C4">
+      <FeatureGate item="QB-C4">
         <QuickBooksInvoiceSummary invoiceId={invoiceId} />
-      </VersionGate>
+      </FeatureGate>
       <div className="flex flex-wrap items-center gap-3 text-sm">
         <StatusPill tone={q.tone}>{q.state}</StatusPill>
         {q.rec?.externalRef && <span className="font-mono text-xs text-gray-500">{q.rec.externalRef}</span>}

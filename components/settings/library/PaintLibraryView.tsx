@@ -22,6 +22,7 @@ import { useCollection, useLookups } from '@/lib/store';
 import type { PaintProduct } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { PaintCatalogSection } from '@/features/components/features/settings/paint-library-screen';
+import { FeatureGate } from '@/features/components/ui';
 import { CardKebab, FieldError, FormActions, LibraryCard, LibraryGrid, LibraryToolbar, NoMatches, Pill, SectionHeading, num, useLibraryCrud } from './ui';
 
 const SORTS = [
@@ -94,7 +95,7 @@ export function PaintLibraryView() {
         {list.length === 0 && <NoMatches>{search || sort === 'favorites' ? 'No items found matching search.' : 'No paint products yet. Add your first one!'}</NoMatches>}
       </LibraryGrid>
 
-      <PaintCatalogSection />
+      <FeatureGate feature={[3, 18]}><PaintCatalogSection /></FeatureGate>
 
       <PaintModal
         open={crud.open}

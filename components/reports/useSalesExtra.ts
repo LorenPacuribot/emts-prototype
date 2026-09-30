@@ -8,14 +8,14 @@
 import { useMemo } from 'react';
 import { useDb } from '@/lib/store';
 import { useDb as useFeatureDb } from '@/features/lib/store';
-import { useVersion } from '@/features/lib/prototype-version';
+import { useIsOn } from '@/features/lib/feature-visibility';
 import { changeOrderSalesEntries } from '@/features/lib/sales-entries';
 import type { SalesEntry } from '@/features/lib/rules/sales-entries';
 
 const NONE: SalesEntry[] = [];
 
 export function useSalesExtra(): SalesEntry[] {
-  const complete = useVersion((s) => s.version === 'complete');
+  const complete = useIsOn({ item: 'RP-C3' });
   const pdb = useFeatureDb((d) => d);
   const estimates = useDb().collections.estimates;
   return useMemo(() => {

@@ -19,7 +19,8 @@ import type { EstimateStatus } from '@/lib/types';
 import { cn, shortDate } from '@/lib/utils';
 import { Pagination, usePagination } from '@/components/ui/display';
 import { useToast } from '@/components/ui/toast';
-import { NewBadge, Stat, StatStrip, Tooltip, VersionBadge, VersionGate } from '@/features/components/ui';
+import { NewBadge, Stat, StatStrip, Tooltip, VersionBadge, FeatureGate } from '@/features/components/ui';
+import { useIsOn } from '@/features/lib/feature-visibility';
 import { entryVersions, versionLineDiff } from '@/features/lib/rules/sales-entries';
 import {
   ESTIMATE_STATUS_GROUPS, ESTIMATE_STATUS_LABEL, downloadCsv, estimatesLog, jobsSold, jobsToDo, salesByEstimator, shortDayMonth, type DateRange,
@@ -50,6 +51,8 @@ function PagerFooter({ p }: { p: ReturnType<typeof usePagination<unknown>> }) {
 
 /** "Original", "Amendment 1", "Change order 1" next to the record number. */
 function EntryChip({ label }: { label: string }) {
+  // RP Minimal (New Features): the entry labels show with the feature.
+  if (!useIsOn({ item: 'RP-M3' })) return null;
   return <span className="ml-2 inline-flex items-center rounded bg-gray-100 px-1.5 py-0.5 font-sans text-xxs font-bold text-gray-600">{label}</span>;
 }
 
@@ -128,7 +131,7 @@ export function EstimatesLogTab({ year, range, setRange }: { year: number; range
                     <td className={cn(TD, 'font-mono text-gray-500 group-hover:text-primary-600')}>
                       <span className="inline-flex items-center">
                         {amendment && (
-                          <VersionGate item="RP-C1">
+                          <FeatureGate item="RP-C1">
                             <button
                               onClick={() => setOpen(expanded ? undefined : r.id)}
                               aria-expanded={expanded}
@@ -137,19 +140,19 @@ export function EstimatesLogTab({ year, range, setRange }: { year: number; range
                             >
                               <ChevronRight className={cn('h-4 w-4 transition-transform', expanded && 'rotate-90')} />
                             </button>
-                          </VersionGate>
+                          </FeatureGate>
                         )}
                         <Link href={`/estimates/${r.estimateId}`}>{r.estimateNumber}</Link>
                         {r.entry && <EntryChip label={r.entry.label} />}
                         {r.flagged && (
-                          <VersionGate item="RP-C4">
+                          <FeatureGate item="RP-C4">
                             <Tooltip content="The sales entries don't add up to this estimate's current total. A change was saved without a new approval.">
                               <span className="ml-2 inline-flex items-center gap-1 rounded border border-amber-200 bg-amber-50 px-1.5 py-0.5 font-sans text-xxs font-bold text-amber-700">
                                 <AlertTriangle className="h-3 w-3" /> Doesn&apos;t add up
                               </span>
                             </Tooltip>
                             <VersionBadge item="RP-C4" className="ml-1" />
-                          </VersionGate>
+                          </FeatureGate>
                         )}
                       </span>
                     </td>
@@ -168,13 +171,13 @@ export function EstimatesLogTab({ year, range, setRange }: { year: number; range
                     <td className={cn(TD, 'text-gray-600')}>{shortDayMonth(r.email) ?? '-'}</td>
                   </tr>
                   {expanded && amendment && (
-                    <VersionGate item="RP-C1">
+                    <FeatureGate item="RP-C1">
                       <tr className="bg-primary-50/40">
                         <td colSpan={11} className="px-4 pb-4 pt-0 sm:px-6">
                           <AmendmentChanges estimateId={r.estimateId} versionRef={r.entry!.versionRef} />
                         </td>
                       </tr>
-                    </VersionGate>
+                    </FeatureGate>
                   )}
                 </React.Fragment>
               );
@@ -249,7 +252,7 @@ export function JobsSoldTab({ year, range, setRange }: { year: number; range: Da
   return (
     <div className="space-y-4">
       {/* RP-M4: new sales and amendments, added up by entry date. */}
-      <div>
+      <FeatureGate item="RP-M4"><div>
         <div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gray-500">
           Sales in this period <VersionBadge item="RP-M4" />
         </div>
@@ -258,7 +261,7 @@ export function JobsSoldTab({ year, range, setRange }: { year: number; range: Da
           <Stat label="Amendments" value={signedMoney0(totals.amendments)} tone={totals.amendments < 0 ? 'danger' : 'default'} />
           <Stat label="Total" value={signedMoney0(totals.amount)} tone="brand" />
         </StatStrip>
-      </div>
+      </div></FeatureGate>
       <ReportCard>
         <div className="flex flex-col justify-between gap-4 border-b border-gray-200 px-4 py-5 sm:px-6 lg:flex-row lg:items-end">
           <div className="flex flex-col items-start gap-4 md:flex-row md:items-end">

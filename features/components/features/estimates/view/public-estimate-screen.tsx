@@ -28,7 +28,7 @@ import { BUSINESS } from "@/features/lib/rules/property";
 import { dateLong, money } from "@/features/lib/format";
 import { toast } from "@/features/lib/toast";
 import { Logo } from "@/features/components/layout/icon-rail";
-import { Banner, Button, ConfirmDialog, Field, Input, Modal, NewBadge, Skeleton, Swatch, Textarea, Toaster, TooltipProvider } from "@/features/components/ui";
+import { Banner, Button, ConfirmDialog, FeatureGate, Field, Input, Modal, NewBadge, Skeleton, Swatch, Textarea, Toaster, TooltipProvider } from "@/features/components/ui";
 import { CoDocument } from "@/features/components/features/change-orders/co-document";
 import { SignatureCanvas } from "./signature-canvas";
 import { estimateTotals as builderTotals } from '@/lib/calculations';
@@ -106,7 +106,7 @@ function PublicEstimate() {
         {estimate.status === "ACCEPTED" && <Banner tone="success" className="mb-6" title="This estimate has been accepted">Thank you for your business!</Banner>}
         {estimate.status === "PENDING_REAPPROVAL" && <Banner tone="warn" className="mb-6" title="This estimate has been updated">Your contractor revised the scope — please review the new totals and re-sign to approve.</Banner>}
 
-        {pendingCos.length > 0 && <ChangeOrdersForApproval cos={pendingCos} defaultSigner={customer?.name ?? ""} />}
+        {pendingCos.length > 0 && <FeatureGate feature={24}><ChangeOrdersForApproval cos={pendingCos} defaultSigner={customer?.name ?? ""} /></FeatureGate>}
 
         <div ref={docRef} id="estimate" className="mx-auto min-h-[11in] max-w-[8.5in] bg-white p-6 shadow-2xl md:p-12">
           <div className="flex flex-wrap items-start justify-between gap-4 border-b border-gray-200 pb-6">
@@ -132,7 +132,7 @@ function PublicEstimate() {
 
           {job && <Scope jobId={job.id} />}
           {!!estimate.pricingSnapshot?.lineItems.some((l) => l.optional && !l.selected) && <section className="my-4 rounded-xl border border-gray-200 p-4"><h3 className="font-bold">Optional work</h3><p className="text-xs text-gray-500">Not included in the current total. You can choose these items when accepting.</p>{estimate.pricingSnapshot.lineItems.filter((l) => l.optional && !l.selected).map((l) => <div key={l.id} className="flex justify-between py-1 text-sm"><span>{l.description}</span><span>{money(l.total, { cents: true })} before tax and discount</span></div>)}</section>}
-          {job && <PaintColorsSection jobId={job.id} />}
+          {job && <FeatureGate feature={3}><PaintColorsSection jobId={job.id} /></FeatureGate>}
 
           <div className="mt-8 flex justify-end">
             <div className="w-full max-w-xs space-y-1 text-sm">
@@ -309,7 +309,7 @@ function ChangeOrdersForApproval({ cos, defaultSigner }: { cos: ChangeOrder[]; d
   const db = useDb((d) => d);
   const [open, setOpen] = useState<ChangeOrder>();
   return (
-    <div className="mx-auto mb-8 max-w-[8.5in] rounded-2xl border-2 border-green-300 bg-white p-5 shadow-lg" data-tour="public-change-orders">
+    <div className="mx-auto mb-8 max-w-[8.5in] rounded-2xl border border-gray-200 bg-white p-5 shadow-lg" data-tour="public-change-orders">
       <div className="flex items-center gap-2">
         <FileDiff className="h-5 w-5 text-primary-600" />
         <h2 className="font-heading text-lg font-bold text-gray-900">Change orders for your approval</h2>

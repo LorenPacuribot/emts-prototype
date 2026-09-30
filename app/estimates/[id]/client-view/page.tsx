@@ -31,6 +31,7 @@ import { useEstimateActions } from '@/components/estimates/useEstimateActions';
 import { useProtoEstimate } from '@/components/estimates/FeatureSections';
 import { publicEstimateHref } from '@/features/lib/hrefs';
 import { NewBadge } from '@/features/components/ui';
+import { useIsOn } from '@/features/lib/feature-visibility';
 import { PresentationCanvas } from '@/components/presentations/PresentationCanvas';
 import { useSession } from '@/components/auth/AuthGate';
 import { chosenTemplate } from '@/lib/proposal';
@@ -63,6 +64,7 @@ function ClientView() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [selectedOptions, setSelectedOptions] = useState<string[] | null>(null);
   const twin = useProtoEstimate(id).est;
+  const customerPageOn = useIsOn({ feature: [3, 24] });
   const { items: presentations } = useCollection('presentations');
   const { update } = useCollection('estimates');
   const params = useSearchParams();
@@ -140,7 +142,7 @@ function ClientView() {
           )}
           <div className="hidden text-sm font-bold text-gray-700 sm:block">{e.estimateNumber} · {money(total)}</div>
           <div className="flex items-center gap-2">
-            {twin?.publicToken && (
+            {twin?.publicToken && customerPageOn && (
               <Link href={publicEstimateHref(twin.publicToken)} className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-green-200 bg-green-50 px-3 text-xs font-bold text-green-800 hover:bg-green-100" title="Color approvals and change order decisions">
                 Customer page <NewBadge feature={[3, 24]} />
               </Link>

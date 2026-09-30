@@ -27,6 +27,7 @@ import { cn } from '@/lib/utils';
 import { round2 } from '@/lib/calculations';
 import { hoursPer100, unitsPerHourFromHours } from '@/lib/estimating';
 import { RateVersionsSection } from '@/features/components/features/settings/rate-versions-section';
+import { FeatureGate } from '@/features/components/ui';
 import { CardKebab, FieldError, LibraryToolbar, NoMatches, UNIT_LABELS, nextSort, num } from './ui';
 
 const SORTS = [
@@ -215,7 +216,7 @@ export function SurfaceRatesView() {
         </div>
       )}
 
-      <RateVersionsSection />
+      <FeatureGate feature={30}><RateVersionsSection /></FeatureGate>
 
       <SurfaceRateModal
         open={rateOpen}

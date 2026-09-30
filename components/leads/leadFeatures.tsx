@@ -20,6 +20,7 @@ import { getDb, useDb } from '@/features/lib/store';
 import { byId } from '@/features/lib/selectors';
 import { drivingFollowUp } from '@/features/lib/store/actions/leads';
 import { NewBadge } from '@/features/components/ui';
+import { useIsOn } from '@/features/lib/feature-visibility';
 import { RepaintFollowUpCard } from '@/features/components/features/leads/details/repaint-follow-up-card';
 import { cn } from '@/lib/utils';
 
@@ -52,7 +53,8 @@ export function useIsRepaintLead(lead: Pick<Lead, 'id' | 'leadSource'>) {
 /** NEW (29) "Repaint alert" source chip. Renders `fallback` for any other source. */
 export function LeadSourceChip({ lead, className, fallback }: { lead: Pick<Lead, 'id' | 'leadSource'>; className?: string; fallback: React.ReactNode }) {
   const repaint = useIsRepaintLead(lead);
-  if (!repaint) return <>{fallback}</>;
+  const on = useIsOn({ feature: 29 });
+  if (!repaint || !on) return <>{fallback}</>;
   return (
     <span className={cn('inline-flex items-center gap-1 whitespace-nowrap rounded border border-primary-200 bg-primary-50 px-2 py-0.5 text-xs font-semibold text-primary-800', className)}>
       <BellRing className="h-3 w-3" /> Repaint alert <NewBadge feature={29} />
@@ -62,6 +64,8 @@ export function LeadSourceChip({ lead, className, fallback }: { lead: Pick<Lead,
 
 /** Small note under the card / status bar while a follow-up drives the lead. */
 export function FollowUpLockNote({ fu, className, compact }: { fu: Pick<FollowUp, 'id'>; className?: string; compact?: boolean }) {
+  const on = useIsOn({ feature: 29 });
+  if (!on) return null;
   if (compact) {
     return (
       <div className={cn('flex items-center gap-1.5 rounded-md border border-primary-100 bg-primary-50/60 px-2 py-1 text-xs text-primary-800', className)}>
@@ -80,6 +84,7 @@ export function FollowUpLockNote({ fu, className, compact }: { fu: Pick<FollowUp
 export function RepaintFollowUpHost({ leadId }: { leadId: string }) {
   const db = useDb((d) => d);
   const lead = byId(db.leads, leadId);
-  if (!lead || !db.followUps.some((f) => f.leadId === leadId)) return null;
+  const on = useIsOn({ feature: 29 });
+  if (!on || !lead || !db.followUps.some((f) => f.leadId === leadId)) return null;
   return <RepaintFollowUpCard lead={lead} />;
 }
