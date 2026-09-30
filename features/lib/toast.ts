@@ -6,6 +6,8 @@ export interface ToastItem {
   kind: "success" | "error" | "info";
   title: string;
   body?: string;
+  /** One button on the toast, e.g. "Notify now" (JS-M1). */
+  action?: { label: string; onClick: () => void };
 }
 
 interface ToastState {
@@ -27,7 +29,8 @@ export const useToasts = create<ToastState>((set) => ({
   push: (t) => {
     const id = ++seq;
     set((s) => ({ items: [...s.items, { ...t, id }] }));
-    setTimeout(() => set((s) => ({ items: s.items.filter((i) => i.id !== id) })), t.kind === "error" ? 6000 : 3500);
+    // A toast with a button stays longer, so there is time to press it.
+    setTimeout(() => set((s) => ({ items: s.items.filter((i) => i.id !== id) })), t.kind === "error" || t.action ? 8000 : 3500);
   },
   dismiss: (id) => set((s) => ({ items: s.items.filter((i) => i.id !== id) })),
 }));
@@ -38,5 +41,5 @@ export const toast = {
     useToasts.getState().push({ kind: "success", title, body });
   },
   error: (title: string, body?: string) => useToasts.getState().push({ kind: "error", title, body }),
-  info: (title: string, body?: string) => useToasts.getState().push({ kind: "info", title, body }),
+  info: (title: string, body?: string, action?: ToastItem["action"]) => useToasts.getState().push({ kind: "info", title, body, action }),
 };

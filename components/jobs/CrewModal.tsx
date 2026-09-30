@@ -17,6 +17,7 @@ import { useCollection } from '@/lib/store';
 import type { CrewAssignment, Job } from '@/lib/types';
 import { cn, fullName } from '@/lib/utils';
 import { useJobActions } from './useJobActions';
+import { useScheduleSaved } from '@/components/scheduling/NotifyCrew';
 import { jobDays, memberBookedHours, memberCapacity, round1, weekDays } from '@/components/scheduling/schedule-utils';
 
 export const CREW_ROLES = ['Crew Lead', 'Painter', 'Helper'];
@@ -26,6 +27,7 @@ export function CrewModal({ job, open, onOpenChange }: { job: Job; open: boolean
   const { items: jobs } = useCollection('jobs');
   const { setCrew } = useJobActions();
   const { toast } = useToast();
+  const scheduleSaved = useScheduleSaved();
   const [draft, setDraft] = useState<CrewAssignment[]>([]);
 
   useEffect(() => {
@@ -44,7 +46,8 @@ export function CrewModal({ job, open, onOpenChange }: { job: Job; open: boolean
 
   const save = () => {
     if (!setCrew(job.id, draft, `Crew updated (${draft.length} member${draft.length === 1 ? '' : 's'})`)) return;
-    toast('Crew saved');
+    if (job.startDate) scheduleSaved([job.id]);
+    else toast('Crew saved');
     onOpenChange(false);
   };
 

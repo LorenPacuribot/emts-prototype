@@ -150,7 +150,7 @@ export function projectUser(u: P.User, i: number): TeamMember {
 export function projectEmployee(e: P.Employee, i: number): TeamMember {
   const n = splitName(e.name);
   return {
-    id: e.id, firstName: n.firstName, lastName: n.lastName, email: '', phone: '', role: 'Painter', roleId: 'role_painter',
+    id: e.id, firstName: n.firstName, lastName: n.lastName, email: e.email ?? '', phone: e.phone ?? '', role: 'Painter', roleId: 'role_painter',
     status: e.offboardedAt ? 'Inactive' : 'Active', hourlyRate: 26, capacityHours: 40, color: COLORS[(i + 4) % COLORS.length], isCrew: true,
   };
 }

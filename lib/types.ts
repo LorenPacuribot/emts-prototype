@@ -7,7 +7,7 @@ export * from './types/settings';
 
 import type {
   Activity, CalendarEvent, Customer, Estimate, Invoice, Job, Lead, Message,
-  Presentation, Task, TeamMember, WorkOrder,
+  Presentation, ScheduleMessageLog, ScheduleNotifySnapshot, Task, TeamMember, WorkOrder,
 } from './types/core';
 import type {
   AreaTemplate, AutomatedMessage, Brand, BusinessProfile, DifficultyTier, DocumentNumbering,
@@ -31,6 +31,10 @@ export interface Collections {
   tasks: Task[];
   activity: Activity[];
   messages: Message[];
+  /** JS-M2: what each crew member was last told about each job. */
+  scheduleNotifySnapshots: ScheduleNotifySnapshot[];
+  /** JS-M4: Schedule Update messages sent (sandbox log). */
+  scheduleMessages: ScheduleMessageLog[];
   // settings lists
   roles: Role[];
   difficultyTiers: DifficultyTier[];

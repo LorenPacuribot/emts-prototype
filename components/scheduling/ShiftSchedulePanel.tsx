@@ -2,13 +2,12 @@
 
 import { useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
-import { CalendarClock, CheckCircle2, Crown, Pencil, Plus, Trash2, X } from 'lucide-react';
+import { CalendarClock, CheckCircle2, Crown, Mail, Pencil, Plus, Trash2, X } from 'lucide-react';
 import { Modal } from '@/components/Modals/Modal';
 import { Button } from '@/components/ui/button';
 import { Avatar } from '@/components/ui/display';
 import { Checkbox, Field, Input } from '@/components/ui/form';
 import { useCollection, useLookups } from '@/lib/store';
-import { useToast } from '@/components/ui/toast';
 import { useDb, act } from '@/features/lib/store';
 import { setWorkOrderStatus } from '@/features/lib/store/actions/work-orders';
 import { useCan } from '@/components/work-orders/WoFeatures';
@@ -19,6 +18,8 @@ import { cn, fullName, uid } from '@/lib/utils';
 import { memberDayLoad, scheduleError, requiredHoursChange } from '@/lib/scheduling';
 import { assignedTotal, fmtDay, fmtSpan, fmtTime, memberBookedHours, parseKey, round1, shiftWindow, todayKey, weekDays, windowHours, workingShiftDays } from './schedule-utils';
 import { boundSchedule, datedShiftCrew, moveShifts, scheduleDraft } from './shift-draft';
+import { useNotifyModal, useScheduleSaved } from './NotifyCrew';
+import { VersionBadge, VersionGate } from '@/features/components/ui';
 
 const label = 'text-xxs font-bold uppercase tracking-wide text-gray-500';
 const dayLabel = (d: string) => fmtDay(d, { weekday: 'short', month: 'short', day: 'numeric' });
@@ -31,7 +32,7 @@ export function ShiftSchedulePanel({ job, onClose, initialStart }: { job: Job; o
   const { items: team } = useCollection('team');
   const look = useLookups();
   const { saveSchedule } = useJobActions();
-  const { toast } = useToast();
+  const scheduleSaved = useScheduleSaved();
   const twin = useJobTwin(job.id);
   const canManage = useCan('workOrder.updateStatus');
   const awaitingDeposit = twin?.wo?.status === 'PENDING_DEPOSIT';
@@ -42,7 +43,7 @@ export function ShiftSchedulePanel({ job, onClose, initialStart }: { job: Job; o
   const apply = () => {
     if (!shifts.length || error || awaitingDeposit) return;
     if (saveSchedule(job.id, { startDate: candidate.startDate!, endDate: candidate.endDate!, startTime: candidate.startTime, endTime: candidate.endTime, shifts, crew: draft.crew })) {
-      toast('Schedule updated'); onClose();
+      scheduleSaved([job.id]); onClose();
     }
   };
   return <Dialog.Root open onOpenChange={(v) => !v && onClose()}><Dialog.Portal>
@@ -57,6 +58,14 @@ export function ShiftSchedulePanel({ job, onClose, initialStart }: { job: Job; o
         <div role="status" className={cn('rounded-xl border p-3 text-sm', error ? 'border-red-200 bg-red-50 text-red-700' : 'border-green-200 bg-green-50 text-green-700')}>{error || <span className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4" />No conflicts</span>}</div>
         {awaitingDeposit && <div className="space-y-2 rounded-xl bg-amber-50 p-3 text-sm text-amber-800"><p>Confirm the deposit before scheduling this job.</p>{canManage && <Button size="sm" onClick={() => { if (twin?.wo) act(setWorkOrderStatus, twin.wo.id, 'UNSCHEDULED'); }}>Confirm Deposit</Button>}</div>}
         <Button variant="secondary" className="w-full" icon={<CalendarClock className="h-4 w-4" />} disabled={!shifts.length || job.scheduleProtected} onClick={() => setMoving(true)}>Move schedule</Button>
+        {job.startDate && (
+          <VersionGate item="JS-C1">
+            {/* JS-C1: the Notify crew modal, for this job only. Closes the panel first (the modal sits under it). */}
+            <Button variant="secondary" className="w-full" icon={<Mail className="h-4 w-4" />} onClick={() => { onClose(); useNotifyModal.getState().show({ jobIds: [job.id] }); }}>
+              Send Email <VersionBadge item="JS-C1" />
+            </Button>
+          </VersionGate>
+        )}
         <div className="space-y-3"><h3 className={label}>Shifts</h3>
           {shifts.map((s) => <div key={s.id} className="space-y-3 rounded-2xl border border-gray-200 p-3">
             <div className="flex items-center justify-between"><h4 className="text-sm font-bold">{s.name || 'Unnamed shift'}</h4><div className="flex gap-2"><button className="flex items-center gap-1 text-xs text-blue-600" onClick={() => setEditing(structuredClone(s))}><Pencil className="h-3.5 w-3.5" />Edit</button><button aria-label={`Delete ${s.name}`} className="p-1 text-gray-500 hover:text-red-600" onClick={() => setDraft(boundSchedule({ ...draft, shifts: shifts.filter((x) => x.id !== s.id), crew: draft.crew.filter((c) => c.shiftId !== s.id) }))}><Trash2 className="h-4 w-4" /></button></div></div>

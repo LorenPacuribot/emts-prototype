@@ -410,6 +410,45 @@ export interface Job {
   priority?: 'Low' | 'Normal' | 'High' | 'Urgent';
 }
 
+/* ---------- Crew schedule notifications (JS) ---------- */
+
+/** What one person was last told about one job (features/lib/rules/schedule-notify.ts). */
+export interface ScheduleNotifySnapshot {
+  /** memberId:jobId */
+  id: ID;
+  memberId: ID;
+  jobId: ID;
+  jobNumber: string;
+  title: string;
+  view: {
+    startDate?: string;
+    endDate?: string;
+    startTime?: string;
+    endTime?: string;
+    shifts: { name: string; startDate: string; endDate: string; startTime: string; endTime: string; days?: string }[];
+    days: string[];
+  };
+  notifiedAt: string;
+}
+
+/** One Schedule Update sent to a crew member. Sandbox only: nothing leaves the prototype. */
+export interface ScheduleMessageLog {
+  id: ID;
+  memberId: ID;
+  channel: 'email' | 'sms';
+  to: string;
+  subject: string;
+  body: string;
+  lang: 'en' | 'es';
+  jobIds: ID[];
+  at: string;
+  sentBy: string;
+  sandbox: true;
+  /** JS-C4: the sandbox provider's answer. */
+  delivery: 'delivered' | 'not_delivered';
+  error?: string;
+}
+
 /* ---------- Work Orders ---------- */
 
 export interface WorkOrder {

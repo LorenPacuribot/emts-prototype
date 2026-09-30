@@ -18,6 +18,8 @@ import { Field, Input, Label, Switch, Textarea } from '@/components/ui/form';
 import { useToast } from '@/components/ui/toast';
 import { useCollection, useSingleton } from '@/lib/store';
 import { formatPhone, TemplateListItem, VariablesBox } from './ui';
+import { cn } from '@/lib/utils';
+import { NewBadge, VersionBadge, VersionGate } from '@/features/components/ui';
 
 /** Inserts text at the cursor of an input/textarea and returns the new value. */
 export function insertAt(el: HTMLInputElement | HTMLTextAreaElement | null, value: string, text: string) {
@@ -81,7 +83,31 @@ export function AutomatedMessagesView() {
             <div className="flex h-full flex-col rounded-2xl bg-white p-6 shadow-lg md:p-7">
               <div className="mb-6 flex items-center justify-between gap-3 border-b border-gray-100 pb-4">
                 <h3 className="font-heading text-lg font-bold text-gray-900">{active.name}</h3>
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center justify-end gap-3">
+                  <VersionGate item="JS-C3">
+                    {/* JS-C3: Automatic sends when the trigger happens; Manual waits for someone to send it. */}
+                    <span className="flex items-center gap-2 text-xs font-medium text-gray-500">
+                      Mode
+                      <span className="flex rounded-lg border border-gray-200 bg-gray-100 p-0.5" role="radiogroup" aria-label="Sending mode">
+                        {(['automatic', 'manual'] as const).map((m) => (
+                          <button
+                            key={m}
+                            type="button"
+                            role="radio"
+                            aria-checked={(active.mode ?? 'automatic') === m}
+                            onClick={() => {
+                              update(active.id, { mode: m });
+                              toast(`${active.name}: ${m === 'automatic' ? 'sends automatically' : 'waits for someone to send it'}`);
+                            }}
+                            className={cn('rounded-md px-2.5 py-1 text-xs font-bold capitalize', (active.mode ?? 'automatic') === m ? 'bg-white text-primary-700 shadow-sm' : 'text-gray-500 hover:text-gray-900')}
+                          >
+                            {m}
+                          </button>
+                        ))}
+                      </span>
+                      <NewBadge /><VersionBadge item="JS-C3" />
+                    </span>
+                  </VersionGate>
                   <span className="flex items-center gap-2 text-xs font-medium text-gray-500">
                     {active.isActive ? 'Active' : 'Paused'}
                     <Switch

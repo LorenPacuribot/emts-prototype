@@ -179,6 +179,14 @@ export function Toaster() {
           <div className="min-w-0 flex-1">
             <p className="text-sm font-semibold text-ink">{usText(t.title)}</p>
             {t.body && <p className="mt-0.5 text-xs text-gray-500">{usText(t.body)}</p>}
+            {t.action && (
+              <button
+                onClick={() => { t.action!.onClick(); dismiss(t.id); }}
+                className="mt-1.5 text-xs font-bold text-primary-700 hover:underline"
+              >
+                {t.action.label}
+              </button>
+            )}
           </div>
           <button onClick={() => dismiss(t.id)} className="text-gray-300 hover:text-gray-600" aria-label="Dismiss">
             <X className="h-3.5 w-3.5" />

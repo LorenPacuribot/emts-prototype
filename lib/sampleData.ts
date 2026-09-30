@@ -37,6 +37,9 @@ export function createInitialDatabase(): Database {
       tasks: core.tasks,
       activity: [],
       messages: core.messages.map((m) => ({ ...m, customerId: remapCustomer(m.customerId) })),
+      // Filled from the schedule when the store loads (lib/schedule-notify.ts).
+      scheduleNotifySnapshots: [],
+      scheduleMessages: [],
       roles: org.roles,
       difficultyTiers: cfg.difficultyTiers,
       projectDiscounts: cfg.projectDiscounts,

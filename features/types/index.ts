@@ -1743,6 +1743,9 @@ export interface Employee {
   /** Identifier in the bookkeeper-approved Gusto mapping. */
   gustoId?: string;
   offboardedAt?: ISODate;
+  /** Contact for schedule updates (JS). Missing = "No email on file". */
+  email?: string;
+  phone?: string;
 }
 
 export interface Crew {

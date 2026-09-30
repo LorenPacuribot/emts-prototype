@@ -211,6 +211,11 @@ export interface AutomatedMessage {
   isActive: boolean;
   /** Variable names shown as chips, e.g. "customerName" */
   availableVariables?: string[];
+  /**
+   * JS-C3: Automatic sends when the trigger happens; Manual waits for someone
+   * to send it. Missing = Automatic (how every template behaved before).
+   */
+  mode?: 'automatic' | 'manual';
 }
 
 export interface SmsTemplate {

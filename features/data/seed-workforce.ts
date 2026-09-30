@@ -182,8 +182,8 @@ export function workforceSeed(nowIso: string) {
 
   const employees: Employee[] = [
     { id: "EMP-1", name: "Luis Ortega", type: "hourly", userId: "U-CREW", crewId: "CREW-1", gustoId: "G-1041" },
-    { id: "EMP-2", name: "José Rivera", type: "hourly", crewId: "CREW-1", gustoId: "G-1042" },
-    { id: "EMP-3", name: "Ana Torres", type: "hourly", crewId: "CREW-1", gustoId: "G-1043" },
+    { id: "EMP-2", name: "José Rivera", type: "hourly", crewId: "CREW-1", gustoId: "G-1042", email: "jose.rivera@example.com", phone: "(214) 555-0182" },
+    { id: "EMP-3", name: "Ana Torres", type: "hourly", crewId: "CREW-1", gustoId: "G-1043", phone: "(972) 555-0147" },
     { id: "EMP-4", name: "Kevin Nguyen", type: "hourly", crewId: "CREW-1", gustoId: "G-1044" },
     { id: "EMP-5", name: "Dana Ruiz", type: "salaried", userId: "U-OFFICE" },
     { id: "EMP-6", name: "Tim Skelly", type: "salaried", userId: "U-OWNER" },

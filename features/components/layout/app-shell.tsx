@@ -8,6 +8,7 @@ import { useHydrated } from "@/features/lib/hooks";
 import { useVersion } from "@/features/lib/prototype-version";
 import { WebsiteInboxSync } from "@/components/WebsiteInboxSync";
 import { LeadMessageScheduler } from "@/components/leads/LeadMessageScheduler";
+import { NotifyCrewHost } from "@/components/scheduling/NotifyCrew";
 
 /** Customer-facing pages and the sign-in page: no Prototype bar or tour on top of them. */
 const PUBLIC_PATHS = ["/estimates/view", "/paint-record/view", "/website-form", "/login", "/r"];
@@ -31,7 +32,7 @@ export function FeatureShell({ children }: { children: ReactNode }) {
     <TooltipProvider>
       {children}
       {hydrated && !isPublic && <DemoBar />}
-      {hydrated && !isPublic && <><WebsiteInboxSync /><LeadMessageScheduler /></>}
+      {hydrated && !isPublic && <><WebsiteInboxSync /><LeadMessageScheduler /><NotifyCrewHost /></>}
       {hydrated && !isPublic && (
         <Suspense fallback={null}>
           <ProductTour />

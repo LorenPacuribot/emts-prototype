@@ -20,6 +20,7 @@ import { CrewModal } from '@/components/jobs/CrewModal';
 import { useJobActions } from '@/components/jobs/useJobActions';
 import { CrewBoard, CrewHoursGrid, JobBoard, MonthBoard, ScheduleToolbar, UnscheduledPanel, tabCls } from '@/components/scheduling/Boards';
 import { BulkRescheduleModal, JobDetailsPanel } from '@/components/scheduling/Panels';
+import { UnsentChangesButton, UnsentJobsProvider, useScheduleSaved } from '@/components/scheduling/NotifyCrew';
 import {
   ACTIVE_JOB_STATUSES, addDays, daysInclusive, defaultDurationDays, jobColor, monthWeeks, stepDate, weekDays, type ScheduleRange,
 } from '@/components/scheduling/schedule-utils';
@@ -35,6 +36,7 @@ export default function JobSchedulingPage() {
   const look = useLookups();
   const actions = useJobActions();
   const { toast } = useToast();
+  const scheduleSaved = useScheduleSaved();
 
   const [view, setView] = useState<View>('job');
   const [range, setRange] = useState<ScheduleRange>('week');
@@ -111,6 +113,7 @@ export default function JobSchedulingPage() {
         onStep={(d) => setRefDate((r) => stepDate(r, range, d))}
         onToday={() => setRefDate(new Date())}
         onBulk={() => setBulkOpen(true)}
+        actions={<UnsentChangesButton />}
       />
 
       {view === 'crew' && (
@@ -135,9 +138,11 @@ export default function JobSchedulingPage() {
         </div>
       )}
 
-      {renderBoard()}
+      <UnsentJobsProvider>
+        {renderBoard()}
 
-      {view === 'job' && <UnscheduledPanel jobs={unscheduled} customerName={(j) => fullName(look.customer(j.customerId))} onSelect={setSelectedId} />}
+        {view === 'job' && <UnscheduledPanel jobs={unscheduled} customerName={(j) => fullName(look.customer(j.customerId))} onSelect={setSelectedId} />}
+      </UnsentJobsProvider>
 
       <JobDetailsPanel
         job={selected}
@@ -154,7 +159,7 @@ export default function JobSchedulingPage() {
         title="Cancel Schedule"
         confirmLabel="Cancel schedule"
         message={<>This clears the dates for <b>{cancelJob?.title}</b> and moves it back to the Unscheduled backlog. Crew assignments are kept.</>}
-        onConfirm={() => { if (cancelJob) { actions.cancelSchedule(cancelJob.id); toast('Schedule canceled'); } }}
+        onConfirm={() => { if (cancelJob && actions.cancelSchedule(cancelJob.id) !== false) scheduleSaved([cancelJob.id]); }}
       />
       <BulkRescheduleModal open={bulkOpen} onOpenChange={setBulkOpen} />
     </PageShell>

@@ -27,6 +27,7 @@ import {
 } from './schedule-utils';
 import { CrewActualChip, CrewActualLegend } from './CrewActualHours';
 import { calendarSegments } from './shift-draft';
+import { ChangesNotSentPill } from './NotifyCrew';
 
 export const JOB_DND = 'application/x-emts-job';
 const isJobDrag = (e: DragEvent) => Array.from(e.dataTransfer.types).includes(JOB_DND);
@@ -55,8 +56,8 @@ export const tabCls = (active: boolean) =>
   cn('rounded-lg px-4 py-2 text-sm font-bold capitalize transition-all', active ? 'bg-white text-primary-700 shadow-sm' : 'text-gray-500 hover:text-gray-900');
 
 export function ScheduleToolbar({
-  range, onRange, refDate, onStep, onToday, onBulk,
-}: { range: ScheduleRange; onRange: (r: ScheduleRange) => void; refDate: Date; onStep: (d: -1 | 1) => void; onToday: () => void; onBulk: () => void }) {
+  range, onRange, refDate, onStep, onToday, onBulk, actions,
+}: { range: ScheduleRange; onRange: (r: ScheduleRange) => void; refDate: Date; onStep: (d: -1 | 1) => void; onToday: () => void; onBulk: () => void; /** Buttons beside Bulk Reschedule (JS-M3 Unsent changes). */ actions?: React.ReactNode }) {
   const eyebrow = range === 'month' ? 'Month' : range === 'day' ? 'Day' : 'Week Of';
   const label =
     range === 'day'
@@ -83,7 +84,8 @@ export function ScheduleToolbar({
           <button key={r} type="button" onClick={() => onRange(r)} className={tabCls(range === r)}>{r}</button>
         ))}
       </div>
-      <div className="flex items-center gap-2 border-l border-gray-200 pl-4">
+      <div className="flex flex-wrap items-center gap-2 border-l border-gray-200 pl-4">
+        {actions}
         <Button variant="secondary" icon={<CalendarClock className="h-4 w-4" />} onClick={onBulk}>Bulk Reschedule</Button>
       </div>
     </div>
@@ -127,6 +129,7 @@ function JobBar({ job, color, days, onSelect, compact }: { job: Job & { shiftLab
       {!compact && <span className="absolute right-1.5 top-1/2 -translate-y-1/2 text-xs font-black opacity-90">{days}d</span>}
       <span className="flex items-center gap-1 truncate pr-6">
         {job.scheduleProtected && <Lock className="h-3 w-3 shrink-0" aria-label="Protected" />}
+        <ChangesNotSentPill jobId={job.id} />
         <span className="truncate">{job.title} <span className="font-medium">({job.jobNumber})</span></span>
       </span>
       {!compact && job.startTime && <span className="truncate pr-6 text-xs font-semibold">{job.shiftLabel && <>{job.shiftLabel} · </>}{fmtTimeShort(job.startTime)} – {fmtTimeShort(job.endTime)}</span>}
@@ -242,6 +245,7 @@ export function MonthBoard({ jobs, weeks, month, colorOf, onSelect, onDrop }: Bo
                   className="absolute truncate rounded-md px-2 text-left text-xs font-bold shadow-sm hover:brightness-110"
                   style={{ left: `calc(${(startCol / 7) * 100}% + 2px)`, width: `calc(${(span / 7) * 100}% - 4px)`, top: row * BAR, height: BAR - 4, lineHeight: `${BAR - 4}px`, backgroundColor: colorOf(j), color: inkOn(colorOf(j)) }}
                 >
+                  <ChangesNotSentPill jobId={j.id} className="mr-1 align-middle" />
                   {j.title} <span className="font-medium">({j.jobNumber})</span>
                 </button>
               ))}

@@ -26,6 +26,8 @@ import { cn, fullName, longDate } from '@/lib/utils';
 import { usText } from '@/features/lib/display-text';
 import { addDays, daysInclusive, fmtDay, fmtSpan, fmtTime, workingJobDays, workingShiftDays, shiftWindow } from './schedule-utils';
 import { planReschedule, planSpecificDates } from '@/lib/scheduling';
+import { movedJobsTitle, useNotifyModal, useScheduleSaved } from './NotifyCrew';
+import { isVisible, useVersion } from '@/features/lib/prototype-version';
 
 const PRIORITIES = ['Low', 'Normal', 'High', 'Urgent'] as const;
 
@@ -178,6 +180,8 @@ export function BulkRescheduleModal({ open, onOpenChange }: { open: boolean; onO
   const { items: team } = useCollection('team');
   const { applySchedulePlan } = useJobActions();
   const { toast } = useToast();
+  const scheduleSaved = useScheduleSaved();
+  const version = useVersion((s) => s.version);
   const [mode, setMode] = useState<'push' | 'dates'>('push');
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
@@ -209,6 +213,10 @@ export function BulkRescheduleModal({ open, onOpenChange }: { open: boolean; onO
       ? `${chosen.length} job${chosen.length === 1 ? '' : 's'} shifted ${shift} day${Math.abs(shift) === 1 ? '' : 's'} (${reason})`
       : `${chosen.length} job${chosen.length === 1 ? '' : 's'} moved to new dates (${reason})`);
     onOpenChange(false);
+    const moved = chosen.map((j) => j.id);
+    // JS-C2: the Complete version asks straight away; Minimal leaves it to the toast.
+    if (isVisible('JS-C2', version)) useNotifyModal.getState().show({ jobIds: moved, title: movedJobsTitle(moved.length) });
+    else scheduleSaved(moved);
   };
 
   const protectedCount = affected.filter((j) => j.scheduleProtected).length;
