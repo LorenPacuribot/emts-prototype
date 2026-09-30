@@ -40,13 +40,23 @@ export function verifySession(token: string | undefined, secret: string | undefi
 }
 
 /**
- * The signing secret. Production needs AUTH_SECRET (32+ characters); without
- * it nobody can sign in. Development falls back to a fixed local secret.
+ * Prototype sign-in. On by default: the sign-in page is shown, but any
+ * username and password get in (see app/api/auth/login). Set AUTH_MODE=real
+ * to check real passwords again before real customer data is entered.
+ */
+export function demoLogin(): boolean {
+  return process.env.AUTH_MODE?.toLowerCase() !== 'real';
+}
+
+/**
+ * The signing secret. With real sign-in, production needs AUTH_SECRET (32+
+ * characters); without it nobody can sign in. Development, and the prototype
+ * sign-in, fall back to a fixed secret.
  */
 export function authSecret(): string | undefined {
   const s = process.env.AUTH_SECRET;
   if (s && s.length >= 32) return s;
-  if (process.env.NODE_ENV !== 'production') return 'emts-local-development-only-secret-not-for-production';
+  if (process.env.NODE_ENV !== 'production' || demoLogin()) return 'emts-local-development-only-secret-not-for-production';
   return undefined;
 }
 

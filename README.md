@@ -128,7 +128,9 @@ To connect a real backend later, replace the inside of these hooks with API call
 
 ## Sign-in
 
-Passwords are checked on the server (`app/api/auth/*`, `lib/auth/server.ts`). A successful sign-in sets an HttpOnly, signed `emts_session` cookie for 12 hours, and `proxy.ts` redirects any staff page to `/login` without it. Customer links, the website form and API routes stay public. Passwords are stored only as scrypt hashes on the server: in Supabase `app_state` under a key `/api/state` never serves, or in server memory in local development without Supabase. Five failed attempts lock a username for 15 minutes on that server instance.
+**Prototype sign-in (the default).** The sign-in page is shown, but any username and password get in, and the page says so. A known username (`tim`, `dana`, an email, `first.last`) signs you in as that person; anything else signs you in as the owner. No environment variables are needed for this. Set `AUTH_MODE=real` to switch to real password checking, described below, before any real customer data is entered.
+
+With `AUTH_MODE=real`, passwords are checked on the server (`app/api/auth/*`, `lib/auth/server.ts`). A successful sign-in sets an HttpOnly, signed `emts_session` cookie for 12 hours, and `proxy.ts` redirects any staff page to `/login` without it. Customer links, the website form and API routes stay public. Passwords are stored only as scrypt hashes on the server: in Supabase `app_state` under a key `/api/state` never serves, or in server memory in local development without Supabase. Five failed attempts lock a username for 15 minutes on that server instance.
 
 Set these private environment variables (never with `NEXT_PUBLIC_`):
 

@@ -1,6 +1,11 @@
 import { checkSignIn, clearFailures, clientIp, loadAccounts, loadCredentials, lockedFor, recordFailure, sessionCookie } from '@/lib/auth/server';
-import { authSecret } from '@/lib/auth/session-token';
-import type { SessionInfo } from '@/features/lib/auth/auth';
+import { authSecret, demoLogin } from '@/lib/auth/session-token';
+import { findAccount, type SessionInfo } from '@/features/lib/auth/auth';
+
+/** GET → whether this server uses the prototype sign-in (any password works). */
+export function GET() {
+  return Response.json({ demo: demoLogin() }, { headers: { 'Cache-Control': 'no-store' } });
+}
 
 /** POST { username, password } → sets the HttpOnly session cookie. */
 export async function POST(req: Request) {
@@ -26,7 +31,15 @@ export async function POST(req: Request) {
 
   let result;
   try {
-    result = await checkSignIn(await loadAccounts(), await loadCredentials(), username, password);
+    if (demoLogin()) {
+      // Prototype sign-in: any password. A known username signs in as that person
+      // (tim, dana, an email…); anything else signs in as the owner.
+      const accounts = await loadAccounts();
+      const account = findAccount(accounts, username) ?? accounts.find((a) => a.role === 'owner') ?? accounts[0];
+      result = account ? { ok: true as const, account } : { ok: false as const, error: 'No team members to sign in as.' };
+    } else {
+      result = await checkSignIn(await loadAccounts(), await loadCredentials(), username, password);
+    }
   } catch (err) {
     console.error('Sign-in failed', err);
     return Response.json({ error: "Sign-in isn't available right now. Try again in a minute." }, { status: 502 });

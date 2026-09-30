@@ -3,9 +3,10 @@
 /*
   Sign in (patent walkthroughs, step 1: "Log in to Estimate Master with a
   valid username and password").
-  The username is the first name, the email, or first.last. The password is
-  checked on the server (app/api/auth/login), which sets an HttpOnly session
-  cookie. No password or password hint is shown on this page.
+  The username is the first name, the email, or first.last. The server
+  (app/api/auth/login) sets an HttpOnly session cookie. In the prototype
+  sign-in (the default) any password works and this page says so; with
+  AUTH_MODE=real the password is checked and no hint is shown.
 */
 import React, { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -27,6 +28,15 @@ function LoginForm() {
   const [show, setShow] = useState(false);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [demo, setDemo] = useState(false);
+
+  // Prototype sign-in: the server accepts any password (AUTH_MODE isn't "real").
+  useEffect(() => {
+    fetch('/api/auth/login', { cache: 'no-store' })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d: { demo?: boolean } | null) => setDemo(!!d?.demo))
+      .catch(() => setDemo(false));
+  }, []);
 
   // Already signed in: go straight on.
   useEffect(() => {
@@ -102,9 +112,15 @@ function LoginForm() {
             <Button type="submit" className="w-full" loading={busy}>Sign in</Button>
           </div>
         </form>
-        <p className="mt-4 text-center text-xs text-gray-500">
-          Forgotten your password? Ask the owner or office manager to set a new one in Settings › Team Access.
-        </p>
+        {demo ? (
+          <p className="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-center text-xs text-amber-900">
+            Prototype sign-in: any username and password work. Use <b>tim</b> for the owner or <b>dana</b> for the office manager.
+          </p>
+        ) : (
+          <p className="mt-4 text-center text-xs text-gray-500">
+            Forgotten your password? Ask the owner or office manager to set a new one in Settings › Team Access.
+          </p>
+        )}
       </div>
     </div>
   );
