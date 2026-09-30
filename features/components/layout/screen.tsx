@@ -1,5 +1,5 @@
 "use client";
-import type { ReactNode } from "react";
+import { createContext, useContext, type ReactNode } from "react";
 import { cn } from "@/features/lib/cn";
 import { AppHeader } from "@/components/Navigation";
 import type { Crumb } from "./top-bar";
@@ -39,16 +39,29 @@ export function headerCrumbs(crumbs: Crumb[]) {
   return { title, breadcrumbs };
 }
 
-/** Page title block: "Job Management / Mission control for active projects." plus actions. */
-export function PageHeader({ title, subtitle, actions, eyebrow }: { title: ReactNode; subtitle?: ReactNode; actions?: ReactNode; eyebrow?: ReactNode }) {
+/**
+ * Content a module frame shows directly under every page title in it, such
+ * as the Workforce section tabs (see WorkforceFrame).
+ */
+export const PageHeaderBelow = createContext<ReactNode>(null);
+
+/**
+ * Page title block: "Job Management / Mission control for active projects." plus actions.
+ * `lead` sets the subtitle at 16–18px, like the live Contacts page.
+ */
+export function PageHeader({ title, subtitle, actions, eyebrow, lead }: { title: ReactNode; subtitle?: ReactNode; actions?: ReactNode; eyebrow?: ReactNode; lead?: boolean }) {
+  const below = useContext(PageHeaderBelow);
   return (
-    <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-      <div className="min-w-0">
-        {eyebrow && <div className="mb-2 flex flex-wrap items-center gap-1.5">{eyebrow}</div>}
-        <h1 className="font-heading text-3xl font-bold leading-tight tracking-tight text-balance text-ink md:text-4xl">{title}</h1>
-        {subtitle && <p className="mt-1.5 text-sm text-gray-500">{subtitle}</p>}
+    <div className="mb-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          {eyebrow && <div className="mb-2 flex flex-wrap items-center gap-1.5">{eyebrow}</div>}
+          <h1 className="font-heading text-3xl font-bold leading-tight tracking-tight text-balance text-ink md:text-4xl">{title}</h1>
+          {subtitle && <p className={lead ? "mt-2 max-w-3xl text-base text-gray-500 md:text-lg" : "mt-1.5 text-sm text-gray-500"}>{subtitle}</p>}
+        </div>
+        {actions && <div className="no-print flex flex-wrap items-center gap-2" data-tour="page-actions">{actions}</div>}
       </div>
-      {actions && <div className="no-print flex flex-wrap items-center gap-2" data-tour="page-actions">{actions}</div>}
+      {below && <div className="mt-6">{below}</div>}
     </div>
   );
 }

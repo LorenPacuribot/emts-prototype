@@ -33,9 +33,9 @@ export function weekOptions() {
   });
 }
 
-export function WeekSelect({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+export function WeekSelect({ value, onChange, className = "h-10 w-auto" }: { value: string; onChange: (v: string) => void; className?: string }) {
   return (
-    <Select value={value} onChange={(e) => onChange(e.target.value)} className="h-10 w-auto" aria-label="Pay week">
+    <Select value={value} onChange={(e) => onChange(e.target.value)} className={className} aria-label="Pay week">
       {weekOptions().map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
     </Select>
   );
@@ -48,6 +48,10 @@ export function dayLabel(day: string, weekday = true): string {
   return dt.toLocaleDateString("en-US", weekday ? { weekday: "short", month: "short", day: "numeric" } : { month: "short", day: "numeric" });
 }
 
+export function employeeTypeLabel(type: string): string {
+  return type === "hourly" ? "Hourly" : type === "salaried" ? "Salaried" : "Subcontractor";
+}
+
 export function timeLabel(iso?: string): string {
   if (!iso) return "—";
   return new Date(iso).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
@@ -57,11 +61,11 @@ export function HoursCell({ minutes, muted }: { minutes: number; muted?: boolean
   return <span className={muted ? "tabular-nums text-gray-500" : "tabular-nums font-semibold text-ink"}>{hm(minutes)}</span>;
 }
 
-export function JobChips({ rows }: { rows: { jobId?: string; allocated: number }[] }) {
+export function JobChips({ rows, large }: { rows: { jobId?: string; allocated: number }[]; large?: boolean }) {
   return (
     <div className="flex flex-wrap gap-1">
       {rows.map((r) => (
-        <span key={r.jobId ?? "oh"} className={`rounded-md px-1.5 py-0.5 text-xs font-semibold ${r.jobId ? "bg-blue-50 text-blue-700" : "bg-gray-100 text-gray-500"}`}>
+        <span key={r.jobId ?? "oh"} className={`rounded-md font-semibold ${large ? "px-2 py-0.5 text-[13px]" : "px-1.5 py-0.5 text-xs"} ${r.jobId ? "bg-blue-50 text-blue-700" : "bg-gray-100 text-gray-600"}`}>
           {r.jobId ?? "Overhead"} {hm(r.allocated)}
         </span>
       ))}
