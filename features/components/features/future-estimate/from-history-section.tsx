@@ -46,7 +46,7 @@ export function FromHistorySection({ estimate, rep }: { estimate: Estimate; rep:
   const [proposeFor, setProposeFor] = useState<(typeof rep.lines)[number]>();
 
   return (
-    <EstimateSection id="section-from-history" isNew>
+    <EstimateSection id="section-from-history">
       <SectionHeader
         icon={<History />}
         title="From history"

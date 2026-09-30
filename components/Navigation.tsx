@@ -17,6 +17,7 @@ import { Avatar } from './ui/display';
 import { DropdownMenu } from './ui/menu';
 import { useSignOut } from './auth/AuthGate';
 import { NotificationBell } from './NotificationBell';
+import { SyncStatusBar } from './RemoteStateGate';
 
 export interface Crumb {
   label: string;
@@ -34,6 +35,7 @@ export function AppHeader({ title, breadcrumbs = [], backHref }: { title: string
   const canGoBack = hasHistory || !!backHref;
 
   return (
+    <>
     <header className="sticky top-0 z-40 flex h-16 md:h-20 shrink-0 items-center justify-between border-b border-gray-200 bg-white px-4 md:px-6 shadow-sm print:hidden">
       <div className="flex min-w-0 items-center gap-3 md:gap-4">
         <button onClick={() => setOpen(true)} className="-ml-2 rounded-lg p-2 text-gray-500 hover:bg-gray-100 lg:hidden" aria-label="Open menu">
@@ -89,6 +91,9 @@ export function AppHeader({ title, breadcrumbs = [], backHref }: { title: string
       />
       </div>
     </header>
+    {/* Offline notice: a slim bar under the header, not over the page. */}
+    <SyncStatusBar />
+    </>
   );
 }
 

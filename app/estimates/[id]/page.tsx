@@ -33,7 +33,7 @@ import { useToast } from '@/components/ui/toast';
 import { useDb, useLookups, useSingleton } from '@/lib/store';
 import { estimateTotals, round2 } from '@/lib/calculations';
 import { longDate, uid } from '@/lib/utils';
-import { EstimateToolbar } from '@/components/estimates/EstimateToolbar';
+import { EstimateToolbar, TOOLBAR_CHIP } from '@/components/estimates/EstimateToolbar';
 import { ClientInfo, DocHeader } from '@/components/estimates/EstimateInfo';
 import { AreaBlock } from '@/components/estimates/AreaBlock';
 import { AddToEstimateModal, SurfacePickerModal } from '@/components/estimates/AddModals';
@@ -45,7 +45,7 @@ import { useSendEstimateEmail } from '@/components/estimates/useSendEstimateEmai
 import { customerLinkFor } from '@/lib/estimate-email';
 import { useEstimateActions } from '@/components/estimates/useEstimateActions';
 import {
-  ApprovedEstimateActions, ChangeOrdersBlock, FromHistoryBlock, LineColourCell, PaintCardSection, PaintMaterialsSection,
+  useApprovedEstimateActions, useCardApproval, ChangeOrdersBlock, FromHistoryBlock, LineColourCell, PaintCardSection, PaintMaterialsSection,
   assignLineColour, useLineColours, useProtoEstimate,
 } from '@/components/estimates/FeatureSections';
 import { act } from '@/features/lib/store';
@@ -89,6 +89,12 @@ export default function EstimateBuilderPage() {
   const [paintColourId, setPaintColourId] = useState<string>();
   const [creatingCo, setCreatingCo] = useState(false);
   const amending = proto.est?.status === 'AMENDED_DRAFT';
+  // Amend Estimate and + Create Change Order (rules in useApprovedEstimateActions); the toolbar places them.
+  const approvedActions = useApprovedEstimateActions(id, () => {
+    setCreatingCo(true);
+    document.getElementById('section-change-orders')?.scrollIntoView({ behavior: 'smooth' });
+  });
+  const cardApproval = useCardApproval(id);
   const painting = !!paintColourId && proto.editable;
   // A colour typed on a line that hasn't reached the colour card yet: saved first, assigned once the line syncs.
   const [pendingColour, setPendingColour] = useState<{ lineId: string; colourId: string } | null>(null);
@@ -375,26 +381,20 @@ export default function EstimateBuilderPage() {
           saving={autosavePending}
           lastSavedAt={lastSavedAt}
           f={{
-            actions: (
-              <ApprovedEstimateActions
-                estimateId={draft.id}
-                onCreateChangeOrder={() => {
-                  setCreatingCo(true);
-                  document.getElementById('section-change-orders')?.scrollIntoView({ behavior: 'smooth' });
-                }}
-              />
-            ),
+            approved: approvedActions,
+            amending,
             chips: (
               <>
                 <button
                   type="button"
                   onClick={() => document.getElementById('section-paint-card')?.scrollIntoView({ behavior: 'smooth' })}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-green-200 bg-green-50 px-3 py-1.5 text-xs font-bold text-green-700 hover:bg-green-100"
+                  className={`${TOOLBAR_CHIP} border-green-200 bg-green-50 text-green-700 hover:bg-green-100`}
                 >
-                  <Palette className="h-3.5 w-3.5" /> Color Card
+                  <Palette className="h-3.5 w-3.5" />
+                  <span>Color Card{cardApproval && cardApproval.total > 0 ? ` · ${cardApproval.approved}/${cardApproval.total} approved` : ''}</span>
                 </button>
                 {(proto.est?.amendmentNumber ?? 0) > 0 && (
-                  <span className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-700">Amendment #{proto.est!.amendmentNumber}</span>
+                  <span className={`${TOOLBAR_CHIP} border-amber-200 bg-amber-50 text-amber-700`}>Amendment #{proto.est!.amendmentNumber}</span>
                 )}
                 <DeliveryBadges
                   estimate={draft}
@@ -557,9 +557,10 @@ export default function EstimateBuilderPage() {
               onChange={(p) => edit((e) => ({ ...e, ...p }))}
             />
 
-            <LaborSummary estimate={draft} paintLabel={paintLabel} />
-
+            {/* Live order: Paint & Materials, then Labor Summary. */}
             <PaintMaterialsSection estimateId={draft.id} />
+
+            <LaborSummary estimate={draft} paintLabel={paintLabel} />
 
             <FinalizeSection
               estimate={draft}

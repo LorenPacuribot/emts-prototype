@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { AlertTriangle } from 'lucide-react';
 import { loadRemoteState, onRemoteChange, type RemoteChange, type RemoteStatus } from '@/lib/remote-state';
 import { describeConflict } from '@/lib/json-merge';
 import { reloadTombstones } from '@/lib/bridge/sync';
@@ -20,9 +21,37 @@ async function start(): Promise<RemoteStatus> {
   return status;
 }
 
+const OFFLINE_TEXT = 'Shared data is unavailable. Changes are saved in this browser only.';
+
+/**
+ * The offline notice's place. A page header (AppHeader) claims it and shows a
+ * slim bar under itself; pages without one (customer links) keep the small
+ * floating notice. Same condition and text either way.
+ */
+const SyncStatusContext = createContext<{ offline: boolean; claimBar: () => () => void }>({ offline: false, claimBar: () => () => undefined });
+
+/** The offline notice as a full-width bar under the page header. */
+export function SyncStatusBar() {
+  const { offline, claimBar } = useContext(SyncStatusContext);
+  useEffect(() => claimBar(), [claimBar]);
+  if (!offline) return null;
+  return (
+    <div role="status" className="flex min-h-10 shrink-0 items-center justify-center gap-2 border-b border-amber-200 bg-amber-50 px-4 py-2 text-center text-sm text-amber-800 print:hidden">
+      <AlertTriangle className="h-4 w-4 shrink-0" aria-hidden />
+      {OFFLINE_TEXT}
+    </div>
+  );
+}
+
 export function RemoteStateGate({ children }: { children: React.ReactNode }) {
   const [status, setStatus] = useState<RemoteStatus>();
   const [notice, setNotice] = useState<{ conflicts: string[] }>();
+  const [bars, setBars] = useState(0);
+  const claimBar = useCallback(() => {
+    setBars((n) => n + 1);
+    return () => setBars((n) => n - 1);
+  }, []);
+  const sync = useMemo(() => ({ offline: status === 'offline', claimBar }), [status, claimBar]);
 
   useEffect(() => {
     loading ??= start();
@@ -43,11 +72,11 @@ export function RemoteStateGate({ children }: { children: React.ReactNode }) {
   if (!status) return <div className="min-h-screen bg-gray-50" />;
   const clashes = notice ? [...new Set(notice.conflicts.map(describeConflict))] : [];
   return (
-    <>
+    <SyncStatusContext.Provider value={sync}>
       {children}
-      {status === 'offline' && (
+      {status === 'offline' && bars === 0 && (
         <div role="status" className="fixed bottom-3 left-1/2 z-[100] -translate-x-1/2 rounded-full bg-amber-100 px-4 py-1.5 text-xs font-medium text-amber-900 shadow">
-          Shared data is unavailable. Changes are saved in this browser only.
+          {OFFLINE_TEXT}
         </div>
       )}
       {notice && (
@@ -68,6 +97,6 @@ export function RemoteStateGate({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       )}
-    </>
+    </SyncStatusContext.Provider>
   );
 }

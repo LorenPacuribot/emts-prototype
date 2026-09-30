@@ -18,6 +18,8 @@ export interface MenuItem {
   danger?: boolean;
   disabled?: boolean;
   separatorBefore?: boolean;
+  /** A line under the label, e.g. why a disabled item is off. */
+  hint?: string;
 }
 
 export function DropdownMenu({
@@ -41,12 +43,20 @@ export function DropdownMenu({
                 onSelect={() => it.onClick()}
                 className={cn(
                   'flex cursor-pointer select-none items-center gap-2 rounded-lg px-3 py-2 text-sm outline-none',
-                  'data-[disabled]:opacity-40 data-[disabled]:cursor-not-allowed',
+                  it.hint ? 'data-[disabled]:opacity-70' : 'data-[disabled]:opacity-40',
+                  'data-[disabled]:cursor-not-allowed',
                   it.danger ? 'text-red-600 data-[highlighted]:bg-red-50' : 'text-gray-700 data-[highlighted]:bg-gray-100',
                 )}
               >
                 {it.icon && <span className="w-4 h-4 flex items-center [&>svg]:w-4 [&>svg]:h-4">{it.icon}</span>}
-                {it.label}
+                {it.hint ? (
+                  <span className="flex min-w-0 flex-col">
+                    <span>{it.label}</span>
+                    <span className="max-w-[16rem] text-xs leading-snug text-gray-500">{it.hint}</span>
+                  </span>
+                ) : (
+                  it.label
+                )}
               </DM.Item>
             </React.Fragment>
           ))}

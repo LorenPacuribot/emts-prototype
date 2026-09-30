@@ -22,7 +22,7 @@ import { now } from "@/features/lib/clock";
 import { estimateHref } from "@/features/lib/hrefs";
 import { CO_STATUS, CO_TYPE } from "@/features/lib/status";
 import { coLinkState, coPricing, contractSummary, currentLink, jobChangeOrders, jobColourReapprovals, runDailyChecks } from "@/features/lib/store/actions/change-orders";
-import { Badge, Banner, Button, Card, CardLabel, EmptyState, EstimateSection, IdChip, NewBadge, PillTabs, RowMenu, SectionHeader, Stat, StatStrip, Table, TD, TH, THead, TR } from "@/features/components/ui";
+import { Badge, Banner, Button, Card, CardLabel, EmptyState, EstimateSection, IdChip, NewBadge, PillTabs, RowMenu, SectionHeader, Stat, Table, TD, TH, THead, TR } from "@/features/components/ui";
 import { approvalStateLabel, billingStateLabel, StatusBadge, TypeBadge } from "./shared";
 import { NewCoModal } from "./co-modals";
 import { CoBuilder } from "./co-builder";
@@ -61,7 +61,7 @@ export function ChangeOrdersSection({ job, estimateId, creating, setCreating }: 
 
   if (!job.contractSigned) {
     return (
-      <EstimateSection id="section-change-orders" isNew>
+      <EstimateSection id="section-change-orders">
         {header()}
         <Banner tone="info" title="Change orders start once the customer signs.">
           Until then the estimate itself is edited and sent again. A change order is only raised against a signed scope.
@@ -97,7 +97,7 @@ export function ChangeOrdersSection({ job, estimateId, creating, setCreating }: 
   }
 
   return (
-    <EstimateSection id="section-change-orders" isNew>
+    <EstimateSection id="section-change-orders">
       {header(
         <>
           {can(user, "co.exceptions") && (
@@ -114,7 +114,8 @@ export function ChangeOrdersSection({ job, estimateId, creating, setCreating }: 
       )}
 
       {canPrice ? (
-        <StatStrip className="mb-4">
+        // One gray-50 summary tile, like the estimate's Scope Totals.
+        <div data-tour="stat-strip" className="mb-4 grid grid-cols-2 gap-4 rounded-2xl border border-gray-200 bg-gray-50 p-4 sm:grid-cols-3 md:p-5 lg:grid-cols-5">
           <Stat label="Original contract" value={money(summary.original)} hint="pre-tax, preserved" />
           <Stat label="Approved net changes" value={money(summary.approvedNet)} hint={`${cos.filter((c) => c.status === "approved" || c.status === "disputed").length} signed`} tone={summary.approvedNet < 0 ? "warn" : "default"} />
           <Stat label="Revised contract total" value={money(summary.revisedTotal)} tone="brand" hint={summary.proposedNet ? `${money(summary.proposedNet)} proposed, not signed` : "pre-tax"} />
@@ -125,7 +126,7 @@ export function ChangeOrdersSection({ job, estimateId, creating, setCreating }: 
             tone={summary.deposit.triggered ? "warn" : "good"}
             hint={summary.deposit.triggered ? `Target ${money(summary.deposit.target)} · due ${money(summary.deposit.due)} (${summary.triggeredBy.join(", ")})` : "Within 25% of original"}
           />
-        </StatStrip>
+        </div>
       ) : (
         <Banner tone="info" className="mb-4" title="Prices are not shown for your role">You can see what changes and its state. Estimators, the Office Manager, the Business Owner and the Bookkeeper see amounts.</Banner>
       )}
@@ -143,6 +144,7 @@ export function ChangeOrdersSection({ job, estimateId, creating, setCreating }: 
           Change order list
         </CardLabel>
         <PillTabs
+          kind="segment"
           className="mt-4"
           value={filter}
           onChange={setFilter}

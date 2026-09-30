@@ -33,7 +33,7 @@ export function DeliveryBadges({ estimate, onRetry, retrying, className }: { est
       {latest.map((d) => {
         const Icon = ICON[d.status];
         return (
-          <span key={d.id} title={`${TITLE[d.status]}${d.providerMessageId ? ` Message id: ${d.providerMessageId}` : ''}`} className={cn('inline-flex max-w-full items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-bold', STYLE[d.status])}>
+          <span key={d.id} title={`${TITLE[d.status]}${d.providerMessageId ? ` Message id: ${d.providerMessageId}` : ''}`} className={cn('inline-flex min-h-8 max-w-full items-center gap-1.5 rounded-lg border px-3 py-1 text-xs font-bold', STYLE[d.status])}>
             <Icon className="h-3.5 w-3.5 shrink-0" aria-hidden />
             <span className="min-w-0 break-words">{deliveryText(d)}</span>
           </span>
@@ -44,7 +44,7 @@ export function DeliveryBadges({ estimate, onRetry, retrying, className }: { est
           type="button"
           onClick={onRetry}
           disabled={retrying}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-red-300 bg-white px-3 py-1.5 text-xs font-bold text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-red-300 bg-white px-3 text-xs font-bold text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
         >
           <RotateCw className={cn('h-3.5 w-3.5', retrying && 'animate-spin')} aria-hidden /> {retrying ? 'Retrying…' : 'Retry'}
         </button>

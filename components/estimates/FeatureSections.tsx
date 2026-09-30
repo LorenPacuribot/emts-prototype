@@ -14,7 +14,7 @@
   mirrored on the next sync tick), so every wrapper renders nothing then.
 */
 import React, { Suspense, useEffect, useMemo, useRef, useState } from 'react';
-import { FilePlus2, Package, PaintBucket, Palette, PencilLine, Printer } from 'lucide-react';
+import { Package, PaintBucket, Palette, Printer } from 'lucide-react';
 import type { Estimate as PEstimate, Job as PJob } from '@/features/types';
 import { act, useCurrentUser, useDb } from '@/features/lib/store';
 import { useParam } from '@/features/lib/navigation';
@@ -27,12 +27,11 @@ import { byId } from '@/features/lib/selectors';
 import { can } from '@/features/lib/permissions';
 import { money } from '@/features/lib/format';
 import { toast } from '@/features/lib/toast';
-import { Button as FButton, EmptyState, EstimateSection, NewBadge, SectionHeader, Swatch, Tooltip } from '@/features/components/ui';
+import { Button as FButton, EmptyState, EstimateSection, NewBadge, SectionHeader, Swatch } from '@/features/components/ui';
 import { PaintColors } from '@/features/components/features/estimates/details/paint-colors';
 import { ChangeOrdersSection } from '@/features/components/features/change-orders/change-orders-section';
 import { FromHistorySection } from '@/features/components/features/future-estimate/from-history-section';
 import { PreliminaryListModal } from '@/features/components/features/materials/side-panels';
-import { Button } from '@/components/ui/button';
 import { ConfirmDialog } from '@/components/Modals/Modal';
 import { cn } from '@/lib/utils';
 
@@ -54,7 +53,7 @@ export function PaintCardSection({ estimateId, paintColourId, onPaint, onSave, r
   if (!job) {
     return (
       <EstimateSection id="section-paint-card">
-        <SectionHeader icon={<Palette />} title="Paint Color Card" right={<NewBadge feature={3} />} />
+        <SectionHeader icon={<Palette />} title="Paint Color Card" badge={<NewBadge feature={3} />} />
         <EmptyState
           icon={<Palette />}
           title="No colors on this estimate yet"
@@ -175,47 +174,51 @@ export function assignLineColour(estimateId: string, lineId: string, colourId: s
 
 /* ---------- Change Orders (feature 24) ---------- */
 
-/** Toolbar actions for an approved estimate: Amend (rule D4) and + Create Change Order. */
-export function ApprovedEstimateActions({ estimateId, onCreateChangeOrder }: { estimateId: string; onCreateChangeOrder: () => void }) {
+/** What the toolbar needs for an approved estimate: Amend (rule D4) and + Create Change Order. */
+export interface ApprovedEstimateActionState {
+  showAmend: boolean;
+  /** Set = Amend is blocked, and this says why (amendBlockedReason). */
+  amendBlock?: string;
+  showCo: boolean;
+  openAmend: () => void;
+  onCreateChangeOrder: () => void;
+  /** The "Amend Estimate" confirmation; render it once on the page. */
+  confirmDialog: React.ReactNode;
+}
+
+/**
+ * The rules for Amend and Create Change Order, in one place. The toolbar
+ * decides where the buttons, the blocked-reason line and the menu items go.
+ */
+export function useApprovedEstimateActions(estimateId: string, onCreateChangeOrder: () => void): ApprovedEstimateActionState {
   const { est, job, wo } = useProtoEstimate(estimateId);
   const user = useCurrentUser();
   const [confirm, setConfirm] = useState(false);
-  if (!est) return null;
-  const amendBlock = amendBlockedReason(est, wo?.status);
-  const showAmend = est.status === 'ACCEPTED' && can(user, 'estimate.amend');
-  const showCo = !!job && changeOrderAllowed(est) && can(user, 'co.build');
-  return (
-    <>
-      {showAmend && (
-        <span className="inline-flex max-w-[18rem] flex-col gap-1">
-          <Tooltip content={amendBlock ?? 'Open this accepted estimate for editing'}>
-            <span data-tour="amend-button" className="inline-flex">
-              <Button variant="secondary" disabled={!!amendBlock} onClick={() => setConfirm(true)} icon={<PencilLine className="h-4 w-4" />} aria-describedby={amendBlock ? 'amend-blocked-reason' : undefined}>
-                Amend Estimate
-              </Button>
-            </span>
-          </Tooltip>
-          {amendBlock && <span id="amend-blocked-reason" className="text-xs leading-snug text-gray-500">{amendBlock}</span>}
-        </span>
-      )}
-      {showCo && (
-        <Button variant="secondary" onClick={onCreateChangeOrder} icon={<FilePlus2 className="h-4 w-4" />} data-tour="create-change-order">
-          Create Change Order <NewBadge feature={24} className="ml-1" />
-        </Button>
-      )}
-      <ConfirmDialog
-        open={confirm}
-        onOpenChange={setConfirm}
-        title="Amend Estimate"
-        message="Open this accepted estimate for editing? The customer will not be notified until you click 'Send for Re-approval'."
-        confirmLabel="Open for Editing"
-        variant="primary"
-        onConfirm={() => {
-          if (act(amendEstimate, est.id).ok) toast.success('Estimate opened for editing', 'Customer will not be notified until you click "Send for Re-approval".');
-        }}
-      />
-    </>
-  );
+  const amendBlock = est ? amendBlockedReason(est, wo?.status) : undefined;
+  const showAmend = !!est && est.status === 'ACCEPTED' && can(user, 'estimate.amend');
+  const showCo = !!est && !!job && changeOrderAllowed(est) && can(user, 'co.build');
+  const confirmDialog = est ? (
+    <ConfirmDialog
+      open={confirm}
+      onOpenChange={setConfirm}
+      title="Amend Estimate"
+      message="Open this accepted estimate for editing? The customer will not be notified until you click 'Send for Re-approval'."
+      confirmLabel="Open for Editing"
+      variant="primary"
+      onConfirm={() => {
+        if (act(amendEstimate, est.id).ok) toast.success('Estimate opened for editing', 'Customer will not be notified until you click "Send for Re-approval".');
+      }}
+    />
+  ) : null;
+  return { showAmend, amendBlock, showCo, openAmend: () => setConfirm(true), onCreateChangeOrder, confirmDialog };
+}
+
+/** The color card's approval count, as its section shows it ("2/3 approved"); undefined before the card exists. */
+export function useCardApproval(estimateId: string): { approved: number; total: number } | undefined {
+  const { db, job } = useProtoEstimate(estimateId);
+  if (!job) return undefined;
+  const specs = db.specs.filter((s) => s.jobId === job.id && s.state !== 'superseded');
+  return { approved: specs.filter((s) => s.state === 'approved').length, total: specs.length };
 }
 
 /** Change Orders section; `?newco=1` opens the builder, `?co=<id>` opens one change order. */

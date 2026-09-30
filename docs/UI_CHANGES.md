@@ -222,6 +222,27 @@ At 1280×720, 1440×900, 1920×1080 and 390×844 on 44 routes (production build,
 - Reports › Stats has 15 green-on-white figures under 4.5:1 contrast. They were there before this change and were left, as it's not a layout issue.
 - Label wording elsewhere in Accounting (page titles "Financial Alerts", "Search the Books", "Recurring Expenses") is unchanged.
 
+### Estimate page header and new sections back on the live layout
+
+Layout and styling only. `amendBlockedReason`, `changeOrderAllowed`, the `can(...)` checks, `sendDisabledReason`, `hideApprove` and `sendLabel` are unchanged. The rule checks from `ApprovedEstimateActions` now live in one hook, `useApprovedEstimateActions`, and the toolbar decides where each action shows. The `data-tour` anchors `estimate-toolbar`, `send-estimate`, `amend-button` and `create-change-order` are all still on rendered elements.
+
+- **Header layout** (`components/estimates/EstimateToolbar.tsx`): title block on the left (`min-w-0 flex-1`, no `min-w-[300px]`), one action row on the right, in the live order: secondary buttons, then the one primary, then ⋮. The title stays on one line from 1280px up; below that the actions move under the title. All chips (EST number, status, lead, Color Card with its approval count, Amendment #, delivery, save state) share one shape (`h-8 rounded-lg px-3 text-xs font-bold`) and sit on one row.
+- **Visible buttons per status:** Draft: Save, Client Preview, Mark Approved, **Send**. Sent or viewed: Client Preview, Mark Approved, **Resend**. Approved, work not started: Client Preview, Amend Estimate, **View Job** or **Convert to Job**. Approved, work started: Client Preview, Create Change Order, **View Job**. Editing an amendment: Save, **Send for Re-approval**, with an "Editing Amendment" status chip and a line saying the customer isn't notified until you send.
+- **Offline notice** (`components/RemoteStateGate.tsx`, `components/Navigation.tsx`): a slim full-width amber bar under the page header instead of a pill floating over the page. Same condition, same text. Pages with no header, such as customer links, still show the small floating notice.
+- **Sections:** Change Orders and From History lose the green outline and keep a small NEW badge by the heading. The Change Orders summary is one gray tile, and its filters use the live segmented control (`PillTabs kind="segment"`). The Paint Color Card's controls sit beside the heading without the green box; Send for approval is an outline button, since the page's primary action is in the header; the signed-scope notice is one gray line. Paint & Materials now comes before Labor Summary, the live order.
+
+#### Moved actions (estimate header)
+
+| Action | Was | Now |
+| --- | --- | --- |
+| Amend Estimate, when blocked (work started) | A disabled button with a two-line reason under it | A line under the chips with a lock icon ("Work has started, so the signed scope is locked. Use a change order for any changes."), plus a disabled ⋮ › Amend Estimate item showing the same reason |
+| Create Change Order, when Amend is also available | A button in the header | ⋮ › Create Change Order, first item (same handler) |
+| Save / Edit on a sent, viewed or approved estimate | A button in the header | ⋮ › Save or ⋮ › Edit, at the top (same handler) |
+| Client Preview while editing an amendment | A button in the header | ⋮ › Client Preview, first item (same handler) |
+| View Job / Convert to Job | Between secondary buttons | Last before ⋮, as the one primary |
+
+Checked in a production build at 1280, 1440 and 1920px on EST-2026-1 (work started), EST-2026-10 and EST-2026-8 (Draft), EST-2026-5 (Sent), EST-2026-3 and EST-2026-6 (approved), EST-2026-41 (approved, no job), and EST-2026-3 while editing an amendment. Each time the title was on one line, the chips on one row, all buttons lined up, there was exactly one primary, and nothing floated over the document. Create Change Order, Amend (through to Send for Re-approval), Resend, Mark Approved, Convert to Job and View Job all still work. The product-tour check found the same anchors as before this change.
+
 ## Moved, not removed
 
 | Action | Was | Now |

@@ -85,9 +85,9 @@ export function PaintColors({ job, editable, paintColourId, onPaint }: {
       <SectionHeader
         icon={<Palette />}
         title="Paint Color Card"
+        badge={<NewBadge feature={3} />}
         right={
-          <div className="flex flex-wrap items-center gap-2 rounded-xl border border-green-200 bg-green-50/40 px-2 py-1.5" data-tour="colour-card-tools">
-            <NewBadge feature={3} />
+          <div className="flex flex-wrap items-center gap-2" data-tour="colour-card-tools">
             <Select value={viewVersion} onChange={(e) => setViewVersion(Number(e.target.value))} className="h-8 w-auto py-0 text-xs" aria-label="Card version">
               <option value={job.cardVersion}>Card v{job.cardVersion} (current)</option>
               {[...snapshots].reverse().map((s) => (
@@ -120,7 +120,7 @@ export function PaintColors({ job, editable, paintColourId, onPaint }: {
             </Button>
             {canCard && (
               <>
-                <Button size="sm" variant="primary" onClick={() => setSendFor({ open: true })} data-tour="send-approval">
+                <Button size="sm" variant="outline" onClick={() => setSendFor({ open: true })} data-tour="send-approval">
                   <Send className="h-3.5 w-3.5" /> Send for approval
                 </Button>
                 <RowMenu
@@ -143,9 +143,9 @@ export function PaintColors({ job, editable, paintColourId, onPaint }: {
         </Banner>
       )}
       {job.contractSigned && !snapshot && (
-        <Banner tone="info" className="mb-4" title={<span className="inline-flex items-center gap-2">Signed scope <NewBadge feature={[3, 24]} /></span>}>
-          The customer signed this card. An office-only change (same brand, line and color, no price change) is saved by the Office Manager. Anything else needs a change order.
-        </Banner>
+        <p className="mb-4 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-600">
+          Signed by the customer. Office-only changes (same brand, line and color, no price change) are saved by the Office Manager. Anything else needs a change order.
+        </p>
       )}
       {flags.map((f) => (
         <Banner key={f.id} tone="warn" className="mb-4" title={<span className="inline-flex items-center gap-2">Affected commitments</span>}

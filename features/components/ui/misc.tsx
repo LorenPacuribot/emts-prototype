@@ -9,7 +9,9 @@ import { useRoomy } from "./roomy";
 /**
  * One component for tabs and filters, two looks (H4, S5):
  * - kind="view": top-level views of a screen, underline tabs;
- * - default ("filter"): filters and choices inside a view, small outline chips.
+ * - default ("filter"): filters and choices inside a view, small outline chips;
+ * - kind="segment": the live segmented control (gray track, the active item white),
+ *   used for filters inside estimate-page sections.
  * A view row and a filter row never look the same.
  */
 export function PillTabs<T extends string>({ options, value, onChange, className, kind = "filter" }: {
@@ -17,9 +19,30 @@ export function PillTabs<T extends string>({ options, value, onChange, className
   value: T;
   onChange: (v: T) => void;
   className?: string;
-  kind?: "view" | "filter";
+  kind?: "view" | "filter" | "segment";
 }) {
   const roomy = useRoomy();
+  if (kind === "segment") {
+    return (
+      <div className={cn("inline-flex max-w-full gap-1 overflow-x-auto rounded-xl bg-gray-100 p-1 no-scrollbar", className)} role="tablist" data-tour="pill-tabs">
+        {options.map((o) => (
+          <button
+            key={o.value}
+            role="tab"
+            aria-selected={value === o.value}
+            onClick={() => onChange(o.value)}
+            className={cn(
+              "inline-flex h-9 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg px-3 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400/60",
+              value === o.value ? "bg-white text-ink shadow-sm" : "text-gray-600 hover:text-ink",
+            )}
+          >
+            {o.label}
+            {o.count !== undefined && <span className="text-xs font-bold text-gray-500">{o.count}</span>}
+          </button>
+        ))}
+      </div>
+    );
+  }
   if (kind === "view") {
     return (
       <div className={cn("flex gap-1 overflow-x-auto border-b border-gray-200 custom-scrollbar", roomy && "gap-3", className)} role="tablist" data-tour="pill-tabs">
