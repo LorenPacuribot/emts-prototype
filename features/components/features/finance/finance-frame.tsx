@@ -16,7 +16,7 @@ import type { User } from "@/features/types";
 import { useCurrentUser, useDb } from "@/features/lib/store";
 import { can } from "@/features/lib/permissions";
 import { PageHeaderBelow, Screen } from "@/features/components/layout/screen";
-import { SectionTabs } from "@/features/components/layout/section-tabs";
+import { AreaNav, type Area } from "@/features/components/layout/area-nav";
 import { Button, ConfirmBadge, EmptyState } from "@/features/components/ui";
 import { SettingsShell } from "@/features/components/features/settings/settings-shell";
 import { dateTime } from "@/features/lib/format";
@@ -41,6 +41,16 @@ export const FINANCE_TABS = [
 
 export type FinanceTabKey = (typeof FINANCE_TABS)[number]["key"];
 
+/** The Accounting navigation's areas (L2). Reports and Vendors & Mappings live elsewhere. */
+const FINANCE_AREAS: { key: string; label: string; pages: FinanceTabKey[] }[] = [
+  { key: "overview", label: "Overview", pages: ["accounting", "alerts", "search"] },
+  { key: "money", label: "Money in and out", pages: ["queue", "unallocated", "bills", "reimbursements"] },
+  { key: "banking", label: "Banking", pages: ["checkbook", "feeds", "recurring"] },
+];
+
+/** Shorter names in the navigation only; page titles and breadcrumbs keep the full ones. */
+const NAV_LABEL: Partial<Record<FinanceTabKey, string>> = { alerts: "Alerts", search: "Search", recurring: "Recurring" };
+
 export function canSeeFinanceTab(user: User, key: FinanceTabKey) {
   if (key === "reimbursements") return can(user, "finance.access") || user.role === "crew_lead";
   if (key === "reports") return can(user, "finance.reports");
@@ -59,27 +69,31 @@ export function FinanceFrame({ tab, children }: { tab: FinanceTabKey; children: 
 
   if (tab === "setup") {
     return (
-      <SettingsShell page="accounting" subtitle="QuickBooks Online connection, vendors, cost codes, account mappings, periods and migration.">
+      <SettingsShell page="accounting" subtitle="QuickBooks connection, vendors, cost codes, account mappings, periods and migration.">
         <QuickBooksConnectionCard />
         {children}
       </SettingsShell>
     );
   }
 
-  // Sections as an underline tab row under the page title (no second sidebar).
-  const tabs = (
-    <SectionTabs
-      label="Accounting sections"
-      note={<><ConfirmBadge /> <span>QuickBooks Online owns the ledger. Estimate Master owns the job. Nothing here moves money.</span></>}
-      groups={[FINANCE_TABS.filter((t) => t.key !== "setup" && canSeeFinanceTab(user, t.key)).map((t) => ({
-        href: t.path, label: t.label, icon: t.icon, active: t.key === tab,
-        badge: t.key === "queue" ? rejected || undefined : t.key === "unallocated" ? toCode || undefined : t.key === "reimbursements" ? claims || undefined : t.key === "feeds" ? toReview || undefined : t.key === "alerts" ? alerts || undefined : undefined,
-      }))]}
-    />
-  );
+  // Two levels (L2): Overview, Money in and out, Banking, then the chosen area's pages.
+  // Role filtering is unchanged: an area with no page the user can see is hidden.
+  const badgeFor = (key: FinanceTabKey) =>
+    key === "queue" ? rejected || undefined : key === "unallocated" ? toCode || undefined : key === "reimbursements" ? claims || undefined : key === "feeds" ? toReview || undefined : key === "alerts" ? alerts || undefined : undefined;
+  const page = (key: FinanceTabKey) => {
+    const t = FINANCE_TABS.find((x) => x.key === key)!;
+    return { href: t.path, label: NAV_LABEL[key] ?? t.label, icon: t.icon, active: key === tab, badge: badgeFor(key) };
+  };
+  const areas: Area[] = FINANCE_AREAS.map((a) => ({ key: a.key, label: a.label, pages: a.pages.filter((k) => canSeeFinanceTab(user, k)).map(page) }));
+  const elsewhere = [
+    ...(canSeeFinanceTab(user, "reports") ? [{ href: FINANCE_TABS.find((t) => t.key === "reports")!.path, label: "Reports" }] : []),
+    ...(canSeeFinanceTab(user, "setup") ? [{ href: FINANCE_TABS.find((t) => t.key === "setup")!.path, label: "Vendors & mappings" }] : []),
+  ];
+  const tabs = <AreaNav label="Accounting areas" areas={areas} elsewhere={elsewhere} note={<><ConfirmBadge /> <span>Nothing here moves money.</span></>} />;
+  const area = FINANCE_AREAS.find((a) => (a.pages as readonly FinanceTabKey[]).includes(tab));
 
   return (
-    <Screen roomy crumbs={[{ label: "Accounting", href: can(user, "finance.access") ? "/accounting" : "/accounting/reimbursements" }, { label: meta.label }]}>
+    <Screen roomy crumbs={[{ label: "Accounting", href: can(user, "finance.access") ? "/accounting" : "/accounting/reimbursements" }, ...(area ? [{ label: area.label }] : []), { label: meta.label }]}>
       {canSeeFinanceTab(user, tab) ? (
         <PageHeaderBelow.Provider value={tabs}>{children}</PageHeaderBelow.Provider>
       ) : (

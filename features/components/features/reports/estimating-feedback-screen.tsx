@@ -117,7 +117,7 @@ export function Feedback() {
     <>
       <PageHeader
         title="Estimating Feedback"
-        subtitle="When estimating assumptions drift from what happens in the field: how fast crews cover an area, and how far a gallon goes. Nothing about markup or selling price."
+        subtitle="Where estimating assumptions drift from what happens in the field." details="How fast crews cover an area, and how far a gallon goes. Nothing about markup or selling price."
         actions={
           <>
             <Button onClick={csv} disabled={!current}><Download className="h-4 w-4" /> Export Evidence CSV</Button>

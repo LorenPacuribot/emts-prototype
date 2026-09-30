@@ -52,7 +52,7 @@ function Library() {
     <>
       <PageHeader
         title="Lifespan Library"
-        subtitle="How long paint lasts, from our field experience. Used to estimate service timing — never shown to customers as a warranty."
+        subtitle="How long paint lasts, from our field experience." details="Used to estimate service timing — never shown to customers as a warranty."
         actions={owner ? <Button variant="primary" onClick={() => setEdit(true)}><Pencil className="h-4 w-4" /> Edit defaults</Button> : undefined}
       />
       <Banner tone="success" className="mb-4" title={`Rule version ${lib.version} published ${date(lib.updatedAt)} by ${byId(db.users, lib.updatedBy)?.name}`}>

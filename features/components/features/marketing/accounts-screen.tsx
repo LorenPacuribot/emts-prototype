@@ -24,7 +24,7 @@ import { PlatformChip } from "./shared";
 
 export function AccountsScreen() {
   return (
-    <SettingsShell page="social-accounts" subtitle="Facebook and Instagram publishing only. The business owner controls the accounts; the office drafts and posts.">
+    <SettingsShell page="social-accounts" subtitle="Facebook and Instagram publishing accounts." details="Publishing only. The business owner controls the accounts; the office drafts and posts.">
       <Accounts />
     </SettingsShell>
   );

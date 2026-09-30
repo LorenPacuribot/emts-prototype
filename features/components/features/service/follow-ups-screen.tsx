@@ -89,7 +89,7 @@ function FollowUps() {
     <>
       <PageHeader
         title="Follow-Ups"
-        subtitle="One property conversation per qualified alert. Calls are made by people, and every email needs a person to press send."
+        subtitle="One property conversation per qualified alert." details="Calls are made by people, and every email needs a person to press send."
         actions={
           <>
             {office && <Button onClick={() => setFilter("qualified")}><UserPlus className="h-4 w-4" /> Assign</Button>}

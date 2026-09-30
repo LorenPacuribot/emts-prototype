@@ -57,7 +57,7 @@ function SocialInbox() {
     <>
       <PageHeader
         title="Social Inbox"
-        subtitle="Comments, direct messages and mentions from every connected platform. Reply, assign, mark done, or create a lead attributed to the platform, post, ad and campaign. Sandbox: replies are recorded, not posted."
+        subtitle="Comments, messages and mentions from every connected platform." details="Reply, assign, mark done, or create a lead attributed to the platform, post, ad and campaign. Sandbox: replies are recorded, not posted."
         actions={checkButton}
       />
       <StatStrip className="mb-4">

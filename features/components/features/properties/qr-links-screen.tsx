@@ -65,7 +65,7 @@ export function QrLinksPanel({ property }: { property: Property }) {
     <>
       <PageHeader
         title="QR Links"
-        subtitle="One read-only link per ownership period. No login: possession of the link grants access, so it shows only what is safe to share."
+        subtitle="One read-only link per ownership period." details="No login: possession of the link grants access, so it shows only what is safe to share."
         actions={
           <>
             {active ? (

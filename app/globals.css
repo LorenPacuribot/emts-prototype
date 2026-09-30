@@ -216,3 +216,14 @@
     line-height: 1.5rem;
   }
 }
+
+/*
+  L3: paragraphs in feature screens stop at about 75 characters, so the eye
+  doesn't lose its place on wide screens. In the base layer, so a paragraph
+  with its own max-w-* utility keeps it.
+*/
+@layer base {
+  .readable p {
+    max-width: 75ch;
+  }
+}

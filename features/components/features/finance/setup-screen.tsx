@@ -60,7 +60,7 @@ function Setup() {
     <>
       <PageHeader
         title="Vendors & Mappings"
-        subtitle="Accounting configuration. The bookkeeper owns the mappings, the owner approves cost codes and activates vendors. One business, one location, US dollars, calendar year, accrual books."
+        subtitle="Accounting setup: vendors, cost codes and account mappings." details="The bookkeeper owns the mappings; the owner approves cost codes and activates vendors. One business, one location, US dollars, calendar year, accrual books."
         actions={
           can(user, "finance.auditExport") ? <Button onClick={audit}><Download className="h-4 w-4" /> Audit export (CSV)</Button> : (
             <Tooltip content="The CSV audit export is restricted to the bookkeeper and the business owner."><span><Button disabled><FileLock2 className="h-4 w-4" /> Audit export</Button></span></Tooltip>

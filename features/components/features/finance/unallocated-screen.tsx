@@ -40,7 +40,7 @@ function Unallocated() {
 
   return (
     <>
-      <PageHeader title="Unallocated" subtitle="QuickBooks records with no job or cost code. QuickBooks never edits a job or cost code, so allocation conflicts can't happen — these are coded here." />
+      <PageHeader title="Unallocated" subtitle="QuickBooks records with no job or cost code, waiting to be coded here." details="QuickBooks never edits a job or cost code, so allocation conflicts can't happen." />
       <Card className="mb-4 p-4" data-tour="unallocated-list">
         <CardLabel icon={<Inbox />}>Waiting to be coded</CardLabel>
         <div className="mt-3">

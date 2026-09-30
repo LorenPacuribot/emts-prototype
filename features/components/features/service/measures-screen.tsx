@@ -65,7 +65,7 @@ function Measures() {
     <>
       <PageHeader
         title="Monthly Measures"
-        subtitle="What the repaint programme produced. Contacts are conversations only; unsuccessful attempts are counted separately. Won means a signed contract, not a completed repaint."
+        subtitle="What the repaint program produced." details="Contacts are conversations only; unsuccessful attempts are counted separately. Won means a signed contract, not a completed repaint."
         actions={
           <div className="flex items-center gap-2">
             <Select value={range} onChange={(e) => setRange(e.target.value)} className="h-10 w-40" aria-label="Range">

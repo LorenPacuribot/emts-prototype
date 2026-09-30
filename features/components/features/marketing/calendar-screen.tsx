@@ -67,7 +67,7 @@ function Calendar() {
     <>
       <PageHeader
         title="Content Calendar"
-        subtitle="Drafted, approved, scheduled, published, missed and failed posts, by local date. The target is two posts a week, about ten a month."
+        subtitle="Every post by local date, from draft to published." details="Drafted, approved, scheduled, published, missed and failed posts. The target is two posts a week, about ten a month."
         actions={
           <>
             <Button onClick={() => { const r = act(runScheduler); if (r.ok) toast.success("Scheduler run", `${r.value?.missed} newly missed, ${r.value?.waiting} late and waiting for you. Nothing published automatically.`); }}><Timer className="h-4 w-4" /> Run scheduler</Button>

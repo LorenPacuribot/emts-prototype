@@ -41,7 +41,7 @@ function RunLog() {
     <>
       <PageHeader
         title="Run Log"
-        subtitle="The nightly job runs at 2 a.m. local time. A failed run stays visible until the office marks it resolved; the next run catches up without duplicates."
+        subtitle="Each nightly repaint alert run, at 2 a.m. local time." details="A failed run stays visible until the office marks it resolved; the next run catches up without duplicates."
         actions={<RunControls />}
       />
       <RunFailureBanner className="mb-4" />

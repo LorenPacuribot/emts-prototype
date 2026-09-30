@@ -58,7 +58,7 @@ function Returns() {
     <>
       <PageHeader
         title="Returns and Credits"
-        subtitle="Untinted, unopened product returned to the branch, with the credit linked to the original order and job."
+        subtitle="Untinted, unopened product returned to the branch, with its credit." details="The credit is linked to the original order and job."
         actions={
           <>
             <Button onClick={exportCsv}><Download className="h-4 w-4" /> Export</Button>

@@ -49,7 +49,7 @@ export function OwnershipPanel({ property }: { property: Property }) {
     <>
       <PageHeader
         title="Owners & Consent"
-        subtitle="Access is scoped to the current ownership period. A new owner does not automatically see the previous owner's history."
+        subtitle="Access follows the current ownership period." details="A new owner does not automatically see the previous owner's history."
         actions={
           <Button variant="primary" onClick={() => setSale(true)} disabled={!can(user, "property.ownershipChange")} title={can(user, "property.ownershipChange") ? undefined : "Office Manager or Business Owner"}>
             <Users className="h-4 w-4" /> Record ownership change

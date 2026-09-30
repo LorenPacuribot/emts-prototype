@@ -112,7 +112,7 @@ function Review() {
       <PageHeader
         title="Time and Payroll"
         lead
-        subtitle="Approve clocked time before it goes to Gusto. Only approved hours reach job costing and the payroll export."
+        subtitle="Approve clocked time before it goes to Gusto." details="Only approved hours reach job costing and the payroll export."
         actions={
           // Phone: week select full width, the buttons two to a row under it. Wide screens: one row.
           <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-wrap lg:flex-nowrap">

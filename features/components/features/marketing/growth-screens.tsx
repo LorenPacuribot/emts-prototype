@@ -82,7 +82,7 @@ function Promotions() {
 
   return (
     <>
-      <PageHeader title="Promotions & Referrals" subtitle="Discounts, coupons, seasonal offers and service packages with the code customers quote, plus referral programmes where each referrer has their own code." actions={promos.length > 0 && newButton} />
+      <PageHeader title="Promotions & Referrals" subtitle="Offers and codes customers quote, plus referral programs." details="Discounts, coupons, seasonal offers and service packages with the code customers quote, plus referral programs where each referrer has their own code." actions={promos.length > 0 && newButton} />
       {promos.length === 0 ? (
         <EmptyState icon={<Ticket />} title="No promotions yet" body="Create an offer with a code customers can quote, or a referral programme for existing customers." action={newButton} />
       ) : (
@@ -371,7 +371,7 @@ function Reviews() {
     <>
       <PageHeader
         title="Reviews & Testimonials"
-        subtitle="Reviews from Facebook and Google in one place: answer each one, turn the best into testimonials (owner approval, first name and initial only), and ask finished customers for a review."
+        subtitle="Facebook and Google reviews in one place, to answer and share." details="Answer each one, turn the best into testimonials (owner approval, first name and initial only), and ask finished customers for a review."
         actions={<>
           <GatedButton allowed={canPost} reason={reason} onClick={() => setRecording(true)}><Plus className="h-4 w-4" /> Record review</GatedButton>
           <GatedButton allowed={canPost} reason={reason} variant="primary" onClick={() => setRequesting(true)}><Send className="h-4 w-4" /> Request a review</GatedButton>
@@ -599,7 +599,7 @@ function Messages() {
 
   return (
     <>
-      <PageHeader title="Email & SMS Campaigns" subtitle="Messages to a saved audience segment, personalized with {{first_name}} and the offer {{code}}. Opted-out and unreachable people are skipped and logged. Sandbox: nothing leaves the app." actions={<>
+      <PageHeader title="Email & SMS" subtitle="Email and SMS messages to a saved audience segment." details="Personalized with {{first_name}} and the offer {{code}}. Opted-out and unreachable people are skipped and logged. Sandbox: nothing leaves the app." actions={<>
         <GatedButton allowed={canPost} reason={reason} onClick={() => { setTab("segments"); setSegEditing("new"); }}><Users className="h-4 w-4" /> New segment</GatedButton>
         {newMessage}
       </>} />

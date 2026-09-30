@@ -87,7 +87,7 @@ function Insights() {
 
   return (
     <>
-      <PageHeader title="Alerts, Recommendations & Search" subtitle="What changed, what needs someone now, what to do next, and a search across every marketing record." />
+      <PageHeader title="Insights" subtitle="What changed, what needs someone now, and what to do next." details="Alerts, recommendations, and a search across every marketing record." />
       <div className="grid gap-4 xl:grid-cols-2 [&>*]:min-w-0">
         <Card className="p-4">
           <SectionTitle>Alerts ({alerts.length + now_.length})</SectionTitle>

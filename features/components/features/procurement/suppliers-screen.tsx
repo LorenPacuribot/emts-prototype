@@ -43,7 +43,7 @@ function Suppliers() {
     <>
       <PageHeader
         title="Suppliers and Branches"
-        subtitle="The branch profiles every order depends on. A branch needs a name, store number, account number and phone before it can receive orders."
+        subtitle="The branch profiles every order depends on." details="A branch needs a name, store number, account number and phone before it can receive orders."
         actions={perms.setup && <Button variant="primary" onClick={() => setEdit({ open: true, supplierId: "SUP-SW" })}><Plus className="h-4 w-4" /> Add branch</Button>}
       />
       {!perms.setup && (

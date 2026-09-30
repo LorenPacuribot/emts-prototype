@@ -1,3 +1,4 @@
+"use client";
 /**
  * Building blocks copied from the live app's markup, plus the NEW marker.
  *
@@ -9,6 +10,7 @@ import type { ReactNode } from "react";
 import { Sparkles } from "lucide-react";
 import { cn } from "@/features/lib/cn";
 import { Tooltip } from "./menu";
+import { useHowThisWorks } from "@/features/components/layout/how-this-works";
 
 /** Small "NEW" marker for a section, tab, button, column or field added by a feature. */
 export function NewBadge({ feature, className }: { feature?: number | number[]; className?: string }) {
@@ -43,14 +45,17 @@ export function ConfirmBadge({ className }: { className?: string }) {
  * Estimate-page section header: 48px round icon + text-2xl heading
  * (estimates/details/components/paint-colors.tsx).
  */
-export function SectionHeader({ icon, title, badge, right, subtitle, className }: {
+export function SectionHeader({ icon, title, badge, right, subtitle, details, className }: {
   icon: ReactNode;
   title: ReactNode;
   badge?: ReactNode;
   right?: ReactNode;
   subtitle?: ReactNode;
+  /** Rules and detail behind a "How this works" button (the subtitle stays one sentence). */
+  details?: ReactNode;
   className?: string;
 }) {
+  const how = useHowThisWorks(details);
   return (
     <div className={cn("mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between md:mb-8", className)}>
       <div className="flex min-w-0 items-center gap-4">
@@ -61,8 +66,10 @@ export function SectionHeader({ icon, title, badge, right, subtitle, className }
           <h3 className="flex flex-wrap items-center gap-2 font-heading text-xl font-bold text-gray-900 md:text-2xl">
             {title}
             {badge}
+            {how.button}
           </h3>
-          {subtitle && <p className="mt-0.5 text-sm text-gray-500">{subtitle}</p>}
+          {subtitle && <p className="mt-0.5 max-w-[90ch] text-sm text-gray-500">{subtitle}</p>}
+          {how.panel}
         </div>
       </div>
       {right && <div className="flex flex-wrap items-center gap-2">{right}</div>}

@@ -79,7 +79,7 @@ function Accounting() {
     <>
       <PageHeader
         title="Accounting"
-        subtitle="Job-level financial records exchanged with QuickBooks Online. QuickBooks owns amounts and dates; Estimate Master owns the job and cost code."
+        subtitle="Job-level records exchanged with QuickBooks Online." details="QuickBooks owns amounts and dates; Estimate Master owns the job and cost code."
         actions={
           <>
             {can(user, "finance.recordPayment") && <Button onClick={() => setPaying(true)}><Banknote className="h-4 w-4" /> Record external payment</Button>}

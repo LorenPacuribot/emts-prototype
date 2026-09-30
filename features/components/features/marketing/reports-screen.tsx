@@ -44,7 +44,7 @@ function Report() {
   const hasCampaigns = (db.mktCampaigns ?? []).length > 0;
   return (
     <>
-      <PageHeader title="Monthly Report" subtitle="Posts published and leads by source, then what each campaign produced: leads, jobs, revenue, spend, customer acquisition cost and ROI."
+      <PageHeader title="Monthly Report" subtitle="Posts, leads by source, and what each campaign produced." details="For each campaign: leads, jobs, revenue, spend, customer acquisition cost and ROI."
         actions={<Button className={TAP} variant="primary" onClick={() => act(logMonthlyReport, month).ok && toast.success(`Report for ${month} produced`, "Logged with the unavailable metrics named.")}><FileBarChart className="h-4 w-4" /> Produce report</Button>} />
       <Card className="mb-4 p-4"><Field label="Month" htmlFor="rep-month"><Input id="rep-month" type="month" value={month} onChange={(e) => setMonth(e.target.value)} className="w-48" /></Field></Card>
       <StatStrip className="mb-4" data-tour="marketing-report">

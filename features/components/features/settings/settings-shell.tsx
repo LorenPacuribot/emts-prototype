@@ -14,10 +14,13 @@ import { can } from "@/features/lib/permissions";
 import { cn } from "@/features/lib/cn";
 import { Banner, ConfirmBadge, NewBadge } from "@/features/components/ui";
 import { SETTINGS_GROUPS, SETTINGS_PERMISSIONS, SETTINGS_TITLES } from "./settings-config";
+import { useHowThisWorks } from "@/features/components/layout/how-this-works";
 
-export function SettingsShell({ page, subtitle, actions, subTabs, children }: {
+export function SettingsShell({ page, subtitle, details, actions, subTabs, children }: {
   page: string;
   subtitle?: ReactNode;
+  /** Rules and detail behind a "How this works" button (the subtitle stays one sentence). */
+  details?: ReactNode;
   actions?: ReactNode;
   /** Sub-pages inside one settings page (e.g. Suppliers › Product Mapping). */
   subTabs?: { href: string; label: string; active: boolean }[];
@@ -27,6 +30,7 @@ export function SettingsShell({ page, subtitle, actions, subTabs, children }: {
   const item = SETTINGS_GROUPS.flatMap((g) => g.items).find((i) => i.id === page);
   const perm = SETTINGS_PERMISSIONS[page];
   const allowed = !perm || can(user, perm);
+  const how = useHowThisWorks(details);
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-8 pb-24 md:px-8 lg:py-10">
       {allowed ? (
@@ -36,8 +40,10 @@ export function SettingsShell({ page, subtitle, actions, subTabs, children }: {
               <h1 className="flex flex-wrap items-center gap-3 font-heading text-3xl font-bold tracking-tight text-gray-900">
                 {SETTINGS_TITLES[page]}
                 {item?.isNew && <span className="flex items-center gap-2"><NewBadge feature={item.feature} />{item.needsConfirmation && <ConfirmBadge />}</span>}
+                {how.button}
               </h1>
-              {subtitle && <p className="mt-2 text-base text-gray-500">{subtitle}</p>}
+              {subtitle && <p className="mt-2 max-w-[90ch] text-base text-gray-500">{subtitle}</p>}
+              {how.panel}
             </div>
             {actions && <div className="no-print flex flex-wrap items-center gap-3" data-tour="page-actions">{actions}</div>}
           </div>

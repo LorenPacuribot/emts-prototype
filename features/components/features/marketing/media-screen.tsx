@@ -43,7 +43,7 @@ function Media() {
   const takedowns = db.marketingPosts.filter((p) => p.takedown);
   return (
     <>
-      <PageHeader title="Media Library" subtitle="Finished job photographs with their release evidence. Only the neighbourhood is ever shown; job media and releases are kept ten years against the job, unless a personal-data deletion overrides it." />
+      <PageHeader title="Media Library" subtitle="Finished job photos, with the release evidence for each." details="Only the neighborhood is ever shown. Job media and releases are kept ten years against the job, unless a personal-data deletion overrides it." />
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_340px] [&>*]:min-w-0">
         <Card className="p-4" data-tour="marketing-library">
           <CardLabel>Job media</CardLabel>

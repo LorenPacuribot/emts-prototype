@@ -10,13 +10,13 @@
  * (33, needs client confirmation).
  */
 import type { ReactNode } from "react";
-import { Activity, BarChart3, Briefcase, ClipboardList, Clock3, Coins, FileSpreadsheet, Gauge, Landmark, Target, TrendingUp } from "lucide-react";
+import { Activity, BarChart3, Briefcase, ClipboardList, Clock3, Coins, FileSpreadsheet, Gauge, Landmark, Target, TrendingUp, type LucideIcon } from "lucide-react";
 import { useCurrentUser } from "@/features/lib/store";
-import { useNav } from "@/features/lib/navigation";
 import { can } from "@/features/lib/permissions";
 import { reportsHref } from "@/features/lib/hrefs";
 import { Screen } from "@/features/components/layout/screen";
-import { ConfirmBadge, LiveTabs } from "@/features/components/ui";
+import { AreaNav, type Area } from "@/features/components/layout/area-nav";
+import { ConfirmBadge } from "@/features/components/ui";
 
 export const REPORT_TABS = [
   { key: "estimates", label: "Estimates Log", icon: <FileSpreadsheet /> },
@@ -34,25 +34,41 @@ export const REPORT_TABS = [
 
 export type ReportTabKey = (typeof REPORT_TABS)[number]["key"];
 
+/** The Reports navigation's areas (L2). Activity Log is a link on the right. */
+const REPORT_AREAS: { key: string; label: string; tabs: ReportTabKey[] }[] = [
+  { key: "sales", label: "Sales", tabs: ["estimates", "jobs_sold", "sales", "summary"] },
+  { key: "production", label: "Production", tabs: ["production", "job_performance", "estimating_feedback"] },
+  { key: "finance", label: "Finance", tabs: ["job_margin", "income_expense", "aged_receivables"] },
+];
+
+/** Icon components for the navigation (REPORT_TABS holds rendered icons). */
+const TAB_ICON: Record<ReportTabKey, LucideIcon> = {
+  estimates: FileSpreadsheet, jobs_sold: Briefcase, sales: TrendingUp, production: ClipboardList, job_performance: BarChart3, summary: Target,
+  activity: Activity, estimating_feedback: Gauge, job_margin: Landmark, income_expense: Coins, aged_receivables: Clock3,
+};
+
 export function ReportsFrame({ tab, children }: { tab: ReportTabKey; children: ReactNode }) {
   const user = useCurrentUser();
-  const nav = useNav();
   const meta = REPORT_TABS.find((t) => t.key === tab)!;
   const finance = can(user, "finance.reports");
+  // The tab stays in ?tab= (reportsHref). Finance reports are hidden, as before, for roles without finance.
+  const hidden = (k: ReportTabKey) => { const t = REPORT_TABS.find((x) => x.key === k)!; return "finance" in t && t.finance && !finance; };
+  const areas: Area[] = REPORT_AREAS.map((a) => ({
+    key: a.key, label: a.label,
+    pages: a.tabs.filter((k) => !hidden(k)).map((k) => ({ href: reportsHref(k), label: REPORT_TABS.find((t) => t.key === k)!.label, icon: TAB_ICON[k], active: k === tab })),
+  }));
   return (
     <Screen crumbs={[{ label: "Reports" }]} bare>
       <div className="w-full overflow-auto bg-gray-50/50 px-4 py-8 pb-32 md:px-8 lg:px-12">
-        <h1 className="mb-2 font-heading text-3xl font-black tracking-tight text-gray-900 md:text-4xl">Reports &amp; Analytics</h1>
-        <p className="mb-6 text-gray-500">Performance metrics, job logs, and financial forecasting.</p>
-        <LiveTabs<ReportTabKey>
-          variant="track"
-          className="mb-8"
-          value={tab}
-          onChange={(k) => nav.push(reportsHref(k))}
-          tabs={REPORT_TABS.map((t) => ({ key: t.key, label: t.label, icon: t.icon, isNew: "isNew" in t && t.isNew, feature: "feature" in t ? t.feature : undefined, hidden: "finance" in t && t.finance && !finance }))}
-        />
-        {"finance" in meta && meta.finance && <div className="-mt-5 mb-5"><ConfirmBadge /></div>}
-        {children}
+        <div className="mx-auto w-full max-w-[1440px]">
+          <h1 className="mb-2 font-heading text-3xl font-black tracking-tight text-gray-900 md:text-4xl">Reports &amp; Analytics</h1>
+          <p className="mb-6 text-gray-500">Performance metrics, job logs, and financial forecasting.</p>
+          <div className="mb-8">
+            <AreaNav label="Report areas" areas={areas} elsewhere={[{ href: reportsHref("activity"), label: "Activity Log", active: tab === "activity" }]} />
+          </div>
+          {"finance" in meta && meta.finance && <div className="-mt-5 mb-5"><ConfirmBadge /></div>}
+          {children}
+        </div>
       </div>
     </Screen>
   );

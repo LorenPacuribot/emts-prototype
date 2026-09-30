@@ -72,7 +72,7 @@ export function ChangeOrderExceptionsPanel() {
       <PageHeader
         eyebrow={<Badge tone="indigo" icon={<Clock3 className="h-3 w-3" />}>Produced {dateTime(listTime(nowIso))}</Badge>}
         title="Change Order Exceptions"
-        subtitle="The office manager's daily 7 a.m. list across all jobs. Retry runs only the missing action; succeeded actions are never reapplied."
+        subtitle="The office manager's daily 7 a.m. list, across all jobs." details="Retry runs only the missing action; actions that succeeded are never reapplied."
       />
       <StatStrip className="mb-4">
         <Stat label="Failed downstream actions" value={failCount} tone={failCount ? "danger" : "good"} />

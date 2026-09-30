@@ -56,7 +56,7 @@ export function ReordersPanel({ property }: { property: Property }) {
     <>
       <PageHeader
         title="Touch-Up Reorders"
-        subtitle="Small paint sales against this property's record: up to two gallons, paid first, no estimate."
+        subtitle="Small paint sales against this property's record." details="Up to two gallons, paid first, with no estimate."
         actions={canAct && <Button variant="primary" onClick={() => setForm({ open: true })}><Plus className="h-4 w-4" /> Start reorder</Button>}
       />
       <Banner tone="info" className="mb-4" title="A paint sale is not painting work">

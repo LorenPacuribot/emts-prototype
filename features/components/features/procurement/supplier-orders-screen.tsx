@@ -94,7 +94,7 @@ function Board() {
     <>
       <PageHeader
         title="Supplier Orders"
-        subtitle="Every order across both branches: how it was sent, whether the branch acknowledged it, and what has arrived."
+        subtitle="Every order across both branches, from sending to arrival." details="How each order was sent, whether the branch acknowledged it, and what has arrived."
         actions={
           <>
             <Select value={branch} onChange={(e) => setBranch(e.target.value)} className="h-10 w-auto" aria-label="Branch filter">

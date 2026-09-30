@@ -64,7 +64,7 @@ function Campaigns() {
     <>
       <PageHeader
         title="Campaigns"
-        subtitle="Leads, posts, marketing spend and tracked links attach to a campaign, so each one shows the leads, estimates, jobs won, revenue, spend, CAC and ROI it produced."
+        subtitle="Each campaign with the leads, jobs, revenue and ROI it produced." details="Leads, posts, marketing spend and tracked links attach to a campaign, so each one shows the leads, estimates, jobs won, revenue, spend, CAC and ROI it produced."
         actions={campaigns.length > 0 && newButton}
       />
       {campaigns.length === 0 ? (

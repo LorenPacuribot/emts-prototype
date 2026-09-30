@@ -110,7 +110,10 @@ export function PageShell({
     <>
       <AppHeader title={title} breadcrumbs={breadcrumbs} backHref={backHref} />
       <main className="flex-1 overflow-auto">
-        <div className={cn(!noPadding && 'px-4 py-6 md:px-8 md:py-8 lg:px-9', contentClassName)}>{children}</div>
+        <div className={cn(!noPadding && 'px-4 py-6 md:px-8 md:py-8 lg:px-9', contentClassName)}>
+          {/* L7: padded list pages stop at 1440px on very wide screens. Full-bleed pages (noPadding) keep their width. */}
+          {noPadding ? children : <div className="mx-auto w-full max-w-[1440px]">{children}</div>}
+        </div>
       </main>
     </>
   );

@@ -54,7 +54,7 @@ function Batches() {
     <>
       <PageHeader
         title="Export Batches"
-        subtitle="Approved hourly time, sent to Gusto in the bookkeeper-approved CSV mapping. Gusto runs payroll; results come back per employee."
+        subtitle="Approved hourly time, sent to Gusto." details="Sent in the bookkeeper-approved CSV mapping. Gusto runs payroll; results come back per employee."
         actions={
           <>
             <WeekSelect value={week} onChange={setWeek} />

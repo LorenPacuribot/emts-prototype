@@ -99,7 +99,7 @@ function Automations() {
 
   return (
     <>
-      <PageHeader title="Automations" subtitle="Messages that go out on their own when something happens: an estimate goes unanswered, a job is finished, a season starts, or a customer has gone quiet." />
+      <PageHeader title="Automations" subtitle="Messages that go out on their own when something happens." details="For example when an estimate goes unanswered, a job is finished, a season starts, or a customer has gone quiet." />
       <Banner tone="info" className="mb-4" title="Sandbox">Messages are recorded in the run history and the customer&apos;s history; no email or SMS provider is called. Opted-out customers are always skipped.</Banner>
       {autos.length === 0 ? (
         <EmptyState icon={<Workflow />} title="No automations yet" body="Add the five standard automations (estimate follow-up, review request, seasonal reminder, referral request, re-engagement). They start switched off." action={<GatedButton allowed={canPost} reason={postReason} variant="primary" onClick={addStandard}><Plus className="h-4 w-4" /> Add standard automations</GatedButton>} />

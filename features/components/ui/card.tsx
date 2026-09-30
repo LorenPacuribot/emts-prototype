@@ -44,7 +44,7 @@ export function MicroLabel({ children, className }: { children: ReactNode; class
 /** True inside a StatStrip, so a roomy Stat draws itself as its own card. */
 const InStatStrip = createContext(false);
 
-export function Stat({ label, value, hint, tone }: { label: string; value: ReactNode; hint?: ReactNode; tone?: "default" | "brand" | "warn" | "danger" | "good" }) {
+export function Stat({ label, value, hint, tone, className }: { label: string; value: ReactNode; hint?: ReactNode; tone?: "default" | "brand" | "warn" | "danger" | "good"; className?: string }) {
   const roomy = useRoomy();
   const inStrip = useContext(InStatStrip);
   const color =
@@ -52,15 +52,15 @@ export function Stat({ label, value, hint, tone }: { label: string; value: React
   if (roomy && inStrip) {
     // The live StatCard look used on Time and Payroll: 13px label, 30–34px number.
     return (
-      <Card className="flex min-w-0 flex-col p-4 md:p-6">
+      <Card className={cn("flex min-w-0 flex-col p-4 md:p-6", className)}>
         <div className="text-[13px] font-bold uppercase tracking-[0.12em] text-gray-500">{label}</div>
         <div className={cn("mt-2 break-words font-heading text-[26px] font-extrabold leading-tight tabular-nums md:text-[30px]", color)}>{value}</div>
-        {hint && <div className="mt-2 text-sm text-gray-500">{hint}</div>}
+        {hint && <div className="mt-auto pt-2 text-sm text-gray-500">{hint}</div>}
       </Card>
     );
   }
   return (
-    <div className="min-w-0">
+    <div className={cn("min-w-0", className)}>
       <MicroLabel>{label}</MicroLabel>
       <div className={cn("mt-1 font-display text-lg font-bold leading-tight", color)}>{value}</div>
       {hint && <div className="mt-0.5 text-xs text-gray-500">{hint}</div>}

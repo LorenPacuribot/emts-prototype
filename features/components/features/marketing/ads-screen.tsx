@@ -31,6 +31,8 @@ import { cents, GatedButton, SectionTitle, TAP, TAP_SCOPE, useConfirm } from "./
 const today = () => now().slice(0, 10);
 const STATUS_TONE: Record<SocialAdCampaign["status"], Tone> = { draft: "gray", pending_approval: "purple", approved: "blue", active: "green", paused: "amber", completed: "gray", rejected: "red", failed: "red" };
 const AD_PLATFORMS = SOCIAL_PLATFORMS.filter((p) => p.ads);
+/** Shorter status names on this screen; the status keys and the store's labels are unchanged. */
+const STATUS_TEXT: Record<SocialAdCampaign["status"], string> = { ...AD_STATUS_LABEL, pending_approval: "Waiting for owner", active: "Running · sandbox" };
 const budgetText = (a: Pick<SocialAdCampaign, "budget">) => `${cents(a.budget.amount)} ${a.budget.type === "daily" ? "a day" : "total"}`;
 const num = (n: number) => n.toLocaleString("en-US");
 
@@ -50,36 +52,75 @@ function Ads() {
   const newButton = <GatedButton allowed={canPost} reason={reason} variant="primary" onClick={() => setEditing("new")}><Plus className="h-4 w-4" /> New ad</GatedButton>;
   const running = ads.filter((a) => a.status === "active");
   const spend = ads.reduce((s, a) => s + (a.performance?.spend ?? 0), 0);
+  // Display-only groupings of the values above (no new maths in the store).
+  const pending = ads.filter((a) => a.status === "pending_approval");
+  const approvedTotal = ads.reduce((s, a) => s + (a.approval?.budget ?? 0), 0);
+  const spentPct = approvedTotal > 0 ? Math.round((spend / approvedTotal) * 100) : 0;
 
   return (
     <>
-      <PageHeader title="Ads" subtitle="Paid ads for a campaign: platform, budget, dates, creative from the media library and audience. The Business Owner approves every budget before an ad runs." actions={ads.length > 0 && newButton} />
-      <Banner tone="info" className="mb-4" title="Sandbox until platform keys are added">Approved ads are not sent to Facebook, Instagram or any other platform, and no money is spent. Results are simulated and marked Sandbox.</Banner>
+      <PageHeader title="Ads" subtitle="Paid ads for your campaigns. The owner approves every budget before an ad runs." details="Each ad has a platform, budget, dates, creative from the media library and an audience." actions={ads.length > 0 && newButton} />
+      <Banner tone="info" className="mb-6">
+        <span className="mr-2 inline-block rounded-md bg-blue-100 px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-blue-800">Sandbox</span>
+        Nothing is sent to Facebook or Instagram, and no money is spent. Results are simulated until platform keys are added.
+      </Banner>
       {ads.length === 0 ? (
         <EmptyState icon={<BadgeDollarSign />} title="No ads yet" body="Create an ad for a campaign. It is saved as a draft; the owner approves the budget before it runs." action={newButton} />
       ) : (
         <>
-          <StatStrip className="mb-4">
-            <Stat label="Running" value={running.length} hint={`${ads.length} ads in total`} />
-            <Stat label="Awaiting owner approval" value={ads.filter((a) => a.status === "pending_approval").length} tone={ads.some((a) => a.status === "pending_approval") ? "warn" : "default"} />
-            <Stat label="Approved spend" value={cents(ads.reduce((s, a) => s + (a.approval?.budget ?? 0), 0))} hint="Up to, across all ads" />
-            <Stat label="Spent so far" value={cents(spend)} hint="Sandbox results" />
+          <StatStrip className="mb-6">
+            <Stat label="Running" value={running.length} hint={`of ${ads.length} ad${ads.length === 1 ? "" : "s"}`} />
+            <Stat
+              label="Waiting for owner"
+              value={pending.length}
+              className={pending.length ? "border-purple-300 ring-1 ring-purple-100" : undefined}
+              hint={pending.length ? (
+                <button type="button" onClick={() => setOpenId(pending[0]!.id)} className="font-semibold text-primary-700 hover:underline">
+                  Review {pending[0]!.id} →
+                </button>
+              ) : "Nothing waiting"}
+            />
+            <Stat label="Approved spend" value={cents(approvedTotal)} hint="Most it can spend, all ads" />
+            <Stat
+              label="Spent so far"
+              value={cents(spend)}
+              hint={
+                <>
+                  <div className="mb-2 h-2 overflow-hidden rounded-full bg-gray-100" role="img" aria-label={`${spentPct}% of approved spend used`}>
+                    <div className="h-full rounded-full bg-primary-600" style={{ width: `${Math.min(100, spentPct)}%` }} />
+                  </div>
+                  {spentPct}% of approved · sandbox
+                </>
+              }
+            />
           </StatStrip>
           <Card className="p-0">
             <div className="overflow-x-auto">
               <Table className="relative rounded-2xl border-0">
-                <THead><tr><TH>Ad</TH><TH>Budget</TH><TH>Dates</TH><TH>Status</TH><TH className="text-right">Spend</TH><TH className="text-right">Clicks</TH><TH className="text-right">Leads</TH><TH><span className="sr-only">Actions</span></TH></tr></THead>
+                <THead><tr><TH>Ad</TH><TH>Budget and dates</TH><TH>Status</TH><TH className="text-right">Spend</TH><TH className="text-right">Clicks</TH><TH className="text-right">Leads</TH><TH><span className="sr-only">Actions</span></TH></tr></THead>
                 <tbody>
                   {ads.map((a) => (
                     <TR key={a.id}>
-                      <TD className="min-w-52"><div className="font-semibold text-ink">{a.name}</div><div className="text-xs text-gray-500">{a.id} · {PLATFORM_LABEL[a.platform]} · {byId(db.mktCampaigns ?? [], a.campaignId)?.name ?? "No campaign"}</div></TD>
-                      <TD className="whitespace-nowrap">{budgetText(a)}</TD>
-                      <TD className="whitespace-nowrap text-xs">{dateLong(a.schedule.start)} – {a.schedule.end ? dateLong(a.schedule.end) : "no end"}</TD>
-                      <TD><Badge tone={STATUS_TONE[a.status]}>{AD_STATUS_LABEL[a.status]}</Badge></TD>
-                      <TD className="text-right tabular-nums">{a.performance ? cents(a.performance.spend) : "—"}</TD>
-                      <TD className="text-right tabular-nums">{a.performance ? num(a.performance.clicks) : "—"}</TD>
-                      <TD className="text-right tabular-nums">{a.performance ? num(a.performance.leads) : "—"}</TD>
-                      <TD className="whitespace-nowrap text-right"><Button size="sm" variant="ghost" className={TAP} onClick={() => setOpenId(a.id)}>{a.status === "pending_approval" && can(user, "marketing.approve") ? "Review & approve" : "Open"}</Button></TD>
+                      <TD className="min-w-64">
+                        <div className="text-base font-bold text-ink">{a.name}</div>
+                        <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-gray-500">
+                          <Badge tone="gray">{PLATFORM_LABEL[a.platform]}</Badge>
+                          <span>{a.id} · {byId(db.mktCampaigns ?? [], a.campaignId)?.name ?? "No campaign"}</span>
+                        </div>
+                      </TD>
+                      <TD className="w-px whitespace-nowrap">
+                        <div className="font-semibold text-ink">{budgetText(a)}</div>
+                        <div className="text-xs text-gray-500">{dateLong(a.schedule.start)} – {a.schedule.end ? dateLong(a.schedule.end) : "no end"}</div>
+                      </TD>
+                      <TD className="w-px whitespace-nowrap"><Badge tone={STATUS_TONE[a.status]}>{STATUS_TEXT[a.status]}</Badge></TD>
+                      <TD className="w-px whitespace-nowrap text-right tabular-nums">{a.performance ? cents(a.performance.spend) : "—"}</TD>
+                      <TD className="w-px whitespace-nowrap text-right tabular-nums">{a.performance ? num(a.performance.clicks) : "—"}</TD>
+                      <TD className="w-px whitespace-nowrap text-right tabular-nums">{a.performance ? num(a.performance.leads) : "—"}</TD>
+                      <TD className="w-px whitespace-nowrap text-right">
+                        {a.status === "pending_approval" && can(user, "marketing.approve")
+                          ? <Button size="sm" variant="outline" className={TAP} onClick={() => setOpenId(a.id)}>Review &amp; approve</Button>
+                          : <Button size="sm" variant="secondary" className={TAP} onClick={() => setOpenId(a.id)}>Open</Button>}
+                      </TD>
                     </TR>
                   ))}
                 </tbody>
@@ -145,7 +186,7 @@ function AdDrawer({ id, onClose, onEdit }: { id: string; onClose: () => void; on
 
   return (
     <Drawer open onOpenChange={(v) => !v && onClose()} title={a.name}
-      subtitle={<div className="flex flex-wrap items-center gap-2"><Badge tone={STATUS_TONE[a.status]}>{AD_STATUS_LABEL[a.status]}</Badge><span>{a.id} · {PLATFORM_LABEL[a.platform]} · {AD_OBJECTIVE_LABEL[a.objective]}</span></div>}
+      subtitle={<div className="flex flex-wrap items-center gap-2"><Badge tone={STATUS_TONE[a.status]}>{STATUS_TEXT[a.status]}</Badge><span>{a.id} · {PLATFORM_LABEL[a.platform]} · {AD_OBJECTIVE_LABEL[a.objective]}</span></div>}
       footer={<Button className={TAP} onClick={onClose}>Close</Button>}>
       <div className="flex flex-wrap gap-2">
         {editable && <GatedButton allowed={canPost} reason={postReason} size="sm" onClick={() => onEdit(a)}><Pencil className="h-3.5 w-3.5" /> Edit ad</GatedButton>}

@@ -38,9 +38,16 @@ export function THead({ children }: { children: ReactNode }) {
   return <thead className="bg-gray-50/80">{children}</thead>;
 }
 
+/**
+ * L6: a right-aligned (number) column fits its content and keeps its digits
+ * lined up, so the spare width goes to the name or description column and
+ * numbers read together stay side by side.
+ */
+const fitNumber = (className?: string) => (className ?? "").split(/\s+/).includes("text-right") && "w-px whitespace-nowrap tabular-nums";
+
 export function TH({ className, ...rest }: ThHTMLAttributes<HTMLTableCellElement>) {
   const roomy = useRoomy();
-  return <th className={cn("border-b border-line px-3 py-2.5 text-xxs font-bold uppercase tracking-[0.12em] text-gray-500", roomy && "px-4 py-3 text-xs", className)} {...rest} />;
+  return <th className={cn("border-b border-line px-3 py-2.5 text-xxs font-bold uppercase tracking-[0.12em] text-gray-500", roomy && "px-4 py-3 text-xs", fitNumber(className), className)} {...rest} />;
 }
 
 /**
@@ -71,5 +78,5 @@ export function TR({ className, onClick, onKeyDown, ...rest }: React.HTMLAttribu
 
 export function TD({ className, ...rest }: TdHTMLAttributes<HTMLTableCellElement>) {
   const roomy = useRoomy();
-  return <td className={cn("px-3 py-2.5 align-middle text-gray-700", roomy && "px-4 py-3.5", className)} {...rest} />;
+  return <td className={cn("px-3 py-2.5 align-middle text-gray-700", roomy && "px-4 py-3.5", fitNumber(className), className)} {...rest} />;
 }

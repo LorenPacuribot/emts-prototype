@@ -94,7 +94,7 @@ function AlertsQueue() {
     <>
       <PageHeader
         title="Repaint Alerts"
-        subtitle="Surfaces entering their advance-notice window, grouped into one opportunity per property. A person reviews every one before any contact."
+        subtitle="Surfaces coming due for a repaint, one opportunity per property." details="Surfaces enter the list when their advance-notice window opens. A person reviews every one before any contact."
         actions={
           <>
             <AppLink href="/repaint-alerts/run-log"><Button><History className="h-4 w-4" /> Run Log</Button></AppLink>
@@ -145,12 +145,10 @@ function AlertsQueue() {
               <THead>
                 <tr>
                   <TH>Property</TH>
-                  <TH>Earliest due</TH>
-                  <TH>Window end</TH>
-                  <TH>Surfaces</TH>
+                  <TH>Due and window end</TH>
+                  <TH className="text-right">Surfaces</TH>
                   <TH>Notice basis</TH>
-                  <TH>Age</TH>
-                  <TH>Escalation</TH>
+                  <TH>Escalation and age</TH>
                   <TH>Owner</TH>
                   <TH>Suppression</TH>
                   <TH />
@@ -165,12 +163,17 @@ function AlertsQueue() {
                         <PropertyCell db={db} propertyId={a.propertyId} />
                       </div>
                     </TD>
-                    <TD className="font-semibold text-ink">{date(a.earliestDue)}</TD>
-                    <TD>{date(a.windowEnd)}</TD>
-                    <TD>{a.surfaces.length}</TD>
+                    {/* L6: the due date and its window end are read together, so they share a cell. */}
+                    <TD className="whitespace-nowrap">
+                      <div className="font-semibold text-ink">{date(a.earliestDue)}</div>
+                      <div className="text-xs text-gray-500">window ends {date(a.windowEnd)}</div>
+                    </TD>
+                    <TD className="text-right">{a.surfaces.length}</TD>
                     <TD><NoticeBadge basis={a.noticeBasis} /></TD>
-                    <TD>{esc.age} d</TD>
-                    <TD>{st.state === "resolved" ? <span className="text-xs text-gray-500">—</span> : <EscalationBadge escalated={st.escalated} age={esc.age} daysLeft={esc.running ? esc.daysLeft : undefined} />}</TD>
+                    <TD className="whitespace-nowrap">
+                      {st.state === "resolved" ? <span className="text-xs text-gray-500">—</span> : <EscalationBadge escalated={st.escalated} age={esc.age} daysLeft={esc.running ? esc.daysLeft : undefined} />}
+                      <div className="mt-1 text-xs text-gray-500">{esc.age} d old</div>
+                    </TD>
                     <TD>{byId(db.users, a.ownerId ?? (st.escalated ? "U-OWNER" : "U-OFFICE"))?.name}</TD>
                     <TD>
                       <div className="flex flex-wrap gap-1">

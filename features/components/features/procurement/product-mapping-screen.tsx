@@ -46,7 +46,7 @@ function Mapping() {
     <>
       <PageHeader
         title="Product Mapping"
-        subtitle="Connect our product names to the store's item codes so an order reads correctly at the counter, and set which pack sizes each product can be ordered in."
+        subtitle="Link our product names to the store's item codes and pack sizes." details="The item codes make an order read correctly at the counter. Each product can only be ordered in the pack sizes set here."
         actions={perms.setup && (
           <>
             <Button onClick={() => setBulk(true)}><FileUp className="h-4 w-4" /> Bulk import (CSV)</Button>

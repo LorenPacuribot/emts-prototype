@@ -54,7 +54,7 @@ function Mileage() {
     <>
       <PageHeader
         title="Mileage"
-        subtitle="Travel reimbursed at the current IRS rate, with odometer readings or job addresses as evidence. The crew lead approves; the office reviews."
+        subtitle="Travel reimbursed at the current IRS rate." details="Odometer readings or job addresses are the evidence. The crew lead approves; the office reviews."
         actions={(me || can(user, "time.clock")) && <Button variant="primary" onClick={() => setCreating(true)}><Plus className="h-4 w-4" /> New claim</Button>}
       />
       {!db.payrollSettings.reimbursementMappingConfirmed && (

@@ -36,7 +36,7 @@ const h3 = "border-b border-gray-100 pb-4 font-heading text-xl font-bold text-gr
 export function SettingsIndexScreen() {
   const built = SETTINGS_GROUPS.flatMap((g) => g.items.filter((i) => i.built));
   return (
-    <SettingsShell page="index" subtitle="The live pages the new features change. The rest of the sidebar is the live app, not rebuilt.">
+    <SettingsShell page="index" subtitle="The live pages the new features change." details="The rest of the sidebar is the live app, not rebuilt.">
       <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
         {built.map((i) => (
           <AppLink key={i.id} href={`/settings/${i.id}`} className="flex h-full flex-col rounded-2xl border-0 bg-white p-6 shadow-lg transition-all hover:-translate-y-1 hover:shadow-xl">

@@ -10,16 +10,17 @@ export type SectionTab = { href: string; label: string; icon: LucideIcon; badge?
  * A module's sections as an underline tab row, shown under the page title in
  * place of a second sidebar (Time, Supplier Orders, Repaint Alerts, Accounting,
  * Marketing). Groups are separated by a thin divider. On phones the row
- * scrolls sideways; on wide screens a long row wraps onto a second line.
+ * never wraps (L1): if it doesn't fit, it scrolls sideways. Modules with more
+ * than seven pages use AreaNav instead.
  * Keeps data-tour="subnav" so product-tour stops still land.
  */
 export function SectionTabs({ groups, label, note }: { groups: SectionTab[][]; label: string; note?: ReactNode }) {
   const visible = groups.filter((g) => g.length > 0);
   return (
     <>
-    <nav data-tour="subnav" aria-label={label} className="no-print -mx-4 flex items-stretch gap-x-6 overflow-x-auto border-b border-gray-200 px-4 no-scrollbar md:mx-0 md:px-0 lg:flex-wrap lg:gap-y-1 lg:overflow-visible">
+    <nav data-tour="subnav" aria-label={label} className="no-print -mx-4 flex items-stretch gap-x-6 overflow-x-auto border-b border-gray-200 px-4 no-scrollbar md:mx-0 md:px-0">
       {visible.map((group, gi) => (
-        <div key={gi} className="flex shrink-0 items-stretch gap-x-6 lg:contents">
+        <div key={gi} className="flex shrink-0 items-stretch gap-x-6">
           {gi > 0 && <span className="my-2 w-px shrink-0 self-stretch bg-gray-200" aria-hidden />}
           {group.map((t) => (
             <AppLink

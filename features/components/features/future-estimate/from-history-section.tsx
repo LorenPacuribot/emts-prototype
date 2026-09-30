@@ -51,7 +51,8 @@ export function FromHistorySection({ estimate, rep }: { estimate: Estimate; rep:
         icon={<History />}
         title="From history"
         badge={<NewBadge feature={28} />}
-        subtitle={`Copied from ${Array.from(new Set(rep.lines.map((l) => l.sourceJobId ?? "customer-reported history"))).join(", ") || "—"} (${rep.id}). Reference actuals, inspection and pricing basis for this repeat estimate.`}
+        subtitle={`Copied from ${Array.from(new Set(rep.lines.map((l) => l.sourceJobId ?? "customer-reported history"))).join(", ") || "—"} (${rep.id}).`}
+        details="Reference actuals, inspection and pricing basis for this repeat estimate."
         right={
           <>
             {!readOnly && <Button size="sm" onClick={() => { setAdding([]); setSelectOpen(true); }}><Layers className="h-4 w-4" /> Select Surfaces</Button>}

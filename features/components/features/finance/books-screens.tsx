@@ -86,7 +86,7 @@ function Checkbook() {
     <>
       <PageHeader
         title="Checkbook"
-        subtitle="Every check written and deposit made, with the running balance. A check carries its job and cost code into job cost and the QuickBooks queue. Nothing here moves money."
+        subtitle="Every check written and deposit made, with the running balance." details="A check carries its job and cost code into job cost and the QuickBooks queue. Nothing here moves money."
         actions={canWrite && (
           <div className="flex flex-wrap gap-2">
             <Button onClick={() => setForm("deposit")}><Plus className="h-4 w-4" /> Enter deposit</Button>
@@ -225,7 +225,7 @@ function Feeds() {
     <>
       <PageHeader
         title="Bank & Card Feeds"
-        subtitle="Transactions from the bank and company card wait here until someone matches, codes or excludes each one. Matching to a record already in the books never creates a second expense."
+        subtitle="Bank and card transactions waiting to be matched, coded or excluded." details="Each transaction waits here until someone matches, codes or excludes it. Matching to a record already in the books never creates a second expense."
         actions={canCode && (
           <div className="flex flex-wrap gap-2">
             <Button onClick={() => setImporting(true)}><FileUp className="h-4 w-4" /> Import CSV</Button>
@@ -396,7 +396,7 @@ function Recurring() {
 
   return (
     <>
-      <PageHeader title="Recurring Expenses" subtitle="Insurance, rent, leases and subscriptions on a schedule. Each due date is posted once paid, so it counts as an expense exactly once." actions={canEdit && <Button variant="primary" onClick={() => setEditing("new")}><Plus className="h-4 w-4" /> Add recurring expense</Button>} />
+      <PageHeader title="Recurring Expenses" subtitle="Insurance, rent, leases and subscriptions on a schedule." details="Each due date is posted once paid, so it counts as an expense exactly once." actions={canEdit && <Button variant="primary" onClick={() => setEditing("new")}><Plus className="h-4 w-4" /> Add recurring expense</Button>} />
       <StatStrip className="mb-4">
         <Stat label="Monthly overhead" value={cents(monthly)} hint={`${recs.filter((r) => r.active).length} active`} />
         <Stat label="Due in 30 days" value={cents(occ.filter((o) => o.dueDate <= new Date(Date.now() + 30 * 86_400_000).toISOString().slice(0, 10)).reduce((a, o) => a + o.amount, 0))} />
@@ -526,7 +526,7 @@ function Alerts() {
 
   return (
     <>
-      <PageHeader title="Financial Alerts" subtitle="Spending above normal, overdue invoices and bills, slipping job margins and recurring payments coming due, plus your own rules. New alerts also reach the bell for the owner, office manager and bookkeeper." actions={<Button variant="primary" onClick={() => setEditing("new")}><Plus className="h-4 w-4" /> New alert rule</Button>} />
+      <PageHeader title="Financial Alerts" subtitle="Unusual spending, overdue invoices and bills, slipping margins and payments coming due." details="Recurring payments coming due and your own rules show here too. New alerts also reach the bell for the owner, office manager and bookkeeper." actions={<Button variant="primary" onClick={() => setEditing("new")}><Plus className="h-4 w-4" /> New alert rule</Button>} />
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_380px] [&>*]:min-w-0">
         <div className="space-y-3">
           {active.length === 0 && <EmptyState icon={<BellOff />} title="No alerts right now" body="Everything is inside its limits." />}
@@ -631,7 +631,7 @@ function FinanceSearch() {
   const kinds = [...new Set(hits.map((h) => h.kind))];
   return (
     <>
-      <PageHeader title="Search the Books" subtitle="Search by any field: reference, payee, vendor, amount, job, cost code, memo, date or status. Every word must match." />
+      <PageHeader title="Search the Books" subtitle="Search the books by any field. Every word must match." details="Fields searched: reference, payee, vendor, amount, job, cost code, memo, date and status." />
       <div className="relative mb-3">
         <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
         <Input autoFocus value={q} onChange={(e) => setQ(e.target.value)} placeholder="e.g. sherwin JOB-2026-1, 450, check 1188, fuel" className="pl-9" aria-label="Search the books" />

@@ -54,7 +54,7 @@ export function ChangeOrdersSection({ job, estimateId, creating, setCreating }: 
       icon={<FileDiff />}
       title="Change Orders"
       badge={<NewBadge feature={24} />}
-      subtitle="Signed-scope additions, removals, credits and substitutions, each approved by the customer as an exact version."
+      subtitle="Changes to the signed scope, each approved by the customer." details="Additions, removals, credits and substitutions. The customer approves each one as an exact version."
       right={right}
     />
   );

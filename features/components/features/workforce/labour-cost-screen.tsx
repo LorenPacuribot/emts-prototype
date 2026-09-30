@@ -57,7 +57,7 @@ function Labour() {
     <>
       <PageHeader
         title="Labor Cost"
-        subtitle="One approved total per employee per pay period from the Gusto run, split across jobs by approved hours. Estimate Master holds no pay rates."
+        subtitle="Each pay period's Gusto total, split across jobs by approved hours." details="One approved total per employee per pay period, from the Gusto run. Estimate Master holds no pay rates."
         actions={<WeekSelect value={week} onChange={setWeek} />}
       />
       {!seeEmployees && <Banner tone="info" className="mb-4" title="Allocated job cost only">Per-employee totals are visible only to the bookkeeper and the business owner.</Banner>}

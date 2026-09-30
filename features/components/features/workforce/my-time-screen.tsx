@@ -53,7 +53,8 @@ function MyTime() {
     <>
       <PageHeader
         title="My Time"
-        subtitle={`${emp.name} — your own days only. Attest each day by the end of the next working day, or dispute it.`}
+        subtitle={`${emp.name} — your own days only.`}
+        details="Attest each day by the end of the next working day, or dispute it."
         actions={<WeekSelect value={week} onChange={setWeek} />}
       />
       {emp.type !== "hourly" && <Banner tone="info" className="mb-4">{emp.type === "salaried" ? "You are salaried: your job-coded time costs jobs but is not exported to Gusto." : "Subcontractor hours are recorded for analysis with zero labor cost."}</Banner>}

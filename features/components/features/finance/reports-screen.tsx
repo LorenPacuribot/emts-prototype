@@ -36,7 +36,8 @@ export function FinanceReportsBody({ view }: { view: View }) {
     <>
       <PageHeader
         title="Finance Reports"
-        subtitle={`Synchronised with QuickBooks up to ${dateTime(cutoff)}. Formal financial statements stay in QuickBooks.`}
+        subtitle={`Synchronized with QuickBooks up to ${dateTime(cutoff)}.`}
+        details="Formal financial statements stay in QuickBooks."
       />
       {(unmatchedBills.length > 0 || toCode.length > 0) && (
         <Banner tone="warn" className="mb-4" title="Unmatched costs">

@@ -72,7 +72,7 @@ function LandingPages() {
 
   return (
     <>
-      <PageHeader title="Landing Pages & Forms" subtitle="Campaign pages with a contact, quote or booking form. Each submission becomes a lead attributed to the page and its campaign, with the promo or referral code it quoted." actions={pages.length > 0 && newButton} />
+      <PageHeader title="Landing Pages & Forms" subtitle="Campaign pages with a contact, quote or booking form." details="Each submission becomes a lead attributed to the page and its campaign, with the promo or referral code it quoted." actions={pages.length > 0 && newButton} />
       {pages.length === 0 ? (
         <EmptyState icon={<LayoutTemplate />} title="No landing pages yet" body="Create a page for a campaign or offer. Its form turns visitors into leads that are credited to the campaign." action={newButton} />
       ) : (

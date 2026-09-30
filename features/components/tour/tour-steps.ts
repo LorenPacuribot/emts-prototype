@@ -501,7 +501,7 @@ export const TOUR: TourStop[] = [
       {
         target: "subnav",
         title: "The rest of Workforce",
-        body: "Mobile Clock is the crew's phone screen. Export Batches builds the Gusto CSV from approved hours only. Labor Cost is where the bookkeeper enters each pay period's cost for Rule 3 allocation. Mileage and Employees complete the set.",
+        body: "Mobile Clock is the crew's phone screen. Export Batches builds the Gusto CSV from approved hours only. Labor Cost is where the bookkeeper enters each pay period's cost, which is split across jobs by approved hours. Mileage and Employees complete the set.",
       },
     ],
   },
@@ -594,7 +594,7 @@ export const TOUR: TourStop[] = [
       {
         target: "unallocated-list",
         title: "Every cost finds its job, or overhead",
-        body: "Two QuickBooks receipts arrived with no job. Allocate one to a job, or split it across several: rounding follows Rule 5, so the odd cent goes to the largest share, then the lowest job number. Fuel stays in overhead.",
+        body: "Two QuickBooks receipts arrived with no job. Allocate one to a job, or split it across several: the odd cent goes to the largest share, then the lowest job number. Fuel stays in overhead.",
       },
     ],
   },

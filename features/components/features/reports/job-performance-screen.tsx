@@ -131,7 +131,7 @@ export function Performance() {
     <>
       <PageHeader
         title="Job Performance"
-        subtitle="Estimated versus actual, fairly: the original estimate, what approved change orders added, the revised estimate, and what actually happened."
+        subtitle="Estimated versus actual, measured fairly." details="The original estimate, what approved change orders added, the revised estimate, and what actually happened."
         actions={
           <>
             <Button onClick={csv}><Download className="h-4 w-4" /> Export CSV</Button>
