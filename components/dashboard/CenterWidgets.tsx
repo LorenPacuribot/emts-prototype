@@ -113,7 +113,7 @@ export function RevenueWidget({ data }: { data: DashboardData['revenue'] }) {
         <Zap className="h-24 w-24 text-indigo-500" />
       </div>
       <div className="relative z-10">
-        <span className="mb-1 flex items-center gap-2 text-xxs font-black uppercase tracking-[0.25em] text-primary-500 lg:mb-2 lg:text-xs">Revenue <VersionBadge item="RP-M4" /></span>
+        <span className="mb-1 flex items-center gap-2 text-xxs font-black uppercase tracking-[0.25em] text-primary-500 lg:mb-2 lg:text-xs">Revenue <VersionBadge item="RP-M4" withNew={false} /></span>
         <div className="text-2xl font-black tracking-tighter text-primary-600 lg:text-4xl">{plainMoney(data.total)}</div>
         <div className="mt-1 text-xxs font-bold uppercase tracking-widest text-gray-500 lg:mt-2 lg:text-xxs">Verified Total Sales</div>
       </div>

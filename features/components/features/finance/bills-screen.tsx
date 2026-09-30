@@ -40,7 +40,7 @@ function Bills() {
 
   return (
     <>
-      <PageHeader eyebrow={<><VersionBadge item="QB-C5" /><VersionBadge item="BK-M4" /><VersionBadge item="BK-C4" /></>} title="Bills & Matching" subtitle="What was billed, against what was ordered and received." details="Card settlements pay bills — they are never a second expense." />
+      <PageHeader eyebrow={<><VersionBadge item="QB-C5" withNew={false} /><VersionBadge item="BK-M4" withNew={false} /><VersionBadge item="BK-C4" withNew={false} /></>} title="Bills & Matching" subtitle="What was billed, against what was ordered and received." details="Card settlements pay bills — they are never a second expense." />
       <div className="space-y-3" data-tour="bill-matching">
         {bills.length === 0 && <EmptyState icon={<FileCheck2 />} title="No supplier bills yet" body="Supplier bills show here to be matched against their purchase order and the quantities received." />}
         {bills.map((b) => {

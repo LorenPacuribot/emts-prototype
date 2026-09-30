@@ -39,7 +39,7 @@ export function BasisToggle({ value, onChange }: { value: Basis; onChange: (b: B
           </button>
         ))}
       </span>
-      <NewBadge /><VersionBadge item="BK-M13" />
+      <VersionBadge item="BK-M13" />
     </span>
   );
 }
@@ -58,7 +58,7 @@ export function BalanceSheetReport({ basis }: { basis: Basis }) {
   return (
     <Card className="p-4">
       <CardLabel icon={<Scale />} right={bs.balances ? <Badge tone="green" icon={<CheckCircle2 className="h-3 w-3" />}>Balances</Badge> : <Badge tone="red">Does not balance</Badge>}>
-        <span className="inline-flex items-center gap-1.5">Balance Sheet at {today} <NewBadge /><VersionBadge item="BK-M6" /></span>
+        <span className="inline-flex items-center gap-1.5">Balance Sheet at {today} <VersionBadge item="BK-M6" /></span>
       </CardLabel>
       {basis === "cash" && <Banner tone="info" className="mt-3">A balance sheet is the same on either basis in the prototype. Cash changes the profit reports.</Banner>}
       <div className="mt-3 grid gap-4 lg:grid-cols-2">
@@ -99,7 +99,7 @@ export function SalesTaxReport({ basis }: { basis: Basis }) {
   return (
     <Card className="p-4">
       <CardLabel right={canKeepBooks(user) && <Button size="sm" variant="primary" disabled={t.owed <= 0} onClick={() => { setAmount(t.owed.toFixed(2)); setPaying(true); }}>Record payment to state <VersionBadge item="BK-M12" /></Button>}>
-        <span className="inline-flex items-center gap-1.5">Sales tax summary <NewBadge /><VersionBadge item="BK-M13" /></span>
+        <span className="inline-flex items-center gap-1.5">Sales tax summary <VersionBadge item="BK-M13" /></span>
       </CardLabel>
       <div className="mt-3 grid grid-cols-3 gap-2">
         {[["Collected this year", t.collected], ["Paid to the state", t.paid], ["Owed now", t.owed]].map(([k, v]) => (
@@ -136,7 +136,7 @@ export function JobProfitReport({ basis }: { basis: Basis }) {
   const rows = jobs.map((j) => ({ job: j, ...jobProfit(books.journal, j, basis) }));
   return (
     <Card className="p-4">
-      <CardLabel><span className="inline-flex items-center gap-1.5">Job profit from Books <NewBadge /><VersionBadge item="BK-C3" /></span></CardLabel>
+      <CardLabel><span className="inline-flex items-center gap-1.5">Job profit from Books <VersionBadge item="BK-C3" /></span></CardLabel>
       <p className="mt-1 text-xs text-gray-500">{basis === "accrual" ? "Invoiced income less job costs posted to the job." : "Money collected less job costs paid, per job."} Deposits held are liabilities, not income.</p>
       <Table className="mt-3">
         <THead><tr><TH>Job</TH><TH className="text-right">Income</TH><TH className="text-right">Job costs</TH><TH className="text-right">Profit</TH><TH className="text-right">Deposits held</TH></tr></THead>
@@ -159,7 +159,7 @@ export function ContractorsReport() {
   return (
     <Card className="p-4">
       <CardLabel right={<Button size="sm" onClick={csv}><Download className="h-3.5 w-3.5" /> CSV</Button>}>
-        <span className="inline-flex items-center gap-1.5">1099 contractors {year} <NewBadge /><VersionBadge item="BK-C6" /></span>
+        <span className="inline-flex items-center gap-1.5">1099 contractors {year} <VersionBadge item="BK-C6" /></span>
       </CardLabel>
       <p className="mt-1 text-xs text-gray-500">Subcontractors (5100) paid $600 or more in the year need a 1099-NEC.</p>
       <Table className="mt-3">
@@ -178,7 +178,7 @@ export function BudgetReport({ basis }: { basis: Basis }) {
   const cash = basis === "cash" ? incomeStatement(books.journal, books.accounts, r, "cash") : undefined;
   return (
     <Card className="p-4">
-      <CardLabel><span className="inline-flex items-center gap-1.5">Budget versus actual, {month} <NewBadge /><VersionBadge item="BK-C6" /></span></CardLabel>
+      <CardLabel><span className="inline-flex items-center gap-1.5">Budget versus actual, {month} <VersionBadge item="BK-C6" /></span></CardLabel>
       {cash && <p className="mt-1 text-xs text-gray-500">Cash basis: actuals below are accrual; cash net profit this month is {money(cash.netProfit)}.</p>}
       <Table className="mt-3">
         <THead><tr><TH>Account</TH><TH className="text-right">Budget</TH><TH className="text-right">Actual</TH><TH className="text-right">Difference</TH></tr></THead>

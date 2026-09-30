@@ -90,12 +90,12 @@ function Checkbook() {
   return (
     <>
       <PageHeader
-        eyebrow={<VersionBadge item="BK-M5" />}
+        eyebrow={<VersionBadge item="BK-M5" withNew={false} />}
         title="Checkbook"
         subtitle="Every check written and deposit made, with the running balance." details="A check carries its job and cost code into job cost and the QuickBooks queue. Nothing here moves money."
         actions={(canWrite || canKeepBooks(user)) && (
           <div className="flex flex-wrap gap-2">
-            {canKeepBooks(user) && <Button onClick={() => setReconciling(true)}><CheckCircle2 className="h-4 w-4" /> Reconcile</Button>}
+            {canKeepBooks(user) && <Button onClick={() => setReconciling(true)}><CheckCircle2 className="h-4 w-4" /> Reconcile <VersionBadge item="BK-M5" /></Button>}
             {canWrite && <><Button onClick={() => setForm("deposit")}><Plus className="h-4 w-4" /> Enter deposit</Button>
             <Button variant="primary" onClick={() => setForm("check")}><Pencil className="h-4 w-4" /> Write check</Button></>}
           </div>
@@ -233,7 +233,7 @@ function Feeds() {
   return (
     <>
       <PageHeader
-        eyebrow={<><VersionBadge item="BK-M5" /><VersionBadge item="BK-C1" /></>}
+        eyebrow={<><VersionBadge item="BK-M5" withNew={false} /><VersionBadge item="BK-C1" withNew={false} /></>}
         title="Bank & Card Feeds"
         subtitle="Bank and card transactions waiting to be matched, coded or excluded." details="Each transaction waits here until someone matches, codes or excludes it. Matching to a record already in the books never creates a second expense."
         actions={canCode && (
@@ -407,7 +407,7 @@ function Recurring() {
 
   return (
     <>
-      <PageHeader eyebrow={<VersionBadge item="BK-C8" />} title="Recurring Expenses" subtitle="Insurance, rent, leases and subscriptions on a schedule." details="Each due date is posted once paid, so it counts as an expense exactly once." actions={canEdit && <Button variant="primary" onClick={() => setEditing("new")}><Plus className="h-4 w-4" /> Add recurring expense</Button>} />
+      <PageHeader eyebrow={<VersionBadge item="BK-C8" withNew={false} />} title="Recurring Expenses" subtitle="Insurance, rent, leases and subscriptions on a schedule." details="Each due date is posted once paid, so it counts as an expense exactly once." actions={canEdit && <Button variant="primary" onClick={() => setEditing("new")}><Plus className="h-4 w-4" /> Add recurring expense</Button>} />
       <StatStrip className="mb-4">
         <Stat label="Monthly overhead" value={cents(monthly)} hint={`${recs.filter((r) => r.active).length} active`} />
         <Stat label="Due in 30 days" value={cents(occ.filter((o) => o.dueDate <= new Date(Date.now() + 30 * 86_400_000).toISOString().slice(0, 10)).reduce((a, o) => a + o.amount, 0))} />

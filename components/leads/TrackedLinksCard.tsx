@@ -46,7 +46,7 @@ export function TrackedLinksCard() {
 
   return (
     <Card className="p-5">
-      <CardTitle icon={<Link2 />} badge={<><NewBadge /><VersionBadge item="CRM-M5" /></>} right={<Button variant="primary" size="sm" onClick={() => setAdding(true)}><Plus className="h-4 w-4" /> Add link</Button>}>
+      <CardTitle icon={<Link2 />} badge={<><VersionBadge item="CRM-M5" /></>} right={<Button variant="primary" size="sm" onClick={() => setAdding(true)}><Plus className="h-4 w-4" /> Add link</Button>}>
         Tracked links
       </CardTitle>
       <p className="-mt-3 mb-4 text-sm text-gray-500">Share these instead of the plain form. Each lead is tagged with the link&apos;s source.</p>

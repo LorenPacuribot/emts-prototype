@@ -61,7 +61,7 @@ function Journal() {
   return (
     <>
       <PageHeader
-        eyebrow={<><NewBadge /><VersionBadge item="BK-M3" /></>}
+        eyebrow={<><VersionBadge item="BK-M3" /></>}
         title="Journal"
         subtitle="Every entry in Estimate Master Books. Debits always equal credits."
         details="Mistakes are reversed with a reason: the reversal is a new entry and the original stays. Nothing is ever deleted. A date in a closed month posts on the 1st of the next open month, with a note."
@@ -74,7 +74,7 @@ function Journal() {
         }
       />
       <Card className="mb-4 flex flex-wrap items-center gap-2 p-4">
-        <span className="mr-auto flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gray-500">Export <NewBadge /><VersionBadge item="BK-M8" /></span>
+        <span className="mr-auto flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gray-500">Export <VersionBadge item="BK-M8" /></span>
         <Button size="sm" onClick={() => exp("gl", "csv")}><Download className="h-3.5 w-3.5" /> General ledger CSV</Button>
         <Button size="sm" onClick={() => exp("gl", "xls")}><FileSpreadsheet className="h-3.5 w-3.5" /> General ledger Excel</Button>
         <Button size="sm" onClick={() => exp("tb", "csv")}><Download className="h-3.5 w-3.5" /> Trial balance CSV</Button>

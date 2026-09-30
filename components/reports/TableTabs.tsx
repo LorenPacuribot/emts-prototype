@@ -98,7 +98,7 @@ export function EstimatesLogTab({ year, range, setRange }: { year: number; range
             <tr className={theadRow}>
               <th className={TH}>Date</th>
               <th className={TH}>
-                <span className="inline-flex items-center gap-1.5">Estimate # <NewBadge /><VersionBadge item="RP-M3" /></span>
+                <span className="inline-flex items-center gap-1.5">Estimate # <VersionBadge item="RP-M3" /></span>
               </th>
               <th className={TH}>Customer</th><th className={TH}>Source</th>
               <th className={cn(TH, 'text-center')}>Hours</th><th className={cn(TH, 'text-center')}>Hrs Left</th>
@@ -206,7 +206,7 @@ function AmendmentChanges({ estimateId, versionRef }: { estimateId: string; vers
   return (
     <div className="rounded-xl border border-gray-200 bg-white p-4">
       <div className="mb-2 flex flex-wrap items-center gap-2 text-xs font-bold uppercase tracking-wider text-gray-500">
-        What changed <NewBadge /><VersionBadge item="RP-C1" />
+        What changed <VersionBadge item="RP-C1" />
         {prev && next && <span className="font-medium normal-case tracking-normal text-gray-500">v{prev.version} ({shortDate(prev.date)}) to v{next.version} ({shortDate(next.date)})</span>}
       </div>
       {!diff ? (
@@ -251,7 +251,7 @@ export function JobsSoldTab({ year, range, setRange }: { year: number; range: Da
       {/* RP-M4: new sales and amendments, added up by entry date. */}
       <div>
         <div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gray-500">
-          Sales in this period <NewBadge /><VersionBadge item="RP-M4" />
+          Sales in this period <VersionBadge item="RP-M4" />
         </div>
         <StatStrip>
           <Stat label="New sales" value={signedMoney0(totals.newSales)} />
@@ -341,7 +341,7 @@ export function SalesByEstimatorTab({ year, range, setRange }: { year: number; r
       <div className="flex flex-col justify-between gap-4 border-b border-gray-200 px-4 py-5 sm:px-6 lg:flex-row lg:items-end">
         <div className="flex flex-col items-start gap-4 md:flex-row md:items-end">
           <h3 className="flex items-center gap-2 whitespace-nowrap pb-2 text-lg font-bold text-gray-900">
-            Sales by Estimator ({year}) <NewBadge /><VersionBadge item="RP-C2" />
+            Sales by Estimator ({year}) <VersionBadge item="RP-C2" />
           </h3>
           <div className="hidden h-6 w-px bg-gray-200 md:mb-2 md:block" />
           <DateRangeInputs value={range} onChange={setRange} />

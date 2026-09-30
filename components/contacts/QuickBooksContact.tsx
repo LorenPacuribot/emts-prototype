@@ -48,7 +48,7 @@ export function QuickBooksContactCard({ customerId }: { customerId: string }) {
       <div className="mb-4 flex flex-wrap items-center gap-2 text-gray-500">
         <Landmark className="h-4 w-4" />
         <span className="text-xs font-bold uppercase tracking-widest">QuickBooks</span>
-        <NewBadge /><VersionBadge item="QB-C4" />
+        <VersionBadge item="QB-C4" />
       </div>
       {q ? (
         <div className="space-y-3 text-sm">

@@ -41,7 +41,7 @@ export function AccountingDestinationCard() {
   return (
     <Card className="mb-6 max-w-3xl p-5">
       <CardLabel icon={<Landmark />}>
-        <span className="inline-flex items-center gap-1.5">Accounting destination <NewBadge /><VersionBadge item="X-M2" /></span>
+        <span className="inline-flex items-center gap-1.5">Accounting destination <VersionBadge item="X-M2" /></span>
       </CardLabel>
       <div className="mt-3 grid gap-2 sm:grid-cols-3" role="radiogroup" aria-label="Accounting destination">
         {OPTIONS.map((o) => {

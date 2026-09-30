@@ -35,7 +35,7 @@ export function FacebookLeadAdsCard() {
 
   return (
     <Card className="p-5">
-      <CardTitle icon={<Megaphone />} badge={<><NewBadge /><VersionBadge item="CRM-C6" /></>} right={conn ? <Badge tone="green">Connected</Badge> : <Badge tone="gray">Not connected</Badge>}>
+      <CardTitle icon={<Megaphone />} badge={<><VersionBadge item="CRM-C6" /></>} right={conn ? <Badge tone="green">Connected</Badge> : <Badge tone="gray">Not connected</Badge>}>
         Facebook Lead Ads
       </CardTitle>
       {conn ? (

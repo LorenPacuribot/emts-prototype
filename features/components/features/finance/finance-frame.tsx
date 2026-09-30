@@ -85,7 +85,7 @@ export function FinanceFrame({ tab, children }: { tab: FinanceTabKey; children: 
     key === "queue" ? rejected || undefined : key === "unallocated" ? toCode || undefined : key === "reimbursements" ? claims || undefined : key === "feeds" ? toReview || undefined : key === "alerts" ? alerts || undefined : undefined;
   const page = (key: FinanceTabKey) => {
     const t = FINANCE_TABS.find((x) => x.key === key)!;
-    return { href: t.path, label: NAV_LABEL[key] ?? t.label, icon: t.icon, active: key === tab, badge: badgeFor(key) };
+    return { href: t.path, label: NAV_LABEL[key] ?? t.label, icon: t.icon, active: key === tab, badge: badgeFor(key), ...(key === "journal" ? { marker: <VersionBadge item="BK-M3" /> } : {}) };
   };
   const areas: Area[] = FINANCE_AREAS.map((a) => ({ key: a.key, label: a.label, pages: a.pages.filter((k) => canSeeFinanceTab(user, k)).map(page) }));
   const elsewhere = [
@@ -131,7 +131,7 @@ function QuickBooksConnectionCard() {
         </div>
       </div>
       <div className="space-y-4 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm md:p-8">
-        <div className="flex items-center gap-2 text-xxs font-bold uppercase tracking-widest text-gray-500">QuickBooks Online <VersionBadge item="QB-M1" /></div>
+        <div className="flex items-center gap-2 text-xxs font-bold uppercase tracking-widest text-gray-500">QuickBooks Online <VersionBadge item="QB-M1" withNew={false} /></div>
         <p className="text-sm text-gray-600">QuickBooks owns the ledger. Estimate Master sends invoices, payments, deposits and job allocations, and receives bills. Nothing here moves money.</p>
         <div className="flex flex-wrap gap-2 border-t border-gray-100 pt-4">
           <Button disabled={!can(user, "finance.connect")} onClick={() => toast.success("Connection OK", "QuickBooks answered (simulated).")}><Wifi className="h-4 w-4" /> Test Connection</Button>

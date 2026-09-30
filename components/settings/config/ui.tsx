@@ -94,8 +94,8 @@ export function SegmentedToggle<T extends string>({ value, onChange, options }: 
 }
 
 export function TemplateListItem({
-  active, icon, title, subtitle, onClick,
-}: { active: boolean; icon: React.ReactNode; title: string; subtitle: string; onClick: () => void }) {
+  active, icon, title, subtitle, onClick, badge,
+}: { active: boolean; icon: React.ReactNode; title: string; subtitle: string; onClick: () => void; badge?: React.ReactNode }) {
   return (
     <button
       type="button"
@@ -109,7 +109,7 @@ export function TemplateListItem({
         {icon}
       </span>
       <span className="min-w-0">
-        <span className={cn('block truncate text-sm font-bold', active ? 'text-primary-900' : 'text-gray-900')}>{title}</span>
+        <span className={cn('flex items-center gap-1.5 truncate text-sm font-bold', active ? 'text-primary-900' : 'text-gray-900')}>{title}{badge}</span>
         <span className="mt-0.5 block max-w-[13rem] truncate text-xs text-gray-500">{subtitle}</span>
       </span>
     </button>

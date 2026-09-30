@@ -58,7 +58,7 @@ export function MonthlyGoalWidget({ data }: { data: DashboardData['goal'] }) {
           <div className="flex flex-col justify-between gap-1 lg:flex-row lg:items-end lg:gap-2">
             <div>
               <div className="text-xl font-black text-gray-900 lg:text-3xl">{kMoney(data.actual)}</div>
-              <span className="flex items-center gap-2 text-xxs font-black uppercase tracking-widest text-green-600 lg:text-xxs">Actual Revenue <VersionBadge item="RP-M4" /></span>
+              <span className="flex items-center gap-2 text-xxs font-black uppercase tracking-widest text-green-600 lg:text-xxs">Actual Revenue <VersionBadge item="RP-M4" withNew={false} /></span>
             </div>
             {data.target > 0 && (
               <div className="lg:text-right">

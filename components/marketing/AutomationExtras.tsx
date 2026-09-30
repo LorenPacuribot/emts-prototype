@@ -190,7 +190,7 @@ function RuleEditor({ rule }: { rule: AutomationRule }) {
         <Switch checked={d.active} onCheckedChange={(v) => setD({ ...d, active: v })} label={d.active ? 'On' : 'Off'} />
         <ApprovalPill rule={rule} />
         {!rule.approval && allowed && <Button size="sm" variant="primary" disabled={dirty} onClick={() => setConfirming(true)} title={dirty ? 'Save first' : undefined}>Approve automation</Button>}
-        <span className="flex items-center gap-1.5"><NewBadge /><VersionBadge item="CRM-C4" /></span>
+        <span className="flex items-center gap-1.5"><VersionBadge item="CRM-C4" /></span>
       </Card>
       <Down />
       <StepCard label="When" icon={<Zap className="h-3.5 w-3.5" />} tone="text-primary-700">
@@ -322,7 +322,7 @@ export function FlowView() {
           {rules.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}
         </Select>
         <ApprovalPill rule={rule} />
-        <NewBadge /><VersionBadge item="CRM-C5" />
+        <VersionBadge item="CRM-C5" />
       </div>
       <div className="grid gap-4 lg:grid-cols-[180px_minmax(0,1fr)_260px]">
         <Card className="p-3">
@@ -376,7 +376,7 @@ export function ApprovalsView() {
     <div className="space-y-4">
       <div className="flex items-center gap-2">
         <h3 className="font-heading text-lg font-bold text-ink">Waiting for approval</h3>
-        <NewBadge /><VersionBadge item="CRM-C3" />
+        <VersionBadge item="CRM-C3" />
       </div>
       {waiting.length === 0 ? (
         <EmptyState icon={<CheckCircle2 />} title="Nothing waiting" body="Messages from rules and templates that are not approved wait here before anything reaches a customer." />

@@ -64,7 +64,7 @@ function AccountingModes() {
           </button>
         ))}
       </div>
-      <NewBadge /><VersionBadge item="BK-M1" />
+      <VersionBadge item="BK-M1" />
       <span className="text-xs text-gray-500">Destination: {dest === "books" ? "Estimate Master Books" : dest === "qbo" ? "QuickBooks Online" : "None"}. Both stay visible in the prototype.</span>
     </div>
   );
@@ -121,7 +121,7 @@ function Accounting({ toggle }: { toggle: React.ReactNode }) {
   return (
     <>
       <PageHeader
-        eyebrow={<VersionBadge item="QB-M4" />}
+        eyebrow={<VersionBadge item="QB-M4" withNew={false} />}
         title="Accounting"
         subtitle="Job-level records exchanged with QuickBooks Online." details="QuickBooks owns amounts and dates; Estimate Master owns the job and cost code."
         actions={
@@ -180,7 +180,7 @@ function Accounting({ toggle }: { toggle: React.ReactNode }) {
       <Card className="p-4" data-tour="finance-records">
         {rows.length === 0 ? <EmptyState icon={<Landmark />} title="No records in this view" body="Pick another view above to see other records." /> : (
           <Table>
-            <THead><tr><TH><span className="inline-flex items-center gap-1.5">Type <VersionBadge item="QB-C5" /></span></TH><TH>Reference</TH><TH>Party</TH><TH className="text-right">Amount</TH><TH>Date</TH><TH>Job / code</TH><TH>Exchange</TH><TH>Flags</TH></tr></THead>
+            <THead><tr><TH><span className="inline-flex items-center gap-1.5">Type <VersionBadge item="QB-C5" withNew={false} /></span></TH><TH>Reference</TH><TH>Party</TH><TH className="text-right">Amount</TH><TH>Date</TH><TH>Job / code</TH><TH>Exchange</TH><TH>Flags</TH></tr></THead>
             <tbody>
               {rows.map((r) => {
                 const q = latestItem(db, r.id);
@@ -225,13 +225,13 @@ function RecordDrawer({ recordId, onClose }: { recordId?: string; onClose: () =>
   return (
     <Drawer open={!!r} onOpenChange={(v) => !v && onClose()} title={<span className="flex items-center gap-2">{r.ref} <TypeBadge type={r.type} /></span>} subtitle={`${r.party} · ${r.id}`}>
       {r.variance && (
-        <Banner tone={r.variance.reviewedAt ? "info" : "warn"} title={<span className="inline-flex flex-wrap items-center gap-1.5">{`Amount edited in QuickBooks: ${money(r.variance.sent)} → ${money(r.variance.current)}`} <VersionBadge item="QB-C3" /></span>}
+        <Banner tone={r.variance.reviewedAt ? "info" : "warn"} title={<span className="inline-flex flex-wrap items-center gap-1.5">{`Amount edited in QuickBooks: ${money(r.variance.sent)} → ${money(r.variance.current)}`} <VersionBadge item="QB-C3" withNew={false} /></span>}
           action={!r.variance.reviewedAt && can(user, "finance.reviewVariance") && <Button size="sm" onClick={() => act(reviewVariance, r.id).ok && toast.success("Variance reviewed")}>Mark reviewed</Button>}>
           {r.variance.reviewedAt ? `Reviewed by ${userName(db, r.variance.reviewedBy)} ${dateTime(r.variance.reviewedAt)}.` : "The local display value now shows the QuickBooks amount. The office manager reviews the difference."}
         </Banner>
       )}
       {r.deletedInQbo && (
-        <Banner tone={r.deletedInQbo.reviewedAt ? "info" : "danger"} title={<span className="inline-flex flex-wrap items-center gap-1.5">Deleted in QuickBooks — the local record is kept <VersionBadge item="QB-C3" /></span>}>
+        <Banner tone={r.deletedInQbo.reviewedAt ? "info" : "danger"} title={<span className="inline-flex flex-wrap items-center gap-1.5">Deleted in QuickBooks — the local record is kept <VersionBadge item="QB-C3" withNew={false} /></span>}>
           {r.deletedInQbo.reviewedAt ? `Reviewed by ${userName(db, r.deletedInQbo.reviewedBy)}: ${r.deletedInQbo.note}` : (
             can(user, "finance.code") ? (
               <div className="mt-2 flex gap-2"><Input value={note} onChange={(e) => setNote(e.target.value)} placeholder="What did you find?" /><Button size="sm" onClick={() => act(reviewDeletion, r.id, note).ok && toast.success("Deletion reviewed")}>Record</Button></div>

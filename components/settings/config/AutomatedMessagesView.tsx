@@ -95,7 +95,7 @@ export function AutomatedMessagesView() {
         <div className="space-y-3 lg:col-span-4 lg:max-h-[calc(100vh-9rem)] lg:overflow-y-auto lg:pr-2">
           {items.length === 0 && <p className="rounded-xl border border-dashed border-gray-200 p-6 text-center text-sm text-gray-500">No email templates.</p>}
           {items.map((t) => (
-            <TemplateListItem key={t.id} active={t.id === activeId} icon={<Mail />} title={t.name} subtitle={t.subject ?? ''} onClick={() => select(t.id)} />
+            <TemplateListItem key={t.id} active={t.id === activeId} icon={<Mail />} title={t.name} subtitle={t.subject ?? ''} onClick={() => select(t.id)} badge={t.id === 'am_crew_schedule' ? <VersionBadge item="JS-M4" /> : undefined} />
           ))}
         </div>
 
@@ -123,7 +123,7 @@ export function AutomatedMessagesView() {
                           </button>
                         ))}
                       </span>
-                      <NewBadge /><VersionBadge item="JS-C3" />
+                      <VersionBadge item="JS-C3" />
                     </span>
                   </VersionGate>
                   <span className="flex items-center gap-2 text-xs font-medium text-gray-500">
@@ -164,7 +164,7 @@ export function AutomatedMessagesView() {
                       )}
                     </>
                   )}
-                  <span className="ml-auto flex items-center gap-1.5"><NewBadge /><VersionBadge item="CRM-C3" /></span>
+                  <span className="ml-auto flex items-center gap-1.5"><VersionBadge item="CRM-C3" /></span>
                 </div>
               </VersionGate>
               <div className="flex-1 space-y-6">

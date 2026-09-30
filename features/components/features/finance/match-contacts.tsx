@@ -46,7 +46,7 @@ export function MatchContactsCard() {
   return (
     <Card className="p-4">
       <CardLabel icon={<Users />}>
-        <span className="inline-flex items-center gap-1.5">Match your contacts <NewBadge /><VersionBadge item="QB-M3" /></span>
+        <span className="inline-flex items-center gap-1.5">Match your contacts <VersionBadge item="QB-M3" /></span>
       </CardLabel>
       <p className="mt-1 text-xs text-gray-500">First connection: each QuickBooks customer is matched to a contact here, so nobody is created twice.</p>
       <div className="mt-3 grid grid-cols-3 gap-2">

@@ -32,7 +32,7 @@ export function CustomerReview() {
   return (
     <Card className="p-4">
       <CardLabel icon={<UserCheck />}>
-        <span className="inline-flex items-center gap-1.5">Customers created in QuickBooks <NewBadge /><VersionBadge item="QB-C1" /></span>
+        <span className="inline-flex items-center gap-1.5">Customers created in QuickBooks <VersionBadge item="QB-C1" /></span>
       </CardLabel>
       <p className="mt-1 text-xs text-gray-500">Someone added these in QuickBooks. Link each one to a contact here, add it as a contact, or ignore it.</p>
       <div className="mt-3">

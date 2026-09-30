@@ -43,7 +43,7 @@ export function ReconcileModal({ account, onClose }: { account: BankAccount; onC
 
   return (
     <Modal open onOpenChange={(v) => !v && onClose()} title={`Reconcile ${account.name}`} size="lg"
-      description={<span className="inline-flex items-center gap-1.5">Tick what is on the bank statement. Finish when the difference is $0.00. <NewBadge /><VersionBadge item="BK-M5" /></span>}
+      description={<span className="inline-flex items-center gap-1.5">Tick what is on the bank statement. Finish when the difference is $0.00. <VersionBadge item="BK-M5" /></span>}
       footer={
         <div className="flex w-full flex-wrap items-center justify-between gap-3">
           <span className={cn("text-sm font-bold tabular-nums", done ? "text-green-700" : "text-red-600")}>Difference {money(statement === "" ? NaN : diff)}</span>

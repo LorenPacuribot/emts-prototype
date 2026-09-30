@@ -166,7 +166,7 @@ export function UnsentChangesButton() {
   if (!n) return null;
   return (
     <Button variant="primary" onClick={() => useNotifyModal.getState().show()}>
-      <BellRing className="h-4 w-4" /> Unsent changes ({n}) <NewBadge /><VersionBadge item="JS-M3" />
+      <BellRing className="h-4 w-4" /> Unsent changes ({n}) <VersionBadge item="JS-M3" />
     </Button>
   );
 }
@@ -234,7 +234,7 @@ function NotifyCrewModal({ jobIds, title, onClose }: { jobIds?: string[]; title?
   const description = (
     <span className="inline-flex flex-wrap items-center gap-1.5">
       One email per person lists their new, changed and removed jobs. Sandbox: nothing leaves the prototype.
-      <NewBadge /><VersionBadge item="JS-M3" />
+      <VersionBadge item="JS-M3" />
     </span>
   );
 
@@ -381,7 +381,7 @@ function PreviewModal({ people, onBack, lang, setLang }: { people: { memberId: s
   const m = n.member(person?.memberId ?? '');
   const msg = person ? n.messageFor(m, person.changes, complete ? lang : 'en') : undefined;
   return (
-    <Modal open onOpenChange={(v) => !v && onBack()} title="Preview email" size="lg" description={<span className="inline-flex items-center gap-1.5">Schedule Update <NewBadge /><VersionBadge item="JS-M4" /></span>}
+    <Modal open onOpenChange={(v) => !v && onBack()} title="Preview email" size="lg" description={<span className="inline-flex items-center gap-1.5">Schedule Update <VersionBadge item="JS-M4" /></span>}
       footer={<Button variant="secondary" onClick={onBack}>Back</Button>}>
       <div className="mb-4 flex flex-wrap items-center gap-3">
         {people.length > 1 && (

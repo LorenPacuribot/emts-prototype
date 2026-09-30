@@ -29,7 +29,7 @@ export function ChartOfAccountsCard() {
   return (
     <Card className="p-4 xl:col-span-2">
       <CardLabel icon={<ListTree />} right={canEdit && <Button size="sm" variant="primary" onClick={() => setEditing("new")}><Plus className="h-3.5 w-3.5" /> Add account</Button>}>
-        <span className="inline-flex items-center gap-1.5">Chart of accounts (Books) <NewBadge /><VersionBadge item="BK-M2" /><VersionBadge item="BK-C7" /></span>
+        <span className="inline-flex items-center gap-1.5">Chart of accounts (Books) <VersionBadge item="BK-M2" /><VersionBadge item="BK-C7" withNew={false} /></span>
       </CardLabel>
       <p className="mt-1 text-xs text-gray-500">The bookkeeper keeps the chart. System accounts are locked: they can be renamed, not renumbered, retyped or deactivated.</p>
       <Table className="mt-3">
@@ -97,7 +97,7 @@ export function MoveFromQuickBooks() {
   };
   return (
     <Card className="p-4">
-      <CardLabel icon={<ArrowRightLeft />}><span className="inline-flex items-center gap-1.5">Move from QuickBooks <NewBadge /><VersionBadge item="BK-C5" /></span></CardLabel>
+      <CardLabel icon={<ArrowRightLeft />}><span className="inline-flex items-center gap-1.5">Move from QuickBooks <VersionBadge item="BK-C5" /></span></CardLabel>
       {moved ? (
         <p className="mt-2 flex items-center gap-1.5 text-sm text-green-700"><CheckCircle2 className="h-4 w-4" /> Import complete on {dateLong(moved)}. QuickBooks has been disconnected.</p>
       ) : (

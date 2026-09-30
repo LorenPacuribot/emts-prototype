@@ -56,7 +56,7 @@ export function useShowQuickBooks() {
 export function QuickBooksColumnNote() {
   return (
     <div className="mb-3 flex flex-wrap items-center gap-2 text-xs text-gray-500">
-      QuickBooks column <NewBadge feature={33} /> <ConfirmBadge /> <VersionBadge item="QB-M7" />
+      QuickBooks column <NewBadge feature={33} /> <ConfirmBadge /> <VersionBadge item="QB-M7" withNew={false} />
     </div>
   );
 }
@@ -100,7 +100,7 @@ export function QuickBooksCard({ invoiceId }: { invoiceId: string }) {
   return (
     <div className="mx-auto mt-6 max-w-[8.5in] rounded-lg border border-green-300 bg-white p-8 shadow-sm ring-1 ring-green-100 print:hidden" data-tour="invoice-qbo">
       <h4 className="mb-3 flex flex-wrap items-center gap-2 text-lg font-bold text-gray-900">
-        <Landmark className="h-5 w-5 text-gray-500" /> QuickBooks exchange <NewBadge feature={33} /> <ConfirmBadge /> <VersionBadge item="QB-M7" />
+        <Landmark className="h-5 w-5 text-gray-500" /> QuickBooks exchange <NewBadge feature={33} /> <ConfirmBadge /> <VersionBadge item="QB-M7" withNew={false} />
       </h4>
       <VersionGate item="QB-C4">
         <QuickBooksInvoiceSummary invoiceId={invoiceId} />

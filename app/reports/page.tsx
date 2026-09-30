@@ -83,7 +83,7 @@ function ReportsInner() {
   // Finance only for roles that see finance reports, as before. Activity Log is a link on the right.
   const page = (key: TabKey) => {
     const t = TABS.find((x) => x.key === key)!;
-    return { href: hrefFor(key), label: t.label, icon: t.icon, active: tab === key, marker: 'isNew' in t && t.isNew ? <>{<NewTabBadge tab={key as FeatureTabKey} />}{'item' in t && <VersionBadge item={t.item} />}</> : 'item' in t ? <><NewBadge /><VersionBadge item={t.item} /></> : undefined };
+    return { href: hrefFor(key), label: t.label, icon: t.icon, active: tab === key, marker: 'isNew' in t && t.isNew ? <>{<NewTabBadge tab={key as FeatureTabKey} />}{'item' in t && <VersionBadge item={t.item} withNew={false} />}</> : 'item' in t ? <><VersionBadge item={t.item} /></> : undefined };
   };
   const areas: Area[] = REPORT_AREAS.map((a) => ({ key: a.key, label: a.label, pages: a.tabs.filter((k) => visible.some((t) => t.key === k)).map(page) }));
 

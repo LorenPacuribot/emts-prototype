@@ -77,7 +77,7 @@ function Margin({ cutoff, basis }: { cutoff?: string; basis: Basis }) {
   };
   return (
     <Card className="p-4" data-tour="job-margin">
-      <div className="mb-2"><VersionBadge item="QB-C6" /></div>
+      <div className="mb-2"><VersionBadge item="QB-C6" withNew={false} /></div>
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <p className="text-xs text-gray-500">Actual margin = (invoiced revenue ex tax − job cost to date) ÷ invoiced revenue ex tax. Projected margin, for jobs in progress = (contract ex tax − forecast cost) ÷ contract ex tax. The two are never blended.</p>
         <Button size="sm" onClick={csv}><Download className="h-3.5 w-3.5" /> CSV</Button>

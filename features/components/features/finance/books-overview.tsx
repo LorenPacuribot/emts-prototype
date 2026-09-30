@@ -62,7 +62,7 @@ export function PaymentsToDepositCard() {
   return (
     <Card className="mb-4 p-4">
       <CardLabel icon={<CreditCard />} right={canKeepBooks(user) && <Button size="sm" variant="primary" disabled={waiting <= 0} onClick={() => { setGross(waiting.toFixed(2)); setFee((Math.round(waiting * 2.9 + 30) / 100).toFixed(2)); setOpen(true); }}>Match batch</Button>}>
-        <span className="inline-flex items-center gap-1.5">Payments to deposit <NewBadge /><VersionBadge item="BK-M10" /></span>
+        <span className="inline-flex items-center gap-1.5">Payments to deposit <VersionBadge item="BK-M10" /></span>
       </CardLabel>
       <div className="mt-2 flex flex-wrap items-baseline gap-2">
         <span className="font-heading text-2xl font-extrabold tabular-nums text-ink">{money(waiting)}</span>
@@ -104,7 +104,7 @@ export function BooksOverview() {
   return (
     <>
       <div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gray-500">
-        <BookOpen className="h-4 w-4" /> Estimate Master Books <NewBadge /><VersionBadge item="BK-M1" />
+        <BookOpen className="h-4 w-4" /> Estimate Master Books <VersionBadge item="BK-M1" />
       </div>
       <StatStrip className="mb-4">
         <Stat label="Cash in bank" value={money(cash)} hint="1000 Chase Checking" />
@@ -117,7 +117,7 @@ export function BooksOverview() {
 
       <Card className="mb-4 p-4">
         <CardLabel icon={<ReceiptText />}>
-          <span className="inline-flex items-center gap-1.5">Unpaid invoices <NewBadge /><VersionBadge item="BK-M11" /></span>
+          <span className="inline-flex items-center gap-1.5">Unpaid invoices <VersionBadge item="BK-M11" /></span>
         </CardLabel>
         {unpaid.length === 0 ? <EmptyState title="Nothing owed" body="Every invoice in the books is paid." /> : (
           <Table className="mt-3">

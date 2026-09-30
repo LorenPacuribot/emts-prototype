@@ -31,7 +31,7 @@ export function StageHistoryCard({ lead }: { lead: Lead }) {
       <div className="mb-5 flex items-center gap-2 text-gray-500">
         <History className="h-4 w-4" />
         <span className="text-xs font-bold uppercase tracking-widest">Stage history</span>
-        <NewBadge /><VersionBadge item="CRM-M7" />
+        <VersionBadge item="CRM-M7" />
       </div>
       {rows.length === 0 ? (
         <p className="text-sm italic text-gray-500">No stage changes yet.</p>
@@ -74,7 +74,7 @@ export function JourneyBar({ lead }: { lead: Lead }) {
       <div className="mb-4 flex items-center gap-2 text-gray-500">
         <Route className="h-4 w-4" />
         <span className="text-xs font-bold uppercase tracking-widest">Journey</span>
-        <NewBadge /><VersionBadge item="CRM-C7" />
+        <VersionBadge item="CRM-C7" />
       </div>
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {steps.map(({ p, cols, at }) => (

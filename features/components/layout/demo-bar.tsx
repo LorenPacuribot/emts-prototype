@@ -13,7 +13,7 @@ import { useDataActions } from "@/lib/store";
 import { canResume, useTour } from "@/features/lib/tour";
 import { useStartTour } from "@/features/components/tour/product-tour";
 import { ROLE_LABEL } from "@/features/lib/permissions";
-import { Button, ConfirmDialog, Select, Switch } from "@/features/components/ui";
+import { Button, ConfirmDialog, Select, Switch, VersionBadge } from "@/features/components/ui";
 import { cn } from "@/features/lib/cn";
 import { useVersion, type PrototypeVersion } from "@/features/lib/prototype-version";
 
@@ -71,14 +71,14 @@ export function DemoBar() {
               </Select>
             </label>
             <label className="block">
-              <span className="text-xxs font-bold uppercase tracking-[0.14em] text-gray-400">Version</span>
+              <span className="flex items-center gap-1.5 text-xxs font-bold uppercase tracking-[0.14em] text-gray-400">Version <VersionBadge item="X-M1" /></span>
               <Select value={version} onChange={(e) => setVersion(e.target.value as PrototypeVersion)} className="mt-1 h-9 border-gray-600 bg-gray-800 text-white">
                 <option value="minimal">Minimal</option>
                 <option value="complete">Complete</option>
               </Select>
             </label>
             <div className="text-xs font-bold text-gray-200">
-              <Switch checked={hideMarkers} onCheckedChange={setHideMarkers} label="Hide markers" />
+              <Switch checked={hideMarkers} onCheckedChange={setHideMarkers} label={<span className="inline-flex items-center gap-1.5">Hide markers <VersionBadge item="X-M1" /></span>} />
             </div>
             <Button size="sm" variant="primary" className="w-full justify-center" onClick={() => { setOpen(false); startTour(resumable); }}>
               <Compass className="h-3.5 w-3.5" /> {resumable ? `Resume product tour (stop ${tourStop + 1})` : "Start product tour"}

@@ -135,7 +135,7 @@ export function PipelineStagesView() {
             </button>
           ))}
         </div>
-        <NewBadge /><VersionBadge item="CRM-M1" />
+        <VersionBadge item="CRM-M1" />
         <VersionGate item="CRM-C2">
           <Button variant="secondary" size="sm" icon={<Plus className="h-4 w-4" />} onClick={() => setAdding(true)}>
             Add pipeline <VersionBadge item="CRM-C2" />
@@ -145,7 +145,7 @@ export function PipelineStagesView() {
 
       <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
         <div className="flex items-center justify-between border-b border-gray-100 px-5 py-3 text-xs font-bold uppercase tracking-wider text-gray-500">
-          <span className="flex items-center gap-2">Stages <NewBadge /><VersionBadge item="CRM-M2" /></span>
+          <span className="flex items-center gap-2">Stages <VersionBadge item="CRM-M2" /></span>
           <span>{columns.length} of {MAX_STAGES}</span>
         </div>
         <ul>

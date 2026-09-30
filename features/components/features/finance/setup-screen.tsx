@@ -124,7 +124,7 @@ function Setup() {
         </Card>
 
         <Card className="p-4">
-          <CardLabel><span className="inline-flex items-center gap-1.5">Account mappings (bookkeeper) <VersionBadge item="BK-C7" /></span></CardLabel>
+          <CardLabel><span className="inline-flex items-center gap-1.5">Account mappings (bookkeeper) <VersionBadge item="BK-C7" withNew={false} /></span></CardLabel>
           <p className="mt-1 text-xs text-gray-500">A mapping change never silently changes a posted transaction.</p>
           <Table className="mt-3">
             <THead><tr><TH>Category</TH><TH>QuickBooks account</TH>{can(user, "finance.config") && <TH />}</tr></THead>
@@ -158,7 +158,7 @@ function Setup() {
           <CardLabel icon={<History />}>Periods, payroll journal and migration</CardLabel>
           <div className="mt-3 space-y-3 text-xs">
             <div>
-              <div className="flex items-center gap-1.5 font-semibold text-gray-700">Closed periods <VersionBadge item="BK-M7" /></div>
+              <div className="flex items-center gap-1.5 font-semibold text-gray-700">Closed periods <VersionBadge item="BK-M7" withNew={false} /></div>
               <div className="mt-1 flex flex-wrap items-center gap-1.5">
                 {fs.closedPeriods.map((p) => <Badge key={p} tone="gray">{p}</Badge>)}
                 {can(user, "finance.config") && openPeriod && <Button size="sm" onClick={() => act(closePeriod, openPeriod).ok && toast.success(`${openPeriod} closed`)}>Close {openPeriod}</Button>}

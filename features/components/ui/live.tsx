@@ -48,10 +48,14 @@ export function ConfirmBadge({ className }: { className?: string }) {
  * Version marker for items from the 30 Sep call (X-M1). Same shape as
  * NewBadge. Complete uses purple-700, not brand purple, so white text keeps
  * 4.5:1 contrast.
+ *
+ * Every new part carries NEW plus its version, so the NEW badge comes with
+ * it. Parts that already existed (marked "Exists" in the plan) pass
+ * withNew={false} and get the version marker only.
  */
-export function VersionBadge({ item, className }: { item: string; className?: string }) {
+export function VersionBadge({ item, className, withNew = true }: { item: string; className?: string; withNew?: boolean }) {
   const complete = isCompleteItem(item);
-  return (
+  const badge = (
     <Tooltip content={`${item} · ${complete ? "Complete" : "Minimal"} version`}>
       <span
         data-version-badge
@@ -64,6 +68,13 @@ export function VersionBadge({ item, className }: { item: string; className?: st
         {complete ? "Complete" : "Minimal"}
       </span>
     </Tooltip>
+  );
+  if (!withNew) return badge;
+  return (
+    <span className="inline-flex shrink-0 items-center gap-1.5 align-middle">
+      <NewBadge />
+      {badge}
+    </span>
   );
 }
 

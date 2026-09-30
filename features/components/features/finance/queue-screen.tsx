@@ -50,7 +50,7 @@ function Queue() {
   return (
     <>
       <PageHeader
-        eyebrow={<VersionBadge item="QB-M5" />}
+        eyebrow={<VersionBadge item="QB-M5" withNew={false} />}
         title="Transfer Queue"
         subtitle={`Records moving between Estimate Master and QuickBooks. Next run ${dateTime(nextExchangeRun(new Date(now())).toISOString())}.`}
         actions={can(user, "finance.exchange") && <Button variant="primary" onClick={() => { const r = act(runExchange); if (r.ok) { const v = r.value as { accepted: number; rejected: number }; toast.success("Exchange run complete", `${v.accepted} accepted, ${v.rejected} rejected.`); } }}><RefreshCw className="h-4 w-4" /> Run exchange now</Button>}

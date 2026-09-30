@@ -250,11 +250,11 @@ function LeadPipeline() {
             ))}
             <VersionGate item="CRM-C2">
               <button type="button" onClick={() => setAddingPipeline(true)} className={seg(false)} title="Add a pipeline, e.g. Marketing">
-                <Plus className="h-3.5 w-3.5" /> Add pipeline
+                <Plus className="h-3.5 w-3.5" /> Add pipeline <VersionBadge item="CRM-C2" />
               </button>
             </VersionGate>
           </div>
-          <NewBadge /><VersionBadge item="CRM-M1" />
+          <VersionBadge item="CRM-M1" />
           {pipeline?.kind !== 'production' && (
             <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-gray-500">
               Source
@@ -262,7 +262,7 @@ function LeadPipeline() {
                 <option value="">All sources</option>
                 {sources.map((s) => <option key={s} value={s}>{s}</option>)}
               </NativeSelect>
-              <NewBadge /><VersionBadge item="CRM-M6" />
+              <VersionBadge item="CRM-M6" />
             </label>
           )}
           {pipeline?.kind === 'sales' && (
@@ -330,7 +330,7 @@ function LeadPipeline() {
       <Modal
         open={!!leaving}
         onOpenChange={(o) => !o && setLeaving(null)}
-        title="Keep this job in Production?"
+        title={<span className="inline-flex items-center gap-2">Keep this job in Production? <VersionBadge item="CRM-M3" /></span>}
         size="sm"
         footer={
           <>
