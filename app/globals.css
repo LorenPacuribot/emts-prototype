@@ -194,3 +194,25 @@
     background: #fff;
   }
 }
+
+/*
+  Roomy module screens (Time, Supplier Orders, Repaint Alerts, Accounting,
+  Marketing): the calmer Time and Payroll type scale. Screens there were
+  written at 10–12px; inside <main class="roomy"> the small sizes step up so
+  nothing is under 12px and body text reads at 13–15px. Drawers and modals
+  render in a portal outside <main>, so they keep the compact sizes.
+*/
+@layer utilities {
+  .roomy .text-xxs {
+    font-size: 0.75rem;
+    line-height: 1rem;
+  }
+  .roomy .text-xs {
+    font-size: 0.8125rem;
+    line-height: 1.25rem;
+  }
+  .roomy .text-sm {
+    font-size: 0.9375rem;
+    line-height: 1.5rem;
+  }
+}

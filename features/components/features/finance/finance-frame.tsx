@@ -11,13 +11,13 @@
  * approve crew claims.
  */
 import type { ReactNode } from "react";
-import { ArrowLeftRight, BarChart3, Bell, BookOpen, FileCheck2, Inbox, Landmark, Lock, ReceiptText, Repeat, Search, Settings2, Wallet, Waves } from "lucide-react";
+import { ArrowLeftRight, BarChart3, Bell, FileCheck2, Inbox, Landmark, Lock, ReceiptText, Repeat, Search, Settings2, Wallet, Waves } from "lucide-react";
 import type { User } from "@/features/types";
 import { useCurrentUser, useDb } from "@/features/lib/store";
 import { can } from "@/features/lib/permissions";
-import { Screen } from "@/features/components/layout/screen";
-import { SubNav } from "@/features/components/layout/sub-nav";
-import { Button, ConfirmBadge, EmptyState, NewBadge } from "@/features/components/ui";
+import { PageHeaderBelow, Screen } from "@/features/components/layout/screen";
+import { SectionTabs } from "@/features/components/layout/section-tabs";
+import { Button, ConfirmBadge, EmptyState } from "@/features/components/ui";
 import { SettingsShell } from "@/features/components/features/settings/settings-shell";
 import { dateTime } from "@/features/lib/format";
 import { toast } from "@/features/lib/toast";
@@ -66,38 +66,31 @@ export function FinanceFrame({ tab, children }: { tab: FinanceTabKey; children: 
     );
   }
 
+  // Sections as an underline tab row under the page title (no second sidebar).
+  const tabs = (
+    <SectionTabs
+      label="Accounting sections"
+      note={<><ConfirmBadge /> <span>QuickBooks Online owns the ledger. Estimate Master owns the job. Nothing here moves money.</span></>}
+      groups={[FINANCE_TABS.filter((t) => t.key !== "setup" && canSeeFinanceTab(user, t.key)).map((t) => ({
+        href: t.path, label: t.label, icon: t.icon, active: t.key === tab,
+        badge: t.key === "queue" ? rejected || undefined : t.key === "unallocated" ? toCode || undefined : t.key === "reimbursements" ? claims || undefined : t.key === "feeds" ? toReview || undefined : t.key === "alerts" ? alerts || undefined : undefined,
+      }))]}
+    />
+  );
+
   return (
-    <Screen
-      crumbs={[{ label: "Accounting", href: can(user, "finance.access") ? "/accounting" : "/accounting/reimbursements" }, { label: meta.label }]}
-      sidebar={
-        <SubNav
-          header={
-            <div className="hidden lg:block">
-              <div className="flex items-center gap-2 font-display text-sm font-bold text-ink"><BookOpen className="h-4 w-4 text-brand" /> Accounting <NewBadge feature={33} /></div>
-              <div className="mt-1"><ConfirmBadge /></div>
-              <div className="mt-0.5 text-xs text-gray-500">QuickBooks Online owns the ledger. Estimate Master owns the job. Nothing here moves money.</div>
-            </div>
-          }
-          groups={[
-            {
-              title: "Accounting",
-              items: FINANCE_TABS.filter((t) => t.key !== "setup" && canSeeFinanceTab(user, t.key)).map((t) => ({
-                href: t.path, label: t.label, icon: t.icon,
-                badge: t.key === "queue" ? rejected || undefined : t.key === "unallocated" ? toCode || undefined : t.key === "reimbursements" ? claims || undefined : t.key === "feeds" ? toReview || undefined : t.key === "alerts" ? alerts || undefined : undefined,
-              })),
-            },
-          ]}
-        />
-      }
-    >
+    <Screen roomy crumbs={[{ label: "Accounting", href: can(user, "finance.access") ? "/accounting" : "/accounting/reimbursements" }, { label: meta.label }]}>
       {canSeeFinanceTab(user, tab) ? (
-        children
+        <PageHeaderBelow.Provider value={tabs}>{children}</PageHeaderBelow.Provider>
       ) : (
+        <>
+        <div className="mb-6">{tabs}</div>
         <EmptyState
           icon={<Lock />}
           title="Finance is restricted"
-          body={user.role === "crew_lead" ? "Crew leads use Reimbursements, in the menu, to submit and approve crew claims. The rest of Finance is for the owner, office manager and bookkeeper." : "Company finance is for the business owner, office manager and bookkeeper. Estimators keep their own-job performance view under Reports."}
+          body={user.role === "crew_lead" ? "Crew leads use Reimbursements, in the tabs above, to submit and approve crew claims. The rest of Finance is for the owner, office manager and bookkeeper." : "Company finance is for the business owner, office manager and bookkeeper. Estimators keep their own-job performance view under Reports."}
         />
+        </>
       )}
     </Screen>
   );

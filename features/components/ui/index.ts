@@ -7,3 +7,4 @@ export * from "./menu";
 export * from "./misc";
 export * from "./table";
 export * from "./live";
+export * from "./roomy";

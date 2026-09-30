@@ -1,6 +1,7 @@
 "use client";
 import { useLayoutEffect, useRef, type ReactNode, type TdHTMLAttributes, type ThHTMLAttributes } from "react";
 import { cn } from "@/features/lib/cn";
+import { useRoomy } from "./roomy";
 
 /**
  * Table styled like the Pending Sales widget: grey header band, uppercase
@@ -10,6 +11,7 @@ import { cn } from "@/features/lib/cn";
  */
 export function Table({ children, className }: { children: ReactNode; className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
+  const roomy = useRoomy();
   // Copy each header's text onto its column's cells for the card layout (runs after every render, cheap).
   useLayoutEffect(() => {
     const table = ref.current?.querySelector(":scope > table");
@@ -27,7 +29,7 @@ export function Table({ children, className }: { children: ReactNode; className?
   });
   return (
     <div ref={ref} className={cn("rtable overflow-x-auto rounded-xl border border-line", className)}>
-      <table className="w-full min-w-max border-collapse text-left text-xs">{children}</table>
+      <table className={cn("w-full min-w-max border-collapse text-left", roomy ? "text-sm" : "text-xs")}>{children}</table>
     </div>
   );
 }
@@ -37,7 +39,8 @@ export function THead({ children }: { children: ReactNode }) {
 }
 
 export function TH({ className, ...rest }: ThHTMLAttributes<HTMLTableCellElement>) {
-  return <th className={cn("border-b border-line px-3 py-2.5 text-xxs font-bold uppercase tracking-[0.12em] text-gray-500", className)} {...rest} />;
+  const roomy = useRoomy();
+  return <th className={cn("border-b border-line px-3 py-2.5 text-xxs font-bold uppercase tracking-[0.12em] text-gray-500", roomy && "px-4 py-3 text-xs", className)} {...rest} />;
 }
 
 /**
@@ -67,5 +70,6 @@ export function TR({ className, onClick, onKeyDown, ...rest }: React.HTMLAttribu
 }
 
 export function TD({ className, ...rest }: TdHTMLAttributes<HTMLTableCellElement>) {
-  return <td className={cn("px-3 py-2.5 align-middle text-gray-700", className)} {...rest} />;
+  const roomy = useRoomy();
+  return <td className={cn("px-3 py-2.5 align-middle text-gray-700", roomy && "px-4 py-3.5", className)} {...rest} />;
 }

@@ -4,6 +4,7 @@ import { AlertTriangle, CheckCircle2, Info, OctagonAlert, X } from "lucide-react
 import { cn } from "@/features/lib/cn";
 import { useToasts } from "@/features/lib/toast";
 import { usText } from "@/features/lib/display-text";
+import { useRoomy } from "./roomy";
 
 /**
  * One component for tabs and filters, two looks (H4, S5):
@@ -18,9 +19,10 @@ export function PillTabs<T extends string>({ options, value, onChange, className
   className?: string;
   kind?: "view" | "filter";
 }) {
+  const roomy = useRoomy();
   if (kind === "view") {
     return (
-      <div className={cn("flex gap-1 overflow-x-auto border-b border-gray-200 custom-scrollbar", className)} role="tablist" data-tour="pill-tabs">
+      <div className={cn("flex gap-1 overflow-x-auto border-b border-gray-200 custom-scrollbar", roomy && "gap-3", className)} role="tablist" data-tour="pill-tabs">
         {options.map((o) => (
           <button
             key={o.value}
@@ -29,12 +31,37 @@ export function PillTabs<T extends string>({ options, value, onChange, className
             onClick={() => onChange(o.value)}
             className={cn(
               "-mb-px inline-flex h-11 shrink-0 items-center border-b-2 px-3 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400/60",
+              roomy && "h-12",
               value === o.value ? "border-primary-600 text-primary-700" : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-900",
             )}
           >
             {o.label}
             {o.count !== undefined && (
               <span className={cn("ml-1.5 rounded-full px-1.5 text-xs", value === o.value ? "bg-primary-100 text-primary-700" : "bg-gray-100 text-gray-600")}>{o.count}</span>
+            )}
+          </button>
+        ))}
+      </div>
+    );
+  }
+  if (roomy) {
+    // The Time and Payroll chips: 40px (44px on phones), one sideways-scrolling row on phones.
+    return (
+      <div className={cn("flex gap-2 overflow-x-auto no-scrollbar md:flex-wrap md:overflow-visible", className)} role="tablist" data-tour="pill-tabs">
+        {options.map((o) => (
+          <button
+            key={o.value}
+            role="tab"
+            aria-selected={value === o.value}
+            onClick={() => onChange(o.value)}
+            className={cn(
+              "inline-flex h-11 shrink-0 items-center gap-2 whitespace-nowrap rounded-full border px-4 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400/60 md:h-10",
+              value === o.value ? "border-primary-300 bg-primary-50 text-primary-700" : "border-gray-200 bg-white text-gray-700 hover:bg-gray-50 hover:text-gray-900",
+            )}
+          >
+            {o.label}
+            {o.count !== undefined && (
+              <span className={cn("rounded-full px-2 py-0.5 text-xs font-bold tabular-nums", value === o.value ? "bg-primary-600 text-white" : "bg-gray-100 text-gray-600")}>{o.count}</span>
             )}
           </button>
         ))}
@@ -89,9 +116,10 @@ export function Banner({ tone = "info", title, children, action, className }: { 
     success: "border-green-200 bg-green-50 text-green-900",
   };
   const Icon = { info: Info, warn: AlertTriangle, danger: OctagonAlert, success: CheckCircle2 }[tone];
+  const roomy = useRoomy();
   return (
-    <div className={cn("flex items-start gap-3 rounded-xl border px-4 py-3 text-xs", styles[tone], className)} role={tone === "danger" ? "alert" : "status"}>
-      <Icon className="mt-0.5 h-4 w-4 shrink-0" />
+    <div className={cn("flex items-start gap-3 rounded-xl border", roomy ? "px-5 py-3.5 text-sm" : "px-4 py-3 text-xs", styles[tone], className)} role={tone === "danger" ? "alert" : "status"}>
+      <Icon className={cn("shrink-0", roomy ? "mt-0.5 h-5 w-5" : "mt-0.5 h-4 w-4")} />
       <div className="min-w-0 flex-1">
         {title && <div className="font-semibold">{title}</div>}
         {children && <div className={cn(title && "mt-0.5", "opacity-90")}>{children}</div>}

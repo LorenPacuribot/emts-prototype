@@ -8,6 +8,7 @@ import { X } from "lucide-react";
 import type { ReactNode } from "react";
 import { cn } from "@/features/lib/cn";
 import { Button } from "./button";
+import { RoomyContext } from "./roomy";
 
 export function Modal({ open, onOpenChange, title, description, children, footer, size = "md" }: {
   open: boolean;
@@ -22,6 +23,7 @@ export function Modal({ open, onOpenChange, title, description, children, footer
   return (
     <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
       <DialogPrimitive.Portal>
+        <RoomyContext.Provider value={false}>
         <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-gray-900/40 backdrop-blur-[1px] data-[state=open]:animate-in-fade" />
         <DialogPrimitive.Content
           className={cn(
@@ -45,6 +47,7 @@ export function Modal({ open, onOpenChange, title, description, children, footer
           <div className="flex-1 overflow-y-auto px-6 py-5">{children}</div>
           {footer && <div className="flex flex-wrap items-center justify-end gap-2 border-t border-line bg-gray-50/60 px-6 py-3 rounded-b-2xl">{footer}</div>}
         </DialogPrimitive.Content>
+      </RoomyContext.Provider>
       </DialogPrimitive.Portal>
     </DialogPrimitive.Root>
   );
@@ -63,6 +66,7 @@ export function Drawer({ open, onOpenChange, title, subtitle, children, footer, 
   return (
     <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
       <DialogPrimitive.Portal>
+        <RoomyContext.Provider value={false}>
         <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-gray-900/30 data-[state=open]:animate-in-fade" />
         <DialogPrimitive.Content className={cn("fixed right-0 top-0 z-50 flex h-full w-full flex-col bg-white shadow-2xl data-[state=open]:animate-in-slide", width)}>
           <div className="flex items-start justify-between gap-4 border-b border-line px-6 py-4">
@@ -79,6 +83,7 @@ export function Drawer({ open, onOpenChange, title, subtitle, children, footer, 
           <div className="flex-1 space-y-5 overflow-y-auto px-6 py-5">{children}</div>
           {footer && <div className="flex flex-wrap items-center justify-end gap-2 border-t border-line bg-gray-50/60 px-6 py-3">{footer}</div>}
         </DialogPrimitive.Content>
+      </RoomyContext.Provider>
       </DialogPrimitive.Portal>
     </DialogPrimitive.Root>
   );
@@ -97,6 +102,7 @@ export function ConfirmDialog({ open, onOpenChange, title, body, confirmLabel = 
   return (
     <AlertPrimitive.Root open={open} onOpenChange={onOpenChange}>
       <AlertPrimitive.Portal>
+        <RoomyContext.Provider value={false}>
         <AlertPrimitive.Overlay className="fixed inset-0 z-[60] bg-gray-900/40" />
         <AlertPrimitive.Content className="fixed left-1/2 top-1/2 z-[60] w-[calc(100vw-32px)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-white p-6 shadow-2xl data-[state=open]:animate-in-pop">
           <AlertPrimitive.Title className="font-display text-lg font-bold text-ink">{title}</AlertPrimitive.Title>
@@ -114,6 +120,7 @@ export function ConfirmDialog({ open, onOpenChange, title, body, confirmLabel = 
             </AlertPrimitive.Action>
           </div>
         </AlertPrimitive.Content>
+      </RoomyContext.Provider>
       </AlertPrimitive.Portal>
     </AlertPrimitive.Root>
   );

@@ -1,6 +1,6 @@
 "use client";
 /**
- * Wraps every Service screen: top bar + the Service submenu
+ * Wraps every Service screen: top bar + the Service section tabs under each page title
  * (Repaint Alerts, Follow-Ups, Lifespan Library, Run Log, Monthly Measures).
  * Service is staff-only. Crew leads have no access to this module.
  */
@@ -8,9 +8,9 @@ import type { ReactNode } from "react";
 import { BarChart3, BellRing, BookOpen, History, Lock, PhoneCall } from "lucide-react";
 import { useCurrentUser, useDb } from "@/features/lib/store";
 import { now } from "@/features/lib/clock";
-import { Screen } from "@/features/components/layout/screen";
-import { SubNav } from "@/features/components/layout/sub-nav";
-import { EmptyState, NewBadge } from "@/features/components/ui";
+import { PageHeaderBelow, Screen } from "@/features/components/layout/screen";
+import { SectionTabs } from "@/features/components/layout/section-tabs";
+import { EmptyState } from "@/features/components/ui";
 import { SettingsShell } from "@/features/components/features/settings/settings-shell";
 import { alertQueueState, followUpFlags } from "@/features/lib/rules/alerts";
 
@@ -45,33 +45,27 @@ export function ServiceFrame({ tab, children }: { tab: ServiceTabKey; children: 
     );
   }
 
+  // Sections as an underline tab row under the page title (no second sidebar).
+  const tabs = (
+    <SectionTabs
+      label="Repaint Alerts sections"
+      note={<>Repaint timing and follow-up. Internal only: nothing here is shown to customers.</>}
+      groups={[SERVICE_TABS.filter((s) => s.key !== "library").map((s) => ({
+        href: s.path, label: s.label, icon: s.icon, active: s.key === tab,
+        badge: s.key === "alerts" ? liveCount : s.key === "follow-ups" ? fuCount : s.key === "run-log" ? lastFailed : undefined,
+      }))]}
+    />
+  );
+
   return (
-    <Screen
-      crumbs={[{ label: "Repaint Alerts", href: "/repaint-alerts" }, { label: meta.label }]}
-      sidebar={
-        <SubNav
-          header={
-            <div className="hidden lg:block">
-              <div className="flex items-center gap-2 font-display text-sm font-bold text-ink">Repaint Alerts <NewBadge feature={[27, 29]} /></div>
-              <div className="mt-0.5 text-xs text-gray-500">Repaint timing and follow-up. Internal only — nothing here is shown to customers.</div>
-            </div>
-          }
-          groups={[
-            {
-              title: "Repaint Alerts",
-              items: SERVICE_TABS.filter((s) => s.key !== "library").map((s) => ({
-                href: s.path, label: s.label, icon: s.icon,
-                badge: s.key === "alerts" ? liveCount : s.key === "follow-ups" ? fuCount : s.key === "run-log" ? lastFailed : undefined,
-              })),
-            },
-          ]}
-        />
-      }
-    >
+    <Screen roomy crumbs={[{ label: "Repaint Alerts", href: "/repaint-alerts" }, { label: meta.label }]}>
       {user.role === "crew_lead" ? (
-        <EmptyState icon={<Lock />} title="Service is for office and estimating staff" body="Repaint alerts and follow-ups are internal sales tools. Ask the office manager if you need something from here." />
+        <>
+          <div className="mb-6">{tabs}</div>
+          <EmptyState icon={<Lock />} title="Service is for office and estimating staff" body="Repaint alerts and follow-ups are internal sales tools. Ask the office manager if you need something from here." />
+        </>
       ) : (
-        children
+        <PageHeaderBelow.Provider value={tabs}>{children}</PageHeaderBelow.Provider>
       )}
     </Screen>
   );

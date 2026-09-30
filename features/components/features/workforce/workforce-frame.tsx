@@ -11,9 +11,8 @@ import type { User } from "@/features/types";
 import { useCurrentUser, useDb } from "@/features/lib/store";
 import { can } from "@/features/lib/permissions";
 import { now } from "@/features/lib/clock";
-import { cn } from "@/features/lib/cn";
-import { AppLink } from "@/features/lib/navigation";
 import { PageHeaderBelow, Screen } from "@/features/components/layout/screen";
+import { SectionTabs } from "@/features/components/layout/section-tabs";
 import { EmptyState } from "@/features/components/ui";
 import { entryConflicts, weekEntries } from "@/features/lib/store/actions/workforce";
 import { addDaysToDay, localDay, weekStartOf } from "@/features/lib/rules/payroll";
@@ -61,29 +60,10 @@ export function WorkforceFrame({ tab, children }: { tab: WorkforceTabKey; childr
 
   // The module's sections, as an underline tab row under the page title (no second sidebar).
   const tabs = (
-    <nav data-tour="subnav" aria-label="Time sections" className="no-print -mx-4 flex gap-6 overflow-x-auto border-b border-gray-200 px-4 no-scrollbar md:mx-0 md:px-0">
-      {WORKFORCE_TABS.filter((t) => canSeeTab(user, t.key)).map((t) => {
-        const active = t.key === tab;
-        const badge = badgeFor(t.key);
-        return (
-          <AppLink
-            key={t.key}
-            href={t.path}
-            aria-current={active ? "page" : undefined}
-            className={cn(
-              "-mb-px flex shrink-0 items-center gap-2 whitespace-nowrap border-b-2 pb-3 pt-1 text-[15px] font-semibold transition-colors",
-              active ? "border-primary-600 text-primary-700" : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-800",
-            )}
-          >
-            <t.icon className="h-4 w-4" aria-hidden />
-            {t.label}
-            {badge !== undefined && (
-              <span className={cn("rounded-full px-2 py-0.5 text-xs font-bold", active ? "bg-primary-100 text-primary-700" : "bg-gray-100 text-gray-600")}>{badge}</span>
-            )}
-          </AppLink>
-        );
-      })}
-    </nav>
+    <SectionTabs
+      label="Time sections"
+      groups={[WORKFORCE_TABS.filter((t) => canSeeTab(user, t.key)).map((t) => ({ href: t.path, label: t.label, icon: t.icon, active: t.key === tab, badge: badgeFor(t.key) }))]}
+    />
   );
 
   return (

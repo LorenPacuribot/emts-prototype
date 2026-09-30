@@ -111,6 +111,19 @@ This phase closes what Phases 1 to 7 left partly done, then checks the running a
 
 Browser pass: 35 routes at 375, 768 and 1280px in Chrome, signed in as the owner. They cover every main module, the job and work order detail pages, and the settings screens most affected. No page scrolls sideways at any width, and there were no runtime errors. axe (serious and critical rules) went from 6 failing rules to 1. The one left is color contrast on elements that are dimmed on purpose: disabled permission checkboxes on Roles & Permissions (WCAG exempts inactive controls) and products marked Inactive in the Paint Library.
 
+### Module layout: Time and Payroll, then Supplier Orders, Repaint Alerts, Accounting and Marketing
+
+Time and Payroll was redesigned to look like the live Contacts page: big clear numbers, fewer boxes, more white space and 14–16px text. The same layout now covers the other four modules. Layout and styling only: no calculation, filter, permission, route, tour target, drawer or empty state changed.
+
+| Screen / area | What changed | Files |
+| --- | --- | --- |
+| Time and Payroll (`/time`) | Four stat cards instead of a seven-stat strip, a one-line missing-time banner, filter chips inside the timesheet card with "Showing X of Y days", the timesheet grouped by employee with one clickable row per day (a card per day on phones), and list-style bottom cards with real headings. | `workforce/time-review-screen.tsx`, `workforce/shared.tsx` |
+| Section tabs instead of a second sidebar | Time, Supplier Orders, Repaint Alerts, Accounting and Marketing show their sections as an underline tab row under the page title, with the same role filtering and badges. It scrolls sideways on phones and wraps on wide screens (Marketing's 15 destinations take three rows). The row keeps `data-tour="subnav"`. The one module-wide fact from each old sidebar header now sits in a short line under the tabs: "Internal only" for Repaint Alerts, the client-confirmation badge and "nothing here moves money" for Accounting, and "Sandbox" for Marketing. The Repaint Alerts page drops its own "Internal only" badge, since the line says it on every Repaint Alerts page. | `features/components/layout/section-tabs.tsx` (new), `screen.tsx` (a `PageHeaderBelow` slot), the five module frames |
+| Roomy layout | The four frames turn on a "roomy" mode (`Screen roomy`), which the shared parts read: each stat in a `StatStrip` becomes its own card (13px label, 26–30px number, two across on phones); filter chips are 40px (44px on phones) with a solid blue count when selected, in one sideways-scrolling row on phones; tables use 15px rows and 13px headers; `CardLabel` becomes a 20px `h2`; banners use 15px text; page subtitles are 16–18px; and header actions stay together on the right. Inside these modules the small text classes step up (10px to 12px, 12px to 13px, 14px to 15px), so nothing is under 12px. Drawers and modals switch roomy off, so they keep the compact look. Every other module is unchanged. | `features/components/ui/roomy.tsx` (new), `card.tsx`, `misc.tsx`, `table.tsx`, `dialog.tsx`, `app/globals.css` |
+| Feature form labels | The feature `Field` now links its label to a single Input, Select or Textarea child, as the live `Field` already does, so every feature form's labels work for clicks and screen readers. | `features/components/ui/form.tsx` |
+
+Checked in Chrome at 1440 and 390px on all 31 routes in the five modules (production build): the roomy layout and tab row appear on every one, no page scrolls sideways, no text is under 12px, there are no runtime errors, and axe reports nothing serious or critical. The settings pages these modules link to (Suppliers and Branches, Product Mapping, Lifespan Library, Vendors & Mappings) use the live Settings layout and were left as they are.
+
 ## Moved, not removed
 
 | Action | Was | Now |

@@ -1,4 +1,4 @@
-import { forwardRef, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes, type TextareaHTMLAttributes } from "react";
+import { Children, cloneElement, forwardRef, isValidElement, useId, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes, type TextareaHTMLAttributes } from "react";
 import * as CheckboxPrimitive from "@radix-ui/react-checkbox";
 import * as SwitchPrimitive from "@radix-ui/react-switch";
 import { Check } from "lucide-react";
@@ -39,6 +39,9 @@ export const Select = forwardRef<HTMLSelectElement, SelectHTMLAttributes<HTMLSel
 });
 
 /** Label + control + hint/error. */
+/** Form controls that Field links to its label (see Field). */
+const LABELLABLE = new Set<unknown>([Input, Textarea, Select]);
+
 export function Field({ label, htmlFor, required, error, hint, children, className }: {
   label: ReactNode;
   htmlFor?: string;
@@ -48,13 +51,18 @@ export function Field({ label, htmlFor, required, error, hint, children, classNa
   children: ReactNode;
   className?: string;
 }) {
+  // With no htmlFor, tie the label to a single Input, Select or Textarea child, so
+  // clicking the label focuses it and screen readers announce the label as its name.
+  const autoId = useId();
+  const child = !htmlFor && Children.count(children) === 1 && isValidElement<{ id?: string }>(children) && LABELLABLE.has(children.type) ? children : null;
+  const id = htmlFor ?? (child ? child.props.id ?? autoId : undefined);
   return (
     <div className={cn("space-y-1.5", className)}>
-      <label htmlFor={htmlFor} className="block text-xs font-semibold text-gray-700">
+      <label htmlFor={id} className="block text-xs font-semibold text-gray-700">
         {label}
         {required && <span className="ml-0.5 text-red-500">*</span>}
       </label>
-      {children}
+      {child && !child.props.id ? cloneElement(child, { id }) : children}
       {error ? <p className="text-xs font-medium text-red-600">{error}</p> : hint ? <p className="text-xs text-gray-500">{hint}</p> : null}
     </div>
   );

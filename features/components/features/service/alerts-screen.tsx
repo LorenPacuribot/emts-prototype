@@ -93,7 +93,6 @@ function AlertsQueue() {
   return (
     <>
       <PageHeader
-        eyebrow={<Badge tone="green">Internal only</Badge>}
         title="Repaint Alerts"
         subtitle="Surfaces entering their advance-notice window, grouped into one opportunity per property. A person reviews every one before any contact."
         actions={

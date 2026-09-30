@@ -1,17 +1,17 @@
 "use client";
 /**
- * Wraps every Marketing screen (feature 34) with the Marketing submenu.
+ * Wraps every Marketing screen (feature 34) with the Marketing section tabs under each page title.
  * The office drafts and posts; the business owner approves identifiable
  * content and controls the accounts. Other roles don't see Marketing.
  */
 import type { ReactNode } from "react";
-import { BadgeDollarSign, BarChart3, CalendarDays, FileText, Globe, Images, Inbox, LayoutTemplate, Lightbulb, Lock, Mail, Megaphone, Share2, Star, Target, Ticket, Workflow } from "lucide-react";
+import { BadgeDollarSign, BarChart3, CalendarDays, FileText, Globe, Images, Inbox, LayoutTemplate, Lightbulb, Lock, Mail, Share2, Star, Target, Ticket, Workflow } from "lucide-react";
 import { trendAlerts } from "@/features/lib/rules/marketing-growth";
 import { now } from "@/features/lib/clock";
 import { useCurrentUser, useDb } from "@/features/lib/store";
 import { can } from "@/features/lib/permissions";
-import { Screen } from "@/features/components/layout/screen";
-import { SubNav } from "@/features/components/layout/sub-nav";
+import { PageHeaderBelow, Screen } from "@/features/components/layout/screen";
+import { SectionTabs } from "@/features/components/layout/section-tabs";
 import { EmptyState } from "@/features/components/ui";
 
 export const MARKETING_TABS = [
@@ -59,38 +59,33 @@ export function MarketingFrame({ tab, children }: { tab: MarketingTabKey; childr
     { href: "/leads?view=website", label: "Website Lead Review", icon: Globe, badge: reviews || undefined },
     { href: "/settings/social-accounts", label: "Social Accounts", icon: Share2 },
   ];
+  // Sections as an underline tab row under the page title (no second sidebar), in the
+  // same three groups plus the two pages that moved elsewhere in the app.
+  const tabs = (
+    <SectionTabs
+      label="Marketing sections"
+      note={<>Sandbox: nothing is sent to a provider or platform.</>}
+      groups={[
+        MARKETING_TABS.map((t) => ({
+          href: t.path, label: t.label, icon: t.icon, active: t.key === tab,
+          badge: t.key === "calendar" ? attention || undefined : t.key === "posts" ? approvals || undefined : undefined,
+        })),
+        GROWTH_TABS.map((t) => ({
+          href: t.path, label: t.label, icon: t.icon, active: t.key === tab,
+          badge: t.key === "campaigns" ? activeCampaigns || undefined : t.key === "reviews" ? toAnswer || undefined : t.key === "messages" ? drafts || undefined : undefined,
+        })),
+        ENGAGE_TABS.map((t) => ({ href: t.path, label: t.label, icon: t.icon, active: t.key === tab, badge: engageBadge[t.key] || undefined })),
+        moved,
+      ]}
+    />
+  );
   return (
-    <Screen
-      crumbs={[{ label: "Marketing", href: "/marketing" }, { label }]}
-      sidebar={
-        <SubNav
-          header={
-            <div className="hidden lg:block">
-              <div className="flex items-center gap-2 font-display text-sm font-bold text-ink"><Megaphone className="h-4 w-4 text-brand" /> Marketing</div>
-              <div className="mt-0.5 text-xs text-gray-500">Social publishing and inbox, campaigns with their leads, spend and ROI, ads, landing pages, offers, reviews, email/SMS and automations. Sandbox: nothing is sent to a provider or platform.</div>
-            </div>
-          }
-          groups={[{
-            title: "Content and leads",
-            items: MARKETING_TABS.map((t) => ({
-              href: t.path, label: t.label, icon: t.icon,
-              badge: t.key === "calendar" ? attention || undefined : t.key === "posts" ? approvals || undefined : undefined,
-            })),
-          }, {
-            title: "Campaigns and growth",
-            items: GROWTH_TABS.map((t) => ({
-              href: t.path, label: t.label, icon: t.icon,
-              badge: t.key === "campaigns" ? activeCampaigns || undefined : t.key === "reviews" ? toAnswer || undefined : t.key === "messages" ? drafts || undefined : undefined,
-            })),
-          }, {
-            title: "Engage and automate",
-            items: ENGAGE_TABS.map((t) => ({ href: t.path, label: t.label, icon: t.icon, badge: engageBadge[t.key] || undefined })),
-          }, { title: "Elsewhere in the app", items: moved }]}
-        />
-      }
-    >
-      {can(user, "marketing.access") ? children : (
-        <EmptyState icon={<Lock />} title="Marketing is for the office and the business owner" body="The office drafts and posts; the owner approves identifiable content and controls the accounts. Switch role in the demo bar to see it." />
+    <Screen roomy crumbs={[{ label: "Marketing", href: "/marketing" }, { label }]}>
+      {can(user, "marketing.access") ? <PageHeaderBelow.Provider value={tabs}>{children}</PageHeaderBelow.Provider> : (
+        <>
+          <div className="mb-6">{tabs}</div>
+          <EmptyState icon={<Lock />} title="Marketing is for the office and the business owner" body="The office drafts and posts; the owner approves identifiable content and controls the accounts. Switch role in the demo bar to see it." />
+        </>
       )}
     </Screen>
   );

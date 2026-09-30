@@ -2,21 +2,25 @@
 import { createContext, useContext, type ReactNode } from "react";
 import { cn } from "@/features/lib/cn";
 import { AppHeader } from "@/components/Navigation";
+import { RoomyContext, useRoomy } from "@/features/components/ui/roomy";
 import type { Crumb } from "./top-bar";
 
 /**
  * One feature screen inside the replica shell: the replica's AppHeader
  * (breadcrumbs + title pill), an optional secondary sidebar, then content.
  * The replica's main Sidebar is rendered by app/layout.tsx.
+ * `roomy` turns on the calmer module layout (see features/components/ui/roomy.tsx).
  */
-export function Screen({ crumbs, sidebar, children, className, bare }: { crumbs: Crumb[]; sidebar?: ReactNode; children: ReactNode; className?: string; bare?: boolean }) {
+export function Screen({ crumbs, sidebar, children, className, bare, roomy }: { crumbs: Crumb[]; sidebar?: ReactNode; children: ReactNode; className?: string; bare?: boolean; roomy?: boolean }) {
   const { title, breadcrumbs } = headerCrumbs(crumbs);
   return (
     <>
       <AppHeader title={title} breadcrumbs={breadcrumbs} />
       <div className="flex min-w-0 flex-1 flex-col overflow-auto lg:flex-row">
         {sidebar}
-        <main className={cn("min-w-0 flex-1 bg-gray-50", !bare && "px-4 py-6 md:px-8 md:py-8", className)}>{children}</main>
+        <main className={cn("min-w-0 flex-1 bg-gray-50", !bare && "px-4 py-6 md:px-8 md:py-8", roomy && "roomy", className)}>
+          <RoomyContext.Provider value={!!roomy}>{children}</RoomyContext.Provider>
+        </main>
       </div>
     </>
   );
@@ -47,19 +51,21 @@ export const PageHeaderBelow = createContext<ReactNode>(null);
 
 /**
  * Page title block: "Job Management / Mission control for active projects." plus actions.
- * `lead` sets the subtitle at 16–18px, like the live Contacts page.
+ * `lead` sets the subtitle at 16–18px, like the live Contacts page (on by default in roomy screens).
  */
 export function PageHeader({ title, subtitle, actions, eyebrow, lead }: { title: ReactNode; subtitle?: ReactNode; actions?: ReactNode; eyebrow?: ReactNode; lead?: boolean }) {
   const below = useContext(PageHeaderBelow);
+  const roomy = useRoomy();
+  const large = lead ?? roomy;
   return (
     <div className="mb-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           {eyebrow && <div className="mb-2 flex flex-wrap items-center gap-1.5">{eyebrow}</div>}
           <h1 className="font-heading text-3xl font-bold leading-tight tracking-tight text-balance text-ink md:text-4xl">{title}</h1>
-          {subtitle && <p className={lead ? "mt-2 max-w-3xl text-base text-gray-500 md:text-lg" : "mt-1.5 text-sm text-gray-500"}>{subtitle}</p>}
+          {subtitle && <p className={large ? "mt-2 max-w-3xl text-base text-gray-500 md:text-lg" : "mt-1.5 text-sm text-gray-500"}>{subtitle}</p>}
         </div>
-        {actions && <div className="no-print flex flex-wrap items-center gap-2" data-tour="page-actions">{actions}</div>}
+        {actions && <div className={cn("no-print flex flex-wrap items-center gap-2", roomy && "sm:max-w-[55%] sm:shrink-0 sm:justify-end")} data-tour="page-actions">{actions}</div>}
       </div>
       {below && <div className="mt-6">{below}</div>}
     </div>
