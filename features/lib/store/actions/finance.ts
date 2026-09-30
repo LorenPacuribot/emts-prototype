@@ -673,3 +673,86 @@ export function logAuditExport(db: Database, actor: User, from: string, to: stri
 export function sortByJob<T extends { jobId?: string }>(rows: T[]) {
   return [...rows].sort((a, b) => (a.jobId && b.jobId ? compareJobNumber(a.jobId, b.jobId) : 0));
 }
+
+/* ------------------- 30 Sep call: QuickBooks (X-M2, QB) ------------------- */
+
+/** X-M2: where the books are kept. Missing on older data = QuickBooks when connected. */
+export function accountingDestination(db: Database): "none" | "qbo" | "books" {
+  return db.financeSettings.destination ?? (db.financeSettings.qbo.connected ? "qbo" : "none");
+}
+
+const canChooseDestination = (actor: User) => actor.role === "owner" || can(actor, "finance.connect");
+
+/**
+ * X-M2: choose None, QuickBooks Online or Estimate Master Books. Books
+ * disconnects QuickBooks; QuickBooks reconnects it (simulated). In the
+ * prototype both stay visible for comparison.
+ */
+export function setAccountingDestination(db: Database, actor: User, destination: "none" | "qbo" | "books") {
+  if (!canChooseDestination(actor)) return denied(db, actor, MODULE, "choose the accounting destination", "the owner or the office manager");
+  const before = accountingDestination(db);
+  if (before === destination) return fail("That is already the accounting destination.");
+  db.financeSettings.destination = destination;
+  if (destination === "books") db.financeSettings.qbo = { ...db.financeSettings.qbo, connected: false };
+  if (destination === "qbo" && !db.financeSettings.qbo.connected) {
+    db.financeSettings.qbo = { ...db.financeSettings.qbo, connected: true, connectedBy: actor.id, connectedAt: now(), realm: db.financeSettings.qbo.realm ?? `QBO-${randomRef(6)}` };
+  }
+  const label = { none: "None", qbo: "QuickBooks Online", books: "Estimate Master Books" }[destination];
+  log(db, actor, MODULE, `Finance: accounting destination changed to ${label} by ${actor.name}${destination === "books" ? ". QuickBooks disconnected." : ""}`);
+  return ok();
+}
+
+const canMatch = (actor: User) => can(actor, "finance.migration") || can(actor, "finance.connect") || actor.role === "owner";
+
+/** QB-M3: link a possible duplicate to the suggested contact, or create a new one. */
+export function decideContactMatch(db: Database, actor: User, qboId: string, decision: "link" | "create") {
+  if (!canMatch(actor)) return denied(db, actor, MODULE, "match QuickBooks contacts", whoCan("finance.migration"));
+  if (!db.qboCustomers?.some((q) => q.id === qboId)) return fail("QuickBooks customer not found.");
+  const cm = db.financeSettings.contactMatch ?? { decisions: {} };
+  db.financeSettings.contactMatch = { ...cm, decisions: { ...cm.decisions, [qboId]: decision } };
+  return ok();
+}
+
+/**
+ * QB-M3: finish "Match your contacts". Matches are linked, each duplicate
+ * follows its decision (link, or a new contact), and every duplicate must
+ * have one.
+ */
+export function completeContactMatch(db: Database, actor: User, links: { qboId: string; customerId: string; duplicate: boolean }[]) {
+  if (!canMatch(actor)) return denied(db, actor, MODULE, "match QuickBooks contacts", whoCan("finance.migration"));
+  const decisions = db.financeSettings.contactMatch?.decisions ?? {};
+  const open = links.filter((l) => l.duplicate && !decisions[l.qboId]);
+  if (open.length) return fail(`Choose Link or Create new for ${open.length} possible ${open.length === 1 ? "duplicate" : "duplicates"}.`);
+  for (const l of links) {
+    const q = db.qboCustomers!.find((x) => x.id === l.qboId);
+    if (!q) continue;
+    if (!l.duplicate || decisions[l.qboId] === "link") q.customerId = l.customerId;
+    else {
+      const id = nextId(db, "cust", "C-NEW-");
+      db.customers.push({ id, name: q.displayName, email: q.email, phone: q.phone, contactVerified: false, preferredChannel: "email", consentSigned: false, authorisedSigners: [] });
+      q.customerId = id;
+    }
+  }
+  db.financeSettings.contactMatch = { decisions, completedAt: now(), completedBy: actor.id };
+  log(db, actor, MODULE, `Finance: QuickBooks contacts matched by ${actor.name} (${links.length} QuickBooks customers)`);
+  return ok();
+}
+
+/** QB-C1: a customer created in QuickBooks: link to a contact, create it as a contact, or ignore it. */
+export function reviewQboCustomer(db: Database, actor: User, qboId: string, action: "link" | "create" | "ignore", customerId?: string) {
+  if (!can(actor, "finance.code") && !canMatch(actor)) return denied(db, actor, MODULE, "review QuickBooks customers", whoCan("finance.code"));
+  const q = db.qboCustomers?.find((x) => x.id === qboId);
+  if (!q) return fail("QuickBooks customer not found.");
+  if (action === "link") {
+    if (!customerId || !db.customers.some((c) => c.id === customerId)) return fail("Choose the contact to link.", "customerId");
+    q.customerId = customerId;
+  }
+  if (action === "create") {
+    const id = nextId(db, "cust", "C-NEW-");
+    db.customers.push({ id, name: q.displayName, email: q.email, phone: q.phone, contactVerified: false, preferredChannel: "email", consentSigned: false, authorisedSigners: [] });
+    q.customerId = id;
+  }
+  q.review = { status: action === "link" ? "linked" : action === "create" ? "created" : "ignored", by: actor.id, at: now() };
+  log(db, actor, MODULE, `Finance: QuickBooks customer ${q.displayName} ${q.review.status} by ${actor.name}`);
+  return ok(q.customerId);
+}

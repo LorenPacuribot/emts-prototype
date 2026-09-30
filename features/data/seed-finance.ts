@@ -16,7 +16,7 @@
  *   bank and card feed lines to review (one matches check 1188, one is a
  *   transfer to exclude), four recurring overheads and a fuel-spend alert.
  */
-import type { AccountMapping, CostCode, EstimateBaseline, ExchangeItem, FinanceRecord, MigrationTotal, ReimbursementClaim, Vendor } from "@/features/types";
+import type { AccountMapping, CostCode, EstimateBaseline, ExchangeItem, FinanceRecord, MigrationTotal, QboCustomer, ReimbursementClaim, Vendor } from "@/features/types";
 import type { BankAccount, FeedTransaction, FinanceAlertRule, RecurringExpense, RegisterEntry } from "@/features/types/finance";
 import { addDays, addMonths } from "@/features/lib/rules/dates";
 import { lastExchangeRun, periodOf } from "@/features/lib/rules/finance";
@@ -136,14 +136,36 @@ export function financeSeed(nowIso: string) {
   ];
 
   const accountMappings: AccountMapping[] = [
-    { id: "MAP-A1", category: "Customer invoices", account: "4000 Painting Revenue", updatedBy: "U-BOOK", updatedAt: d(-400) },
+    { id: "MAP-A1", category: "Customer invoices", account: "4000 Painting Revenue", updatedBy: "U-BOOK", updatedAt: d(-400), syncOption: "income" },
     { id: "MAP-A2", category: "Paint and primer", account: "5010 Job Materials", updatedBy: "U-BOOK", updatedAt: d(-400) },
     { id: "MAP-A3", category: "Sundries and consumables", account: "5020 Job Supplies", updatedBy: "U-BOOK", updatedAt: d(-400) },
     { id: "MAP-A4", category: "Subcontractors", account: "5200 Subcontract Labor", updatedBy: "U-BOOK", updatedAt: d(-400) },
     { id: "MAP-A5", category: "Equipment rental", account: "5300 Equipment Rental", updatedBy: "U-BOOK", updatedAt: d(-400) },
     { id: "MAP-A6", category: "Vehicles and equipment", account: "6100 Vehicle Expense", updatedBy: "U-BOOK", updatedAt: d(-400) },
     { id: "MAP-A7", category: "Customer deposits", account: "2300 Customer Deposits (liability)", updatedBy: "U-BOOK", updatedAt: d(-400) },
-    { id: "MAP-A8", category: "Sales tax collected", account: "2200 Sales Tax Payable", updatedBy: "U-BOOK", updatedAt: d(-400) },
+    { id: "MAP-A8", category: "Sales tax collected", account: "2200 Sales Tax Payable", updatedBy: "U-BOOK", updatedAt: d(-400), syncOption: "tax" },
+    // QB-M2: the remaining QuickBooks sync options.
+    { id: "MAP-S1", category: "Payments deposit to", account: "1050 Undeposited Funds", updatedBy: "U-BOOK", updatedAt: d(-400), syncOption: "deposit" },
+    { id: "MAP-S2", category: "Card payment method", account: "Credit Card (Stripe)", updatedBy: "U-BOOK", updatedAt: d(-400), syncOption: "card_method" },
+  ];
+
+  /*
+    QuickBooks customers (simulated). Against the 14 Estimate Master contacts:
+    6 match, 2 look like duplicates (same email, other name; same name, other
+    email and phone), 2 were created in QuickBooks only, and the other 6
+    contacts will be created in QuickBooks.
+  */
+  const qboCustomers: QboCustomer[] = [
+    { id: "QBO-C-101", displayName: "Korah Singer", email: "korah.singer@example.com", phone: "(214) 555-0148", balance: 0, active: true, lastUpdatedAt: d(-3), updatedFromQbo: [{ field: "phone", at: d(-3) }] },
+    { id: "QBO-C-102", displayName: "Sam Sample", email: "sam.sample@example.com", phone: "(214) 555-0191", balance: 1250, active: true, lastUpdatedAt: d(-9) },
+    { id: "QBO-C-103", displayName: "Elena Marsh", email: "elena.marsh@example.com", phone: "(469) 555-0120", balance: 0, active: true, lastUpdatedAt: d(-40) },
+    { id: "QBO-C-104", displayName: "Lakeside Property Group", email: "facilities@lakesidepg.example.com", phone: "(214) 555-0100", balance: 3400, active: true, lastUpdatedAt: d(-12) },
+    { id: "QBO-C-105", displayName: "Maria Chen", email: "maria.chen@example.com", phone: "(469) 555-0133", balance: 0, active: true, lastUpdatedAt: d(-21) },
+    { id: "QBO-C-106", displayName: "Ruth Alvarez", email: "ruth.alvarez@example.com", phone: "(972) 555-0154", balance: 0, active: true, lastUpdatedAt: d(-70) },
+    { id: "QBO-C-107", displayName: "Steve Omodth", email: "steven.omodth@example.com", phone: "(972) 555-0112", balance: 0, active: true, lastUpdatedAt: d(-100) },
+    { id: "QBO-C-108", displayName: "Jeremy Irons", email: "jirons@oldmail.example.com", phone: "(972) 555-0101", balance: 0, active: true, lastUpdatedAt: d(-300) },
+    { id: "QBO-C-201", displayName: "Harbor View HOA", email: "board@harborviewhoa.example.com", phone: "(214) 555-0177", balance: 980, active: true, lastUpdatedAt: d(-2), createdInQbo: true },
+    { id: "QBO-C-202", displayName: "Pat Nguyen", email: "pat.nguyen@example.com", phone: "(469) 555-0150", balance: 0, active: true, lastUpdatedAt: d(-5), createdInQbo: true },
   ];
 
   const year = new Date(nowIso).getFullYear();
@@ -177,6 +199,7 @@ export function financeSeed(nowIso: string) {
     vendors,
     costCodes,
     accountMappings,
+    qboCustomers,
     migrationTotals,
     estimateBaselines,
     financeSettings: {

@@ -20,7 +20,7 @@ import { nextExchangeRun } from "@/features/lib/rules/finance";
 import { createCorrectionVersion, editQueuedItem, retryItem, runExchange } from "@/features/lib/store/actions/finance";
 import { userName } from "@/features/lib/store/helpers";
 import { PageHeader } from "@/features/components/layout/screen";
-import { Badge, Button, Card, EmptyState, Field, Input, Modal, PillTabs, Table, TD, TH, THead, TR } from "@/features/components/ui";
+import { Badge, Button, Card, EmptyState, Field, Input, Modal, PillTabs, Table, TD, TH, THead, TR, VersionBadge } from "@/features/components/ui";
 import { FinanceFrame } from "./finance-frame";
 import { EXCHANGE_STATUS } from "./shared";
 
@@ -50,6 +50,7 @@ function Queue() {
   return (
     <>
       <PageHeader
+        eyebrow={<VersionBadge item="QB-M5" />}
         title="Transfer Queue"
         subtitle={`Records moving between Estimate Master and QuickBooks. Next run ${dateTime(nextExchangeRun(new Date(now())).toISOString())}.`}
         actions={can(user, "finance.exchange") && <Button variant="primary" onClick={() => { const r = act(runExchange); if (r.ok) { const v = r.value as { accepted: number; rejected: number }; toast.success("Exchange run complete", `${v.accepted} accepted, ${v.rejected} rejected.`); } }}><RefreshCw className="h-4 w-4" /> Run exchange now</Button>}

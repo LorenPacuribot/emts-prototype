@@ -23,7 +23,7 @@ import {
 } from "@/features/lib/store/actions/finance";
 import { userName } from "@/features/lib/store/helpers";
 import { PageHeader } from "@/features/components/layout/screen";
-import { Badge, Banner, Button, Card, CardLabel, Drawer, EmptyState, Field, Input, KV, Modal, PillTabs, RowMenu, Select, Stat, StatStrip, Table, TD, TH, THead, TR, Textarea } from "@/features/components/ui";
+import { Badge, Banner, Button, Card, CardLabel, Drawer, EmptyState, Field, Input, KV, Modal, PillTabs, RowMenu, Select, Stat, StatStrip, Table, TD, TH, THead, TR, Textarea, VersionBadge } from "@/features/components/ui";
 import { FinanceFrame } from "./finance-frame";
 import { EXCHANGE_STATUS, OwnershipLegend, RecordFlags, TypeBadge } from "./shared";
 
@@ -78,6 +78,7 @@ function Accounting() {
   return (
     <>
       <PageHeader
+        eyebrow={<VersionBadge item="QB-M4" />}
         title="Accounting"
         subtitle="Job-level records exchanged with QuickBooks Online." details="QuickBooks owns amounts and dates; Estimate Master owns the job and cost code."
         actions={
@@ -135,7 +136,7 @@ function Accounting() {
       <Card className="p-4" data-tour="finance-records">
         {rows.length === 0 ? <EmptyState icon={<Landmark />} title="No records in this view" body="Pick another view above to see other records." /> : (
           <Table>
-            <THead><tr><TH>Type</TH><TH>Reference</TH><TH>Party</TH><TH className="text-right">Amount</TH><TH>Date</TH><TH>Job / code</TH><TH>Exchange</TH><TH>Flags</TH></tr></THead>
+            <THead><tr><TH><span className="inline-flex items-center gap-1.5">Type <VersionBadge item="QB-C5" /></span></TH><TH>Reference</TH><TH>Party</TH><TH className="text-right">Amount</TH><TH>Date</TH><TH>Job / code</TH><TH>Exchange</TH><TH>Flags</TH></tr></THead>
             <tbody>
               {rows.map((r) => {
                 const q = latestItem(db, r.id);
@@ -180,13 +181,13 @@ function RecordDrawer({ recordId, onClose }: { recordId?: string; onClose: () =>
   return (
     <Drawer open={!!r} onOpenChange={(v) => !v && onClose()} title={<span className="flex items-center gap-2">{r.ref} <TypeBadge type={r.type} /></span>} subtitle={`${r.party} · ${r.id}`}>
       {r.variance && (
-        <Banner tone={r.variance.reviewedAt ? "info" : "warn"} title={`Amount edited in QuickBooks: ${money(r.variance.sent)} → ${money(r.variance.current)}`}
+        <Banner tone={r.variance.reviewedAt ? "info" : "warn"} title={<span className="inline-flex flex-wrap items-center gap-1.5">{`Amount edited in QuickBooks: ${money(r.variance.sent)} → ${money(r.variance.current)}`} <VersionBadge item="QB-C3" /></span>}
           action={!r.variance.reviewedAt && can(user, "finance.reviewVariance") && <Button size="sm" onClick={() => act(reviewVariance, r.id).ok && toast.success("Variance reviewed")}>Mark reviewed</Button>}>
           {r.variance.reviewedAt ? `Reviewed by ${userName(db, r.variance.reviewedBy)} ${dateTime(r.variance.reviewedAt)}.` : "The local display value now shows the QuickBooks amount. The office manager reviews the difference."}
         </Banner>
       )}
       {r.deletedInQbo && (
-        <Banner tone={r.deletedInQbo.reviewedAt ? "info" : "danger"} title="Deleted in QuickBooks — the local record is kept">
+        <Banner tone={r.deletedInQbo.reviewedAt ? "info" : "danger"} title={<span className="inline-flex flex-wrap items-center gap-1.5">Deleted in QuickBooks — the local record is kept <VersionBadge item="QB-C3" /></span>}>
           {r.deletedInQbo.reviewedAt ? `Reviewed by ${userName(db, r.deletedInQbo.reviewedBy)}: ${r.deletedInQbo.note}` : (
             can(user, "finance.code") ? (
               <div className="mt-2 flex gap-2"><Input value={note} onChange={(e) => setNote(e.target.value)} placeholder="What did you find?" /><Button size="sm" onClick={() => act(reviewDeletion, r.id, note).ok && toast.success("Deletion reviewed")}>Record</Button></div>

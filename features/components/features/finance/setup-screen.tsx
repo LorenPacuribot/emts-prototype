@@ -6,6 +6,9 @@
  * The bookkeeper controls the chart of accounts, categories and mappings;
  * the owner approves job-cost codes and activates vendors the office
  * requests. Migration brings two years of comparison totals only.
+ *
+ * 30 Sep call: the QuickBooks sync options (QB-M2) sit apart in the mappings,
+ * and the migration section starts with "Match your contacts" (QB-M3).
  */
 import { useState } from "react";
 import { Building2, CheckCircle2, Download, FileLock2, History, Tags } from "lucide-react";
@@ -22,6 +25,15 @@ import { userName } from "@/features/lib/store/helpers";
 import { PageHeader } from "@/features/components/layout/screen";
 import { Badge, Banner, Button, Card, CardLabel, Input, Table, TD, TH, THead, TR, Tooltip } from "@/features/components/ui";
 import { FinanceFrame } from "./finance-frame";
+import { MatchContactsCard } from "./match-contacts";
+import type { AccountMapping } from "@/features/types";
+import { NewBadge, VersionBadge } from "@/features/components/ui";
+
+/** QB-M2: the four QuickBooks sync options, in this order. */
+const SYNC_ORDER: NonNullable<AccountMapping["syncOption"]>[] = ["income", "deposit", "tax", "card_method"];
+const SYNC_LABEL: Record<NonNullable<AccountMapping["syncOption"]>, string> = { income: "Income account", deposit: "Deposit account", tax: "Tax mapping", card_method: "Card payment method" };
+/** Rows added for the call (the other two existed). */
+const ADDED = ["MAP-S1", "MAP-S2"];
 
 export function SetupScreen() {
   return (
@@ -115,9 +127,17 @@ function Setup() {
           <Table className="mt-3">
             <THead><tr><TH>Category</TH><TH>QuickBooks account</TH>{can(user, "finance.config") && <TH />}</tr></THead>
             <tbody>
-              {db.accountMappings.map((m) => (
+              <TR>
+                <TD colSpan={3} className="bg-gray-50 text-xs font-bold uppercase tracking-wider text-gray-500">
+                  <span className="inline-flex items-center gap-1.5">QuickBooks sync options <VersionBadge item="QB-M2" /></span>
+                </TD>
+              </TR>
+              {[...db.accountMappings].sort((a, b) => (a.syncOption ? SYNC_ORDER.indexOf(a.syncOption) : 99) - (b.syncOption ? SYNC_ORDER.indexOf(b.syncOption) : 99)).map((m, i, all) => (
                 <TR key={m.id}>
-                  <TD className="font-semibold">{m.category}</TD>
+                  <TD className="font-semibold">
+                    {!m.syncOption && all[i - 1]?.syncOption && <span className="mb-2 block border-t border-gray-100 pt-2 text-xs font-bold uppercase tracking-wider text-gray-500">Other categories</span>}
+                    {m.syncOption ? <span className="inline-flex flex-wrap items-center gap-1.5">{SYNC_LABEL[m.syncOption]} <span className="font-normal text-gray-500">· {m.category}</span>{ADDED.includes(m.id) && <NewBadge />}</span> : m.category}
+                  </TD>
                   <TD>{can(user, "finance.config") ? <Input value={mapEdits[m.id] ?? m.account} onChange={(e) => setMapEdits({ ...mapEdits, [m.id]: e.target.value })} className="h-8" /> : m.account}</TD>
                   {can(user, "finance.config") && <TD><Button size="sm" disabled={(mapEdits[m.id] ?? m.account) === m.account} onClick={() => act(updateMapping, m.id, mapEdits[m.id]).ok && toast.success("Mapping updated", "Posted transactions unaffected.")}>Save</Button></TD>}
                 </TR>
@@ -125,6 +145,8 @@ function Setup() {
             </tbody>
           </Table>
         </Card>
+
+        <MatchContactsCard />
 
         <Card className="p-4">
           <CardLabel icon={<History />}>Periods, payroll journal and migration</CardLabel>

@@ -20,7 +20,10 @@ import { useCurrentUser, useDb as useFeatureDb } from '@/features/lib/store';
 import { can } from '@/features/lib/permissions';
 import { dateTime } from '@/features/lib/format';
 import { coHref } from '@/features/components/features/change-orders/shared';
-import { ConfirmBadge, NewBadge, StatusPill } from '@/features/components/ui';
+import { Button, ConfirmBadge, NewBadge, StatusPill, VersionBadge, VersionGate } from '@/features/components/ui';
+import { invoiceBalance } from '@/features/lib/store/actions/invoices';
+import { money } from '@/features/lib/format';
+import { openInQuickBooks } from '@/components/contacts/QuickBooksContact';
 
 type Tone = 'green' | 'red' | 'gray' | 'amber';
 
@@ -53,7 +56,7 @@ export function useShowQuickBooks() {
 export function QuickBooksColumnNote() {
   return (
     <div className="mb-3 flex flex-wrap items-center gap-2 text-xs text-gray-500">
-      QuickBooks column <NewBadge feature={33} /> <ConfirmBadge />
+      QuickBooks column <NewBadge feature={33} /> <ConfirmBadge /> <VersionBadge item="QB-M7" />
     </div>
   );
 }
@@ -97,8 +100,11 @@ export function QuickBooksCard({ invoiceId }: { invoiceId: string }) {
   return (
     <div className="mx-auto mt-6 max-w-[8.5in] rounded-lg border border-green-300 bg-white p-8 shadow-sm ring-1 ring-green-100 print:hidden" data-tour="invoice-qbo">
       <h4 className="mb-3 flex flex-wrap items-center gap-2 text-lg font-bold text-gray-900">
-        <Landmark className="h-5 w-5 text-gray-500" /> QuickBooks exchange <NewBadge feature={33} /> <ConfirmBadge />
+        <Landmark className="h-5 w-5 text-gray-500" /> QuickBooks exchange <NewBadge feature={33} /> <ConfirmBadge /> <VersionBadge item="QB-M7" />
       </h4>
+      <VersionGate item="QB-C4">
+        <QuickBooksInvoiceSummary invoiceId={invoiceId} />
+      </VersionGate>
       <div className="flex flex-wrap items-center gap-3 text-sm">
         <StatusPill tone={q.tone}>{q.state}</StatusPill>
         {q.rec?.externalRef && <span className="font-mono text-xs text-gray-500">{q.rec.externalRef}</span>}
@@ -119,6 +125,27 @@ export function QuickBooksCard({ invoiceId }: { invoiceId: string }) {
       <Link href="/accounting/transfer-queue" className="mt-3 inline-block text-xs font-bold text-primary-700 hover:underline">
         Open the transfer queue →
       </Link>
+    </div>
+  );
+}
+
+/** QB-C4 (Complete): the invoice as QuickBooks has it: balance, status, last updated. */
+function QuickBooksInvoiceSummary({ invoiceId }: { invoiceId: string }) {
+  const db = useFeatureDb((d) => d);
+  const q = qboState(db, invoiceId);
+  const inv = db.invoices.find((i) => i.id === invoiceId);
+  const last = q.items[0];
+  const updated = q.rec?.variance?.at ?? last?.attempts.at(-1)?.at ?? last?.sentAt ?? last?.queuedAt;
+  const ref = q.rec?.externalRef;
+  return (
+    <div className="mb-4 grid gap-3 rounded-lg border border-gray-200 bg-gray-50 p-4 text-sm sm:grid-cols-4">
+      <div><div className="text-xs text-gray-500">Balance</div><b className="tabular-nums">{inv ? money(invoiceBalance(inv)) : '—'}</b></div>
+      <div><div className="text-xs text-gray-500">Status</div><StatusPill tone={q.tone}>{q.state}</StatusPill></div>
+      <div><div className="text-xs text-gray-500">Last updated</div><span>{updated ? dateTime(updated) : '—'}</span></div>
+      <div className="flex items-end justify-end gap-2">
+        <VersionBadge item="QB-C4" />
+        <Button size="sm" variant="secondary" disabled={!ref} onClick={() => ref && openInQuickBooks(ref)}>Open in QuickBooks</Button>
+      </div>
     </div>
   );
 }

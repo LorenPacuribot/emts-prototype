@@ -2052,6 +2052,8 @@ export interface AccountMapping {
   id: ID; // MAP-A1
   category: string;
   account: string;
+  /** QB-M2: one of the QuickBooks sync options (income account, deposit account, tax, card payment method). */
+  syncOption?: "income" | "deposit" | "tax" | "card_method";
   updatedBy: ID;
   updatedAt: ISODate;
 }
@@ -2072,6 +2074,38 @@ export interface FinanceSettings {
   gustoPostsJournal?: boolean;
   migrationSignOff?: { by: ID; at: ISODate; batchId: ID };
   jurisdiction: string;
+  /**
+   * X-M2: where the books are kept. Missing on older data = QuickBooks when
+   * connected, else none. Choosing Books disconnects QuickBooks; the prototype
+   * keeps both visible for comparison.
+   */
+  destination?: "none" | "qbo" | "books";
+  /** QB-M3: the first-connection "Match your contacts" step. */
+  contactMatch?: { decisions: Record<ID, "link" | "create">; completedAt?: ISODate; completedBy?: ID };
+}
+
+/**
+ * A customer as QuickBooks Online holds it (simulated). Matched to an
+ * Estimate Master contact on first connection (QB-M3); ones created in
+ * QuickBooks go to Customer Review (QB-C1).
+ */
+export interface QboCustomer {
+  id: ID; // QBO-C-1
+  displayName: string;
+  email?: string;
+  phone?: string;
+  /** The Estimate Master contact it is linked to. */
+  customerId?: ID;
+  /** Created in QuickBooks, not sent from Estimate Master. */
+  createdInQbo?: boolean;
+  /** QB-C1: what the office did with a customer created in QuickBooks. */
+  review?: { status: "linked" | "created" | "ignored"; by: ID; at: ISODate };
+  /** Open balance in QuickBooks (QB-C4). */
+  balance: number;
+  active: boolean;
+  lastUpdatedAt: ISODate;
+  /** QB-C2: fields QuickBooks changed and sent back. */
+  updatedFromQbo?: { field: "name" | "email" | "phone" | "address"; at: ISODate }[];
 }
 
 /* ------------------------------------------------------------------ */
@@ -2475,6 +2509,8 @@ export interface Database {
   accountMappings: AccountMapping[];
   migrationTotals: MigrationTotal[];
   financeSettings: FinanceSettings;
+  /** QuickBooks customers (simulated, QB-M3, QB-C1 to C4). Missing on older data. */
+  qboCustomers?: QboCustomer[];
   /** Feature 33 books (features/types/finance.ts). Optional: older saved data gets them from the seed. */
   otherIncome?: import("./finance").OtherIncome[];
   financeVehicles?: import("./finance").FleetVehicle[];

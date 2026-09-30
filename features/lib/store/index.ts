@@ -86,7 +86,10 @@ export const useStore = create<StoreState>()(
         const saved = persisted as Partial<StoreState> | undefined;
         if (!saved?.db) return current;
         const seed = createSeed(now());
-        return { ...current, ...saved, db: { ...seed, ...saved.db, counters: { ...seed.counters, ...saved.db.counters } } };
+        const mappings = saved.db.accountMappings
+          ? [...saved.db.accountMappings, ...seed.accountMappings.filter((m) => !saved.db!.accountMappings!.some((x) => x.id === m.id))]
+          : seed.accountMappings;
+        return { ...current, ...saved, db: { ...seed, ...saved.db, accountMappings: mappings, counters: { ...seed.counters, ...saved.db.counters } } };
       },
       onRehydrateStorage: () => (state) => {
         if (state) setClockMode(state.clockMode);

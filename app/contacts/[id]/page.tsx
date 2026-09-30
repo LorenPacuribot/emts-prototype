@@ -31,7 +31,8 @@ import { useDeleteContact } from '@/components/contacts/useDeleteContact';
 import { ConversationsTab, EstimatesTab, InvoicesTab, JobHistoryTab, LeadsTab } from '@/components/contacts/ContactTabs';
 import { LocationPaintChips, PaintHistoryHost } from '@/components/contacts/ContactFeatures';
 import { PropertyMapCard, ServiceLocationModal, useAddServiceLocation } from '@/components/contacts/ServiceLocations';
-import { NewBadge } from '@/features/components/ui';
+import { NewBadge, VersionGate } from '@/features/components/ui';
+import { QuickBooksContactCard, QuickBooksUpdatedNote } from '@/components/contacts/QuickBooksContact';
 
 type TabKey = 'leads' | 'estimates' | 'invoices' | 'jobs' | 'conversations' | 'notes' | 'paint-history';
 const TABS: { key: TabKey; label: string; isNew?: boolean }[] = [
@@ -147,7 +148,9 @@ function ContactDetail() {
             </div>
             <div className="flex flex-wrap gap-x-6 gap-y-2 pl-1 text-sm font-medium text-gray-500 md:text-base">
               <a href={`tel:${customer.phone}`} className="flex items-center gap-2 hover:text-gray-800"><Phone className="h-4 w-4 text-gray-500" /> {formatPhone(customer.phone) || '-'}</a>
+              <VersionGate item="QB-C2"><QuickBooksUpdatedNote customerId={customer.id} field="phone" /></VersionGate>
               <a href={`mailto:${customer.email}`} className="flex items-center gap-2 hover:text-gray-800"><Mail className="h-4 w-4 text-gray-500" /> {customer.email || '-'}</a>
+              <VersionGate item="QB-C2"><QuickBooksUpdatedNote customerId={customer.id} field="email" /></VersionGate>
               <span className="flex items-center gap-2"><MapPin className="h-4 w-4 text-gray-500" /> {address}</span>
             </div>
             {(customer.companyName || customer.secondaryPhone) && (
@@ -186,6 +189,7 @@ function ContactDetail() {
       <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-3">
         {/* Left column */}
         <div className="space-y-8">
+          <VersionGate item="QB-C4"><QuickBooksContactCard customerId={customer.id} /></VersionGate>
           <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
             <div className="mb-6 flex items-center justify-between gap-2">
               <h3 className="font-heading text-lg font-bold text-gray-900">Service Locations</h3>

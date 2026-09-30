@@ -10,6 +10,7 @@
  * absent for them). Crew leads only see Reimbursements, to submit and
  * approve crew claims.
  */
+import { AccountingDestinationCard } from "./destination-card";
 import type { ReactNode } from "react";
 import { ArrowLeftRight, BarChart3, Bell, FileCheck2, Inbox, Landmark, Lock, ReceiptText, Repeat, Search, Settings2, Wallet, Waves } from "lucide-react";
 import type { User } from "@/features/types";
@@ -17,7 +18,7 @@ import { useCurrentUser, useDb } from "@/features/lib/store";
 import { can } from "@/features/lib/permissions";
 import { PageHeaderBelow, Screen } from "@/features/components/layout/screen";
 import { AreaNav, type Area } from "@/features/components/layout/area-nav";
-import { Button, ConfirmBadge, EmptyState } from "@/features/components/ui";
+import { Button, ConfirmBadge, EmptyState, VersionBadge } from "@/features/components/ui";
 import { SettingsShell } from "@/features/components/features/settings/settings-shell";
 import { dateTime } from "@/features/lib/format";
 import { toast } from "@/features/lib/toast";
@@ -70,6 +71,7 @@ export function FinanceFrame({ tab, children }: { tab: FinanceTabKey; children: 
   if (tab === "setup") {
     return (
       <SettingsShell page="accounting" subtitle="QuickBooks connection, vendors, cost codes, account mappings, periods and migration.">
+        <AccountingDestinationCard />
         <QuickBooksConnectionCard />
         {children}
       </SettingsShell>
@@ -128,7 +130,7 @@ function QuickBooksConnectionCard() {
         </div>
       </div>
       <div className="space-y-4 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm md:p-8">
-        <div className="text-xxs font-bold uppercase tracking-widest text-gray-500">QuickBooks Online</div>
+        <div className="flex items-center gap-2 text-xxs font-bold uppercase tracking-widest text-gray-500">QuickBooks Online <VersionBadge item="QB-M1" /></div>
         <p className="text-sm text-gray-600">QuickBooks owns the ledger. Estimate Master sends invoices, payments, deposits and job allocations, and receives bills. Nothing here moves money.</p>
         <div className="flex flex-wrap gap-2 border-t border-gray-100 pt-4">
           <Button disabled={!can(user, "finance.connect")} onClick={() => toast.success("Connection OK", "QuickBooks answered (simulated).")}><Wifi className="h-4 w-4" /> Test Connection</Button>
