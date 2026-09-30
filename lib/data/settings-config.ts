@@ -5,7 +5,7 @@
 */
 import type {
   AutomatedMessage, DifficultyTier, DocumentNumbering, FinancialSettings, GeneralConfig,
-  GoalsProfit, LaborConfig, PipelineStage, ProjectDiscount, SmsTemplate, TableColumn, TaxRegion,
+  AutomationRule, GoalsProfit, LaborConfig, Pipeline, PipelineStage, ProjectDiscount, SmsTemplate, TableColumn, TaxRegion, TrackedLink,
 } from '../types';
 
 export const generalConfig: GeneralConfig = {
@@ -112,14 +112,55 @@ export const tableColumns: TableColumn[] = [
   { id: 'tcol_mask', name: 'Masking', columnType: 'CHECKBOX', prepRate: 500, isVisible: false, isSystem: false, sortOrder: 28 },
 ];
 
+/* CRM-M1: pipelines are a list, so more can be added without a data change. */
+export const pipelines: Pipeline[] = [
+  { id: 'sales', name: 'Sales', kind: 'sales', sortOrder: 1 },
+  { id: 'production', name: 'Production', kind: 'production', sortOrder: 2 },
+];
+
+/*
+  CRM-M2. Sales: New first, Sold second last, Lost last (system). Contacted,
+  Estimate Scheduled and Pending are custom stages that keep driving the
+  lead lifecycle. Archived stays for the lifecycle but is not a column.
+  Production: Complete last (system).
+*/
 export const pipelineStages: PipelineStage[] = [
-  { id: 'ps_new', stageId: 'NEW', displayName: 'New Leads', color: '#3B82F6', sortOrder: 1 },
-  { id: 'ps_contacted', stageId: 'CONTACTED', displayName: 'Contacted', color: '#A855F7', sortOrder: 2 },
-  { id: 'ps_scheduled', stageId: 'SCHEDULED', displayName: 'Scheduled', color: '#14B8A6', sortOrder: 3 },
-  { id: 'ps_pending', stageId: 'PENDING', displayName: 'Pending', color: '#F59E0B', sortOrder: 4 },
-  { id: 'ps_sold', stageId: 'SOLD', displayName: 'Sold', color: '#22C55E', sortOrder: 5 },
-  { id: 'ps_lost', stageId: 'LOST', displayName: 'Lost', color: '#EF4444', sortOrder: 6 },
-  { id: 'ps_archived', stageId: 'ARCHIVED', displayName: 'Archived', color: '#6B7280', sortOrder: 7 },
+  { id: 'ps_new', stageId: 'NEW', displayName: 'New Leads', color: '#3B82F6', sortOrder: 1, pipelineId: 'sales', system: true, leadStatus: 'New' },
+  { id: 'ps_contacted', stageId: 'CONTACTED', displayName: 'Contacted', color: '#A855F7', sortOrder: 2, pipelineId: 'sales', leadStatus: 'Contacted' },
+  { id: 'ps_scheduled', stageId: 'SCHEDULED', displayName: 'Estimate Scheduled', color: '#14B8A6', sortOrder: 3, pipelineId: 'sales', leadStatus: 'Scheduled' },
+  { id: 'ps_pending', stageId: 'PENDING', displayName: 'Pending', color: '#F59E0B', sortOrder: 4, pipelineId: 'sales', leadStatus: 'Pending' },
+  { id: 'ps_sold', stageId: 'SOLD', displayName: 'Sold', color: '#22C55E', sortOrder: 5, pipelineId: 'sales', system: true, leadStatus: 'Sold' },
+  { id: 'ps_lost', stageId: 'LOST', displayName: 'Lost', color: '#EF4444', sortOrder: 6, pipelineId: 'sales', system: true, leadStatus: 'Lost' },
+  { id: 'ps_archived', stageId: 'ARCHIVED', displayName: 'Archived', color: '#6B7280', sortOrder: 7, pipelineId: 'sales', system: true, leadStatus: 'Archived', hidden: true },
+  { id: 'pp_colours', stageId: 'PICK_COLOURS', displayName: 'Pick Colours', color: '#8B5CF6', sortOrder: 1, pipelineId: 'production' },
+  { id: 'pp_ready', stageId: 'READY_TO_SCHEDULE', displayName: 'Ready to Schedule', color: '#0EA5E9', sortOrder: 2, pipelineId: 'production' },
+  { id: 'pp_scheduled', stageId: 'SCHEDULED', displayName: 'Scheduled', color: '#14B8A6', sortOrder: 3, pipelineId: 'production' },
+  { id: 'pp_progress', stageId: 'IN_PROGRESS', displayName: 'In Progress', color: '#F59E0B', sortOrder: 4, pipelineId: 'production' },
+  { id: 'pp_touchups', stageId: 'TOUCH_UPS', displayName: 'Touch-ups', color: '#EC4899', sortOrder: 5, pipelineId: 'production' },
+  { id: 'pp_complete', stageId: 'COMPLETE', displayName: 'Complete', color: '#22C55E', sortOrder: 6, pipelineId: 'production', system: true },
+];
+
+/* CRM-M5: sample tracked links for the website form. */
+export const trackedLinks: TrackedLink[] = [
+  { id: 'tl_facebook', name: 'Facebook page button', source: 'Facebook', status: 'active', createdAt: '2026-08-01T15:00:00.000Z', createdBy: 'Dana Ruiz' },
+  { id: 'tl_yardsign', name: 'Yard sign QR code', source: 'Yard Sign', status: 'active', createdAt: '2026-08-12T15:00:00.000Z', createdBy: 'Dana Ruiz' },
+  { id: 'tl_spring', name: 'Spring mailer', source: 'Mailer', status: 'paused', createdAt: '2026-03-02T15:00:00.000Z', createdBy: 'Tim Skelly' },
+];
+
+/*
+  CRM-C4: a sample rule, stored as linked steps. Not approved, so its
+  messages wait in the approval queue.
+*/
+export const automationRules: AutomationRule[] = [
+  {
+    id: 'ar_thanks', name: 'Thank-you after acceptance', active: true, startId: 'n1', createdAt: '2026-09-01T15:00:00.000Z', updatedAt: '2026-09-01T15:00:00.000Z',
+    nodes: [
+      { id: 'n1', kind: 'trigger', trigger: 'estimate_accepted', next: 'n2' },
+      { id: 'n2', kind: 'condition', condition: { field: 'estimate_value', op: 'over', value: '5000' }, yes: 'n3', no: 'n4' },
+      { id: 'n3', kind: 'action', action: { channel: 'email', subject: 'Thank you for choosing {{orgName}}', body: 'Hi {{firstName}},\n\nThank you for choosing us for your project. Your project manager will call you this week to plan colours and dates.' } },
+      { id: 'n4', kind: 'action', action: { channel: 'sms', body: 'Hi {{firstName}}, thanks for choosing {{orgName}}! We will call you soon to plan your project.' } },
+    ],
+  },
 ];
 
 const INV_VARS = ['customerName', 'invoiceNumber', 'estimateName', 'orgName'];

@@ -10,11 +10,11 @@ import type {
   Presentation, ScheduleMessageLog, ScheduleNotifySnapshot, Task, TeamMember, WorkOrder,
 } from './types/core';
 import type {
-  AreaTemplate, AutomatedMessage, Brand, BusinessProfile, DifficultyTier, DocumentNumbering,
+  AreaTemplate, AutomatedMessage, AutomationEvent, AutomationRule, Brand, BusinessProfile, DifficultyTier, DocumentNumbering,
   EstimateTemplate, EstimateType, FinancialSettings, GeneralConfig, GoalsProfit, LaborConfig,
-  LineItemTemplate, Material, PackageTemplate, PaintProduct, PaymentGateway, PipelineStage,
+  LineItemTemplate, Material, PackageTemplate, PaintProduct, PaymentGateway, Pipeline, PipelineStage, PreparedMessage, ProductionCard,
   ProjectDiscount, RateGroup, Role, SmsTemplate, Subscription, SurfaceRate, TableColumn, TaxRegion,
-  TermsCondition, UserProfile,
+  TermsCondition, TrackedLink, UserProfile,
 } from './types/settings';
 
 /** Every list of records in the app. Each key is a "collection". */
@@ -42,6 +42,18 @@ export interface Collections {
   taxRegions: TaxRegion[];
   tableColumns: TableColumn[];
   pipelineStages: PipelineStage[];
+  /** CRM-M1: Sales, Production and any added pipelines. */
+  pipelines: Pipeline[];
+  /** CRM-M3: one card per sale on the Production board. */
+  productionCards: ProductionCard[];
+  /** CRM-M5: website form links that tag the lead source. */
+  trackedLinks: TrackedLink[];
+  /** CRM-C4: automation rules (linked steps). */
+  automationRules: AutomationRule[];
+  /** CRM-C3 to C5: customer messages prepared by rules and templates (the approval queue). */
+  preparedMessages: PreparedMessage[];
+  /** Events the automation engine already handled. */
+  automationEvents: AutomationEvent[];
   automatedMessages: AutomatedMessage[];
   smsTemplates: SmsTemplate[];
   documentNumbering: DocumentNumbering[];

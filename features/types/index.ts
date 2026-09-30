@@ -94,6 +94,8 @@ export interface Lead {
   message?: string;
   /** Stable reference of the website event that created the lead (never duplicated). */
   eventRef?: string;
+  /** CRM-M5: the tracked link the website form was opened from. */
+  trackedLinkId?: ID;
   /** The 90-day repeat-enquiry window runs from here (34.Q02). */
   lastActivityAt?: ISODate;
   /** Every website event attached to this lead. */

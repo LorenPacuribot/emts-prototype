@@ -46,6 +46,13 @@ export function createInitialDatabase(): Database {
       taxRegions: cfg.taxRegions,
       tableColumns: cfg.tableColumns,
       pipelineStages: cfg.pipelineStages,
+      pipelines: cfg.pipelines,
+      // Filled from sold estimates when the store loads (lib/crm.ts).
+      productionCards: [],
+      trackedLinks: cfg.trackedLinks,
+      automationRules: cfg.automationRules,
+      preparedMessages: [],
+      automationEvents: [],
       automatedMessages: cfg.automatedMessages,
       smsTemplates: cfg.smsTemplates,
       documentNumbering: cfg.documentNumbering,

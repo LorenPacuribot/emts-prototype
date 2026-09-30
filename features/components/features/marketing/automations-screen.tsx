@@ -7,8 +7,15 @@
  * sandbox: each one is logged in the run history and the customer's
  * communication history, opted-out customers are skipped, and nobody is
  * messaged twice by the same automation.
+ *
+ * 30 Sep call (Complete version): Rules (CRM-C4), Flow (?view=flow, CRM-C5)
+ * and Waiting for approval (?view=approvals) tabs, in
+ * components/marketing/AutomationExtras.tsx.
  */
 import { useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { ApprovalsView, AutomationViewTabs, FlowView, RulesView, type AutomationView } from "@/components/marketing/AutomationExtras";
+import { VersionGate, VersionScreenGate } from "@/features/components/ui";
 import { Pencil, Play, Plus, Workflow } from "lucide-react";
 import type { AutomationRun, MarketingAutomation } from "@/features/types/marketing-growth";
 import { act, useCurrentUser, useDb } from "@/features/lib/store";
@@ -96,10 +103,31 @@ function Automations() {
   };
   const addStandard = () => { const r = act(addStandardAutomations); if (r.ok) toast.success(`${r.value} automations added`, "They are off. Edit the wording, then ask the owner to turn them on."); };
   const shownRuns = historyFor === "all" ? runs : runs.filter((r) => r.automationId === historyFor);
+  const params = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  const viewParam = params.get("view");
+  const view: AutomationView = viewParam === "rules" || viewParam === "flow" || viewParam === "approvals" ? viewParam : "list";
+  const setView = (v: AutomationView) => router.replace(v === "list" ? pathname : `${pathname}?view=${v}`, { scroll: false });
+  const header = <PageHeader title="Automations" subtitle="Messages that go out on their own when something happens." details="For example when an estimate goes unanswered, a job is finished, a season starts, or a customer has gone quiet." />;
+  const tabs = <VersionGate item="CRM-C4"><AutomationViewTabs view={view} onChange={setView} /></VersionGate>;
+
+  if (view !== "list") {
+    return (
+      <>
+        {header}
+        {tabs}
+        <VersionScreenGate item={view === "flow" ? "CRM-C5" : view === "rules" ? "CRM-C4" : "CRM-C3"}>
+          {view === "rules" ? <RulesView /> : view === "flow" ? <FlowView /> : <ApprovalsView />}
+        </VersionScreenGate>
+      </>
+    );
+  }
 
   return (
     <>
-      <PageHeader title="Automations" subtitle="Messages that go out on their own when something happens." details="For example when an estimate goes unanswered, a job is finished, a season starts, or a customer has gone quiet." />
+      {header}
+      {tabs}
       <Banner tone="info" className="mb-4" title="Sandbox">Messages are recorded in the run history and the customer&apos;s history; no email or SMS provider is called. Opted-out customers are always skipped.</Banner>
       {autos.length === 0 ? (
         <EmptyState icon={<Workflow />} title="No automations yet" body="Add the five standard automations (estimate follow-up, review request, seasonal reminder, referral request, re-engagement). They start switched off." action={<GatedButton allowed={canPost} reason={postReason} variant="primary" onClick={addStandard}><Plus className="h-4 w-4" /> Add standard automations</GatedButton>} />

@@ -208,6 +208,7 @@ export function projectLead(db: P.Database, l: P.Lead): Lead {
     notes: notes || undefined, customerId: l.customerId, estimateId: l.estimateId,
     contactType: status === 'Sold' ? 'CLIENT' : l.estimateId || status === 'Scheduled' || status === 'Pending' ? 'CONTACT' : 'LEAD',
     assignedTo: l.assignedUserId, appointment: leadAppointment(l), appointmentDuration: l.durationMin,
+    ...(l.trackedLinkId ? { trackedLinkId: l.trackedLinkId } : {}),
   };
 }
 

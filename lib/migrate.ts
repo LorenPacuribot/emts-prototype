@@ -7,11 +7,14 @@
     Columns the user added stay, after the seeded ones.
   - automatedMessages: new seeded messages (such as the lead stage messages)
     are added; saved messages are kept as they are.
+  - pipelineStages (CRM-M2): saved stages join the Sales pipeline; the
+    Production stages are added.
   - estimates (RP-M6): each sold estimate gets the version history reports
     need to book sales entries (features/lib/rules/sales-entries.ts).
 */
 import type { Collections, Estimate, TableColumn } from './types';
 import { estimateTotals, round2, versionSnapshot } from './calculations';
+import { migratePipelineStages } from './crm';
 
 export function migrateTableColumns(saved: TableColumn[], fresh: TableColumn[]): TableColumn[] {
   const byId = new Map(saved.map((c) => [c.id, c]));
@@ -67,5 +70,6 @@ export function migrateCollections(saved: Collections, fresh: Collections): Coll
   if (saved.tableColumns) next.tableColumns = migrateTableColumns(saved.tableColumns, fresh.tableColumns);
   if (saved.automatedMessages) next.automatedMessages = addMissingById(saved.automatedMessages, fresh.automatedMessages);
   if (saved.estimates) next.estimates = saved.estimates.map(migrateEstimateVersions);
+  if (saved.pipelineStages) next.pipelineStages = migratePipelineStages(saved.pipelineStages, fresh.pipelineStages);
   return next;
 }

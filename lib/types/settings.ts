@@ -5,7 +5,7 @@
   Rule for anyone editing this file: you may ADD optional fields,
   but do not rename or remove fields. Other modules read them.
 */
-import type { ID } from './core';
+import type { ID, LeadStatus } from './core';
 
 /* ================= ORGANIZATION ================= */
 
@@ -47,6 +47,8 @@ export interface BusinessProfile {
   /** Automated Messages > Email Header & Footer (plain text / light HTML) */
   emailHeader?: string;
   emailFooter?: string;
+  /** CRM-C6: simulated Facebook Lead Ads connection (no call to Facebook). */
+  facebookLeadAds?: { pageName: string; connectedAt: string; by: string };
 }
 
 export interface Role {
@@ -191,12 +193,76 @@ export interface TableColumn {
   sortOrder: number;
 }
 
+/**
+ * A board of stages (CRM-M1). Stored as a list from the start so more
+ * pipelines (e.g. Marketing, CRM-C2) need no data change.
+ */
+export interface Pipeline {
+  id: ID; // 'sales', 'production', or pl_… for added ones
+  name: string;
+  /** Sales holds leads, Production holds sold jobs, custom pipelines hold leads too. */
+  kind: 'sales' | 'production' | 'custom';
+  sortOrder: number;
+}
+
 export interface PipelineStage {
   id: ID;
-  stageId: 'NEW' | 'CONTACTED' | 'SCHEDULED' | 'PENDING' | 'SOLD' | 'LOST' | 'ARCHIVED';
+  /** Fixed key: NEW, SOLD… for the original lead stages, a generated one for stages added later. */
+  stageId: string;
   displayName: string;
   color: string; // hex
+  /** Position inside its pipeline. */
   sortOrder: number;
+  /** CRM-M2. Missing on data saved before pipelines = 'sales'. */
+  pipelineId?: ID;
+  /** System stages can be renamed and recoloured, not moved or deleted. */
+  system?: boolean;
+  /**
+   * The lead lifecycle status this stage stands for (New, Sold…). Leads with
+   * that status sit here. A stage without one holds leads moved into it by hand.
+   */
+  leadStatus?: LeadStatus;
+  /** Kept for the lead lifecycle but not a board column (Archived). */
+  hidden?: boolean;
+}
+
+/** One move of a lead or production card between stages (CRM-M7). */
+export interface StageMove {
+  pipelineId: ID;
+  stageId: ID;
+  stageName: string;
+  by: string;
+  at: string;
+}
+
+/** A card on the Production board: one per sale (CRM-M3). */
+export interface ProductionCard {
+  id: ID;
+  /** Estimate id when there is one, else the lead id. Never two cards for one sale. */
+  saleKey: string;
+  pipelineId: ID;
+  stageId: ID;
+  title: string;
+  customerName: string;
+  leadId?: ID;
+  estimateId?: ID;
+  jobId?: ID;
+  value: number;
+  createdAt: string;
+  history: StageMove[];
+  /** Removed from Production when the lead left Sold. Kept so the sale never gets a second card. */
+  removedAt?: string;
+}
+
+/** A link to the website form that tags the lead's source (CRM-M5). */
+export interface TrackedLink {
+  id: ID; // tl_…
+  name: string;
+  /** Tag passed as ?src= and stored as the lead source, e.g. "Facebook". */
+  source: string;
+  status: 'active' | 'paused';
+  createdAt: string;
+  createdBy: string;
 }
 
 export interface AutomatedMessage {
@@ -216,6 +282,79 @@ export interface AutomatedMessage {
    * to send it. Missing = Automatic (how every template behaved before).
    */
   mode?: 'automatic' | 'manual';
+  /** CRM-C3: the event that sends this template. */
+  ruleTrigger?: AutomationTrigger;
+  /** CRM-C3: set = sends without asking. Any edit removes it. Missing = "Ask me first". */
+  approval?: AutomationApproval;
+}
+
+/* ---------- Automation rules and approvals (CRM-C3 to C5) ---------- */
+
+export type AutomationTrigger = 'estimate_accepted' | 'estimate_declined' | 'estimate_no_show' | 'job_complete';
+
+export interface AutomationApproval {
+  byId: ID;
+  by: string;
+  at: string;
+}
+
+/**
+ * One step of a rule. Rules are stored as linked steps (trigger → condition →
+ * action, with next / yes / no links), so the list editor and the flow view
+ * read the same data (CRM-C4, CRM-C5).
+ */
+export interface RuleNode {
+  id: ID;
+  kind: 'trigger' | 'condition' | 'action';
+  trigger?: AutomationTrigger;
+  condition?: { field: 'lead_source' | 'estimate_value' | 'service_type'; op: 'is' | 'over'; value: string };
+  action?: { channel: 'email' | 'sms'; subject?: string; body: string };
+  next?: ID;
+  yes?: ID;
+  no?: ID;
+}
+
+export interface AutomationRule {
+  id: ID; // ar_…
+  name: string;
+  active: boolean;
+  startId: ID;
+  nodes: RuleNode[];
+  approval?: AutomationApproval;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** A customer message a rule or template prepared. Waits here until approved (CRM-C3 to C5). */
+export interface PreparedMessage {
+  id: ID;
+  sourceKind: 'rule' | 'template';
+  sourceId: ID;
+  sourceName: string;
+  /** trigger:recordId, so one event never prepares the same message twice. */
+  eventKey: string;
+  /** lead_stage: a Sales stage email held in the Complete version until approved. */
+  trigger: AutomationTrigger | 'lead_stage';
+  customerName: string;
+  leadId?: ID;
+  estimateId?: ID;
+  jobId?: ID;
+  channel: 'email' | 'sms';
+  to: string;
+  subject?: string;
+  body: string;
+  createdAt: string;
+  status: 'waiting' | 'sent' | 'skipped';
+  /** True when it went out without asking (the rule was approved). */
+  auto?: boolean;
+  decidedAt?: string;
+  decidedBy?: string;
+}
+
+/** An event the automation engine has already handled. */
+export interface AutomationEvent {
+  id: string; // trigger:recordId
+  at: string;
 }
 
 export interface SmsTemplate {

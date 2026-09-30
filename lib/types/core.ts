@@ -129,6 +129,19 @@ export interface Lead {
   sentMessages?: LeadMessageLog[];
   /** Stage messages with a delay, waiting for their send time (patent 1). Sent ones move to sentMessages. */
   scheduledMessages?: ScheduledLeadMessage[];
+  /**
+   * CRM-M2: a Sales stage without a lifecycle status that the lead was moved
+   * into by hand. It holds while the lead keeps `stageStatus`; a lifecycle
+   * change (estimate sent, sold…) puts the lead back on its status stage.
+   */
+  stageId?: ID;
+  stageStatus?: LeadStatus;
+  /** CRM-C2: stage in each added pipeline (pipeline id → stage id). Missing = the first stage. */
+  pipelineStages?: Record<ID, ID>;
+  /** CRM-M7: every stage the lead was in, oldest first. */
+  stageHistory?: import('./settings').StageMove[];
+  /** CRM-M5: the tracked link the website form was opened from. */
+  trackedLinkId?: ID;
 }
 
 export interface ScheduledLeadMessage {

@@ -20,6 +20,7 @@ import type {
 import { createInitialDatabase } from './sampleData';
 import { migrateCollections } from './migrate';
 import { withNotifyBaseline } from './schedule-notify';
+import { withCrmBaseline } from './crm';
 import { uid } from './utils';
 import { applyOps, resetBridge, runSync, type BridgeOp } from './bridge/sync';
 import { BridgeSync } from './bridge/BridgeSync';
@@ -96,10 +97,12 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
           };
           const synced = applyOps(merged, runSync(merged, { baseline: true }));
           // Saves from before crew notifications: everyone counts as told about the schedule as it is.
-          dispatch({ type: 'replace', db: saved.collections.scheduleNotifySnapshots ? synced : withNotifyBaseline(synced) });
+          const notified = saved.collections.scheduleNotifySnapshots ? synced : withNotifyBaseline(synced);
+          // Saves from before pipelines: existing sales get their Production cards, quietly.
+          dispatch({ type: 'replace', db: saved.collections.productionCards ? notified : withCrmBaseline(notified) });
         } else {
           const fresh = createInitialDatabase();
-          dispatch({ type: 'replace', db: withNotifyBaseline(applyOps(fresh, runSync(fresh, { baseline: true }))) });
+          dispatch({ type: 'replace', db: withCrmBaseline(withNotifyBaseline(applyOps(fresh, runSync(fresh, { baseline: true })))) });
         }
       } catch (err) {
         /* storage blocked or corrupt: keep sample data */
@@ -262,7 +265,7 @@ export function useDataActions() {
       resetBridge();
       useFeatureStore.getState().resetDemo();
       const fresh = createInitialDatabase();
-      dispatch({ type: 'replace', db: withNotifyBaseline(applyOps(fresh, runSync(fresh, { baseline: true }))) });
+      dispatch({ type: 'replace', db: withCrmBaseline(withNotifyBaseline(applyOps(fresh, runSync(fresh, { baseline: true })))) });
     },
   };
 }

@@ -9,13 +9,21 @@
     Messages with a delay are scheduled on the lead instead; moving the lead to another stage cancels them.
   - cancelScheduled: cancels one waiting message by hand.
   - archive / restore / remove / addNote / convert.
+  - 30 Sep call (CRM): every stage change is added to the lead's stage history
+    with who moved it (CRM-M7); moveToStage puts a lead on a Sales stage that
+    stands for no lifecycle status; moveInPipeline moves it on an added
+    pipeline (CRM-C2). In the Complete version a stage email that is not
+    approved waits in the approval queue instead of sending (CRM-C3).
 */
 import { useCallback, useRef } from 'react';
-import type { Lead, LeadStatus } from '@/lib/types';
-import { useCollection, useLogActivity, useSingleton } from '@/lib/store';
+import type { Lead, LeadStatus, PipelineStage, PreparedMessage } from '@/lib/types';
+import { useCollection, useCurrentUser, useLogActivity, useSingleton } from '@/lib/store';
+import { move } from '@/lib/crm';
+import { pipelineColumns, salesColumnFor } from '@/features/lib/rules/lead-pipeline';
+import { useVersion } from '@/features/lib/prototype-version';
 import { cancelForStageChange, deliver, leadVars, planStageSends, splitByDelay } from '@/lib/lead-messages';
 import { useToast } from '@/components/ui/toast';
-import { fullName } from '@/lib/utils';
+import { fullName, uid } from '@/lib/utils';
 import { LEAD_LIFECYCLE, appendNote, customerTypeFor } from './leadHelpers';
 import { currentFollowUpLock, followUpLockMessage } from './leadFeatures';
 
@@ -24,6 +32,10 @@ export function useLeadActions() {
   const customers = useCollection('customers');
   const events = useCollection('events');
   const messages = useCollection('automatedMessages');
+  const stages = useCollection('pipelineStages');
+  const prepared = useCollection('preparedMessages');
+  const me = fullName(useCurrentUser());
+  const complete = useVersion((s) => s.version === 'complete');
   const [bp] = useSingleton('businessProfile');
   const log = useLogActivity();
   const { toast } = useToast();
@@ -37,7 +49,17 @@ export function useLeadActions() {
       const plan = planStageSends(lead, status, messages.items, leadVars(lead, bp.companyName || 'our team'));
       if (plan.skipped.length) toast(`Not sent: ${plan.skipped.join(', ')}`, 'info');
       const at = new Date().toISOString();
-      const { now: sends, later } = splitByDelay(plan.sends, status, at, () => `sm-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`);
+      // CRM-C3 (Complete): a stage email nobody approved waits in the approval queue.
+      const held = complete ? plan.sends.filter((s) => !s.message.approval) : [];
+      if (held.length) {
+        const queued: PreparedMessage[] = held.map((s) => ({
+          id: uid('pm'), sourceKind: 'template', sourceId: s.message.id, sourceName: s.message.name, eventKey: `lead_stage:${lead.id}:${status}`, trigger: 'lead_stage',
+          customerName: fullName(lead), leadId: lead.id, channel: s.channel === 'EMAIL' ? 'email' : 'sms', to: s.to, subject: s.subject, body: s.body, createdAt: at, status: 'waiting',
+        }));
+        prepared.setAll([...queued, ...prepared.items]);
+        toast(`${held.length} stage ${held.length === 1 ? 'message is' : 'messages are'} waiting for approval (Marketing › Automations)`, 'info');
+      }
+      const { now: sends, later } = splitByDelay(plan.sends.filter((s) => !held.includes(s)), status, at, () => `sm-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`);
       if (later.length) {
         // The caller passes the lead as it is after this change (a status change may have cancelled some).
         leadsRef.current.update(lead.id, { scheduledMessages: [...(lead.scheduledMessages ?? []), ...later] });
@@ -61,7 +83,7 @@ export function useLeadActions() {
         if (failed.length) toast(`Automated message not sent: ${failed[0]!.error ?? 'unknown error'}`, 'error');
       });
     },
-    [messages.items, bp.companyName, log, toast],
+    [messages.items, bp.companyName, log, toast, complete, prepared],
   );
 
   const changeStatus = useCallback(
@@ -74,7 +96,10 @@ export function useLeadActions() {
       const at = new Date().toISOString();
       const scheduledMessages = cancelForStageChange(lead.scheduledMessages, status, at);
       const cancelled = (scheduledMessages ?? []).filter((m) => m.cancelledAt === at).length;
-      leads.update(lead.id, { status, contactType, updatedAt: at, ...(cancelled ? { scheduledMessages } : {}) });
+      // CRM-M7: record the stage it lands on, and who moved it.
+      const col = salesColumnFor({ status, stageId: undefined, stageStatus: undefined }, pipelineColumns(stages.items, 'sales'));
+      const stageHistory = col ? [...(lead.stageHistory ?? []), move('sales', col, me, at)] : lead.stageHistory;
+      leads.update(lead.id, { status, contactType, updatedAt: at, stageId: undefined, stageStatus: undefined, stageHistory, ...(cancelled ? { scheduledMessages } : {}) });
       if (cancelled) log(`${cancelled} scheduled message${cancelled === 1 ? '' : 's'} cancelled for ${fullName(lead)}: lead moved to ${status}`, 'lead', lead.id);
       const customer = customers.get(lead.customerId);
       if (customer) {
@@ -85,7 +110,28 @@ export function useLeadActions() {
       if (!opts.silent) toast(opts.message ?? 'Lead status updated successfully');
       sendStageMessages({ ...lead, status, scheduledMessages }, status);
     },
-    [leads, customers, log, toast, sendStageMessages],
+    [leads, customers, log, toast, sendStageMessages, stages.items, me],
+  );
+
+  /** CRM-M2: onto a Sales stage that stands for no lifecycle status (the lead keeps its status). */
+  const moveToStage = useCallback(
+    (lead: Lead, stage: PipelineStage) => {
+      const at = new Date().toISOString();
+      leads.update(lead.id, { stageId: stage.id, stageStatus: lead.status, updatedAt: at, stageHistory: [...(lead.stageHistory ?? []), move('sales', stage, me, at)] });
+      log(`${fullName(lead)} (${lead.leadNumber}) moved to ${stage.displayName}`, 'lead', lead.id);
+      toast(`Moved to ${stage.displayName}`);
+    },
+    [leads, log, toast, me],
+  );
+
+  /** CRM-C2: a stage on an added pipeline. */
+  const moveInPipeline = useCallback(
+    (lead: Lead, pipelineId: string, stage: PipelineStage) => {
+      const at = new Date().toISOString();
+      leads.update(lead.id, { pipelineStages: { ...lead.pipelineStages, [pipelineId]: stage.id }, stageHistory: [...(lead.stageHistory ?? []), move(pipelineId, stage, me, at)] });
+      toast(`Moved to ${stage.displayName}`);
+    },
+    [leads, toast, me],
   );
 
   const cancelScheduled = useCallback(
@@ -140,5 +186,5 @@ export function useLeadActions() {
     [customers, leads, log, toast],
   );
 
-  return { changeStatus, archive, restore, remove, addNote, convert, sendStageMessages, cancelScheduled };
+  return { changeStatus, moveToStage, moveInPipeline, archive, restore, remove, addNote, convert, sendStageMessages, cancelScheduled };
 }

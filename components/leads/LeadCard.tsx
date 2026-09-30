@@ -12,9 +12,10 @@ import type { Estimate, Lead, TeamMember } from '@/lib/types';
 import { cn, longDate } from '@/lib/utils';
 import { LEAD_LIFECYCLE, NEXT_STAGE_MAP, canArchiveLeadStatus, formatPhone, time12, timeAgo } from './leadHelpers';
 import { FollowUpLockNote, LeadSourceChip } from './leadFeatures';
+import { Badge } from '@/features/components/ui';
 
 export function LeadCard({
-  lead, estimate, estimator, draggable = true, dragging, followUpId, onDragStart, onArchive, onAdvance,
+  lead, estimate, estimator, draggable = true, dragging, followUpId, stageChip, onDragStart, onArchive, onAdvance,
 }: {
   lead: Lead;
   estimate?: Estimate;
@@ -23,6 +24,8 @@ export function LeadCard({
   dragging?: boolean;
   /** NEW (29): the open repaint follow-up that sets this lead's stage (no drag, no move buttons). */
   followUpId?: string;
+  /** CRM-C1: the lead's stage, shown as a grey chip when the board is grouped by source. */
+  stageChip?: string;
   onDragStart?: (e: React.DragEvent, id: string) => void;
   onArchive?: (lead: Lead) => void;
   onAdvance?: (lead: Lead) => void;
@@ -76,7 +79,9 @@ export function LeadCard({
 
       <div className="mb-3 flex flex-wrap gap-1.5">
         <span className={chip}><Calendar className="mr-1 h-3 w-3 text-gray-500" />{longDate(lead.date)}</span>
-        <LeadSourceChip lead={lead} className="text-xs" fallback={<span className={chip}>{lead.leadSource}</span>} />
+        {/* CRM-M6: every card shows its source. */}
+        <LeadSourceChip lead={lead} className="text-xs" fallback={<Badge tone="blue">{lead.leadSource || 'Unknown'}</Badge>} />
+        {stageChip && <span className={chip}>{stageChip}</span>}
         <span className={chip}>{timeAgo(lead.date)}</span>
       </div>
 

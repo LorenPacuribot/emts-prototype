@@ -4,10 +4,15 @@
   Public sample of the organisation's website contact form (patent 34). It
   posts to /api/website-form exactly as an embedded form on the real website
   would, so the lead arrives through the live endpoint, not the simulator.
+
+  CRM-M5: a tracked link opens it as /website-form?src={source}&l={linkId}.
+  Both go to the endpoint with the referring site, which sets the lead
+  source (lib/website-form.ts leadSourceFor). A paused link takes no requests.
 */
 import { useEffect, useState } from 'react';
-import { CheckCircle2 } from 'lucide-react';
+import { CheckCircle2, PauseCircle } from 'lucide-react';
 import { DEMO_SITE_KEY, HONEYPOT_FIELD } from '@/lib/website-form';
+import { useCollection } from '@/lib/store';
 
 type Status = { kind: 'idle' | 'sending' | 'sent' } | { kind: 'error'; message: string; field?: string };
 
@@ -16,12 +21,19 @@ const input = 'w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:
 export default function Page() {
   const [startedAt, setStartedAt] = useState(0);
   const [status, setStatus] = useState<Status>({ kind: 'idle' });
-  useEffect(() => setStartedAt(Date.now()), []);
+  const [track, setTrack] = useState<{ src: string; l: string; referrer: string }>({ src: '', l: '', referrer: '' });
+  const { items: links } = useCollection('trackedLinks');
+  useEffect(() => {
+    setStartedAt(Date.now());
+    const q = new URLSearchParams(window.location.search);
+    setTrack({ src: q.get('src') ?? '', l: q.get('l') ?? '', referrer: document.referrer });
+  }, []);
+  const paused = !!track.l && links.find((x) => x.id === track.l)?.status === 'paused';
 
   const submit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setStatus({ kind: 'sending' });
-    const body = { ...Object.fromEntries(new FormData(e.currentTarget).entries()), siteKey: DEMO_SITE_KEY, startedAt };
+    const body = { ...Object.fromEntries(new FormData(e.currentTarget).entries()), siteKey: DEMO_SITE_KEY, startedAt, ...track };
     try {
       const res = await fetch('/api/website-form', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
       const json = (await res.json().catch(() => ({}))) as { error?: string; field?: string };
@@ -47,7 +59,12 @@ export default function Page() {
         <p className="mb-2 text-xs font-bold uppercase tracking-wide text-blue-600">Sample website form</p>
         <h1 className="text-2xl font-black text-gray-900">Request a free estimate</h1>
         <p className="mt-1 text-sm text-gray-500">Tell us about your project and we&apos;ll be in touch to arrange a visit.</p>
-        {status.kind === 'sent' ? (
+        {paused ? (
+          <div className="mt-6 flex items-start gap-3 rounded-xl border border-gray-200 bg-white p-5 text-sm text-gray-700" role="status">
+            <PauseCircle className="h-5 w-5 shrink-0 text-gray-500" />
+            This form is not accepting requests right now.
+          </div>
+        ) : status.kind === 'sent' ? (
           <div className="mt-6 rounded-xl border border-green-200 bg-green-50 p-5 text-sm text-green-800" role="status">
             <CheckCircle2 className="mb-2 h-6 w-6" />
             <b>Thanks, we have your request.</b> We&apos;ll contact you shortly.

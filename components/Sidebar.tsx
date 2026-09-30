@@ -17,6 +17,9 @@ import { ChevronDown, ChevronLeft, ChevronRight, LogOut, X } from 'lucide-react'
 import { BOTTOM_NAV, MAIN_NAV, NEW_NAV } from '@/lib/constants';
 import { useCurrentUser as useFeatureUser } from '@/features/lib/store';
 import { NewBadge } from '@/features/components/ui';
+import { useCollection } from '@/lib/store';
+import { useVersion } from '@/features/lib/prototype-version';
+import { waitingCount } from '@/lib/automation';
 import { cn } from '@/lib/utils';
 import { ICONS } from './layout/icons';
 import { LogoFull, LogoIcon } from './layout/Logo';
@@ -159,6 +162,7 @@ function SidebarItem({ item, collapsed, active, onClick, isNew }: { item: NavIte
       <span className={cn('flex items-center gap-2 transition-all duration-300', collapsed ? 'w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 group-has-[:focus-visible]:w-auto group-has-[:focus-visible]:opacity-100' : 'w-auto opacity-100')}>
         {item.label}
         {isNew && <NewBadge feature={item.feature} />}
+        {item.href === '/marketing' && <ApprovalCount />}
       </span>
       {isNew && collapsed && <span aria-hidden className="absolute left-[34px] top-1.5 h-2 w-2 rounded-full bg-green-600 ring-2 ring-white transition-opacity group-hover:opacity-0 group-has-[:focus-visible]:opacity-0" />}
     </>
@@ -174,6 +178,19 @@ function SidebarItem({ item, collapsed, active, onClick, isNew }: { item: NavIte
     <Link href={item.href} className={className} title={collapsed ? (isNew ? `${item.label} (new)` : item.label) : undefined} aria-current={active ? 'page' : undefined}>
       {content}
     </Link>
+  );
+}
+
+/** CRM-C3 to C5 (Complete): customer messages waiting for approval, on the Marketing item. */
+function ApprovalCount() {
+  const { items } = useCollection('preparedMessages');
+  const complete = useVersion((s) => s.version === 'complete');
+  const n = complete ? waitingCount(items) : 0;
+  if (!n) return null;
+  return (
+    <span className="rounded-full bg-amber-100 px-1.5 text-xs font-bold text-amber-800" title={`${n} ${n === 1 ? 'message' : 'messages'} waiting for approval`}>
+      {n}
+    </span>
   );
 }
 

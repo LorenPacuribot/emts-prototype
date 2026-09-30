@@ -12,6 +12,7 @@ import { derivedInvoiceStatus, estimateTotals, invoiceTotals } from '@/lib/calcu
 import type { Database, Estimate, JobStatus, Lead, PipelineStage } from '@/lib/types';
 import { fullName, toISODate } from '@/lib/utils';
 import { allSalesEntries } from '@/components/reports/data';
+import { pipelineColumns, salesColumnFor } from '@/features/lib/rules/lead-pipeline';
 import type { SalesEntry } from '@/features/lib/rules/sales-entries';
 
 /* ---------- Period ---------- */
@@ -174,9 +175,11 @@ export function computeDashboard(db: Database, period: PeriodValue, extra: Sales
 
   // Leads
   const recentLeads = [...c.leads].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 5);
-  const stages = [...c.pipelineStages].sort((a, b) => a.sortOrder - b.sortOrder).map((s) => ({
+  // Sales stages only (CRM-M1): Production cards are jobs, not leads.
+  const salesCols = pipelineColumns(c.pipelineStages, 'sales');
+  const stages = salesCols.map((s) => ({
     ...s,
-    count: c.leads.filter((l) => LEAD_STAGE_ID[l.status] === s.stageId && inRange(l.date, range)).length,
+    count: c.leads.filter((l) => salesColumnFor(l, salesCols)?.id === s.id && inRange(l.date, range)).length,
   }));
 
   // Jobs

@@ -80,3 +80,168 @@ export function sourceFromLabel(label: string): { source: LeadSource; sourceLabe
   if (label === "Referral") return { source: "referral" };
   return { source: "website", sourceLabel: label };
 }
+
+/* ------------------------------------------------------------------ */
+/* Pipelines and stages (30 Sep call, CRM-M1 to M3, CRM-C2)            */
+/* Written against the replica records (lib/types).                    */
+/* ------------------------------------------------------------------ */
+
+export const MAX_STAGES = 12;
+
+type RStage = import("@/lib/types").PipelineStage;
+type RLead = import("@/lib/types").Lead;
+type REstimate = Pick<import("@/lib/types").Estimate, "id" | "status" | "leadId" | "customerId" | "title" | "jobId">;
+type RCard = import("@/lib/types").ProductionCard;
+type RLeadStatus = import("@/lib/types").LeadStatus;
+
+/** Stages saved before pipelines existed belong to Sales. */
+export const stagePipeline = (s: Pick<RStage, "pipelineId">) => s.pipelineId ?? "sales";
+
+/** The board columns of one pipeline, in order (the hidden Archived stage left out). */
+export function pipelineColumns(stages: RStage[], pipelineId: string): RStage[] {
+  return stages.filter((s) => stagePipeline(s) === pipelineId && !s.hidden).sort((a, b) => a.sortOrder - b.sortOrder);
+}
+
+/**
+ * Where each system stage must sit. Sales: New first, Sold second last, Lost
+ * last. Production and added pipelines: their system stage last.
+ */
+function fixedSlot(s: RStage, count: number): number | undefined {
+  if (!s.system) return undefined;
+  if (s.leadStatus === "New") return 0;
+  if (s.leadStatus === "Sold") return count - 2;
+  return count - 1;
+}
+
+/** Explains why an order breaks the rules, or undefined when it is fine. */
+export function stageOrderProblem(columns: RStage[]): string | undefined {
+  if (columns.length > MAX_STAGES) return `A pipeline can have at most ${MAX_STAGES} stages.`;
+  for (const [i, s] of columns.entries()) {
+    const slot = fixedSlot(s, columns.length);
+    if (slot !== undefined && slot !== i) return `${s.displayName} is a system stage and stays in its place.`;
+  }
+  return undefined;
+}
+
+/** Renumbers sortOrder 1..n in the given order. */
+const renumber = (cols: RStage[]) => cols.map((s, i) => ({ ...s, sortOrder: i + 1 }));
+
+type StageResult = { ok: true; columns: RStage[] } | { ok: false; error: string };
+
+/** Moves a custom stage to a new position (0-based). System stages don't move. */
+export function moveStage(columns: RStage[], id: string, to: number): StageResult {
+  const from = columns.findIndex((s) => s.id === id);
+  if (from < 0) return { ok: false, error: "Stage not found." };
+  if (columns[from]!.system) return { ok: false, error: "System stages can't be moved." };
+  const next = [...columns];
+  const [s] = next.splice(from, 1);
+  next.splice(Math.max(0, Math.min(to, next.length)), 0, s!);
+  return stageOrderProblem(next) ? { ok: false, error: "Custom stages go between the system stages." } : { ok: true, columns: renumber(next) };
+}
+
+/** Adds a custom stage above Sold (Sales) or above the last system stage (other pipelines). */
+export function insertStage(columns: RStage[], stage: RStage): StageResult {
+  if (columns.length >= MAX_STAGES) return { ok: false, error: `A pipeline can have at most ${MAX_STAGES} stages.` };
+  const soldAt = columns.findIndex((s) => s.leadStatus === "Sold");
+  const last = columns.length - 1;
+  const at = soldAt >= 0 ? soldAt : last >= 0 && columns[last]!.system ? last : columns.length;
+  const next = [...columns];
+  next.splice(at, 0, { ...stage, system: false });
+  return { ok: true, columns: renumber(next) };
+}
+
+/** Why a stage can't be deleted, or undefined. */
+export function deleteStageProblem(stage: Pick<RStage, "system">, cardCount: number): string | undefined {
+  if (stage.system) return "System stages can't be deleted.";
+  if (cardCount > 0) return `Move the ${cardCount} ${cardCount === 1 ? "card" : "cards"} in this stage first.`;
+  return undefined;
+}
+
+/** Why a stage name can't be saved, or undefined. Names are unique inside a pipeline. */
+export function stageNameProblem(name: string, others: string[]): string | undefined {
+  const n = name.trim();
+  if (!n) return "Enter a stage name.";
+  if (n.length > 30) return "Keep it under 30 characters.";
+  if (others.some((o) => o.trim().toLowerCase() === n.toLowerCase())) return "Each stage needs a unique name.";
+  return undefined;
+}
+
+/**
+ * The Sales column a lead sits in: a stage it was moved into by hand while its
+ * status is unchanged, otherwise the stage that stands for its status.
+ */
+export function salesColumnFor(lead: Pick<RLead, "status" | "stageId" | "stageStatus">, columns: RStage[]): RStage | undefined {
+  if (lead.stageId && lead.stageStatus === lead.status) {
+    const own = columns.find((s) => s.id === lead.stageId && !s.leadStatus);
+    if (own) return own;
+  }
+  return columns.find((s) => s.leadStatus === lead.status);
+}
+
+/** The stage a lead is in on an added pipeline (CRM-C2): its saved one, else the first. */
+export function customColumnFor(lead: Pick<RLead, "pipelineStages">, columns: RStage[], pipelineId: string): RStage | undefined {
+  const saved = lead.pipelineStages?.[pipelineId];
+  return columns.find((s) => s.id === saved) ?? columns[0];
+}
+
+/** Leads or cards sitting in each stage, for the delete guard and the settings counts. */
+export function stageCounts(
+  stages: RStage[],
+  pipelineIds: { id: string; kind: string }[],
+  leads: Pick<RLead, "status" | "stageId" | "stageStatus" | "pipelineStages">[],
+  cards: Pick<RCard, "stageId">[],
+): Record<string, number> {
+  const out: Record<string, number> = Object.fromEntries(stages.map((s) => [s.id, 0]));
+  const bump = (id?: string) => { if (id && id in out) out[id]! += 1; };
+  const active = leads.filter((l) => l.status !== "Archived");
+  for (const p of pipelineIds) {
+    const cols = pipelineColumns(stages, p.id);
+    if (p.kind === "sales") active.forEach((l) => bump(salesColumnFor(l, cols)?.id));
+    else if (p.kind === "custom") active.forEach((l) => bump(customColumnFor(l, cols, p.id)?.id));
+  }
+  cards.forEach((c) => bump(c.stageId));
+  return out;
+}
+
+/* ---------- Production cards (CRM-M3) ---------- */
+
+/** One sale = its estimate when there is one, else the lead. */
+export const saleKeyOf = (lead?: Pick<RLead, "id" | "estimateId">, estimate?: Pick<REstimate, "id">) => estimate?.id ?? lead?.estimateId ?? lead?.id ?? "";
+
+export interface NewCard {
+  saleKey: string;
+  leadId?: string;
+  estimateId?: string;
+  customerId?: string;
+  title: string;
+}
+
+/**
+ * Sales that need a Production card: leads at Sold and approved estimates
+ * without one. A sale that already has a card (even after a re-approval), or
+ * whose card was removed on purpose (`dismissed`), gets none.
+ */
+export function productionCardsToCreate(
+  leads: Pick<RLead, "id" | "status" | "estimateId" | "firstName" | "lastName" | "customerId">[],
+  estimates: REstimate[],
+  cards: Pick<RCard, "saleKey">[],
+  dismissed: string[] = [],
+): NewCard[] {
+  const have = new Set([...cards.map((c) => c.saleKey), ...dismissed]);
+  const out: NewCard[] = [];
+  const add = (c: NewCard) => {
+    if (!c.saleKey || have.has(c.saleKey)) return;
+    have.add(c.saleKey);
+    out.push(c);
+  };
+  for (const e of estimates) if (e.status === "Approved") add({ saleKey: e.id, estimateId: e.id, leadId: e.leadId, customerId: e.customerId, title: e.title });
+  for (const l of leads) {
+    if (l.status !== "Sold") continue;
+    const e = estimates.find((x) => x.id === l.estimateId);
+    add({ saleKey: saleKeyOf(l, e), leadId: l.id, estimateId: e?.id, customerId: l.customerId, title: `${l.firstName} ${l.lastName}`.trim() });
+  }
+  return out;
+}
+
+/** Leaving Sold by hand asks what to do with the Production card. */
+export const leavesSold = (from: RLeadStatus, to: RLeadStatus) => from === "Sold" && to !== "Sold";

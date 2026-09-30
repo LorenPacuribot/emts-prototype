@@ -22,6 +22,10 @@ export interface InboxSubmission {
   town: string;
   message: string;
   receivedAt: string;
+  /** CRM-M5: lead source from the tracked link, the referring site, or Website (leadSourceFor). */
+  source?: string;
+  /** CRM-M5: the tracked link (?l=) the form was opened from. */
+  trackedLinkId?: string;
 }
 
 export type FormCheck =
@@ -57,6 +61,8 @@ export function checkSubmission(body: unknown, opts: { siteKey: string; now: num
       town: str(b.town, MAX.town),
       message: str(b.message, MAX.message),
       receivedAt: new Date(opts.now).toISOString(),
+      source: leadSourceFor({ src: str(b.src, 40), referrer: str(b.referrer, 300) }),
+      ...(str(b.l, 40) ? { trackedLinkId: str(b.l, 40).replace(/[^A-Za-z0-9_-]/g, '') } : {}),
     },
   };
 }
@@ -78,3 +84,42 @@ export class RateLimiter {
 }
 
 export const INBOX_PREFIX = 'website-inbox:';
+
+/* ---------- Lead source (CRM-M5) ---------- */
+
+/** Known tags, lower case → the source label leads show. */
+const KNOWN_SOURCES: Record<string, string> = {
+  facebook: 'Facebook', fb: 'Facebook', instagram: 'Instagram', ig: 'Instagram', google: 'Google', website: 'Website',
+  nextdoor: 'Nextdoor', thumbtack: 'Thumbtack', angi: 'Angi', referral: 'Referral', 'yard-sign': 'Yard Sign',
+};
+
+/** "spring-mailer" → "Spring Mailer". */
+const titleCase = (t: string) =>
+  t.split(/[-_\s]+/).filter(Boolean).map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+
+/**
+ * The lead source, in this order:
+ *  1. the tracked link's tag (?src=);
+ *  2. the referring site: facebook.com → Facebook, instagram.com → Instagram, google → Google;
+ *  3. otherwise Website.
+ */
+export function leadSourceFor({ src, referrer }: { src?: string; referrer?: string }): string {
+  const tag = (src ?? '').trim();
+  if (tag) return KNOWN_SOURCES[tag.toLowerCase()] ?? titleCase(tag);
+  let host = '';
+  try {
+    host = referrer ? new URL(referrer).hostname.toLowerCase() : '';
+  } catch {
+    host = '';
+  }
+  if (/(^|\.)(facebook\.com|fb\.com|fb\.me)$/.test(host)) return 'Facebook';
+  if (/(^|\.)instagram\.com$/.test(host)) return 'Instagram';
+  if (/(^|\.)google\./.test(host)) return 'Google';
+  return 'Website';
+}
+
+/** The public form link for a tracked link (CRM-M5): /website-form?src={source}&l={linkId}. */
+export function trackedLinkPath(link: { id: string; source: string }): string {
+  const src = link.source.trim().toLowerCase().replace(/\s+/g, '-');
+  return `/website-form?src=${encodeURIComponent(src)}&l=${encodeURIComponent(link.id)}`;
+}

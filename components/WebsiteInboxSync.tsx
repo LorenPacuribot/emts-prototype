@@ -24,7 +24,7 @@ async function drain() {
     if (!res.ok) return;
     const { submissions } = (await res.json()) as { submissions?: InboxSubmission[] };
     for (const s of submissions ?? []) {
-      const r = act(submitWebsiteForm, { ref: s.ref, name: s.name, phone: s.phone, email: s.email, town: s.town, message: s.message });
+      const r = act(submitWebsiteForm, { ref: s.ref, name: s.name, phone: s.phone, email: s.email, town: s.town, message: s.message, sourceLabel: s.source, trackedLinkId: s.trackedLinkId });
       if (!r.ok) continue;
       if (r.value!.outcome !== 'duplicate') {
         toast.success('New website enquiry', r.value!.outcome === 'attached' ? `${s.name} — added to ${r.value!.leadId}` : `${s.name} — lead ${r.value!.leadId}`);

@@ -482,6 +482,9 @@ export interface WebsiteSubmission {
   email: string;
   town: string;
   message: string;
+  /** CRM-M5: source from the tracked link or referring site. Missing or "Website" = website. */
+  sourceLabel?: string;
+  trackedLinkId?: string;
 }
 
 export function leadContact(db: Database, leadId: string) {
@@ -519,7 +522,8 @@ export function submitWebsiteForm(db: Database, actor: User, sub: WebsiteSubmiss
   db.customers.push({ id: custId, name: sub.name.trim() || "Unnamed website enquiry", phone: sub.phone.trim() || undefined, email: sub.email.trim() || undefined, contactVerified: false, preferredChannel: "phone", consentSigned: false, authorisedSigners: [] });
   const leadId = nextId(db, "lead", "LEAD-2026-");
   db.leads.unshift({
-    id: leadId, customerId: custId, source: "website", stage: "new_lead", createdAt: at, name: sub.name.trim(), phone: sub.phone.trim(), email: sub.email.trim(), town: sub.town.trim(),
+    id: leadId, customerId: custId, source: "website", ...(sub.sourceLabel && sub.sourceLabel !== "Website" ? { sourceLabel: sub.sourceLabel } : {}),
+    ...(sub.trackedLinkId ? { trackedLinkId: sub.trackedLinkId } : {}), stage: "new_lead", createdAt: at, name: sub.name.trim(), phone: sub.phone.trim(), email: sub.email.trim(), town: sub.town.trim(),
     message: sub.message.trim(), eventRef: sub.ref, lastActivityAt: at, events: [{ ref: sub.ref, at, message: sub.message }], missingFields: missing.length ? missing : undefined,
     review: m.kind === "review" ? { phoneMatchLeadId: m.phoneLeadId, emailMatchLeadId: m.emailLeadId, status: "open" } : undefined,
     note: m.kind === "new" ? m.reason : undefined,

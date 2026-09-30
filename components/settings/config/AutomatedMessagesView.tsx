@@ -9,6 +9,14 @@
   Templates live in the `automatedMessages` collection. The header and footer
   are stored on the `businessProfile` singleton (emailHeader / emailFooter).
   Clicking a variable chip inserts it where the cursor was last placed.
+
+  30 Sep call, Complete version:
+  - JS-C3: Mode (Automatic or Manual) per template.
+  - CRM-C3: tie a template to a trigger (Estimate accepted, Estimate declined,
+    Estimate no-show, Job complete). It shows "Ask me first" until an Owner or
+    Admin approves it; then its messages send without asking. Any edit to the
+    template removes the approval. Messages that wait appear in Marketing ›
+    Automations › Waiting for approval.
 */
 import React, { useRef, useState } from 'react';
 import { Code2, Mail, RotateCcw, Save } from 'lucide-react';
@@ -16,7 +24,12 @@ import { SettingsPage } from '@/components/settings/SettingsSidebar';
 import { Button } from '@/components/ui/button';
 import { Field, Input, Label, Switch, Textarea } from '@/components/ui/form';
 import { useToast } from '@/components/ui/toast';
-import { useCollection, useSingleton } from '@/lib/store';
+import { useCollection, useCurrentUser, useSingleton } from '@/lib/store';
+import type { AutomationTrigger } from '@/lib/types';
+import { approvalLabel, canApproveAutomation, TRIGGER_LABEL } from '@/lib/automation';
+import { ConfirmDialog } from '@/components/Modals/Modal';
+import { NativeSelect } from '@/components/ui/form';
+import { fullName } from '@/lib/utils';
 import { formatPhone, TemplateListItem, VariablesBox } from './ui';
 import { cn } from '@/lib/utils';
 import { NewBadge, VersionBadge, VersionGate } from '@/features/components/ui';
@@ -45,6 +58,15 @@ export function AutomatedMessagesView() {
   const bodyRef = useRef<HTMLTextAreaElement>(null);
   const lastFocus = useRef<'subject' | 'body'>('body');
   const [bp] = useSingleton('businessProfile');
+  const me = useCurrentUser();
+  const [approving, setApproving] = useState(false);
+
+  /** CRM-C3: any edit to a rule removes its approval. */
+  const edit = (patch: Parameters<typeof update>[1], what: string) => {
+    if (!active) return;
+    update(active.id, { ...patch, approval: undefined });
+    toast(active.approval ? `${what} Approval removed: messages will ask first again.` : what);
+  };
 
   const select = (id: string) => {
     const t = items.find((x) => x.id === id);
@@ -59,8 +81,7 @@ export function AutomatedMessagesView() {
     if (!active) return;
     if (!subject.trim()) return toast('Email subject is required', 'error');
     if (!body.trim()) return toast('Message body is required', 'error');
-    update(active.id, { subject, body });
-    toast('Email template updated successfully');
+    edit({ subject, body }, 'Email template updated successfully.');
   };
 
   const insert = (v: string) => {
@@ -95,10 +116,7 @@ export function AutomatedMessagesView() {
                             type="button"
                             role="radio"
                             aria-checked={(active.mode ?? 'automatic') === m}
-                            onClick={() => {
-                              update(active.id, { mode: m });
-                              toast(`${active.name}: ${m === 'automatic' ? 'sends automatically' : 'waits for someone to send it'}`);
-                            }}
+                            onClick={() => edit({ mode: m }, `${active.name}: ${m === 'automatic' ? 'sends automatically.' : 'waits for someone to send it.'}`)}
                             className={cn('rounded-md px-2.5 py-1 text-xs font-bold capitalize', (active.mode ?? 'automatic') === m ? 'bg-white text-primary-700 shadow-sm' : 'text-gray-500 hover:text-gray-900')}
                           >
                             {m}
@@ -122,6 +140,33 @@ export function AutomatedMessagesView() {
                   <span className="rounded-full bg-gray-100 px-3 py-1 text-xxs font-bold uppercase tracking-wider text-gray-500">Template</span>
                 </div>
               </div>
+              <VersionGate item="CRM-C3">
+                {/* CRM-C3: trigger and approval */}
+                <div className="mb-6 flex flex-wrap items-center gap-3 rounded-xl border border-gray-200 bg-gray-50 p-4">
+                  <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-gray-500">
+                    Trigger
+                    <NativeSelect
+                      value={active.ruleTrigger ?? ''}
+                      onChange={(e) => edit({ ruleTrigger: (e.target.value || undefined) as AutomationTrigger | undefined }, 'Trigger updated.')}
+                      className="h-9 w-48 normal-case"
+                    >
+                      <option value="">None</option>
+                      {(Object.keys(TRIGGER_LABEL) as AutomationTrigger[]).map((t) => <option key={t} value={t}>{TRIGGER_LABEL[t]}</option>)}
+                    </NativeSelect>
+                  </label>
+                  {active.ruleTrigger && (
+                    <>
+                      <span className={cn('inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-bold', active.approval ? 'border-green-200 bg-green-50 text-green-700' : 'border-amber-200 bg-amber-50 text-amber-800')}>
+                        {approvalLabel(active.approval)}
+                      </span>
+                      {!active.approval && canApproveAutomation(me.role) && (
+                        <Button size="sm" onClick={() => setApproving(true)}>Approve automation</Button>
+                      )}
+                    </>
+                  )}
+                  <span className="ml-auto flex items-center gap-1.5"><NewBadge /><VersionBadge item="CRM-C3" /></span>
+                </div>
+              </VersionGate>
               <div className="flex-1 space-y-6">
                 <Field label="Email Subject">
                   <Input ref={subjectRef} value={subject} onFocus={() => (lastFocus.current = 'subject')} onChange={(e) => setSubject(e.target.value)} onClear={() => setSubject('')} />
@@ -158,6 +203,27 @@ export function AutomatedMessagesView() {
       </div>
 
       <EmailLayoutSection />
+      {active && (
+        <ConfirmDialog
+          open={approving}
+          onOpenChange={setApproving}
+          title="Approve automation"
+          confirmLabel="Approve"
+          variant="primary"
+          message={
+            <div className="space-y-3 text-sm">
+              <p><b>When:</b> {active.ruleTrigger ? TRIGGER_LABEL[active.ruleTrigger] : '—'}</p>
+              <p><b>Message:</b> {active.subject}</p>
+              <p className="whitespace-pre-wrap rounded-lg bg-gray-50 p-3 text-gray-600">{active.body}</p>
+              <p>Messages from this rule will send without asking. Approve?</p>
+            </div>
+          }
+          onConfirm={() => {
+            update(active.id, { approval: { byId: me.id, by: fullName(me), at: new Date().toISOString() } });
+            toast(`${active.name} approved. Its messages send without asking.`);
+          }}
+        />
+      )}
     </SettingsPage>
   );
 }
