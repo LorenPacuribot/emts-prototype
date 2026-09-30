@@ -117,7 +117,7 @@ function ClientStep({ onPick }: { onPick: (p: ClientPick) => void }) {
             <p className="py-6 text-center text-sm text-gray-500">{q ? `No leads found matching "${q}".` : 'No open leads are ready for an estimate yet.'}</p>
           ) : (
             leads.map((l) => (
-              <div {...pressable()} key={l.id} className={card} onClick={() => onPick({ kind: 'lead', lead: l })}>
+              <div {...pressable(true)} key={l.id} className={card} onClick={() => onPick({ kind: 'lead', lead: l })}>
                 <div className="mb-2 flex flex-wrap items-center gap-2">
                   <h4 className="text-lg font-bold text-gray-900 group-hover:text-primary-700">{fullName(l)}</h4>
                   <span className="rounded-full border border-blue-100 bg-blue-50 px-2 py-0.5 text-xxs font-bold uppercase text-blue-700">{l.leadNumber}</span>
@@ -142,7 +142,7 @@ function ClientStep({ onPick }: { onPick: (p: ClientPick) => void }) {
             <p className="py-6 text-center text-sm text-gray-500">No contacts found matching &quot;{q}&quot;.</p>
           ) : (
             contacts.map((c) => (
-              <div {...pressable()} key={c.id} className={card} onClick={() => onPick({ kind: 'customer', customer: c })}>
+              <div {...pressable(true)} key={c.id} className={card} onClick={() => onPick({ kind: 'customer', customer: c })}>
                 <div className="mb-2 flex flex-wrap items-center gap-2">
                   <h4 className="text-lg font-bold text-gray-900 group-hover:text-primary-700">{fullName(c)}</h4>
                   {c.companyName && <span className="text-sm text-gray-500">{c.companyName}</span>}

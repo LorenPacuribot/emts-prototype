@@ -380,7 +380,7 @@ function PhotoPanel({ property }: { property: Property }) {
   return (
     <Card className="p-5">
       <CardLabel icon={<Camera />}>Photographs on the customer page</CardLabel>
-      <p className="mt-1 text-xs text-gray-500">The office selects photos. Any photo with faces, house numbers, licence plates or a neighbouring property needs the Business Owner&apos;s approval and a job-linked signed release. Without a release, only surface images appear.</p>
+      <p className="mt-1 text-xs text-gray-500">The office selects photos. Any photo with faces, house numbers, license plates or a neighboring property needs the Business Owner&apos;s approval and a job-linked signed release. Without a release, only surface images appear.</p>
       <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {photos.length === 0 && <EmptyState className="sm:col-span-3" icon={<ImageIcon />} title="No job photographs" body="Photos attached at closeout appear here." />}
         {photos.map((p) => {

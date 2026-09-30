@@ -117,7 +117,7 @@ function partCell(e: Estimate, l: EstimateLineItem, d: Data, part: ProposalLineP
 }
 
 const COLS: ProposalLinePart[] = ['location', 'quantity', 'colour', 'product', 'sheen', 'coats', 'prep', 'price'];
-const HEAD: Record<ProposalLinePart, string> = { location: 'Location', quantity: 'Amount', colour: 'Colour', product: 'Product', sheen: 'Sheen', coats: 'Coats', prep: 'Preparation', price: 'Price' };
+const HEAD: Record<ProposalLinePart, string> = { location: 'Location', quantity: 'Amount', colour: 'Color', product: 'Product', sheen: 'Sheen', coats: 'Coats', prep: 'Preparation', price: 'Price' };
 
 function LineMenu({ l, s, onSettings }: { l: EstimateLineItem; s: EstimatePresentationSettings; onSettings: OnSettings }) {
   const item = 'flex cursor-pointer select-none items-center gap-2 rounded-lg px-3 py-1.5 text-sm outline-none data-[highlighted]:bg-gray-100';

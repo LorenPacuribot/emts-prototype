@@ -113,7 +113,7 @@ export function CrewModal({ job, open, onOpenChange }: { job: Job; open: boolean
                     <Avatar name={fullName(m)} color={m?.color} size="sm" />
                     <div className="min-w-[140px] flex-1 text-sm font-bold text-gray-900">{fullName(m)}</div>
                     <div className="w-36">
-                      <NativeSelect value={c.role} onChange={(e) => patch(c.memberId, { role: e.target.value })} className="h-9">
+                      <NativeSelect aria-label="Role on this job" value={c.role} onChange={(e) => patch(c.memberId, { role: e.target.value })} className="h-9">
                         {CREW_ROLES.map((r) => <option key={r}>{r}</option>)}
                       </NativeSelect>
                     </div>

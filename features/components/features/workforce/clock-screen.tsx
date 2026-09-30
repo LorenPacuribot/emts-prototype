@@ -162,7 +162,7 @@ function Clock() {
           </>
         }
       >
-        <Field label="Travelling to" required>
+        <Field label="Traveling to" required>
           <Select value={newJob} onChange={(e) => setNewJob(e.target.value)}>
             <option value="">— Select job —</option>
             {jobs.map((j) => <option key={j.id} value={j.id}>{j.id} · {j.name}</option>)}

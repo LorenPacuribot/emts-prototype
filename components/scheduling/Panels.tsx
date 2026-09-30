@@ -23,6 +23,7 @@ import { useJobActions } from '@/components/jobs/useJobActions';
 import { useCollection, useCurrentUser, useLookups } from '@/lib/store';
 import type { Job } from '@/lib/types';
 import { cn, fullName, longDate } from '@/lib/utils';
+import { usText } from '@/features/lib/display-text';
 import { addDays, daysInclusive, fmtDay, fmtSpan, fmtTime, workingJobDays, workingShiftDays, shiftWindow } from './schedule-utils';
 import { planReschedule, planSpecificDates } from '@/lib/scheduling';
 
@@ -69,7 +70,7 @@ export function JobDetailsPanel({
         <div className="border-b border-gray-100 px-5 pt-5">
           <div className="flex items-start justify-between gap-3">
             <div className="flex min-w-0 items-center gap-2.5">
-              <span className={cn('h-2.5 w-2.5 shrink-0 rounded-full', JOB_STAGE_DOT[job.status])} title={job.status} aria-hidden />
+              <span className={cn('h-2.5 w-2.5 shrink-0 rounded-full', JOB_STAGE_DOT[job.status])} title={usText(job.status)} aria-hidden />
               <h2 className="truncate font-heading text-xl font-black text-gray-900">{job.title}</h2>
             </div>
             <button type="button" onClick={onClose} aria-label="Close" className="rounded-lg p-1.5 text-gray-500 hover:bg-gray-100"><X className="h-5 w-5" /></button>

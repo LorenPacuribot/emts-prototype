@@ -19,7 +19,7 @@ export function LeadMessagesCard({ lead, onCancel }: { lead: Lead; onCancel: (id
   const waiting = pendingMessages(lead).sort((a, b) => a.sendAt.localeCompare(b.sendAt));
   const history = [
     ...(lead.sentMessages ?? []).map((m) => ({ key: `s-${m.messageId}-${m.channel}-${m.at}`, name: m.name, channel: m.channel, at: m.at, state: m.ok ? (m.sandbox ? 'Sent (sandbox)' : 'Sent') : `Failed: ${m.error ?? 'unknown error'}`, tone: m.ok ? 'text-green-700' : 'text-red-600' })),
-    ...(lead.scheduledMessages ?? []).filter((m) => m.cancelledAt).map((m) => ({ key: `c-${m.id}`, name: m.name, channel: m.channel, at: m.cancelledAt!, state: m.cancelReason ?? 'Cancelled', tone: 'text-gray-500' })),
+    ...(lead.scheduledMessages ?? []).filter((m) => m.cancelledAt).map((m) => ({ key: `c-${m.id}`, name: m.name, channel: m.channel, at: m.cancelledAt!, state: m.cancelReason ?? 'Canceled', tone: 'text-gray-500' })),
   ].sort((a, b) => b.at.localeCompare(a.at)).slice(0, 6);
 
   if (!waiting.length && !history.length) return null;

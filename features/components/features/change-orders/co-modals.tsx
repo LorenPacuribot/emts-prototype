@@ -9,7 +9,7 @@ import { byId, surfaceLabel } from "@/features/lib/selectors";
 import { money } from "@/features/lib/format";
 import { toast } from "@/features/lib/toast";
 import { now } from "@/features/lib/clock";
-import { CO_TYPE } from "@/features/lib/status";
+import { CO_STATUS, CO_TYPE } from "@/features/lib/status";
 import { emergencyEligible, EMERGENCY_LIMIT, lineSell, writtenConfirmationStatus } from "@/features/lib/rules/change-orders";
 import {
   allowedRecipients, classifyColourCheck, coPricing, createChangeOrder, createColourReapproval, currentLink,
@@ -111,7 +111,7 @@ export function NewCoModal({ open, onOpenChange, job, onCreated }: { open: boole
             ))}
           </div>
         </Field>
-        <Field label="Title" required htmlFor="nco-title" error={fe(error, "title")} hint="Short and recognisable, e.g. “Add detached garage”.">
+        <Field label="Title" required htmlFor="nco-title" error={fe(error, "title")} hint="Short and recognizable, e.g. “Add detached garage”.">
           <Input id="nco-title" value={title} invalid={!!fe(error, "title")} onChange={(e) => setTitle(e.target.value)} />
         </Field>
         <Field label="Parent change order (optional)" htmlFor="nco-parent" error={fe(error, "parentId")} hint="Use when this change depends on another one. It can be drafted now, but not sent until the parent is resolved.">
@@ -119,7 +119,7 @@ export function NewCoModal({ open, onOpenChange, job, onCreated }: { open: boole
             <option value="">None</option>
             {parents.map((p) => (
               <option key={p.id} value={p.id}>
-                {p.id} · {p.title} ({p.status.replace(/_/g, " ")})
+                {p.id} · {p.title} ({CO_STATUS[p.status]?.label ?? p.status.replace(/_/g, " ")})
               </option>
             ))}
           </Select>
@@ -427,7 +427,7 @@ export function VerifyRecipientModal({ co, onClose }: { co?: ChangeOrder; onClos
             onClick={() => {
               const res = act(verifyRecipient, co.id, { name, address });
               if (!res.ok) return setError({ field: res.field, message: res.error });
-              toast.success("Recipient verified", `${name} is authorised on the account.`);
+              toast.success("Recipient verified", `${name} is authorized on the account.`);
               onClose();
             }}
           >
@@ -457,7 +457,7 @@ export function VerifyRecipientModal({ co, onClose }: { co?: ChangeOrder; onClos
           <Input id="vr-addr" value={address} invalid={!!fe(error, "address")} onChange={(e) => setAddress(e.target.value)} placeholder="name@example.com" />
         </Field>
         <p className="text-xs text-gray-500">
-          Authorised on this account: {options.map((o) => `${o.name} (${o.role})`).join(", ")}. A property manager must already be listed on the account before their approval is accepted.
+          Authorized on this account: {options.map((o) => `${o.name} (${o.role})`).join(", ")}. A property manager must already be listed on the account before their approval is accepted.
         </p>
       </div>
     </Modal>
@@ -587,7 +587,7 @@ export function DecisionModal({ co, onClose, onSplit }: { co?: ChangeOrder; onCl
           </Banner>
         ) : (
           <>
-            <Field label={kind === "approved" ? "Signed by" : "Declined by"} required htmlFor="dc-signer" error={fe(error, "signer")} hint={`Authorised on the account: ${options.map((o) => o.name).join(", ")}`}>
+            <Field label={kind === "approved" ? "Signed by" : "Declined by"} required htmlFor="dc-signer" error={fe(error, "signer")} hint={`Authorized on the account: ${options.map((o) => o.name).join(", ")}`}>
               <Input id="dc-signer" list="dc-signers" value={signer} invalid={!!fe(error, "signer")} onChange={(e) => setSigner(e.target.value)} />
               <datalist id="dc-signers">
                 {options.map((o) => (
@@ -677,11 +677,11 @@ export function EmergencyModal({ co, onClose }: { co?: ChangeOrder; onClose: () 
             onClick={() => {
               const res = act(raiseEmergency, co.id, { findings, photos, authoriserId, ownerUnreachable: unreachable, verbalAt: new Date(verbalAt).toISOString(), customerMessageRef: msg });
               if (!res.ok) return setError({ field: res.field, message: res.error });
-              toast.success("Emergency work authorised", "Written confirmation countdown started.");
+              toast.success("Emergency work authorized", "Written confirmation countdown started.");
               onClose();
             }}
           >
-            Record authorisation
+            Record authorization
           </Button>
         </>
       }
@@ -710,13 +710,13 @@ export function EmergencyModal({ co, onClose }: { co?: ChangeOrder; onClose: () 
           </div>
         </Field>
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Authorised by" required htmlFor="em-auth" error={fe(error, "authoriser")}>
+          <Field label="Authorized by" required htmlFor="em-auth" error={fe(error, "authoriser")}>
             <Select id="em-auth" value={authoriserId} onChange={(e) => setAuthoriserId(e.target.value)}>
               {owner && <option value={owner.id}>{owner.name} — Business Owner</option>}
               {office && <option value={office.id}>{office.name} — Office Manager</option>}
             </Select>
           </Field>
-          <Field label="Verbal authorisation time" required htmlFor="em-time" error={fe(error, "same-day capture (the verbal authorisation must be today)")}>
+          <Field label="Verbal authorization time" required htmlFor="em-time" error={fe(error, "same-day capture (the verbal authorization must be today)")}>
             <Input id="em-time" type="datetime-local" value={verbalAt} onChange={(e) => setVerbalAt(e.target.value)} />
           </Field>
         </div>

@@ -156,8 +156,8 @@ export default function EstimatesPage() {
           <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-50 text-gray-500">
             <ClipboardList className="h-8 w-8" />
           </div>
-          <h3 className="text-lg font-bold text-gray-900">No estimates found</h3>
-          <p className="mb-6 text-gray-500">Try adjusting your search or filters.</p>
+          <h3 className="text-lg font-bold text-gray-900">{items.length === 0 ? "No estimates yet" : "No estimates found"}</h3>
+          <p className="mb-6 text-gray-500">{items.length === 0 ? "Each estimate starts from an open lead. Create one to start pricing." : "Try adjusting your search or filters."}</p>
           <Button onClick={() => setCreateOpen(true)}>Create New Estimate</Button>
         </div>
       ) : (

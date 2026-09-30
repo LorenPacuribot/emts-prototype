@@ -10,7 +10,7 @@ import React from 'react';
 import Link from 'next/link';
 import * as RTabs from '@radix-ui/react-tabs';
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, FileText, Inbox, Search, Users } from 'lucide-react';
-import { cn, dateTile, initials } from '@/lib/utils';
+import { cn, dateTile, initials, inkOn } from '@/lib/utils';
 import { NativeSelect } from './form';
 import { pressable } from '@/lib/a11y';
 
@@ -189,7 +189,7 @@ export function Pagination({
         <button className={btn} disabled={page === totalPages} onClick={() => onPage(totalPages)} aria-label="Last page"><ChevronsRight className="h-4 w-4" /></button>
       </div>
       <div className="w-32">
-        <NativeSelect value={pageSize} onChange={(e) => onPageSize(Number(e.target.value))} className="h-9">
+        <NativeSelect aria-label="Rows per page" value={pageSize} onChange={(e) => onPageSize(Number(e.target.value))} className="h-9">
           {[5, 10, 20, 50].map((n) => (
             <option key={n} value={n}>Show {n}</option>
           ))}
@@ -217,8 +217,8 @@ export function Avatar({ name, color, size = 'md', className }: { name: string; 
   const s = size === 'sm' ? 'h-7 w-7 text-xs' : size === 'lg' ? 'h-14 w-14 text-lg' : 'h-9 w-9 text-xs';
   return (
     <span
-      className={cn('inline-flex shrink-0 items-center justify-center rounded-full font-bold text-white', s, className)}
-      style={{ backgroundColor: color ?? '#93c5fd' }}
+      className={cn('inline-flex shrink-0 items-center justify-center rounded-full font-bold', s, className)}
+      style={{ backgroundColor: color ?? '#93c5fd', color: inkOn(color ?? '#93c5fd') }}
     >
       {initials(name)}
     </span>

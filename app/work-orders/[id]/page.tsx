@@ -236,7 +236,7 @@ export default function WorkOrderDetailPage() {
               <span className="text-xs font-bold text-gray-500">{wo.assignedTo.length} assigned</span>
             </div>
             <div className="flex-1 space-y-3 p-6">
-              {wo.assignedTo.length === 0 && <p className="text-sm text-gray-500">No crew assigned yet.</p>}
+              {wo.assignedTo.length === 0 && <p className="text-sm text-gray-500">{crewOptions.length > 0 ? "No crew assigned yet. Pick someone from Add crew member below." : "No crew assigned yet."}</p>}
               {wo.assignedTo.map((mid) => {
                 const m = look.member(mid);
                 const a = job?.crew.find((c) => c.memberId === mid);
@@ -293,7 +293,7 @@ export default function WorkOrderDetailPage() {
         {twin ? (
           <WoMaterialSections twin={twin} />
         ) : (
-          <NotLinkedNote what="The paint colour card, material list and paint orders" />
+          <NotLinkedNote what="The paint color card, material list and paint orders" />
         )}
 
         {/* 4. Checklist */}

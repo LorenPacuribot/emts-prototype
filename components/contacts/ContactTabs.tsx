@@ -14,6 +14,7 @@ import { DropdownMenu } from '@/components/ui/menu';
 import { estimateTotals, invoiceTotals } from '@/lib/calculations';
 import { ESTIMATE_STATUS_BADGE, INVOICE_STATUS_BADGE, JOB_STATUS_BADGE } from '@/lib/constants';
 import { cn, money, shortDate } from '@/lib/utils';
+import { usText } from '@/features/lib/display-text';
 import { LEAD_STATUS_BADGE, LEAD_STATUS_DISPLAY_NAMES } from '@/components/leads/leadHelpers';
 import { PaintPassportButton } from './PaintPassport';
 import { JobFeatureActions, useImportedJobs, type ImportedJob } from './ContactFeatures';
@@ -226,7 +227,7 @@ export function JobHistoryTab({ jobs, customerId }: { jobs: Job[]; customerId: s
                     <h3 className="font-heading text-xl font-bold text-gray-900">{r.kind === 'live' ? r.job.jobNumber : r.job.id}</h3>
                     <div className="mt-1 text-sm text-gray-500">{j.title}</div>
                   </div>
-                  <span className={cn(pill, JOB_STATUS_BADGE[status as Job['status']])}>{status}</span>
+                  <span className={cn(pill, JOB_STATUS_BADGE[status as Job['status']])}>{usText(status)}</span>
                 </div>
                 <div className="mb-6 flex items-center gap-2 text-sm text-gray-500"><MapPin className="h-4 w-4 shrink-0" /> {j.address || '-'}</div>
                 <div className="mb-6">

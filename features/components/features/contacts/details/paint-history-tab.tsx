@@ -84,7 +84,7 @@ export function PaintHistoryTab({ customer }: { customer: Customer }) {
           </div>
           {can(user, "repeat.build") && db.applications.some((a) => a.propertyId === property.id) && (
             <Button variant="primary" className="shrink-0" onClick={() => setFromHistory(true)} data-tour="new-estimate-from-history">
-              <FilePlus2 className="h-4 w-4" /> New Estimate from History <NewBadge feature={28} className="bg-white/90 text-emerald-700" />
+              <FilePlus2 className="h-4 w-4" /> New Estimate from History <NewBadge feature={28} className="bg-white/90 text-green-700" />
             </Button>
           )}
         </div>

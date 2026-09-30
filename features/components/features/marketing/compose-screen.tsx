@@ -136,7 +136,7 @@ function Composer({ post }: { post?: MarketingPost }) {
 function Checks({ post }: { post: MarketingPost }) {
   const db = useDb((d) => d);
   const c = postChecks(db, post);
-  const items: [keyof MarketingPost["checklist"], string][] = [["houseNumbers", "House numbers stripped or blocked"], ["faces", "Faces checked"], ["plates", "Licence plates checked"], ["neighbouring", "Neighbouring property checked"]];
+  const items: [keyof MarketingPost["checklist"], string][] = [["houseNumbers", "House numbers stripped or blocked"], ["faces", "Faces checked"], ["plates", "License plates checked"], ["neighbouring", "Neighbouring property checked"]];
   const done = ["published", "partially_failed", "cancelled"].includes(post.state);
   return (
     <Card className="p-4" data-tour="marketing-checks">

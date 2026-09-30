@@ -240,7 +240,7 @@ function ConsentCard({ property, period, sellerName, isFirst }: { property: Prop
   const note =
     state === "granted" ? "The seller consented in writing. The buyer's link includes predecessor history." :
     state === "refused" ? "Seller has refused sharing. Everything is withheld, including specification-only detail." :
-    state === "unreachable_spec_only" ? "Specification-only: colours, products, sheen, surfaces and dates are shared. Names, prices, photographs and contact details are not." :
+    state === "unreachable_spec_only" ? "Specification-only: colors, products, sheen, surfaces and dates are shared. Names, prices, photographs and contact details are not." :
     "Seller consent not yet recorded. Predecessor history is hidden from the buyer.";
 
   return (

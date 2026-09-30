@@ -21,6 +21,7 @@ import { useToast } from '@/components/ui/toast';
 import { useCollection, useCurrentUser, useLookups } from '@/lib/store';
 import type { Customer, Job, JobNote, JobStatus, WorkOrder } from '@/lib/types';
 import { cn, fullName, longDate, money, shortDate } from '@/lib/utils';
+import { usText } from '@/features/lib/display-text';
 import { useJobActions } from './useJobActions';
 import { CrewModal } from './CrewModal';
 import { fmtDay, fmtTime, jobDays, loadTone, memberBookedHours, memberCapacity, weekDays } from '@/components/scheduling/schedule-utils';
@@ -47,7 +48,7 @@ export function FinancialsCard({ job }: { job: Job }) {
       </div>
       <div className="space-y-4">
         <Row label="Total Price" hint="The job's value from the accepted estimate. Change orders show under Job Cost." value={money(job.value)} />
-        <Row label="Paid on invoices" hint="Payments recorded on this job's invoices. A deposit taken before invoicing is not counted here." value={money(paid)} valueClass="text-green-600" />
+        <Row label="Paid on invoices" hint="Payments recorded on this job's invoices. A deposit taken before invoicing is not counted here." value={money(paid)} valueClass="text-green-700" />
         <div className="flex items-center justify-between py-2">
           <span className="text-xs font-bold uppercase tracking-wider text-gray-500">Balance Due</span>
           <span className={cn('text-xl font-black', balance > 0 ? 'text-red-600' : 'text-gray-900')}>{money(balance)}</span>
@@ -186,7 +187,7 @@ export function JobProgress({ status, onChange }: { status: JobStatus; onChange:
           })}
         </div>
       </div>
-      {idx === -1 && <p className="mt-4 text-sm text-gray-500">Current status: <span className="font-bold text-gray-700">{status}</span></p>}
+      {idx === -1 && <p className="mt-4 text-sm text-gray-500">Current status: <span className="font-bold text-gray-700">{usText(status)}</span></p>}
     </div>
   );
 }
@@ -397,7 +398,7 @@ export function NotesCard({ job }: { job: Job }) {
       <div className="mb-5 flex items-center justify-between gap-3">
         <h3 className={cardTitle}><NotebookPen className="h-5 w-5 text-primary-600" /> Notes & Daily Log</h3>
         <div className="w-36">
-          <NativeSelect value={filter} onChange={(e) => setFilter(e.target.value as typeof filter)} className="h-9 text-xs">
+          <NativeSelect aria-label="Show entries" value={filter} onChange={(e) => setFilter(e.target.value as typeof filter)} className="h-9 text-xs">
             <option value="all">All entries</option>
             <option value="note">Notes</option>
             <option value="daily-log">Daily logs</option>

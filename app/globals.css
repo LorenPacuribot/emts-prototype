@@ -22,6 +22,9 @@
   --color-primary-800: #1e40af;
   --color-primary-900: #1e3a8a;
 
+  /* Slightly darker than Tailwind's #6a7282 so gray-500 text passes 4.5:1 on the gray-100 tab and page backgrounds. */
+  --color-gray-500: #646c7b;
+
   --color-brand-purple: #7a5fff;
   --color-brand-green: #5ed4b2;
   --color-brand-yellow: #ead94c;

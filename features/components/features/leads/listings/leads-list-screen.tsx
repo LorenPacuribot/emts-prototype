@@ -175,7 +175,7 @@ function LeadCard({ lead, draggable, onDragStart, onMove }: { lead: Lead; dragga
   const estimator = byId(db.users, lead.assignedUserId);
   const stop = (e: React.MouseEvent) => e.stopPropagation();
   return (
-    <div {...pressable()} draggable={draggable && !fu} onDragStart={onDragStart} onClick={() => nav.push(leadHref(lead.id))}
+    <div {...pressable(true)} draggable={draggable && !fu} onDragStart={onDragStart} onClick={() => nav.push(leadHref(lead.id))}
       className="group relative cursor-pointer rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all hover:border-primary-300 hover:shadow-md">
       <div className="absolute right-4 top-4 text-gray-300 opacity-0 transition-opacity group-hover:opacity-100"><GripVertical className="h-4 w-4" /></div>
       <div className="mb-3">

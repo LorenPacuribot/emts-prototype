@@ -57,7 +57,7 @@ function Bills() {
                     <Badge tone="amber">{b.costCode === "SUB" ? "Subcontractor bill" : "Supplier bill"}</Badge>
                     {b.paymentStatus === "paid" ? <Badge tone="green">Paid</Badge> : <Badge tone="gray">Unpaid</Badge>}
                   </div>
-                  <div className="mt-1 text-xs text-gray-500">{b.party} · {dateLong(b.date)} · {b.jobId ? <AppLink className="text-brand hover:underline" href={jobHref(b.jobId, "materials")}>{b.jobId}</AppLink> : "no job"}</div>
+                  <div className="mt-1 text-xs text-gray-500">{b.party} · {dateLong(b.date)} · {b.jobId ? <AppLink className="text-brand underline" href={jobHref(b.jobId, "materials")}>{b.jobId}</AppLink> : "no job"}</div>
                   <div className="mt-1 text-sm font-semibold text-ink">{money(b.amount)} <span className="font-normal text-gray-500">+ {money(b.purchaseTax ?? 0)} purchase tax = {money(b.amount + (b.purchaseTax ?? 0))} gross job cost</span></div>
                 </div>
                 <div className="flex flex-wrap gap-2">

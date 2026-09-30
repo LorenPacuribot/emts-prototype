@@ -104,7 +104,7 @@ export function LeadCard({
 
       <div className="relative z-20 flex items-center justify-between border-t border-gray-100 pt-3">
         <div className="flex gap-1">
-          <a aria-label="Call"
+          <a aria-label="Call" role={lead.phone ? undefined : 'link'} aria-disabled={!lead.phone || undefined}
             href={lead.phone ? `tel:${lead.phone}` : undefined}
             title={formatPhone(lead.phone)}
             onClick={(e) => e.stopPropagation()}
@@ -112,7 +112,7 @@ export function LeadCard({
           >
             <Phone className="h-4 w-4" />
           </a>
-          <a aria-label="Email"
+          <a aria-label="Email" role={lead.email ? undefined : 'link'} aria-disabled={!lead.email || undefined}
             href={lead.email ? `mailto:${lead.email}` : undefined}
             title={lead.email}
             onClick={(e) => e.stopPropagation()}

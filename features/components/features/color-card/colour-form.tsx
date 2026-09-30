@@ -34,8 +34,8 @@ export function ColourForm({ open, onOpenChange, jobId, colour }: { open: boolea
   function save() {
     const e: Record<string, string> = {};
     if (!draft.manufacturer.trim()) e.manufacturer = "Manufacturer is required.";
-    if (!draft.name.trim()) e.name = "Colour name is required.";
-    if (!draft.number.trim()) e.number = "Colour number is required.";
+    if (!draft.name.trim()) e.name = "Color name is required.";
+    if (!draft.number.trim()) e.number = "Color number is required.";
     setErrors(e);
     if (Object.keys(e).length) return;
     const res = colour ? act(updateColour, colour.id, draft, openedAt) : act(addColour, jobId, draft, openedAt);

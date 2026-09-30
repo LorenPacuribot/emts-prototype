@@ -17,7 +17,7 @@ export function NewBadge({ feature, className }: { feature?: number | number[]; 
     <span
       data-new-badge
       className={cn(
-        "inline-flex shrink-0 items-center rounded-md bg-emerald-500 px-1.5 py-px text-xxs font-black uppercase leading-4 tracking-wider text-white align-middle",
+        "inline-flex shrink-0 items-center rounded-md bg-green-700 px-1.5 py-px text-xxs font-black uppercase leading-4 tracking-wider text-white align-middle",
         className,
       )}
     >

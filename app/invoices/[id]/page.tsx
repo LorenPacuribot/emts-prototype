@@ -125,7 +125,7 @@ export default function InvoiceDetailPage() {
           <span className="text-sm text-gray-500">Paid {usd(t.paid)} of {usd(t.total)}</span>
         </div>
         {invoice.payments.length === 0 ? (
-          <p className="px-8 py-8 text-center text-sm text-gray-500">No payments recorded yet.</p>
+          <p className="px-8 py-8 text-center text-sm text-gray-500">No payments recorded yet. Use Add Payment when the customer pays.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[640px] text-left text-sm">

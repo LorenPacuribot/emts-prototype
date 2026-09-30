@@ -9,6 +9,7 @@ import Link from 'next/link';
 import { ArrowUpRight, Briefcase, ChevronRight, List, Star, Target, TrendingUp } from 'lucide-react';
 import { JOB_STATUS_TEXT } from '@/lib/constants';
 import { shortDate } from '@/lib/utils';
+import { usText } from '@/features/lib/display-text';
 import { cn } from '@/lib/utils';
 import { EmptyLine, SectionHeader } from './SectionHeader';
 import { kMoney, plainMoney, type DashboardData } from './metrics';
@@ -118,7 +119,7 @@ export function ActiveJobsWidget({ jobs }: { jobs: DashboardData['activeJobs'] }
             {rows.map((job) => (
               <Link key={job.id} href={`/jobs/${job.id}`} className="group -mx-2 flex items-center justify-between rounded-lg px-2 py-3 transition-colors first:pt-0 last:pb-0 hover:bg-gray-50/50">
                 <div className="flex min-w-0 flex-col gap-0.5">
-                  <span className={cn('text-xxs font-black uppercase tracking-widest', JOB_STATUS_TEXT[job.status])}>{job.status}</span>
+                  <span className={cn('text-xxs font-black uppercase tracking-widest', JOB_STATUS_TEXT[job.status])}>{usText(job.status)}</span>
                   <span className="truncate text-sm font-bold text-gray-900">{job.customerName}</span>
                 </div>
                 <div className="flex items-center gap-1 whitespace-nowrap pl-4 text-xs font-bold text-gray-500 transition-colors group-hover:text-primary-600">

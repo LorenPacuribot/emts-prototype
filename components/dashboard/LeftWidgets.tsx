@@ -12,6 +12,7 @@ import { useCollection } from '@/lib/store';
 import { JOB_STATUS_BADGE } from '@/lib/constants';
 import type { Activity, Lead, Message } from '@/lib/types';
 import { cn, shortDate, uid } from '@/lib/utils';
+import { usText } from '@/features/lib/display-text';
 import { useToast } from '@/components/ui/toast';
 import { EmptyLine, SectionHeader } from './SectionHeader';
 import type { DashboardData } from './metrics';
@@ -154,7 +155,7 @@ export function MessagesWidget({ items }: { items: Message[] }) {
                       <Icon className={cn('h-3 w-3 shrink-0', m.channel === 'email' ? 'text-blue-500' : 'text-green-500')} />
                     </div>
                     <div className="flex shrink-0 items-center gap-1.5">
-                      {m.unread && <span className="h-1.5 w-1.5 rounded-full bg-primary-500" aria-label="Unread" />}
+                      {m.unread && <span className="h-1.5 w-1.5 rounded-full bg-primary-500" role="img" aria-label="Unread" />}
                       <span className="text-xs font-bold text-gray-500">{relativeTime(m.date, false)}</span>
                     </div>
                   </div>
@@ -237,7 +238,7 @@ export function JobsToDoWidget({ jobs }: { jobs: DashboardData['jobsToDo'] }) {
             <Link key={job.id} href={`/jobs/${job.id}`} className="group block space-y-2 rounded-xl border border-gray-100 bg-white p-3 shadow-sm transition-all hover:border-primary-300 hover:shadow-md">
               <div className="flex items-center justify-between">
                 <span className={cn('rounded-full border px-2 py-0.5 text-xxs font-black uppercase leading-none tracking-wider', JOB_STATUS_BADGE[job.status])}>
-                  {job.status}
+                  {usText(job.status)}
                 </span>
                 <span className="text-xs font-black text-gray-500">{job.startDate ? shortDate(job.startDate) : 'TBD'}</span>
               </div>

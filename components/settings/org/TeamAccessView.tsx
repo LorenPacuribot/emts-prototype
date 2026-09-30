@@ -15,7 +15,7 @@ import { RowMenu } from '@/components/ui/menu';
 import { ConfirmDialog } from '@/components/Modals/Modal';
 import { useToast } from '@/components/ui/toast';
 import { useCollection, useCurrentUser } from '@/lib/store';
-import { fullName, initials } from '@/lib/utils';
+import { fullName, initials, inkOn } from '@/lib/utils';
 import type { TeamMember } from '@/lib/types';
 import { formatPhone } from '@/components/settings/config/ui';
 import { MemberFormModal } from './MemberFormModal';
@@ -77,8 +77,8 @@ export function TeamAccessView() {
               </div>
               <div className="mb-4 flex flex-col items-center">
                 <div
-                  className="mb-3 flex h-14 w-14 items-center justify-center overflow-hidden rounded-full text-base font-bold text-white"
-                  style={{ backgroundColor: m.photoUrl ? undefined : m.color }}
+                  className="mb-3 flex h-14 w-14 items-center justify-center overflow-hidden rounded-full text-xl font-bold text-white"
+                  style={{ backgroundColor: m.photoUrl ? undefined : m.color, color: m.photoUrl ? undefined : inkOn(m.color) }}
                 >
                   {m.photoUrl ? <img src={m.photoUrl} alt={fullName(m)} className="h-full w-full object-cover" /> : initials(fullName(m))}
                 </div>

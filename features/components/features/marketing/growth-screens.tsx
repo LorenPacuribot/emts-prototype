@@ -599,7 +599,7 @@ function Messages() {
 
   return (
     <>
-      <PageHeader title="Email & SMS Campaigns" subtitle="Messages to a saved audience segment, personalised with {{first_name}} and the offer {{code}}. Opted-out and unreachable people are skipped and logged. Sandbox: nothing leaves the app." actions={<>
+      <PageHeader title="Email & SMS Campaigns" subtitle="Messages to a saved audience segment, personalized with {{first_name}} and the offer {{code}}. Opted-out and unreachable people are skipped and logged. Sandbox: nothing leaves the app." actions={<>
         <GatedButton allowed={canPost} reason={reason} onClick={() => { setTab("segments"); setSegEditing("new"); }}><Users className="h-4 w-4" /> New segment</GatedButton>
         {newMessage}
       </>} />

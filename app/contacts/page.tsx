@@ -155,8 +155,8 @@ export default function ContactsPage() {
         {list.length === 0 ? (
           <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-gray-300 bg-white py-20">
             <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-50"><User className="h-8 w-8 text-gray-500" /></div>
-            <h3 className="text-lg font-bold text-gray-900">No contacts found</h3>
-            <p className="mb-6 text-gray-500">Try adjusting your search or filters.</p>
+            <h3 className="text-lg font-bold text-gray-900">{customers.length === 0 ? "No contacts yet" : "No contacts found"}</h3>
+            <p className="mb-6 text-gray-500">{customers.length === 0 ? "Add a contact, or convert a lead to add its customer here." : "Try adjusting your search or filters."}</p>
           </div>
         ) : (
           <div className="space-y-4">

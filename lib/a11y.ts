@@ -5,9 +5,9 @@ import type { KeyboardEvent } from 'react';
  * (A5): it can be reached with Tab, and Enter or Space runs its onClick.
  * Rows keep their table role, and other elements get role="button". Keys
  * pressed inside a nested button or field are left alone. Pass a falsy
- * `enabled` when the element is only sometimes clickable.
+ * `enabled` (including an undefined onClick) when the element is not clickable.
  */
-export function pressable(enabled: unknown = true, { row = false }: { row?: boolean } = {}) {
+export function pressable(enabled: unknown, { row = false }: { row?: boolean } = {}) {
   if (!enabled) return {};
   return {
     ...(row ? {} : { role: 'button' as const }),

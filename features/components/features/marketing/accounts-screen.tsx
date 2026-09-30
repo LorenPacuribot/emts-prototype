@@ -37,7 +37,7 @@ function Accounts() {
   const sim = (p: SocialPlatform, s: "expired" | "suspended") => { const r = act(simulateAccountIssue, p, s); if (r.ok) toast.info(`${PLATFORM_LABEL[p]} access ${s}`, `Office manager notified. ${r.value} scheduled posts flagged.`); };
   return (
     <>
-      <Banner tone="info" className="mb-4">Advertising stays in Meta. There is no ad management and no spend here, and a scheduled organic post is never treated as an authorised advertisement. The owner approves advertising budgets in Meta.</Banner>
+      <Banner tone="info" className="mb-4">Advertising stays in Meta. There is no ad management and no spend here, and a scheduled organic post is never treated as an authorized advertisement. The owner approves advertising budgets in Meta.</Banner>
       <div className="grid gap-4 lg:grid-cols-2 [&>*]:min-w-0">
         {db.socialAccounts.map((a) => {
           const days = Math.ceil((new Date(a.expiresAt).getTime() - new Date(now()).getTime()) / 86_400_000);

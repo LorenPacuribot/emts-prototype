@@ -35,7 +35,7 @@ export function RecordHeader({ record, subtitle }: { record: Pick<CustomerRecord
 }
 
 function ApplicationFacts({ a, compact }: { a: CustomerApplication; compact?: boolean }) {
-  const colour = a.colourName === "Unknown" ? "Colour not recorded" : `${a.colourName} · ${a.colourNumber}`;
+  const colour = a.colourName === "Unknown" ? "Color not recorded" : `${a.colourName} · ${a.colourNumber}`;
   return (
     <div className="flex items-start gap-3">
       <Swatch hex={a.hex} size={compact ? "md" : "lg"} />

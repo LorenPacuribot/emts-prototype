@@ -93,7 +93,7 @@ export function ProjectToolbar({ estimate, job, onCreateChangeOrder }: { estimat
         )}
         {job && changeOrderAllowed(estimate) && can(user, "co.build") && (
           <Button variant="primary" className="h-11 px-5 font-black shadow-lg shadow-primary-500/20" onClick={onCreateChangeOrder} data-tour="create-change-order">
-            <FilePlus2 className="h-4 w-4" /> Create Change Order <NewBadge feature={24} className="ml-1 bg-white/90 text-emerald-700" />
+            <FilePlus2 className="h-4 w-4" /> Create Change Order <NewBadge feature={24} className="ml-1 bg-white/90 text-green-700" />
           </Button>
         )}
         {estimate.status === "PENDING_REAPPROVAL" && canAmend && (

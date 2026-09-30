@@ -32,7 +32,7 @@ export function MicroLabel({ children, className }: { children: ReactNode; class
 
 export function Stat({ label, value, hint, tone }: { label: string; value: ReactNode; hint?: ReactNode; tone?: "default" | "brand" | "warn" | "danger" | "good" }) {
   const color =
-    tone === "brand" ? "text-brand" : tone === "warn" ? "text-amber-600" : tone === "danger" ? "text-red-600" : tone === "good" ? "text-green-600" : "text-ink";
+    tone === "brand" ? "text-brand" : tone === "warn" ? "text-amber-700" : tone === "danger" ? "text-red-600" : tone === "good" ? "text-green-700" : "text-ink";
   return (
     <div className="min-w-0">
       <MicroLabel>{label}</MicroLabel>

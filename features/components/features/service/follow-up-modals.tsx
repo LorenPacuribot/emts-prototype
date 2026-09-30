@@ -10,7 +10,7 @@ import {
 } from "@/features/lib/store/actions/service";
 import { REOPEN_REASONS, signedValue } from "@/features/lib/rules/alerts";
 import { byId, currentOwner, propertyAddress } from "@/features/lib/selectors";
-import { CALL_OUTCOME } from "@/features/lib/status";
+import { CALL_OUTCOME, JOB_STATUS } from "@/features/lib/status";
 import { date, money } from "@/features/lib/format";
 import { now } from "@/features/lib/clock";
 import { can } from "@/features/lib/permissions";
@@ -369,7 +369,7 @@ export function LinkRepaintModal({ fu, onClose }: { fu?: FollowUp; onClose: () =
       <Field label="Completed job at this property" required error={f.of("job")}>
         <Select value={jobId} onChange={(e) => setJobId(e.target.value)} invalid={!!f.of("job")}>
           <option value="">Choose…</option>
-          {jobs.map((j) => <option key={j.id} value={j.id}>{j.id} · {j.name} · {j.status.replace(/_/g, " ")}</option>)}
+          {jobs.map((j) => <option key={j.id} value={j.id}>{j.id} · {j.name} · {JOB_STATUS[j.status]?.label ?? j.status.replace(/_/g, " ")}</option>)}
         </Select>
       </Field>
       {jobs.length === 0 && <p className="mt-2 text-xs text-gray-500">No jobs at this property yet.</p>}

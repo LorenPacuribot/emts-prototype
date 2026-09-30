@@ -316,9 +316,9 @@ function DrillDown({ job, range, measure, onClose }: { job?: JobPerf; range: { f
     <Drawer open onOpenChange={(v) => !v && onClose()} title={`${job.jobId} · ${job.name}`} subtitle={`${job.kind === "interior" ? "Interior" : "Exterior"} · estimator ${userName(db, job.estimatorId)} · crew lead ${userName(db, job.crewLeadId)} · ${job.source === "live" ? "live job" : "completed-job history"}`}
       footer={job.source === "history" && job.actual && <Button onClick={() => setCorrecting(true)}>Correct actual</Button>}>
       <KV items={[
-        cat("Labour hours", job.original.labourHours, job.change.labourHours, job.actual?.labourHours, false),
+        cat("Labor hours", job.original.labourHours, job.change.labourHours, job.actual?.labourHours, false),
         ...(hoursOnly ? [] : [
-          cat("Labour cost", job.original.labourCost, job.change.labourCost, job.actual?.labourCost),
+          cat("Labor cost", job.original.labourCost, job.change.labourCost, job.actual?.labourCost),
           cat("Material", job.original.material, job.change.material, job.actual?.material),
           cat("Subcontractors", job.original.subcontractor, job.change.subcontractor, job.actual?.subcontractor),
         ]),

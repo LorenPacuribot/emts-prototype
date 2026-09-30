@@ -37,6 +37,7 @@ import { JOB_STATUSES } from '@/lib/constants';
 import { useCollection, useLookups } from '@/lib/store';
 import type { JobStatus } from '@/lib/types';
 import { cn, money } from '@/lib/utils';
+import { usText } from '@/features/lib/display-text';
 
 export default function JobDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -118,7 +119,7 @@ export default function JobDetailPage() {
           <div className="flex w-full flex-wrap items-center gap-3 md:w-auto">
             <DropdownMenu
               align="end"
-              items={JOB_STATUSES.map((s) => ({ label: s, onClick: () => changeStatus(s), disabled: !canStatus || s === job.status || !!stageBlockedReason(twin, s) }))}
+              items={JOB_STATUSES.map((s) => ({ label: usText(s), onClick: () => changeStatus(s), disabled: !canStatus || s === job.status || !!stageBlockedReason(twin, s) }))}
               trigger={
                 <Button variant="secondary" className="rounded-xl">
                   Change Status <ChevronDown className="h-4 w-4" />

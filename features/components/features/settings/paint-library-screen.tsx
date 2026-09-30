@@ -28,7 +28,7 @@ const PACKS: PackSize[] = ["qt", "gal", "5gal"];
 const PACK_LABEL: Record<PackSize, string> = { qt: "Quart", gal: "Gallon", "5gal": "5-Gallon" };
 
 function saveProduct(db: Database, actor: AppUser, id: string | undefined, d: Draft) {
-  if (!can(actor, "catalog.edit")) return denied(db, actor, "Paint Library", "edit the shared catalogue", whoCan("catalog.edit"));
+  if (!can(actor, "catalog.edit")) return denied(db, actor, "Paint Library", "edit the shared catalog", whoCan("catalog.edit"));
   if (!d.product.trim()) return fail("Product name is required.", "product");
   if (!d.productLine.trim()) return fail("Product line is required.", "productLine");
   if (!(d.spreadRate > 0)) return fail("Spread rate must be above zero.", "spreadRate");
@@ -39,10 +39,10 @@ function saveProduct(db: Database, actor: AppUser, id: string | undefined, d: Dr
   return ok();
 }
 function deleteProduct(db: Database, actor: AppUser, id: string) {
-  if (!can(actor, "catalog.edit")) return denied(db, actor, "Paint Library", "edit the shared catalogue", whoCan("catalog.edit"));
+  if (!can(actor, "catalog.edit")) return denied(db, actor, "Paint Library", "edit the shared catalog", whoCan("catalog.edit"));
   const p = db.catalog.find((c) => c.id === id);
   if (!p) return fail("Not found.");
-  if (db.specs.some((s) => s.product === p.product)) return fail("This product is used on a colour card. It can't be deleted; obsolete codes are preserved.");
+  if (db.specs.some((s) => s.product === p.product)) return fail("This product is used on a color card. It can't be deleted; obsolete codes are preserved.");
   db.catalog = db.catalog.filter((c) => c.id !== id);
   log(db, actor, "Paint Library", `Product "${p.product}" deleted by ${actor.name}`);
   return ok();
@@ -72,11 +72,11 @@ export function PaintCatalogSection() {
       <div className="flex flex-col gap-3 border-b border-gray-100 bg-green-50/40 px-6 py-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <h3 className="flex flex-wrap items-center gap-2 font-heading text-base font-bold text-gray-900">
-            Color card &amp; paint order catalogue <NewBadge feature={[3, 18]} />
+            Color card &amp; paint order catalog <NewBadge feature={[3, 18]} />
           </h3>
           <p className="mt-1 text-xs text-gray-500">
             Products the color card and paint orders use. Material demand uses the proven field rate when recorded; containers are packed only from the sizes marked available.
-            {!editable && " Only the Business Owner and Office Manager edit the shared catalogue."}
+            {!editable && " Only the Business Owner and Office Manager edit the shared catalog."}
           </p>
         </div>
         {editable && (
@@ -146,7 +146,7 @@ export function PaintCatalogSection() {
         </table>
       </div>
 
-      <Modal open={edit.open} onOpenChange={(v) => setEdit((e) => ({ ...e, open: v }))} title={edit.id ? "Edit catalogue product" : "Add catalogue product"} footer={<><Button onClick={() => setEdit((e) => ({ ...e, open: false }))}>Cancel</Button><Button variant="primary" onClick={save}>Save</Button></>}>
+      <Modal open={edit.open} onOpenChange={(v) => setEdit((e) => ({ ...e, open: v }))} title={edit.id ? "Edit catalog product" : "Add catalog product"} footer={<><Button onClick={() => setEdit((e) => ({ ...e, open: false }))}>Cancel</Button><Button variant="primary" onClick={save}>Save</Button></>}>
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Manufacturer" required htmlFor="pl-m"><Select id="pl-m" value={edit.draft.manufacturer} onChange={(e) => setD({ manufacturer: e.target.value })}>{["Sherwin-Williams", "Benjamin Moore", "Behr", "PPG"].map((m) => <option key={m}>{m}</option>)}</Select></Field>
           <Field label="Product line" required htmlFor="pl-l" error={err?.field === "productLine" ? err.msg : undefined}><Input id="pl-l" value={edit.draft.productLine} onChange={(e) => setD({ productLine: e.target.value })} /></Field>

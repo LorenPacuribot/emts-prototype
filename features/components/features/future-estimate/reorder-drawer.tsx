@@ -57,7 +57,7 @@ function Body({ r, onClose }: { r: TouchUpReorder; onClose: () => void }) {
         <KV
           className="flex-1"
           items={[
-            ["Colour", `${app.colourName} ${app.colourNumber}`],
+            ["Color", `${app.colourName} ${app.colourNumber}`],
             ["Product · sheen", `${app.product} · ${app.sheen}`],
             ["Surface", surfaceLabel(db, app.surfaceId)],
             ["Linked record", <span key="l" className="flex flex-wrap gap-1"><IdChip>{r.propertyId}</IdChip><IdChip tone="blue">{app.jobId ?? "No job"}</IdChip><IdChip>{app.id}</IdChip></span>],
@@ -244,7 +244,7 @@ function StockPanel({ r, editable }: { r: TouchUpReorder; editable: boolean }) {
   return (
     <section className="space-y-2">
       <CardLabel icon={<FlaskConical />}>Stock check</CardLabel>
-      <KV items={[["Supply", r.supply === "company_stock" ? `Company shelf stock ${sc?.stockId ?? ""}` : r.supply === "customer_cans" ? "Customer-owned cans (not company stock)" : "New order, tinted from the colour record"]]} />
+      <KV items={[["Supply", r.supply === "company_stock" ? `Company shelf stock ${sc?.stockId ?? ""}` : r.supply === "customer_cans" ? "Customer-owned cans (not company stock)" : "New order, tinted from the color record"]]} />
       {sc && (
         <div className={cn("rounded-xl border p-3 text-xs", sc.ok ? "border-green-200 bg-green-50" : "border-red-200 bg-red-50")}>
           <div className={cn("flex items-center gap-1.5 font-semibold", sc.ok ? "text-green-800" : "text-red-800")}>

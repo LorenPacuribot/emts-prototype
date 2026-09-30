@@ -7,6 +7,7 @@
 import { AlertCircle, Calendar, CheckCircle2, PlayCircle } from 'lucide-react';
 import type { JobStatus } from '@/lib/types';
 import { cn } from '@/lib/utils';
+import { usText } from '@/features/lib/display-text';
 
 export const JOB_STAGE_STYLE: Record<JobStatus, string> = {
   Confirmed: 'bg-gray-100 text-gray-700 border-gray-200',
@@ -46,7 +47,7 @@ export function JobStatusBadge({ status, className, icon = true }: { status: Job
   return (
     <span className={cn('inline-flex items-center whitespace-nowrap rounded-full border px-2.5 py-0.5 text-xs font-bold', JOB_STAGE_STYLE[status], className)}>
       {icon && <StageIcon status={status} />}
-      {status}
+      {usText(status)}
     </span>
   );
 }

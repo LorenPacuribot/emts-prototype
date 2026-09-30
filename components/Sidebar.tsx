@@ -160,7 +160,7 @@ function SidebarItem({ item, collapsed, active, onClick, isNew }: { item: NavIte
         {item.label}
         {isNew && <NewBadge feature={item.feature} />}
       </span>
-      {isNew && collapsed && <span aria-hidden className="absolute left-[34px] top-1.5 h-2 w-2 rounded-full bg-emerald-500 ring-2 ring-white transition-opacity group-hover:opacity-0 group-has-[:focus-visible]:opacity-0" />}
+      {isNew && collapsed && <span aria-hidden className="absolute left-[34px] top-1.5 h-2 w-2 rounded-full bg-green-600 ring-2 ring-white transition-opacity group-hover:opacity-0 group-has-[:focus-visible]:opacity-0" />}
     </>
   );
   if (onClick) {

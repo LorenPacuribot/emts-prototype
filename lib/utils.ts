@@ -92,3 +92,16 @@ export function initials(name: string) {
     .map((s) => s[0]!.toUpperCase())
     .join('');
 }
+
+/** Text color for a crew or avatar color: white or near-black, whichever contrasts more (4.5:1 on all but a few mid-tone colors). */
+export function inkOn(hex: string): string {
+  const m = /^#?([0-9a-f]{6})$/i.exec(hex.trim());
+  if (!m) return '#ffffff';
+  const [r, g, b] = [0, 2, 4].map((i) => {
+    const v = parseInt(m[1].slice(i, i + 2), 16) / 255;
+    return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+  });
+  const lum = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  // #111827 has a relative luminance of about 0.0093; pick whichever text color contrasts more.
+  return 1.05 / (lum + 0.05) >= (lum + 0.05) / 0.0593 ? '#ffffff' : '#111827';
+}

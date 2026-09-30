@@ -275,7 +275,7 @@ function BuilderBody({ co, onOpenCo }: { co: ChangeOrder; onOpenCo: (id: string)
               <div className="border-t border-line pt-1.5">
                 <PriceRow k="Change order total" v={money(p.total)} bold />
               </div>
-              {canCost && p.absorbedCost > 0 && <PriceRow k="Absorbed labour (job cost)" v={money(p.absorbedCost)} muted />}
+              {canCost && p.absorbedCost > 0 && <PriceRow k="Absorbed labor (job cost)" v={money(p.absorbedCost)} muted />}
             </div>
           </div>
         </Section>
@@ -699,8 +699,8 @@ function EmergencyPanel({ co, total, canPrice, canBuild, canDecide, onRaise, onW
         items={[
           ["Findings", e.findings],
           ["Photographs", `${e.photos} attached (same day)`],
-          ["Authorised by", `${byId(db.users, e.authoriser)?.name ?? "—"}${e.ownerUnreachable ? " (office manager — owner unreachable)" : ""}`],
-          ["Verbal authorisation", dateTime(e.verbalAt)],
+          ["Authorized by", `${byId(db.users, e.authoriser)?.name ?? "—"}${e.ownerUnreachable ? " (office manager — owner unreachable)" : ""}`],
+          ["Verbal authorization", dateTime(e.verbalAt)],
           ["Customer text or email", e.customerMessageRef ?? "—"],
           ["Written confirmation due", `End of ${dueLabel} (two working days)`],
           ...(canPrice ? ([["Amount", `${money(e.amount ?? total)} (below $500.00)`]] as [string, string][]) : []),
@@ -725,8 +725,8 @@ function ApplyPanel({ co, canDecide, canPrice }: { co: ChangeOrder; canDecide: b
     : "No invoice yet, so billing does not change";
   const rows: [React.ReactNode, string, string][] = [
     [<Wrench key="w" className="h-4 w-4" />, "Work order", `${pv.lines} line${pv.lines === 1 ? "" : "s"} added to the Work Order tab`],
-    [<CalendarClock key="c" className="h-4 w-4" />, "Schedule", pv.hours ? `Required hours ${pv.hours > 0 ? "+" : ""}${pv.hours} h; the scheduler is asked to review${pv.linesWithoutHours ? ` (${pv.linesWithoutHours} line${pv.linesWithoutHours === 1 ? " has" : "s have"} no labour hours)` : ""}` : "No labour hours on the lines, so required hours stay the same; the scheduler is asked to review"],
-    [<ClipboardList key="m" className="h-4 w-4" />, "Materials", `Paint demand revised for ${pv.sqft}${pv.unmatchedPaint ? `; ${pv.unmatchedPaint} line${pv.unmatchedPaint === 1 ? " has" : "s have"} no matching colour on the card` : ""}`],
+    [<CalendarClock key="c" className="h-4 w-4" />, "Schedule", pv.hours ? `Required hours ${pv.hours > 0 ? "+" : ""}${pv.hours} h; the scheduler is asked to review${pv.linesWithoutHours ? ` (${pv.linesWithoutHours} line${pv.linesWithoutHours === 1 ? " has" : "s have"} no labor hours)` : ""}` : "No labor hours on the lines, so required hours stay the same; the scheduler is asked to review"],
+    [<ClipboardList key="m" className="h-4 w-4" />, "Materials", `Paint demand revised for ${pv.sqft}${pv.unmatchedPaint ? `; ${pv.unmatchedPaint} line${pv.unmatchedPaint === 1 ? " has" : "s have"} no matching color on the card` : ""}`],
     [<Receipt key="b" className="h-4 w-4" />, "Invoice", canPrice ? `${billing} (${money(pv.total, { cents: true })})` : billing],
   ];
   const apply = () => {

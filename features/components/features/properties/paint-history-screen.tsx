@@ -93,7 +93,7 @@ export function PaintHistoryPanel({ property }: { property: Property }) {
   const actualsMissing = allApps.filter((a) => a.verification === "confirmed" && a.actualHours === undefined).length;
 
   function exportCsv() {
-    const head = ["Application", "Property", "Building", "Unit", "Room/elevation", "Surface", "Surface status", "Manufacturer", "Colour name", "Colour number", "Product", "Sheen", "Coats", "Completed", "Verification", "Source", "Job", "Confirmed by", "Touch-ups", "Photos", "Tint formula"];
+    const head = ["Application", "Property", "Building", "Unit", "Room/elevation", "Surface", "Surface status", "Manufacturer", "Color name", "Color number", "Product", "Sheen", "Coats", "Completed", "Verification", "Source", "Job", "Confirmed by", "Touch-ups", "Photos", "Tint formula"];
     if (seeCosts) head.push("Actual hours", "Actual gallons");
     const rows = newestFirst(apps).map((a) => {
       const s = byId(db.surfaces, a.surfaceId);
@@ -121,7 +121,7 @@ export function PaintHistoryPanel({ property }: { property: Property }) {
           </div>
         }
         title="Paint History"
-        subtitle="What was confirmed, and what is missing, labelled as missing."
+        subtitle="What was confirmed, and what is missing, labeled as missing."
         actions={
           <>
             <DropdownMenu.Root>

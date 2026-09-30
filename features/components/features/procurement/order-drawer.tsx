@@ -83,7 +83,7 @@ function OrderBody({ po }: { po: PurchaseOrder }) {
 
   function exportCsv() {
     downloadCsv(`${po.id}.csv`, [
-      ["PO", "Line", "Manufacturer", "Product line", "Product", "Colour", "Colour number", "Sheen", "Tint base", "Packs", "Gallons", "Item code", "Status", "Supplier text", ...(perms.seePrices ? ["Unit cost / gal", "Amount"] : []), ...(perms.seeAccount ? ["Account"] : [])],
+      ["PO", "Line", "Manufacturer", "Product line", "Product", "Color", "Color number", "Sheen", "Tint base", "Packs", "Gallons", "Item code", "Status", "Supplier text", ...(perms.seePrices ? ["Unit cost / gal", "Amount"] : []), ...(perms.seeAccount ? ["Account"] : [])],
       ...po.lines.map((l) => ({ l, id: lineIdentity(db, l) })).map(({ l, id }) => [
         po.id, l.id, id.manufacturer, id.productLine, l.product, id.colourName, id.colourNumber, l.sheen, id.tintBase, formatPacks(l.packs), l.gallons,
         l.packs.map((p) => itemCodeFor(db, { product: l.product, packSize: p.size, branchId: po.branchId }) ?? "UNMAPPED").join(" "),

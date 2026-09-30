@@ -50,6 +50,7 @@ export function RolesPermissionsView() {
           {visible.length > 0 && (
             <div className="w-72">
               <Select
+                ariaLabel="Role"
                 value={selected?.id}
                 onChange={setSelectedId}
                 placeholder="Select a role..."

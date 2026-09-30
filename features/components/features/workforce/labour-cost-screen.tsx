@@ -140,8 +140,8 @@ function MonthlyCheck({ months }: { months: string[] }) {
       <CardLabel icon={<CheckCircle2 />}>Monthly check (office manager)</CardLabel>
       <p className="mt-1 text-xs text-gray-500">Allocated cost for each period must equal the entered total exactly.</p>
       <div className="mt-3 flex flex-wrap items-end gap-2">
-        <Field label="Month">
-          <Select value={month} onChange={(e) => setMonth(e.target.value)} className="w-40">
+        <Field label="Month" htmlFor="lc-month">
+          <Select id="lc-month" value={month} onChange={(e) => setMonth(e.target.value)} className="w-40">
             {months.length === 0 && <option value="">No totals yet</option>}
             {months.map((m) => <option key={m} value={m}>{m}</option>)}
           </Select>

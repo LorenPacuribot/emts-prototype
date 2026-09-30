@@ -45,7 +45,7 @@ export function LibraryToolbar({
       <SearchInput value={search} onChange={onSearch} placeholder={placeholder} className="md:w-[300px] md:max-w-md" />
       {sortOptions && onSort && (
         <div className="w-full md:w-auto md:min-w-[150px]">
-          <Select value={sort} onChange={onSort} options={sortOptions} size="sm" className="h-8 rounded-lg text-xs" />
+          <Select ariaLabel="Sort by" value={sort} onChange={onSort} options={sortOptions} size="sm" className="h-8 rounded-lg text-xs" />
         </div>
       )}
       {children}

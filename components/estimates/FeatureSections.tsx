@@ -127,7 +127,7 @@ export function LineColourCell({ colour, painting, saved, editable, card, onAssi
     if (!text.trim()) return;
     const hit = card?.find((c) => c.number === n);
     if (!hit) {
-      setError(card?.length ? `Card has colours 1–${card.length}` : 'Add a colour to the card first');
+      setError(card?.length ? `Card has colors 1–${card.length}` : 'Add a color to the card first');
       return;
     }
     setError('');

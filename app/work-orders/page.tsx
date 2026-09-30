@@ -90,7 +90,7 @@ export default function WorkOrdersPage() {
       {loading ? (
         <ListSkeleton rows={4} />
       ) : filtered.length === 0 ? (
-        <EmptyState icon={<ClipboardList />} title="No work orders found" message="Try adjusting your filters." className="rounded-3xl border-gray-300 py-20" />
+        <EmptyState icon={<ClipboardList />} title={workOrders.length === 0 ? "No work orders yet" : "No work orders found"} message={workOrders.length === 0 ? "Work orders are made from a job. Open a job and choose Create Work Order." : "Try adjusting your search or filters."} className="rounded-3xl border-gray-300 py-20" />
       ) : (
         <div className="space-y-4">
           {pg.pageItems.map(({ wo, job, status, customer }) => {

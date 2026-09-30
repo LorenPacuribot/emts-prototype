@@ -299,7 +299,7 @@ function ReceiptsView({ onOpen }: { onOpen: (id: string) => void }) {
   const lines = db.purchaseOrders.filter((p) => p.ackAt).flatMap((p) => p.lines.map((l) => ({ po: p, l })));
   function exportReport() {
     downloadCsv(`ordered-vs-received-${now().slice(0, 10)}.csv`, [
-      ["PO", "Job", "Branch", "Line", "Product", "Colour", "Ordered gal", "Cancelled gal", "Received gal", "Returned gal", "Unfilled gal"],
+      ["PO", "Job", "Branch", "Line", "Product", "Color", "Ordered gal", "Canceled gal", "Received gal", "Returned gal", "Unfilled gal"],
       ...lines.map(({ po, l }) => [po.id, po.jobId, byId(db.branches, po.branchId)?.name, l.id, l.product, l.colourLabel, l.gallons, l.cancelledGal, l.receivedGal, l.returnedGal, Math.max(0, l.gallons - l.cancelledGal - l.receivedGal)]),
     ]);
     toast.success("Report exported", "Ordered versus received, per branch and line.");

@@ -97,7 +97,7 @@ export function ReorderForm({ property, open, onOpenChange, initialApp, requestI
             <KV
               className="flex-1"
               items={[
-                ["Colour", `${chosen.app.colourName} ${chosen.app.colourNumber}`],
+                ["Color", `${chosen.app.colourName} ${chosen.app.colourNumber}`],
                 ["Product", chosen.app.product],
                 ["Sheen", chosen.app.sheen],
                 ["Pack sizes", cat ? cat.available.join(", ") : "Not in paint library"],

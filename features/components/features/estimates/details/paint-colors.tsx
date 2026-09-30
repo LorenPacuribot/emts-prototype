@@ -72,7 +72,7 @@ export function PaintColors({ job, editable, paintColourId, onPaint }: {
 
   function exportCsv() {
     downloadCsv(`${job.id}-colour-card-v${viewVersion}.csv`, [
-      ["Color #", "Spec ID", "Colour", "Code", "Brand", "Product", "Sheen", "Coats", "Primer", "Surfaces", "Lifespan (yrs)", "Tint base", "State"],
+      ["Color #", "Spec ID", "Color", "Code", "Brand", "Product", "Sheen", "Coats", "Primer", "Surfaces", "Lifespan (yrs)", "Tint base", "State"],
       ...rows.flatMap((r) =>
         r.specs.map((s) => [r.number, s.id, r.colour.name, r.colour.number, r.colour.manufacturer, s.product, s.sheen, s.coats, s.primer, s.surfaceIds.map((id) => surfaceLabel(db, id)).join("; "), s.lifespanYears, s.tintBase, SPEC_STATE[s.state].label]),
       ),

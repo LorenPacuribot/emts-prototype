@@ -25,10 +25,15 @@ export function Label({ children, required, className, htmlFor }: { children: Re
 export function Field({
   label, required, hint, error, children, className,
 }: { label?: string; required?: boolean; hint?: string; error?: string; children: React.ReactNode; className?: string }) {
+  // Tie the label to a single input, textarea or select child, so clicking the
+  // label focuses it and screen readers announce the label as its name.
+  const autoId = React.useId();
+  const child = React.Children.count(children) === 1 && React.isValidElement<{ id?: string }>(children) && LABELLABLE.has(children.type) ? children : null;
+  const id = child ? child.props.id ?? autoId : undefined;
   return (
     <div className={className}>
-      {label && <Label required={required}>{label}</Label>}
-      {children}
+      {label && <Label required={required} htmlFor={id}>{label}</Label>}
+      {child && !child.props.id ? React.cloneElement(child, { id }) : children}
       {error ? <p className="mt-1 text-xs text-red-600">{error}</p> : hint ? <p className="mt-1 text-xs text-gray-500">{hint}</p> : null}
     </div>
   );
@@ -107,8 +112,11 @@ export interface SelectOption {
 
 /** Radix select. Pass options and value; onChange gets the new value. */
 export function Select({
-  value, onChange, options, placeholder = 'Select…', className, icon, disabled, invalid, size = 'md',
+  value, onChange, options, placeholder = 'Select…', className, icon, disabled, invalid, size = 'md', ariaLabel, id,
 }: {
+  id?: string;
+  /** Accessible name when no visible label is tied to the select. */
+  ariaLabel?: string;
   value?: string;
   onChange: (v: string) => void;
   options: SelectOption[];
@@ -122,6 +130,8 @@ export function Select({
   return (
     <RSelect.Root value={value || undefined} onValueChange={onChange} disabled={disabled}>
       <RSelect.Trigger
+        id={id}
+        aria-label={ariaLabel}
         className={cn(
           'inline-flex w-full items-center justify-between gap-2 rounded-lg border bg-white px-3 text-sm text-gray-800 shadow-sm',
           'focus:outline-none focus:ring-2 focus:ring-primary-400/40 data-[placeholder]:text-gray-400 disabled:opacity-60',
@@ -192,3 +202,6 @@ export function Checkbox({ checked, onChange, disabled, label, id }: { checked: 
     </label>
   );
 }
+
+/** Form controls that Field links to its label (see Field). */
+const LABELLABLE = new Set<unknown>([Input, Textarea, NativeSelect, Select]);

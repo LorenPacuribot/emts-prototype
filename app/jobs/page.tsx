@@ -60,7 +60,7 @@ export default function JobsPage() {
       {loading ? (
         <ListSkeleton rows={4} />
       ) : filtered.length === 0 ? (
-        <EmptyState icon={<Briefcase />} title="No jobs found" message="Try adjusting your filters." className="rounded-3xl border-gray-300 py-20" />
+        <EmptyState icon={<Briefcase />} title={jobs.length === 0 ? "No jobs yet" : "No jobs found"} message={jobs.length === 0 ? "A job is created when an approved estimate is converted. Open an estimate and choose Convert to Job." : "Try adjusting your search or stage filter."} className="rounded-3xl border-gray-300 py-20" />
       ) : (
         <div className="space-y-3.5">
           {pg.pageItems.map((job) => {

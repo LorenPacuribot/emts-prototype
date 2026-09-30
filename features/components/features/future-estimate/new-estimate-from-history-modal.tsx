@@ -117,7 +117,7 @@ export function NewEstimateFromHistoryModal({ open, onOpenChange, property, foll
             <legend className="mb-1 text-sm font-semibold text-gray-900">Labor, material and paint pricing</legend>
             <div className="grid gap-2 sm:grid-cols-2">
               {([
-                ["current", "Update to current pricing", "Today's labour rate, material prices and markup."],
+                ["current", "Update to current pricing", "Today's labor rate, material prices and markup."],
                 ["previous", "Keep last time's pricing", "The price each surface had on the earlier job, scaled if its measurement changed. Surfaces with no earlier price use current pricing."],
               ] as const).map(([value, title, body]) => (
                 <label key={value} className={cn("flex cursor-pointer items-start gap-3 rounded-xl border p-3", pricingMode === value ? "border-primary-500 bg-primary-50/40" : "border-gray-200")}>

@@ -20,7 +20,7 @@ import { CalendarClock, CheckCircle2, ChevronLeft, ChevronRight, Clock, GripVert
 import { Button } from '@/components/ui/button';
 import { Avatar } from '@/components/ui/display';
 import type { Job, TeamMember } from '@/lib/types';
-import { cn, fullName } from '@/lib/utils';
+import { cn, fullName, inkOn } from '@/lib/utils';
 import {
   buildLanes, fmtDay, loadTone, memberBookedHours, memberCapacity, memberHoursPerDay, round1, todayKey, workingJobDays,
   type ScheduleRange,
@@ -119,17 +119,17 @@ function JobBar({ job, color, days, onSelect, compact }: { job: Job & { shiftLab
       tabIndex={0}
       title={`${job.title} (${job.jobNumber})${job.scheduleProtected ? ' · Protected: stays on its date in bulk reschedules' : ''}`}
       className={cn(
-        'relative flex h-full w-full select-none flex-col justify-center overflow-hidden rounded-lg px-2 py-1 text-xs font-bold text-white shadow-sm hover:brightness-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80',
+        'relative flex h-full w-full select-none flex-col justify-center overflow-hidden rounded-lg px-2 py-1 text-xs font-bold shadow-sm hover:brightness-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80',
         drag ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer opacity-75',
       )}
-      style={{ backgroundColor: color }}
+      style={{ backgroundColor: color, color: inkOn(color) }}
     >
       {!compact && <span className="absolute right-1.5 top-1/2 -translate-y-1/2 text-xs font-black opacity-90">{days}d</span>}
       <span className="flex items-center gap-1 truncate pr-6">
         {job.scheduleProtected && <Lock className="h-3 w-3 shrink-0" aria-label="Protected" />}
-        <span className="truncate">{job.title} <span className="font-medium text-white/80">({job.jobNumber})</span></span>
+        <span className="truncate">{job.title} <span className="font-medium">({job.jobNumber})</span></span>
       </span>
-      {!compact && job.startTime && <span className="truncate pr-6 text-xs font-semibold opacity-80">{job.shiftLabel && <>{job.shiftLabel} · </>}{fmtTimeShort(job.startTime)} – {fmtTimeShort(job.endTime)}</span>}
+      {!compact && job.startTime && <span className="truncate pr-6 text-xs font-semibold">{job.shiftLabel && <>{job.shiftLabel} · </>}{fmtTimeShort(job.startTime)} – {fmtTimeShort(job.endTime)}</span>}
     </div>
   );
 }
@@ -239,10 +239,10 @@ export function MonthBoard({ jobs, weeks, month, colorOf, onSelect, onDrop }: Bo
                   onDragStart={(e) => { e.dataTransfer.setData(JOB_DND, j.id); setDragging(true); }}
                   onClick={() => onSelect(j.id)}
                   title={`${j.title} (${j.jobNumber})`}
-                  className="absolute truncate rounded-md px-2 text-left text-xs font-bold text-white shadow-sm hover:brightness-110"
-                  style={{ left: `calc(${(startCol / 7) * 100}% + 2px)`, width: `calc(${(span / 7) * 100}% - 4px)`, top: row * BAR, height: BAR - 4, lineHeight: `${BAR - 4}px`, backgroundColor: colorOf(j) }}
+                  className="absolute truncate rounded-md px-2 text-left text-xs font-bold shadow-sm hover:brightness-110"
+                  style={{ left: `calc(${(startCol / 7) * 100}% + 2px)`, width: `calc(${(span / 7) * 100}% - 4px)`, top: row * BAR, height: BAR - 4, lineHeight: `${BAR - 4}px`, backgroundColor: colorOf(j), color: inkOn(colorOf(j)) }}
                 >
-                  {j.title} <span className="font-medium text-white/80">({j.jobNumber})</span>
+                  {j.title} <span className="font-medium">({j.jobNumber})</span>
                 </button>
               ))}
             </div>
@@ -376,7 +376,7 @@ export function CrewHoursGrid({ jobs, crew, dayKeys, onSelect }: { jobs: Job[]; 
                     <div className="space-y-1.5">
                       {chips.map(({ j, h }) => (
                         <button key={j.id} onClick={() => onSelect(j.id)} title={`${j.title} (${j.jobNumber})`}
-                          className="flex w-full items-center justify-between gap-1 rounded-md px-2 py-1 text-xs font-bold text-white hover:brightness-110" style={{ backgroundColor: m.color }}>
+                          className="flex w-full items-center justify-between gap-1 rounded-md px-2 py-1 text-xs font-bold hover:brightness-110" style={{ backgroundColor: m.color, color: inkOn(m.color) }}>
                           <span className="truncate">{j.jobNumber.replace('JOB-', '')}</span><span>{h}h</span>
                         </button>
                       ))}
@@ -401,7 +401,7 @@ export function UnscheduledPanel({ jobs, customerName, onSelect }: { jobs: Job[]
     <div className="mt-6 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
       <h3 className="mb-4 text-xs font-bold uppercase tracking-widest text-gray-500">Unscheduled Jobs</h3>
       {jobs.length === 0 ? (
-        <p className="flex items-center gap-2 text-sm font-medium text-green-600"><CheckCircle2 className="h-4 w-4" /> All jobs are scheduled.</p>
+        <p className="flex items-center gap-2 text-sm font-medium text-green-700"><CheckCircle2 className="h-4 w-4" /> All jobs are scheduled.</p>
       ) : (
         <div className="grid max-h-80 grid-cols-1 gap-3 overflow-y-auto pr-1 sm:grid-cols-2 lg:grid-cols-3">
           {jobs.map((j) => (

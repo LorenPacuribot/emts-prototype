@@ -88,7 +88,7 @@ export function WorkOrderScope({ job, estimate, lead, workOrder, onSchedule }: {
           <table className="w-full min-w-[900px] text-sm">
             <thead className="bg-gray-50 text-left text-xs font-bold uppercase tracking-wider text-gray-500">
               <tr>
-                {['Location', 'Surface', 'Amount', 'Colour', 'Product', 'Sheen', 'Coats', 'Preparation', 'Est. hours'].map((h) => (
+                {['Location', 'Surface', 'Amount', 'Color', 'Product', 'Sheen', 'Coats', 'Preparation', 'Est. hours'].map((h) => (
                   <th key={h} className={`px-4 py-2.5 ${h === 'Est. hours' ? 'text-right' : ''}`}>{h}</th>
                 ))}
               </tr>
@@ -127,7 +127,7 @@ export function WorkOrderScope({ job, estimate, lead, workOrder, onSchedule }: {
           <div className="overflow-x-auto">
             <table className="mt-2 w-full min-w-[700px] text-sm">
               <thead className="bg-gray-50 text-left text-xs font-bold uppercase tracking-wider text-gray-500">
-                <tr>{['Change order', 'Work', 'Amount', 'Colour', 'Product', 'Est. hours'].map((h) => <th key={h} className={`px-4 py-2.5 ${h === 'Est. hours' ? 'text-right' : ''}`}>{h}</th>)}</tr>
+                <tr>{['Change order', 'Work', 'Amount', 'Color', 'Product', 'Est. hours'].map((h) => <th key={h} className={`px-4 py-2.5 ${h === 'Est. hours' ? 'text-right' : ''}`}>{h}</th>)}</tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {coLines.map((l) => {

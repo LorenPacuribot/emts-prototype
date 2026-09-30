@@ -18,7 +18,7 @@ import { approveEntry, clockIn, clockOut } from "@/features/lib/store/actions/wo
 import { jobDemand, lineState } from "@/features/lib/rules/procurement";
 import { formatPacks } from "@/features/lib/rules/materials";
 import { specForSurface, jobSurfaceHours } from "@/features/lib/rules/estimate";
-import { openSegment } from "@/features/lib/rules/payroll";
+import { ACTIVITY_LABEL, openSegment } from "@/features/lib/rules/payroll";
 import { byId, surfaceLabel } from "@/features/lib/selectors";
 import { can } from "@/features/lib/permissions";
 import { AppLink } from "@/features/lib/navigation";
@@ -458,7 +458,7 @@ export function TimeLogSection({ wo, job }: { wo: WorkOrder; job: Job }) {
                       <span className="text-xs text-gray-500">{date(s.workDate)}</span>
                       {st && <Badge tone={TIME_STATE_TONE[st]}>{TIME_STATE_LABEL[st]}</Badge>}
                     </div>
-                    <div className="text-xs text-gray-500">{s.activity.replace("_", " ")} · Clocked by {clocker?.name ?? "—"}</div>
+                    <div className="text-xs text-gray-500">{ACTIVITY_LABEL[s.activity] ?? s.activity.replace("_", " ")} · Clocked by {clocker?.name ?? "—"}</div>
                     <div className="mt-0.5 text-sm text-gray-800"><b>{t(s.start)}–{s.end ? t(s.end) : "now"}</b></div>
                   </div>
                   <AppLink href="/time" className="shrink-0 text-xs font-bold text-primary-700 hover:underline">Review in Time</AppLink>

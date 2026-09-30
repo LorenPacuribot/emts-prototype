@@ -261,7 +261,7 @@ export function ReportedWorkModal({ open, onClose, property, defaultSurfaceId }:
       open={open}
       onOpenChange={(v) => !v && onClose()}
       title="Log customer-reported work"
-      description="Work by another contractor or the homeowner. It is labelled Unverified with its source and never treated as confirmed."
+      description="Work by another contractor or the homeowner. It is labeled Unverified with its source and never treated as confirmed."
       footer={<><Button onClick={onClose}>Cancel</Button><Button variant="primary" onClick={save}>Record as Unverified</Button></>}
     >
       <div className="grid gap-3 sm:grid-cols-2">
