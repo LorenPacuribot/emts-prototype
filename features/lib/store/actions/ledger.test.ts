@@ -119,3 +119,17 @@ describe("reconcile and year end", () => {
     expect(r.db.financeSettings.destination).toBe("books");
   });
 });
+
+describe("customer payments (BK-M11)", () => {
+  it("an overpayment is held as a customer credit; the invoice is paid off", async () => {
+    const { recordCustomerPayment } = await import("./ledger");
+    const db = seed();
+    const r = run(db, "U-OFFICE", recordCustomerPayment, { invoiceRef: "INV-2026-121", amount: 5300, owed: 5196, method: "check" as const, party: "Nina Patel", jobId: "JOB-2026-40" });
+    expect(r.result.ok).toBe(true);
+    const e = journal(r.db).at(-1)!;
+    expect(e.lines.find((l) => l.account === "2100")).toMatchObject({ credit: 104, memo: "Customer credit (overpayment)" });
+    const open = journal(r.db).flatMap((x) => (x.source.ref === "INV-2026-121" ? x.lines.filter((l) => l.account === "1200") : [])).reduce((s, l) => s + l.debit - l.credit, 0);
+    expect(Math.abs(open)).toBeLessThan(0.005);
+    expect(balanceSheet(journal(r.db), r.db.books!.accounts).balances).toBe(true);
+  });
+});

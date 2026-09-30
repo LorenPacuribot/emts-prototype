@@ -94,7 +94,7 @@ export function hostSeed(db: Database, nowIso: string) {
     existingConditions: "West siding chalking and cracked caulk around two windows.",
     companyResponsibilities: ["Protect landscaping and walkways", "Remove and re-hang shutters", "Daily clean-up of the work area"],
     customerResponsibilities: ["Keep sprinklers off on painting days", "Move vehicles out of the driveway"],
-    shifts: [{ id: "SH-1", name: "Exterior crew", startDate: d(-6).slice(0, 10), endDate: d(12).slice(0, 10), startTime: "07:00", endTime: "16:00", memberIds: ["EMP-1", "EMP-2", "EMP-3"] }],
+    shifts: [{ id: "SH-1", name: "Exterior crew", startDate: d(-6).slice(0, 10), endDate: d(12).slice(0, 10), startTime: "07:00", endTime: "14:00", memberIds: ["EMP-1", "EMP-2", "EMP-3"] }],
     timeEntries: [
       { id: "WTE-1", surfaceId: "SF-1011", renderedHours: 14, notes: "Wash, scrape and first coat.", loggedBy: "U-CREW", loggedAt: at(-4, 16, 30), employeeId: "EMP-1", workDate: d(-4).slice(0, 10) },
       { id: "WTE-2", surfaceId: "SF-1021", renderedHours: 11.5, loggedBy: "U-CREW", loggedAt: at(-3, 16, 15), employeeId: "EMP-2", workDate: d(-3).slice(0, 10) },
@@ -121,7 +121,7 @@ export function hostSeed(db: Database, nowIso: string) {
     accessNotes: "Customer works from home. Knock at the side door.",
     companyResponsibilities: ["Remove cabinet doors and hardware, label each door", "Mask countertops and appliances"],
     customerResponsibilities: ["Empty the cabinets before day one"],
-    shifts: [{ id: "SH-2", name: "Cabinet crew", startDate: d(9).slice(0, 10), endDate: d(16).slice(0, 10), startTime: "08:00", endTime: "17:00", memberIds: ["EMP-2", "EMP-4"] }],
+    shifts: [{ id: "SH-2", name: "Cabinet crew", startDate: d(9).slice(0, 10), endDate: d(16).slice(0, 10), startTime: "08:00", endTime: "15:00", memberIds: ["EMP-4"] }],
     statusHistory: [
       { id: "WSH-5", to: "PENDING_DEPOSIT", by: "U-OFFICE", at: d(-60) },
       { id: "WSH-6", from: "PENDING_DEPOSIT", to: "UNSCHEDULED", by: "U-OFFICE", at: d(-58) },
@@ -133,7 +133,7 @@ export function hostSeed(db: Database, nowIso: string) {
     areasExcluded: "Kitchen and bathrooms",
     companyResponsibilities: ["Move and cover furniture", "Patch nail holes before painting"],
     customerResponsibilities: ["Take down wall art and curtains"],
-    shifts: [{ id: "SH-3", name: "Interior crew", startDate: d(-9).slice(0, 10), endDate: d(-2).slice(0, 10), startTime: "07:00", endTime: "16:00", memberIds: ["EMP-4"] }],
+    shifts: [{ id: "SH-3", name: "Interior crew", startDate: d(-9).slice(0, 10), endDate: d(-2).slice(0, 10), startTime: "07:00", endTime: "14:00", memberIds: ["EMP-4"] }],
     timeEntries: [
       { id: "WTE-5", surfaceId: "SF-4011", renderedHours: 7.5, loggedBy: "U-CREW", loggedAt: at(-6, 16, 0), employeeId: "EMP-1", workDate: d(-6).slice(0, 10) },
       { id: "WTE-6", surfaceId: "SF-4012", renderedHours: 5, loggedBy: "U-CREW", loggedAt: at(-6, 16, 10), employeeId: "EMP-2", workDate: d(-6).slice(0, 10) },

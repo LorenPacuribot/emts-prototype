@@ -110,3 +110,24 @@ describe('rule editor', () => {
     expect(draftToNodes({ ...d, condition: undefined, otherwise: undefined }).nodes.map((n) => n.kind)).toEqual(['trigger', 'action']);
   });
 });
+
+describe('flow editing (CRM-C5)', () => {
+  it('adds and removes steps, keeping the links readable by the rule editor', async () => {
+    const { addStep, removeStep, ruleToDraft, ruleActions, ruleProblem } = await import('./automation');
+    const rule = loaded().collections.automationRules[0]!;
+    // Remove the If: its Yes path (the email) stays, the No path (the text) goes.
+    const removed = removeStep(rule.nodes, rule.startId, 'n2');
+    expect(removed.ok && removed.nodes.map((n) => n.id)).toEqual(['n1', 'n3']);
+    if (!removed.ok) return;
+    const ev = { key: 'k', trigger: 'estimate_accepted' as const, firstName: 'A', customerName: 'A B', email: 'a@b.co', phone: '2', projectName: 'P', value: 1, source: '', serviceType: '' };
+    expect(ruleActions({ ...rule, nodes: removed.nodes }, ev).map((n) => n.id)).toEqual(['n3']);
+    // Add a text after the email: both are sent.
+    const added = addStep(removed.nodes, 'n3', { id: 'n9', kind: 'action', action: { channel: 'sms', body: 'Thanks!' } });
+    expect(added.ok && ruleActions({ ...rule, nodes: added.nodes }, ev).map((n) => n.id)).toEqual(['n3', 'n9']);
+    // An If added after When keeps what followed as its Yes path.
+    const withIf = addStep(rule.nodes.filter((n) => n.id !== 'n2' && n.id !== 'n4').map((n) => (n.id === 'n1' ? { ...n, next: 'n3' } : n)), 'n1', { id: 'c1', kind: 'condition', condition: { field: 'lead_source', op: 'is', value: 'Facebook' } });
+    expect(withIf.ok && ruleToDraft({ ...rule, nodes: withIf.nodes }).condition?.value).toBe('Facebook');
+    expect(removeStep(rule.nodes, rule.startId, 'n1')).toEqual({ ok: false, error: 'The When step can be changed, not removed.' });
+    expect(ruleProblem([{ id: 'n1', kind: 'trigger', trigger: 'job_complete' }])).toBe('Add at least one message.');
+  });
+});

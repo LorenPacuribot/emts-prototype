@@ -50,3 +50,17 @@ describe('crew schedule notifications in the app data', () => {
     expect(automatedMessages.find((t) => t.id === 'am_crew_schedule')).toMatchObject({ mode: 'manual', isActive: true });
   });
 });
+
+describe('the demo schedule', () => {
+  // Seed dates are relative to today, so check every weekday alignment.
+  it.each([10, 11, 12, 13, 14, 15, 16])('has no conflicts on any weekday (June %i), so every seeded job can be saved', async (day) => {
+    const { scheduleError } = await import('./scheduling');
+    resetBridge();
+    useStore.setState({ db: createSeed(`2026-06-${day}T15:00:00.000Z`), currentUserId: 'U-OFFICE' });
+    const fresh = createInitialDatabase();
+    const db = applyOps(fresh, runSync(fresh, { baseline: true }));
+    const jobs = db.collections.jobs.filter((j) => j.startDate && j.status !== 'Completed' && j.status !== 'Cancelled');
+    expect(jobs.length).toBeGreaterThan(0);
+    for (const j of jobs) expect([j.id, scheduleError(j, db.collections.jobs, db.collections.team) ?? 'ok']).toEqual([j.id, 'ok']);
+  });
+});

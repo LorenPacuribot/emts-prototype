@@ -221,3 +221,64 @@ export function draftToNodes(d: RuleDraft): { startId: string; nodes: RuleNode[]
 }
 
 export const CONDITION_LABEL: Record<Condition['field'], string> = { lead_source: 'Lead source', estimate_value: 'Estimate value', service_type: 'Service type' };
+
+/* ---------- Editing the flow (CRM-C5) ---------- */
+
+type StepResult = { ok: true; nodes: RuleNode[] } | { ok: false; error: string };
+
+/** Steps reachable from the trigger; anything else is dropped. */
+function reachable(nodes: RuleNode[], startId: string): RuleNode[] {
+  const byId = new Map(nodes.map((n) => [n.id, n]));
+  const keep = new Set<string>();
+  const walk = (id?: string) => {
+    if (!id || keep.has(id) || !byId.has(id)) return;
+    keep.add(id);
+    const n = byId.get(id)!;
+    walk(n.next);
+    walk(n.yes);
+    walk(n.no);
+  };
+  walk(startId);
+  return nodes.filter((n) => keep.has(n.id));
+}
+
+/**
+ * Adds a step after the selected one. After an If, it fills the empty
+ * branch (Yes first). A new If keeps what followed as its Yes path.
+ */
+export function addStep(nodes: RuleNode[], afterId: string, step: RuleNode): StepResult {
+  if (step.kind === 'trigger') return { ok: false, error: 'A rule starts with one When.' };
+  const next = nodes.map((n) => ({ ...n }));
+  const after = next.find((n) => n.id === afterId);
+  if (!after) return { ok: false, error: 'Select a step first.' };
+  const added = { ...step };
+  if (after.kind === 'condition') {
+    if (step.kind === 'condition') return { ok: false, error: 'Add the If after a message, or after When.' };
+    if (!after.yes) after.yes = added.id;
+    else if (!after.no) after.no = added.id;
+    else return { ok: false, error: 'Both branches of this If already have a step. Select one of them.' };
+  } else if (added.kind === 'condition') {
+    added.yes = after.next;
+    after.next = added.id;
+  } else {
+    added.next = after.next;
+    after.next = added.id;
+  }
+  return { ok: true, nodes: [...next, added] };
+}
+
+/** Removes a step. Removing an If keeps its Yes path; the No path goes with it. */
+export function removeStep(nodes: RuleNode[], startId: string, id: string): StepResult {
+  const target = nodes.find((n) => n.id === id);
+  if (!target) return { ok: false, error: 'Step not found.' };
+  if (target.kind === 'trigger') return { ok: false, error: 'The When step can be changed, not removed.' };
+  const follow = target.kind === 'condition' ? target.yes : target.next;
+  const next = nodes
+    .filter((n) => n.id !== id)
+    .map((n) => ({ ...n, next: n.next === id ? follow : n.next, yes: n.yes === id ? follow : n.yes, no: n.no === id ? follow : n.no }));
+  return { ok: true, nodes: reachable(next, startId) };
+}
+
+/** A rule needs at least one message to send. */
+export const ruleProblem = (nodes: RuleNode[]) =>
+  !nodes.some((n) => n.kind === 'action') ? 'Add at least one message.' : nodes.some((n) => n.kind === 'action' && !n.action?.body.trim()) ? 'Every message needs text.' : undefined;

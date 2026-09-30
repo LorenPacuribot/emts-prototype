@@ -9,19 +9,20 @@
  *    "Match batch" posts the net to 1000 and the fee to 6200. Also on the
  *    checkbook and the feeds.
  *  - Unpaid invoices with an owner-only "Write off" (reason required), and
- *    customer credits from overpayments (BK-M11).
+ *    "Record payment": anything over the balance is held as a customer
+ *    credit (BK-M11).
  */
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { BookOpen, CreditCard, Landmark, ReceiptText } from "lucide-react";
 import { act, useCurrentUser, useDb } from "@/features/lib/store";
-import { booksOf, canKeepBooks, matchCardBatch, writeOffInvoice } from "@/features/lib/store/actions/ledger";
+import { booksOf, canKeepBooks, matchCardBatch, recordCustomerPayment, writeOffInvoice } from "@/features/lib/store/actions/ledger";
 import { balances, incomeStatement, type JournalEntry } from "@/features/lib/rules/ledger";
 import { roundMoney } from "@/features/lib/rules/rounding";
 import { money } from "@/features/lib/format";
 import { now } from "@/features/lib/clock";
 import { toast } from "@/features/lib/toast";
-import { Badge, Button, Card, CardLabel, EmptyState, Field, Input, Modal, NewBadge, Stat, StatStrip, Table, TD, TH, THead, TR, Textarea, VersionBadge } from "@/features/components/ui";
+import { Badge, Button, Card, CardLabel, EmptyState, Field, Input, Modal, NewBadge, Select, Stat, StatStrip, Table, TD, TH, THead, TR, Textarea, VersionBadge } from "@/features/components/ui";
 
 export function useBooksData() {
   const db = useDb((d) => d);
@@ -100,6 +101,9 @@ export function BooksOverview() {
   const credits = books.journal.flatMap((e) => e.lines.filter((l) => l.account === "2100" && l.memo === "Customer credit (overpayment)").map((l) => ({ e, l })));
   const [writing, setWriting] = useState<{ ref: string; open: number; jobId?: string }>();
   const [reason, setReason] = useState("");
+  const [paying, setPaying] = useState<{ ref: string; open: number; party?: string; jobId?: string }>();
+  const [payAmount, setPayAmount] = useState("");
+  const [payMethod, setPayMethod] = useState<"card" | "check">("check");
 
   return (
     <>
@@ -126,9 +130,12 @@ export function BooksOverview() {
               <TR key={x.ref}>
                 <TD className="font-semibold">{x.ref}</TD><TD>{x.party}</TD><TD>{x.jobId ?? "—"}</TD><TD className="text-right tabular-nums">{money(x.open)}</TD>
                 <TD className="text-right">
-                  {user.role === "owner"
-                    ? <Button size="sm" variant="danger" onClick={() => { setReason(""); setWriting(x); }}>Write off</Button>
-                    : <span className="text-xs text-gray-500">Owner writes off</span>}
+                  <span className="inline-flex flex-wrap justify-end gap-1.5">
+                    {canKeepBooks(user) && <Button size="sm" variant="secondary" onClick={() => { setPayAmount(x.open.toFixed(2)); setPayMethod("check"); setPaying(x); }}>Record payment</Button>}
+                    {user.role === "owner"
+                      ? <Button size="sm" variant="danger" onClick={() => { setReason(""); setWriting(x); }}>Write off</Button>
+                      : <span className="self-center text-xs text-gray-500">Owner writes off</span>}
+                  </span>
                 </TD>
               </TR>
             ))}</tbody>
@@ -152,6 +159,27 @@ export function BooksOverview() {
         <Link href="/accounting/journal" className="text-sm font-bold text-primary-700 hover:underline">Open the journal →</Link>
       </Card>
 
+      {paying && (
+        <Modal open onOpenChange={(v) => !v && setPaying(undefined)} title={`Record payment on ${paying.ref}`} description={`${money(paying.open)} is open. Anything paid over that is held as a customer credit.`} size="sm"
+          footer={<><Button variant="secondary" onClick={() => setPaying(undefined)}>Cancel</Button><Button variant="primary" onClick={() => {
+            const amount = Number(payAmount);
+            if (act(recordCustomerPayment, { invoiceRef: paying.ref, amount, owed: paying.open, method: payMethod, party: paying.party, jobId: paying.jobId }).ok) {
+              const over = roundMoney(amount - paying.open);
+              toast.success("Payment recorded", over > 0 ? `${money(over)} over the balance is held as a customer credit.` : payMethod === "card" ? "Waiting in Payments to deposit until the batch reaches the bank." : "Posted to Chase Checking.");
+              setPaying(undefined);
+            }
+          }}>Record payment</Button></>}>
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Amount received"><Input type="number" step="0.01" value={payAmount} onChange={(e) => setPayAmount(e.target.value)} /></Field>
+            <Field label="Paid by">
+              <Select value={payMethod} onChange={(e) => setPayMethod(e.target.value as "card" | "check")}>
+                <option value="check">Cheque, cash or transfer</option>
+                <option value="card">Card</option>
+              </Select>
+            </Field>
+          </div>
+        </Modal>
+      )}
       {writing && (
         <Modal open onOpenChange={(v) => !v && setWriting(undefined)} title={`Write off ${writing.ref}?`} description={`${money(writing.open)} moves to 6900 Bad debts. Only the owner can do this.`} size="sm"
           footer={<><Button variant="secondary" onClick={() => setWriting(undefined)}>Cancel</Button><Button variant="danger-solid" disabled={!reason.trim()} onClick={() => { if (act(writeOffInvoice, writing.ref, writing.open, reason, writing.jobId).ok) { toast.success(`${writing.ref} written off`, "Posted: Dr 6900 Bad debts, Cr 1200."); setWriting(undefined); } }}>Write off</Button></>}>

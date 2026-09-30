@@ -170,3 +170,18 @@ export function rollYearEnd(db: Database, actor: User, year: number) {
   });
   log(db, actor, MODULE, `Books: ${year} closed into 3900 Retained earnings by ${actor.name}`);
 }
+
+/**
+ * BK-M11: a customer payment against an open invoice. Card payments wait in
+ * 1050 Payments to deposit; cheque, cash or transfer go to 1000. Anything
+ * over what is owed is held as a customer credit (2100).
+ */
+export function recordCustomerPayment(db: Database, actor: User, input: { invoiceRef: string; amount: number; owed: number; method: "card" | "check"; party?: string; jobId?: string }) {
+  if (!(input.amount > 0)) return fail("Enter the amount received.", "amount");
+  const over = roundMoney(input.amount - Math.max(0, input.owed));
+  const r = postEvent(db, actor, { kind: input.method === "card" ? "card_payment" : "payment", amount: roundMoney(input.amount), owed: roundMoney(input.owed), jobId: input.jobId }, {
+    ref: input.invoiceRef, memo: input.method === "card" ? "Payment received (card)" : "Payment received (cheque, cash or transfer)", party: input.party, href: `/invoices/${input.invoiceRef}`,
+  });
+  if (r.ok && over > 0) log(db, actor, MODULE, `Books: ${input.invoiceRef} overpaid by ${over.toFixed(2)}; held as a customer credit`);
+  return r;
+}

@@ -9,7 +9,7 @@
     first" until an Owner or Admin approves it; any edit removes it.
   - FlowView (CRM-C5, ?view=flow): the same rule as a flow with a steps
     palette, a canvas with Yes / No branch labels and a settings panel.
-    Read-only in this version: edit in Rules.
+    Edits here change the same linked steps the Rules editor saves.
   - ApprovalsView (?view=approvals): "Waiting for approval", the customer
     messages rules and templates prepared. Send, Edit, Skip, or Approve this
     automation. Nothing is sent to a customer without one of these.
@@ -21,7 +21,7 @@ import { useCollection, useCurrentUser } from '@/lib/store';
 import type { AutomationRule, AutomationTrigger, PreparedMessage, RuleNode } from '@/lib/types';
 import { cn, fullName, uid } from '@/lib/utils';
 import {
-  approvalLabel, canApproveAutomation, CONDITION_LABEL, draftToNodes, ruleToDraft, TRIGGER_LABEL, waitingCount, type RuleDraft,
+  addStep, approvalLabel, canApproveAutomation, CONDITION_LABEL, draftToNodes, removeStep, ruleProblem, ruleToDraft, TRIGGER_LABEL, waitingCount, type RuleDraft,
 } from '@/lib/automation';
 import { Badge, Banner, Button, Card, EmptyState, Field, Input, Modal, NewBadge, Select, Switch, Textarea, VersionBadge } from '@/features/components/ui';
 import { toast } from '@/features/lib/toast';
@@ -175,6 +175,8 @@ function RuleEditor({ rule }: { rule: AutomationRule }) {
   const [d, setD] = useState<RuleDraft>(() => ruleToDraft(rule));
   const [confirming, setConfirming] = useState(false);
   const dirty = JSON.stringify(d) !== JSON.stringify(ruleToDraft(rule));
+  // A rule built in Flow can have more steps than these cards show; saving here would drop them.
+  const tooBig = draftToNodes(ruleToDraft(rule)).nodes.length !== rule.nodes.length;
   const save = () => {
     if (!d.name.trim()) return toast.error('Give the rule a name');
     if (!d.then.body.trim() || (d.otherwise && !d.otherwise.body.trim())) return toast.error('Write the message');
@@ -185,6 +187,7 @@ function RuleEditor({ rule }: { rule: AutomationRule }) {
 
   return (
     <div className="space-y-1">
+      {tooBig && <Banner tone="warn" title="This rule has more steps than these cards show">It was built in Flow. Edit it there so no step is lost.</Banner>}
       <Card className="flex flex-wrap items-center gap-3 p-4">
         <div className="min-w-[220px] flex-1"><Field label="Rule name"><Input value={d.name} onChange={(e) => setD({ ...d, name: e.target.value })} /></Field></div>
         <Switch checked={d.active} onCheckedChange={(v) => setD({ ...d, active: v })} label={d.active ? 'On' : 'Off'} />
@@ -241,7 +244,7 @@ function RuleEditor({ rule }: { rule: AutomationRule }) {
       </div>
       <div className="flex justify-end gap-2 pt-3">
         <Button variant="secondary" disabled={!dirty} onClick={() => setD(ruleToDraft(rule))}>Discard</Button>
-        <Button variant="primary" disabled={!dirty} onClick={save}>Save rule</Button>
+        <Button variant="primary" disabled={!dirty || tooBig} onClick={save}>Save rule</Button>
       </div>
       {confirming && (
         <ApproveConfirm when={TRIGGER_LABEL[d.trigger]} message={[d.then.subject, d.then.body].filter(Boolean).join('\n\n')} onConfirm={() => approve('rule', rule.id)} onClose={() => setConfirming(false)} />
@@ -250,41 +253,65 @@ function RuleEditor({ rule }: { rule: AutomationRule }) {
   );
 }
 
-/* ---------- Flow (CRM-C5, read-only) ---------- */
+/* ---------- Flow (CRM-C5) ---------- */
 
-const PALETTE = [
-  { label: 'When', icon: Zap, tone: 'text-primary-700' },
-  { label: 'If', icon: GitBranch, tone: 'text-amber-700' },
-  { label: 'Send email', icon: Mail, tone: 'text-green-700' },
-  { label: 'Send text', icon: MessageSquare, tone: 'text-green-700' },
+const PALETTE: { key: 'condition' | 'email' | 'sms'; label: string; icon: typeof Zap; tone: string }[] = [
+  { key: 'condition', label: 'If', icon: GitBranch, tone: 'text-amber-700' },
+  { key: 'email', label: 'Send email', icon: Mail, tone: 'text-green-700' },
+  { key: 'sms', label: 'Send text', icon: MessageSquare, tone: 'text-green-700' },
 ];
 
 function nodeTitle(n: RuleNode) {
   if (n.kind === 'trigger') return `When: ${n.trigger ? TRIGGER_LABEL[n.trigger] : '—'}`;
-  if (n.kind === 'condition' && n.condition) return `If ${CONDITION_LABEL[n.condition.field].toLowerCase()} ${n.condition.op === 'over' ? `is over $${n.condition.value}` : `is ${n.condition.value}`}`;
+  if (n.kind === 'condition' && n.condition) return `If ${CONDITION_LABEL[n.condition.field].toLowerCase()} ${n.condition.op === 'over' ? `is over $${n.condition.value}` : `is ${n.condition.value || '…'}`}`;
   return n.action?.channel === 'sms' ? 'Send text' : 'Send email';
 }
 
 export function FlowView() {
-  const { items: rules } = useCollection('automationRules');
-  const [ruleId, setRuleId] = useState(rules[0]?.id);
-  const rule = rules.find((r) => r.id === ruleId) ?? rules[0];
-  const [sel, setSel] = useState<string>();
+  const rules = useCollection('automationRules');
+  const [ruleId, setRuleId] = useState(rules.items[0]?.id);
+  const rule = rules.items.find((r) => r.id === ruleId) ?? rules.items[0];
   if (!rule) return <EmptyState title="No rules yet" body="Add a rule in Rules to see its flow." />;
-  const byId = new Map(rule.nodes.map((n) => [n.id, n]));
-  const selected = byId.get(sel ?? rule.startId);
+  return <FlowEditor key={rule.id + rule.updatedAt} rule={rule} rules={rules.items} onPick={setRuleId} />;
+}
+
+function FlowEditor({ rule, rules, onPick }: { rule: AutomationRule; rules: AutomationRule[]; onPick: (id: string) => void }) {
+  const store = useCollection('automationRules');
+  const [nodes, setNodes] = useState<RuleNode[]>(() => structuredClone(rule.nodes));
+  const [sel, setSel] = useState<string>(rule.startId);
+  const dirty = JSON.stringify(nodes) !== JSON.stringify(rule.nodes);
+  const byId = new Map(nodes.map((n) => [n.id, n]));
+  const selected = byId.get(sel) ?? byId.get(rule.startId);
+
+  const apply = (r: ReturnType<typeof addStep>, select?: string) => {
+    if (!r.ok) return toast.error(r.error);
+    setNodes(r.nodes);
+    if (select) setSel(select);
+  };
+  const add = (key: 'condition' | 'email' | 'sms') => {
+    if (!selected) return;
+    const id = uid('n');
+    const step: RuleNode = key === 'condition'
+      ? { id, kind: 'condition', condition: { field: 'estimate_value', op: 'over', value: '5000' } }
+      : { id, kind: 'action', action: key === 'email' ? { channel: 'email', subject: 'A note from {{orgName}}', body: 'Hi {{firstName}},\n\n' } : { channel: 'sms', body: 'Hi {{firstName}}, ' } };
+    apply(addStep(nodes, selected.id, step), id);
+  };
+  const patch = (p: Partial<RuleNode>) => setNodes((ns) => ns.map((n) => (n.id === selected?.id ? { ...n, ...p } : n)));
+  const save = () => {
+    const problem = ruleProblem(nodes);
+    if (problem) return toast.error(problem);
+    store.update(rule.id, { nodes, approval: undefined, updatedAt: new Date().toISOString() });
+    toast.success('Rule saved', rule.approval ? 'Approval removed: its messages ask first again.' : 'Its messages wait for approval.');
+  };
 
   const draw = (id: string | undefined, depth = 0): React.ReactNode => {
     const n = id ? byId.get(id) : undefined;
-    if (!n || depth > 12) return null;
+    if (!n || depth > 20) return null;
     const box = (
       <button
         type="button"
         onClick={() => setSel(n.id)}
-        className={cn(
-          'w-full max-w-[260px] rounded-xl border bg-white px-3 py-2 text-left text-sm shadow-sm',
-          selected?.id === n.id ? 'border-primary-400 ring-2 ring-primary-100' : 'border-gray-200 hover:border-gray-300',
-        )}
+        className={cn('w-full max-w-[260px] rounded-xl border bg-white px-3 py-2 text-left text-sm shadow-sm', selected?.id === n.id ? 'border-primary-400 ring-2 ring-primary-100' : 'border-gray-200 hover:border-gray-300')}
       >
         <div className="text-xxs font-black uppercase tracking-widest text-gray-500">{n.kind === 'trigger' ? 'Trigger' : n.kind === 'condition' ? 'Condition' : 'Action'}</div>
         <div className="font-semibold text-ink">{nodeTitle(n)}</div>
@@ -316,36 +343,67 @@ export function FlowView() {
 
   return (
     <div className="space-y-3">
-      <Banner tone="info" title="Read-only in this version">The flow draws the same steps the Rules editor saves. Edit the rule in Rules.</Banner>
       <div className="flex flex-wrap items-center gap-2">
-        <Select aria-label="Rule" value={rule.id} onChange={(e) => { setRuleId(e.target.value); setSel(undefined); }} className="w-64">
+        <Select aria-label="Rule" value={rule.id} onChange={(e) => onPick(e.target.value)} className="w-64">
           {rules.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}
         </Select>
         <ApprovalPill rule={rule} />
         <VersionBadge item="CRM-C5" />
+        <span className="ml-auto flex gap-2">
+          <Button variant="secondary" disabled={!dirty} onClick={() => setNodes(structuredClone(rule.nodes))}>Discard</Button>
+          <Button variant="primary" disabled={!dirty} onClick={save}>Save rule</Button>
+        </span>
       </div>
-      <div className="grid gap-4 lg:grid-cols-[180px_minmax(0,1fr)_260px]">
+      <p className="text-xs text-gray-500">The flow and the Rules editor change the same steps. Pick a step, then add the next one from the palette or change it on the right.</p>
+      <div className="grid gap-4 lg:grid-cols-[180px_minmax(0,1fr)_280px]">
         <Card className="p-3">
           <div className="mb-2 text-xs font-bold uppercase tracking-wider text-gray-500">Steps</div>
           <ul className="space-y-1.5">
             {PALETTE.map((p) => (
-              <li key={p.label} className="flex cursor-not-allowed items-center gap-2 rounded-lg border border-dashed border-gray-200 px-2 py-1.5 text-sm text-gray-500" title="Read-only in this version">
-                <p.icon className={cn('h-4 w-4', p.tone)} /> {p.label}
+              <li key={p.key}>
+                <button type="button" onClick={() => add(p.key)} title={`Add after "${selected ? nodeTitle(selected) : ''}"`}
+                  className="flex w-full items-center gap-2 rounded-lg border border-dashed border-gray-300 px-2 py-1.5 text-left text-sm text-gray-700 hover:border-primary-300 hover:bg-primary-50">
+                  <p.icon className={cn('h-4 w-4', p.tone)} /> {p.label}
+                </button>
               </li>
             ))}
           </ul>
+          <p className="mt-2 text-xs text-gray-500">Adds after the selected step. After an If, it fills the empty branch.</p>
         </Card>
         <Card className="overflow-x-auto bg-gray-50 p-5">{draw(rule.startId)}</Card>
-        <Card className="p-4">
-          <div className="mb-2 text-xs font-bold uppercase tracking-wider text-gray-500">Settings</div>
-          {selected ? (
-            <dl className="space-y-2 text-sm">
-              <div><dt className="text-xs text-gray-500">Step</dt><dd className="font-semibold text-ink">{nodeTitle(selected)}</dd></div>
-              {selected.action?.subject && <div><dt className="text-xs text-gray-500">Subject</dt><dd>{selected.action.subject}</dd></div>}
-              {selected.action && <div><dt className="text-xs text-gray-500">Message</dt><dd className="whitespace-pre-wrap text-gray-700">{selected.action.body}</dd></div>}
-              {selected.kind === 'condition' && <div><dt className="text-xs text-gray-500">Branches</dt><dd>Yes → {selected.yes ? nodeTitle(byId.get(selected.yes)!) : 'nothing'}; No → {selected.no ? nodeTitle(byId.get(selected.no)!) : 'nothing'}</dd></div>}
-            </dl>
-          ) : <p className="text-sm text-gray-500">Select a step.</p>}
+        <Card className="space-y-3 p-4">
+          <div className="text-xs font-bold uppercase tracking-wider text-gray-500">Settings</div>
+          {!selected ? <p className="text-sm text-gray-500">Select a step.</p> : (
+            <>
+              <div className="font-semibold text-ink">{nodeTitle(selected)}</div>
+              {selected.kind === 'trigger' && (
+                <Field label="When">
+                  <Select value={selected.trigger} onChange={(e) => patch({ trigger: e.target.value as AutomationTrigger })}>
+                    {(Object.keys(TRIGGER_LABEL) as AutomationTrigger[]).map((t) => <option key={t} value={t}>{TRIGGER_LABEL[t]}</option>)}
+                  </Select>
+                </Field>
+              )}
+              {selected.kind === 'condition' && selected.condition && (
+                <>
+                  <Field label="Field">
+                    <Select value={selected.condition.field} onChange={(e) => { const field = e.target.value as Condition['field']; patch({ condition: { field, op: field === 'estimate_value' ? 'over' : 'is', value: '' } }); }}>
+                      {(Object.keys(CONDITION_LABEL) as Condition['field'][]).map((f) => <option key={f} value={f}>{CONDITION_LABEL[f]}</option>)}
+                    </Select>
+                  </Field>
+                  <Field label={selected.condition.op === 'over' ? 'Is over ($)' : 'Is'}>
+                    <Input value={selected.condition.value} onChange={(e) => patch({ condition: { ...selected.condition!, value: e.target.value } })} />
+                  </Field>
+                </>
+              )}
+              {selected.kind === 'action' && selected.action && <ActionFields value={selected.action} onChange={(action) => patch({ action })} />}
+              {selected.kind !== 'trigger' && (
+                <Button size="sm" variant="danger" onClick={() => apply(removeStep(nodes, rule.startId, selected.id), rule.startId)}>
+                  Remove step
+                </Button>
+              )}
+              {selected.kind === 'condition' && <p className="text-xs text-gray-500">Removing an If keeps its Yes path.</p>}
+            </>
+          )}
         </Card>
       </div>
     </div>
