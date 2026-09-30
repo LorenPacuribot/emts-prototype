@@ -20,10 +20,12 @@
 */
 import React, { Suspense, useState } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { Activity, BarChart3, Briefcase, ClipboardList, Clock3, Coins, FileSpreadsheet, Gauge, Landmark, Target, TrendingUp } from 'lucide-react';
+import { Activity, BarChart3, Briefcase, ClipboardList, Clock3, Coins, FileSpreadsheet, Gauge, Landmark, Target, TrendingUp, Users } from 'lucide-react';
 import { PageShell } from '@/components/Navigation';
 import { AreaNav, type Area } from '@/features/components/layout/area-nav';
-import { EstimatesLogTab, JobsSoldTab, JobsToDoTab } from '@/components/reports/TableTabs';
+import { EstimatesLogTab, JobsSoldTab, JobsToDoTab, SalesByEstimatorTab } from '@/components/reports/TableTabs';
+import { NewBadge, VersionBadge, VersionScreenGate } from '@/features/components/ui';
+import { isVisible, useVersion } from '@/features/lib/prototype-version';
 import { SalesGoalTab, StatsTab } from '@/components/reports/GoalTabs';
 import { ActivityLogTab } from '@/components/reports/ActivityTab';
 import { FeatureTabBody, FINANCE_TABS, NewTabBadge, useCanSeeFinanceReports, type FeatureTabKey } from '@/components/reports/FeatureTabs';
@@ -32,6 +34,7 @@ import type { DateRange } from '@/components/reports/data';
 const TABS = [
   { key: 'estimates', label: 'Estimates Log', icon: FileSpreadsheet },
   { key: 'jobs_sold', label: 'Jobs Sold', icon: Briefcase },
+  { key: 'sales_estimator', label: 'Sales by Estimator', icon: Users, item: 'RP-C2' },
   { key: 'sales', label: 'Sales Goal', icon: TrendingUp },
   { key: 'production', label: 'Jobs To Do', icon: ClipboardList },
   { key: 'job_performance', label: 'Estimated vs Actual', icon: BarChart3, isNew: true },
@@ -46,7 +49,7 @@ type TabKey = (typeof TABS)[number]['key'];
 
 /** The report areas (L2). Activity Log sits on the right as a link. */
 const REPORT_AREAS: { key: string; label: string; tabs: TabKey[] }[] = [
-  { key: 'sales', label: 'Sales', tabs: ['estimates', 'jobs_sold', 'sales', 'summary'] },
+  { key: 'sales', label: 'Sales', tabs: ['estimates', 'jobs_sold', 'sales_estimator', 'sales', 'summary'] },
   { key: 'production', label: 'Production', tabs: ['production', 'job_performance', 'estimating_feedback'] },
   { key: 'finance', label: 'Finance', tabs: ['job_margin', 'income_expense', 'aged_receivables'] },
 ];
@@ -59,7 +62,9 @@ function ReportsInner() {
   const tab: TabKey = TABS.some((t) => t.key === param) ? (param as TabKey) : 'estimates';
   const [range, setRange] = useState<DateRange>({ start: '', end: '' });
   const year = new Date().getFullYear();
-  const visible = TABS.filter((t) => finance || !FINANCE_TABS.includes(t.key as FeatureTabKey));
+  const version = useVersion((s) => s.version);
+  // Complete-only tabs (30 Sep call items) are left out of the Minimal version.
+  const visible = TABS.filter((t) => (finance || !FINANCE_TABS.includes(t.key as FeatureTabKey)) && (!('item' in t) || isVisible(t.item, version)));
 
   // Same URL as before: ?tab= set, ?rate= dropped, replaced (no new history entry), no scroll.
   const hrefFor = (t: TabKey) => {
@@ -72,7 +77,7 @@ function ReportsInner() {
   // Finance only for roles that see finance reports, as before. Activity Log is a link on the right.
   const page = (key: TabKey) => {
     const t = TABS.find((x) => x.key === key)!;
-    return { href: hrefFor(key), label: t.label, icon: t.icon, active: tab === key, marker: 'isNew' in t && t.isNew ? <NewTabBadge tab={key as FeatureTabKey} /> : undefined };
+    return { href: hrefFor(key), label: t.label, icon: t.icon, active: tab === key, marker: 'isNew' in t && t.isNew ? <NewTabBadge tab={key as FeatureTabKey} /> : 'item' in t ? <><NewBadge /><VersionBadge item={t.item} /></> : undefined };
   };
   const areas: Area[] = REPORT_AREAS.map((a) => ({ key: a.key, label: a.label, pages: a.tabs.filter((k) => visible.some((t) => t.key === k)).map(page) }));
 
@@ -88,6 +93,11 @@ function ReportsInner() {
 
       {tab === 'estimates' && <EstimatesLogTab year={year} range={range} setRange={setRange} />}
       {tab === 'jobs_sold' && <JobsSoldTab year={year} range={range} setRange={setRange} />}
+      {tab === 'sales_estimator' && (
+        <VersionScreenGate item="RP-C2">
+          <SalesByEstimatorTab year={year} range={range} setRange={setRange} />
+        </VersionScreenGate>
+      )}
       {tab === 'sales' && <SalesGoalTab year={year} range={range} setRange={setRange} />}
       {tab === 'production' && <JobsToDoTab year={year} range={range} setRange={setRange} />}
       {tab === 'summary' && <StatsTab year={year} />}

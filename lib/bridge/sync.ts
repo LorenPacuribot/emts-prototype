@@ -31,7 +31,7 @@ import { scheduleLeadEstimate, setLeadStage } from '@/features/lib/store/actions
 import { setJobStage } from '@/features/lib/store/actions/jobs';
 import { markUnscheduled, scheduleWorkOrder, setWorkOrderStatus } from '@/features/lib/store/actions/work-orders';
 import { invoiceBalance, invoicePaid, reconcileInvoicePayments, sendInvoice } from '@/features/lib/store/actions/invoices';
-import { estimateTotals as replicaTotals, includedLine, invoiceTotals, round2 } from '@/lib/calculations';
+import { estimateTotals as replicaTotals, includedLine, invoiceTotals, round2, versionSnapshot } from '@/lib/calculations';
 import * as M from './map';
 
 /* ---------- replica ops ---------- */
@@ -390,6 +390,19 @@ function canSyncPricing(est: P.Estimate, r: Estimate) {
     && old.taxRate === r.taxRate && old.discountType === r.discountType && old.discountValue === r.discountValue;
 }
 
+/** History entry for a status the prototype set, dated when it happened there. */
+function protoStatusVersion(r: Estimate, e: P.Estimate, status: Estimate['status']): Estimate['versions'][number] {
+  const at = (status === 'Approved' ? e.acceptedAt : status === 'Sent' ? e.sentAt : status === 'Viewed' ? e.viewedAt : status === 'Draft' ? e.lastAmendedAt : undefined) ?? new Date().toISOString();
+  const note =
+    status === 'Approved' ? (e.signatureName ? `Signed by ${e.signatureName}` : 'Marked approved')
+      : status === 'Draft' ? 'Opened for amendment'
+        : status === 'Sent' ? (e.status === 'PENDING_REAPPROVAL' ? 'Sent for re-approval' : 'Sent to customer')
+          : status === 'Rejected' ? 'Declined by customer'
+            : `Marked ${status.toLowerCase()}`;
+  const version = r.versions.reduce((m, x) => Math.max(m, x.version), 0) + 1;
+  return { version, date: at, total: replicaTotals(r).total, status, changedBy: status === 'Approved' && e.signatureName ? 'Customer' : 'Estimate Master', note, ...versionSnapshot(r) };
+}
+
 const P_EST_STATUS: Record<Estimate['status'], P.EstimateStatus> = {
   Draft: 'DRAFT', Sent: 'SENT', Viewed: 'VIEWED', Approved: 'ACCEPTED', Rejected: 'DECLINED', Expired: 'EXPIRED',
 };
@@ -540,9 +553,13 @@ const estimates: Entity<Estimate> = {
       readR: (r) => r.status,
       writeR: (v, _r, p) => {
         const e = p.estimates.find((x) => x.id === _r.id)!;
+        const status = v as Estimate['status'];
         return {
-          status: v as Estimate['status'], sentAt: e.sentAt, viewedAt: e.viewedAt, approvedAt: e.acceptedAt,
+          status, sentAt: e.sentAt, viewedAt: e.viewedAt, approvedAt: e.acceptedAt,
           signature: e.status === 'ACCEPTED' && e.signatureName ? { name: e.signatureName, date: e.acceptedAt ?? new Date().toISOString() } : _r.signature,
+          // A status change made on a prototype screen (amend, re-approval) is a version too,
+          // so reports can book an amendment on its re-approval date (RP-M1).
+          ...(status !== _r.status ? { versions: [..._r.versions, protoStatusVersion(_r, e, status)] } : {}),
         };
       },
       writeP: (v, id, r) => {

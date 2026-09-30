@@ -24,7 +24,7 @@ import { Field, Input, NativeSelect, Textarea } from '@/components/ui/form';
 import { Tabs } from '@/components/ui/display';
 import { useToast } from '@/components/ui/toast';
 import { useCollection, useCurrentUser, useDb, useLogActivity, useNextNumber, useSingleton } from '@/lib/store';
-import { estimateTotals, round2 } from '@/lib/calculations';
+import { estimateTotals, round2, versionSnapshot } from '@/lib/calculations';
 import { cn, fullName, uid } from '@/lib/utils';
 import { addDays, areaFromTemplate } from './estimate-utils';
 import { pressable } from '@/lib/a11y';
@@ -365,7 +365,7 @@ export function CreateEstimateWizard({
       versions: [],
     };
     const total = estimateTotals(draft).total;
-    draft.versions = [{ version: 1, date: now, total, status: 'Draft', changedBy: fullName(user), note: 'Estimate created' }];
+    draft.versions = [{ version: 1, date: now, total, status: 'Draft', changedBy: fullName(user), note: 'Estimate created', ...versionSnapshot(draft) }];
     estimatesCol.add(draft, { atStart: true });
     if (lead) leadsCol.update(lead.id, { estimateId: draft.id, updatedAt: now });
     log(`${number} created for ${fullName(customer)}`, 'estimate', draft.id);

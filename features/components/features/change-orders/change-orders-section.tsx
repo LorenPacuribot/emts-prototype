@@ -22,7 +22,8 @@ import { now } from "@/features/lib/clock";
 import { estimateHref } from "@/features/lib/hrefs";
 import { CO_STATUS, CO_TYPE } from "@/features/lib/status";
 import { coLinkState, coPricing, contractSummary, currentLink, jobChangeOrders, jobColourReapprovals, runDailyChecks } from "@/features/lib/store/actions/change-orders";
-import { Badge, Banner, Button, Card, CardLabel, EmptyState, EstimateSection, IdChip, NewBadge, PillTabs, RowMenu, SectionHeader, Stat, Table, TD, TH, THead, TR } from "@/features/components/ui";
+import { Badge, Banner, Button, Card, CardLabel, EmptyState, EstimateSection, IdChip, NewBadge, PillTabs, RowMenu, SectionHeader, Stat, Table, TD, TH, THead, TR, VersionBadge, VersionGate } from "@/features/components/ui";
+import { changeOrderSalesEntries } from "@/features/lib/sales-entries";
 import { approvalStateLabel, billingStateLabel, StatusBadge, TypeBadge } from "./shared";
 import { NewCoModal } from "./co-modals";
 import { CoBuilder } from "./co-builder";
@@ -79,6 +80,8 @@ export function ChangeOrdersSection({ job, estimateId, creating, setCreating }: 
     closed: (c) => c.status === "rejected" || c.status === "disputed",
   };
   const rows = cos.filter(groups[filter]).sort((a, b) => a.id.localeCompare(b.id));
+  const coEntries = changeOrderSalesEntries(db);
+  const salesEntryOf = (id: string) => coEntries.find((x) => x.versionRef === id);
 
   function exportCsv() {
     downloadCsv(`${job.id}-change-orders.csv`, [
@@ -199,6 +202,14 @@ export function ChangeOrdersSection({ job, estimateId, creating, setCreating }: 
                         <TD className="text-right">
                           <div className="text-xs text-gray-500">Gross {money(p.grossAddition)}</div>
                           <div className={`font-semibold ${p.net < 0 ? "text-pink-700" : "text-ink"}`}>Net {money(p.net)}</div>
+                          {/* RP-C3: the sale this signed change order booked in reports. */}
+                          <VersionGate item="RP-C3">
+                            {salesEntryOf(c.id) && (
+                              <div className="mt-0.5 flex items-center justify-end gap-1 text-xs text-gray-500">
+                                Sale {money(salesEntryOf(c.id)!.value)} · {date(salesEntryOf(c.id)!.date)} <VersionBadge item="RP-C3" />
+                              </div>
+                            )}
+                          </VersionGate>
                         </TD>
                       )}
                       <TD><StatusBadge co={c} stack /></TD>

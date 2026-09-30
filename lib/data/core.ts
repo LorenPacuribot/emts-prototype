@@ -10,7 +10,7 @@ import type {
   Activity, CalendarEvent, Customer, Estimate, EstimateArea, EstimateLineItem, EstimateStatus,
   Invoice, Job, Lead, Message, Presentation, Task, TeamMember, WorkOrder,
 } from '../types';
-import { estimateTotals, lineTotal, round2 } from '../calculations';
+import { estimateTotals, lineTotal, round2, versionSnapshot } from '../calculations';
 import { applicationHours, lineGallons, materialPerUnit } from '../estimating';
 import { areaTemplates, estimateTypes, paintProducts, surfaceRates } from './settings-library';
 
@@ -174,7 +174,7 @@ function buildEstimate(o: {
     versions.push({ version: 3, date: d, total: o.target, status: o.status, changedBy: 'Customer', note: o.status === 'Approved' ? 'Signed by customer' : 'Declined by customer' });
 
   const c = customerById(o.customerId);
-  return {
+  const est: Estimate = {
     id: `e${o.n}`, estimateNumber: `EST-2026-${o.n}`, title: o.title, customerId: o.customerId, leadId: o.leadId,
     estimateTemplateId: templateByType[o.type], estimateType: o.type, status: o.status, date: d, validUntil: valid,
     address: addr(c), areas, lineItems: lines,
@@ -189,6 +189,10 @@ function buildEstimate(o: {
     signature: o.status === 'Approved' ? { name: `${c.firstName} ${c.lastName}`, date: d } : null,
     versions, jobId: o.jobId,
   };
+  // Every seeded version has the same scope, so each carries the same snapshot.
+  const snapshot = versionSnapshot(est);
+  est.versions = versions.map((v) => ({ ...v, ...snapshot }));
+  return est;
 }
 
 export const estimates: Estimate[] = [

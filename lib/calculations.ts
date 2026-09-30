@@ -83,6 +83,19 @@ export function estimateTotals(e: Pick<Estimate, 'lineItems' | 'extras' | 'disco
   };
 }
 
+/** Figures kept on each estimate version, so reports can book an amendment's difference (RP-M1). */
+export function versionSnapshot(e: Pick<Estimate, 'lineItems' | 'extras' | 'discountType' | 'discountValue' | 'taxRate'>) {
+  const t = estimateTotals(e);
+  return {
+    preTaxTotal: t.taxable,
+    laborHours: t.laborHours,
+    lines: [
+      ...e.lineItems.filter(includedLine).map((l) => ({ id: l.id, description: l.description, total: round2(l.total) })),
+      ...e.extras.map((x) => ({ id: x.id, description: x.name, total: round2(x.quantity * x.unitPrice) })),
+    ],
+  };
+}
+
 export interface InvoiceTotals {
   subtotal: number;
   tax: number;

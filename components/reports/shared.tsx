@@ -141,3 +141,6 @@ export const TH = 'whitespace-nowrap px-4 py-4';
 export const TD = 'whitespace-nowrap px-4 py-4 text-sm';
 export const money0 = (n: number) => '$' + n.toLocaleString('en-US', { maximumFractionDigits: 0 });
 export const money2 = (n: number) => '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+/** Minus sign before the dollar sign for negative sales entries (-$300.00). */
+export const signedMoney2 = (n: number) => (n < 0 ? '-' : '') + money2(Math.abs(n));
+export const signedMoney0 = (n: number) => (n < 0 ? '-' : '') + money0(Math.abs(n));

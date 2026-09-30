@@ -18,7 +18,8 @@ import { useDb, useSingleton } from '@/lib/store';
 import { cn, shortDate } from '@/lib/utils';
 import { useToast } from '@/components/ui/toast';
 import { MONTH_NAMES, downloadCsv, inDateRange, monthlyStats, type DateRange } from './data';
-import { DateRangeInputs, ExportButton, ReportCard, money0, money2 } from './shared';
+import { DateRangeInputs, ExportButton, ReportCard, money0, money2, signedMoney0, signedMoney2 } from './shared';
+import { useSalesExtra } from './useSalesExtra';
 
 const MONTH_LABELS = ['JAN', 'FEB', 'MAR', 'APRIL', 'MAY', 'JUNE', 'JULY', 'AUG', 'SEPT', 'OCT', 'NOV', 'DEC'];
 
@@ -34,7 +35,8 @@ const compact = (v: number) => {
 export function SalesGoalTab({ year, range, setRange }: { year: number; range: DateRange; setRange: (r: DateRange) => void }) {
   const db = useDb();
   const { toast } = useToast();
-  const months = useMemo(() => monthlyStats(db, year), [db, year]);
+  const extra = useSalesExtra();
+  const months = useMemo(() => monthlyStats(db, year, extra), [db, year, extra]);
 
   // Months inside the date range that have jobs, a goal or sales
   const periods = months
@@ -52,7 +54,7 @@ export function SalesGoalTab({ year, range, setRange }: { year: number; range: D
     downloadCsv(name, ['Month', 'Date', 'Job ID', 'Customer', 'Source', 'Amount', 'Hours', 'Goal', 'Total Sold'],
       list.flatMap((m) =>
         m.jobs.length
-          ? m.jobs.map((j) => [m.monthName, shortDate(j.date), j.jobNumber, j.customer, j.source, j.amount, j.hours, m.salesGoal, m.actualSold])
+          ? m.jobs.map((j) => [m.monthName, shortDate(j.date), j.entryLabel ? `${j.jobNumber} (${j.entryLabel})` : j.jobNumber, j.customer, j.source, j.amount, j.hours, m.salesGoal, m.actualSold])
           : [[m.monthName, '', '', '', '', '', '', m.salesGoal, 0]],
       ));
     toast('Report exported successfully');
@@ -79,7 +81,7 @@ export function SalesGoalTab({ year, range, setRange }: { year: number; range: D
               </div>
               <div className="text-right">
                 <div className="mb-0.5 text-xxs font-bold uppercase tracking-widest text-gray-500">Total Sold</div>
-                <div className="text-2xl font-black text-gray-900">{money2(m.jobs.reduce((s, j) => s + j.amount, 0))}</div>
+                <div className="text-2xl font-black text-gray-900">{signedMoney2(m.jobs.reduce((s, j) => s + j.amount, 0))}</div>
               </div>
               <button
                 className="self-center rounded-lg bg-gray-50 p-2 text-gray-500 transition-colors hover:text-gray-600"
@@ -103,12 +105,15 @@ export function SalesGoalTab({ year, range, setRange }: { year: number; range: D
                 {m.jobs.map((j) => (
                   <tr key={j.id} className="transition-colors hover:bg-gray-50">
                     <td className="whitespace-nowrap px-6 py-4 font-medium text-gray-600">{shortDate(j.date)}</td>
-                    <td className="whitespace-nowrap px-6 py-4 font-mono text-xs text-gray-500"><Link href={`/jobs/${j.id}`} className="hover:text-primary-600">{j.jobNumber}</Link></td>
+                    <td className="whitespace-nowrap px-6 py-4 font-mono text-xs text-gray-500">
+                      <Link href={`/jobs/${j.jobId}`} className="hover:text-primary-600">{j.jobNumber}</Link>
+                      {j.entryLabel && <span className="ml-2 rounded bg-gray-100 px-1.5 py-0.5 font-sans text-xxs font-bold text-gray-600">{j.entryLabel}</span>}
+                    </td>
                     <td className="whitespace-nowrap px-6 py-4 font-bold text-gray-900">{j.customer}</td>
                     <td className="whitespace-nowrap px-6 py-4">
                       {j.source ? <span className="inline-flex rounded bg-gray-100 px-2 py-1 text-xxs font-bold uppercase tracking-wide text-gray-500">{j.source}</span> : <span className="text-gray-300">-</span>}
                     </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-right font-mono font-bold text-gray-900">{money0(j.amount)}</td>
+                    <td className={cn('whitespace-nowrap px-6 py-4 text-right font-mono font-bold', j.amount < 0 ? 'text-red-600' : 'text-gray-900')}>{signedMoney0(j.amount)}</td>
                     <td className="whitespace-nowrap px-6 py-4 text-center text-gray-600">{j.hours}</td>
                   </tr>
                 ))}
@@ -167,7 +172,8 @@ export function StatsTab({ year }: { year: number }) {
   const db = useDb();
   const [gp, setGp] = useSingleton('goalsProfit');
   const { toast } = useToast();
-  const months = useMemo(() => monthlyStats(db, year), [db, year]);
+  const extra = useSalesExtra();
+  const months = useMemo(() => monthlyStats(db, year, extra), [db, year, extra]);
 
   const avgJobSize = gp.avgJobSize || 3500;
   const closingRate = gp.closingRate || 35;

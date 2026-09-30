@@ -19,7 +19,7 @@ import type {
 import { estimateTotals as protoTotals, surfaceHours, BASE_LABOR_RATE } from '@/features/lib/rules/estimate';
 import { changeOrderHours } from '@/features/lib/rules/change-order-effects';
 import { draftTotal } from '@/features/lib/store/actions/estimates';
-import { round2 } from '@/lib/calculations';
+import { round2, versionSnapshot } from '@/lib/calculations';
 
 /* ---------- small helpers ---------- */
 
@@ -268,7 +268,7 @@ export function projectEstimate(db: P.Database, est: P.Estimate): Estimate {
   const scope = projectScope(db, est);
   const status = EST_STATUS_R[est.status];
   const total = estimateTotal(db, est);
-  return {
+  const r: Estimate = {
     id: est.id, estimateNumber: est.id, title: est.title, customerId: est.customerId, leadId: est.leadId,
     estimateType: job ? TYPE_R[job.jobType] : 'Interior', status, date: est.estimateDate ?? est.createdAt,
     validUntil: est.validUntil ?? est.createdAt, address: addressLine(prop), areas: scope.areas, lineItems: scope.lineItems,
@@ -278,9 +278,13 @@ export function projectEstimate(db: P.Database, est: P.Estimate): Estimate {
     createdBy: est.estimatorId ?? 'U-EST', createdAt: est.createdAt, updatedAt: est.lastAmendedAt ?? est.sentAt ?? est.createdAt,
     sentAt: est.sentAt, viewedAt: est.viewedAt, approvedAt: est.acceptedAt,
     signature: est.status === 'ACCEPTED' && est.signatureName ? { name: est.signatureName, date: est.acceptedAt ?? est.createdAt } : null,
-    versions: [{ version: 1, date: est.createdAt, total, status, changedBy: 'Estimate Master', note: 'Imported from the feature prototype' }],
+    versions: [],
     jobId: job && job.status !== 'estimating' ? job.id : undefined, estimatorId: est.estimatorId,
   };
+  // An accepted estimate's version is dated on acceptance, so reports book the sale then (RP-M1).
+  const date = status === 'Approved' ? est.acceptedAt ?? est.createdAt : est.createdAt;
+  r.versions = [{ version: 1, date, total, status, changedBy: 'Estimate Master', note: 'Imported from the feature prototype', ...versionSnapshot(r) }];
+  return r;
 }
 
 /* ---------- jobs ---------- */

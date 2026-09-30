@@ -226,6 +226,16 @@ export interface EstimateVersion {
   status: EstimateStatus;
   changedBy: string;
   note: string;
+  /*
+    Snapshot when the version was saved (lib/calculations versionSnapshot).
+    Reports book amendments from these (features/lib/rules/sales-entries.ts).
+    Missing on versions saved before they were recorded.
+  */
+  /** Total before sales tax (after discount). */
+  preTaxTotal?: number;
+  laborHours?: number;
+  /** Included lines and extras with their totals, to show what an amendment changed. */
+  lines?: { id: ID; description: string; total: number }[];
 }
 
 export interface Estimate {

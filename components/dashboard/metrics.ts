@@ -11,6 +11,8 @@
 import { derivedInvoiceStatus, estimateTotals, invoiceTotals } from '@/lib/calculations';
 import type { Database, Estimate, JobStatus, Lead, PipelineStage } from '@/lib/types';
 import { fullName, toISODate } from '@/lib/utils';
+import { allSalesEntries } from '@/components/reports/data';
+import type { SalesEntry } from '@/features/lib/rules/sales-entries';
 
 /* ---------- Period ---------- */
 
@@ -135,7 +137,8 @@ export interface AgendaItem {
 
 /* ---------- Compute everything ---------- */
 
-export function computeDashboard(db: Database, period: PeriodValue) {
+/** `extra`: change-order sales entries (RP-C3, Complete version). */
+export function computeDashboard(db: Database, period: PeriodValue, extra: SalesEntry[] = []) {
   const c = db.collections;
   const range = periodRange(period);
   const customerName = (id?: string) => fullName(c.customers.find((x) => x.id === id));
@@ -152,12 +155,9 @@ export function computeDashboard(db: Database, period: PeriodValue) {
   const soldCount = counted.filter(({ e }) => e.status === 'Approved').length;
   const declinedCount = counted.filter(({ e }) => e.status === 'Rejected').length;
 
-  // Revenue: money actually received (payments dated in the period)
-  let revenue = 0;
-  for (const inv of c.invoices) {
-    if (inv.status === 'Void') continue;
-    for (const p of inv.payments) if (inRange(p.date, range)) revenue += p.amount;
-  }
+  // Revenue (RP-M4): sales entries dated in the period. An amendment adds only
+  // its difference, in the month it was re-approved (components/reports/data.ts).
+  const revenue = allSalesEntries(db, extra).filter((x) => inRange(x.date, range)).reduce((s, x) => s + x.value, 0);
 
   // Win rate: approved / decided (approved + rejected)
   const decided = soldCount + declinedCount;

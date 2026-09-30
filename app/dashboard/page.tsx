@@ -29,6 +29,7 @@ import { PageShell } from '@/components/Navigation';
 import { useCurrentUser, useDb } from '@/lib/store';
 import { cn } from '@/lib/utils';
 import { computeDashboard, type PeriodValue } from '@/components/dashboard/metrics';
+import { useSalesExtra } from '@/components/reports/useSalesExtra';
 import { CreateMenu, PeriodFilter } from '@/components/dashboard/HeaderControls';
 import { ActivityWidget, JobsToDoWidget, MessagesWidget, RecentLeadsWidget, TasksWidget } from '@/components/dashboard/LeftWidgets';
 import { InvoicesDueWidget, PendingSalesWidget, RevenueWidget, ScheduleAgendaWidget, WinRateWidget } from '@/components/dashboard/CenterWidgets';
@@ -85,7 +86,8 @@ function DashboardInner() {
     }
   };
 
-  const data = useMemo(() => computeDashboard(db, period), [db, period]);
+  const salesExtra = useSalesExtra();
+  const data = useMemo(() => computeDashboard(db, period, salesExtra), [db, period, salesExtra]);
   // The current demo user (switched in the Prototype bar), synced from the feature store.
   const userName = `${user.firstName} ${user.lastName}`.trim();
 

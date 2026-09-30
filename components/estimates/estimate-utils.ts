@@ -14,7 +14,7 @@ import type {
   AreaTemplate, Customer, DifficultyTier, Estimate, EstimateArea, EstimateLineItem, EstimateStatus,
   PaintProduct, SurfaceRate, TableColumn,
 } from '@/lib/types';
-import { estimateTotals, includedLine, lineTotal, round2 } from '@/lib/calculations';
+import { estimateTotals, includedLine, lineTotal, round2, versionSnapshot } from '@/lib/calculations';
 import { coverageFor, deriveLine, materialPerUnit } from '@/lib/estimating';
 import { uid } from '@/lib/utils';
 
@@ -193,6 +193,6 @@ export function withVersion(e: Estimate, total: number, changedBy: string, note:
     ...e,
     status,
     updatedAt: now,
-    versions: [...e.versions, { version: last + 1, date: now, total, status, changedBy, note }],
+    versions: [...e.versions, { version: last + 1, date: now, total, status, changedBy, note, ...versionSnapshot(e) }],
   };
 }
