@@ -2511,6 +2511,8 @@ export interface Database {
   financeSettings: FinanceSettings;
   /** QuickBooks customers (simulated, QB-M3, QB-C1 to C4). Missing on older data. */
   qboCustomers?: QboCustomer[];
+  /** Estimate Master Books (BK): chart of accounts, journal, budget. Missing on older data (filled from the seed). */
+  books?: import("@/features/data/seed-books").BooksState;
   /** Feature 33 books (features/types/finance.ts). Optional: older saved data gets them from the seed. */
   otherIncome?: import("./finance").OtherIncome[];
   financeVehicles?: import("./finance").FleetVehicle[];

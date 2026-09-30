@@ -4,7 +4,10 @@
  * aged receivables. Each shows the synchronisation cutoff and an
  * unmatched-cost warning where one applies.
  * NEW (needs client confirmation): Reports tabs Job Margin, Income & Expense, Aged Receivables (/reports?tab=).
+ * 30 Sep call (BK-M13): every report takes a Cash / Accrual basis. Cash counts
+ * revenue when it is collected and costs when they are paid.
  */
+import type { Basis } from "@/features/lib/rules/ledger";
 import { useState } from "react";
 import { AlertTriangle, Download } from "lucide-react";
 import { useDb } from "@/features/lib/store";
@@ -26,7 +29,7 @@ type View = "margin" | "income" | "receivables";
 
 const NA = <span className="text-gray-500">Not applicable</span>;
 
-export function FinanceReportsBody({ view }: { view: View }) {
+export function FinanceReportsBody({ view, basis = "accrual" }: { view: View; basis?: Basis }) {
   const db = useDb((d) => d);
   const cutoff = db.financeSettings.qbo.lastExchangeAt;
   const unmatchedBills = db.financeRecords.filter((r) => r.match && r.match.unmatchedValue > 0);
@@ -45,17 +48,25 @@ export function FinanceReportsBody({ view }: { view: View }) {
           {toCode.length > 0 && `${toCode.length} QuickBooks record${toCode.length === 1 ? "" : "s"} not yet coded to a job (${money(toCode.reduce((a, r) => a + r.amount, 0))}).`}
         </Banner>
       )}
-      {view === "margin" && <Margin cutoff={cutoff} />}
-      {view === "income" && <Income cutoff={cutoff} />}
-      {view === "receivables" && <Receivables cutoff={cutoff} />}
+      {view === "margin" && <Margin cutoff={cutoff} basis={basis} />}
+      {view === "income" && <Income cutoff={cutoff} basis={basis} />}
+      {view === "receivables" && <Receivables cutoff={cutoff} basis={basis} />}
     </>
   );
 }
 
-function Margin({ cutoff }: { cutoff?: string }) {
+function Margin({ cutoff, basis }: { cutoff?: string; basis: Basis }) {
   const db = useDb((d) => d);
   const jobs = db.jobs.filter((j) => j.contractSigned);
-  const rows = jobs.map((j) => ({ job: j, f: jobFinancials(db, j.id) }));
+  // Cash: revenue is what was collected (ex tax), so actual margin uses collections.
+  const collected = (jobId: string) => roundMoney(db.financeRecords.filter((r) => r.type === "invoice" && r.jobId === jobId && !r.deletedInQbo)
+    .reduce((a, r) => a + (r.amountPaid ?? 0) * (r.amount / Math.max(r.amount + (r.salesTax ?? 0), 0.01)), 0));
+  const rows = jobs.map((j) => {
+    const f = jobFinancials(db, j.id);
+    if (basis === "accrual") return { job: j, f };
+    const rev = collected(j.id);
+    return { job: j, f: { ...f, invoicedExTax: rev, actual: rev > 0 ? (rev - f.costToDate) / rev : null } };
+  });
   const csv = () => {
     downloadCsv(`job-margin-${now().slice(0, 10)}.csv`, [
       [`Synchronised to ${cutoff ?? "—"}`],
@@ -72,7 +83,7 @@ function Margin({ cutoff }: { cutoff?: string }) {
         <Button size="sm" onClick={csv}><Download className="h-3.5 w-3.5" /> CSV</Button>
       </div>
       <Table>
-        <THead><tr><TH>Job</TH><TH className="text-right">Contract (ex tax)</TH><TH className="text-right">Invoiced (ex tax)</TH><TH className="text-right">Labor</TH><TH className="text-right">Material</TH><TH className="text-right">Subs / other</TH><TH className="text-right">Cost to date</TH><TH className="text-right">Actual margin</TH><TH className="text-right">Projected margin</TH></tr></THead>
+        <THead><tr><TH>Job</TH><TH className="text-right">Contract (ex tax)</TH><TH className="text-right">{basis === "cash" ? "Collected (ex tax)" : "Invoiced (ex tax)"}</TH><TH className="text-right">Labor</TH><TH className="text-right">Material</TH><TH className="text-right">Subs / other</TH><TH className="text-right">Cost to date</TH><TH className="text-right">Actual margin</TH><TH className="text-right">Projected margin</TH></tr></THead>
         <tbody>
           {rows.map(({ job, f }) => (
             <TR key={job.id}>
@@ -94,7 +105,7 @@ function Margin({ cutoff }: { cutoff?: string }) {
   );
 }
 
-function Income({ cutoff }: { cutoff?: string }) {
+function Income({ cutoff, basis }: { cutoff?: string; basis: Basis }) {
   const db = useDb((d) => d);
   const months = Array.from({ length: 6 }, (_, i) => {
     const d = new Date(now());
@@ -105,8 +116,10 @@ function Income({ cutoff }: { cutoff?: string }) {
   const live = (r: { deletedInQbo?: unknown; approvalRequest?: unknown }) => !r.deletedInQbo && !r.approvalRequest;
   const rows = months.map((m) => {
     const recs = db.financeRecords.filter((r) => r.period === m && live(r));
-    const revenue = roundMoney(recs.filter((r) => r.type === "invoice").reduce((a, r) => a + r.amount, 0));
-    const cost = (codes: string[]) => roundMoney(recs.filter((r) => ["bill", "receipt", "check"].includes(r.type) && r.costCode && codes.includes(r.costCode)).reduce((a, r) => a + r.amount + (r.purchaseTax ?? 0), 0));
+    // Cash: customer payments received, and bills only once paid.
+    const revenue = roundMoney(recs.filter((r) => (basis === "cash" ? r.type === "payment" : r.type === "invoice")).reduce((a, r) => a + r.amount, 0));
+    const paidOut = (r: { type: string; paymentStatus?: string }) => basis === "accrual" || r.type !== "bill" || r.paymentStatus === "paid";
+    const cost = (codes: string[]) => roundMoney(recs.filter((r) => ["bill", "receipt", "check"].includes(r.type) && r.costCode && codes.includes(r.costCode) && paidOut(r)).reduce((a, r) => a + r.amount + (r.purchaseTax ?? 0), 0));
     const credits = roundMoney(recs.filter((r) => r.type === "credit").reduce((a, r) => a + r.amount, 0));
     const labour = roundMoney(db.labourCosts.filter((l) => l.weekStart.slice(0, 7) === m).reduce((a, l) => a + burdenedTotal(l.amount, l.burdenPct), 0));
     const materials = roundMoney(cost(["PAINT", "SUND"]) - credits);
@@ -143,8 +156,9 @@ function Income({ cutoff }: { cutoff?: string }) {
   );
 }
 
-function Receivables({ cutoff }: { cutoff?: string }) {
+function Receivables({ cutoff, basis }: { cutoff?: string; basis: Basis }) {
   const db = useDb((d) => d);
+  if (basis === "cash") return <Banner tone="info" title="Cash basis">Nothing counts as income until it is paid, so there are no receivables on a cash basis. Switch to Accrual to see what customers owe.</Banner>;
   const asOf = now();
   const rows = db.financeRecords
     .filter((r) => r.type === "invoice" && r.paymentStatus !== "paid" && !r.deletedInQbo)

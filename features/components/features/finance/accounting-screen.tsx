@@ -25,6 +25,10 @@ import { userName } from "@/features/lib/store/helpers";
 import { PageHeader } from "@/features/components/layout/screen";
 import { Badge, Banner, Button, Card, CardLabel, Drawer, EmptyState, Field, Input, KV, Modal, PillTabs, RowMenu, Select, Stat, StatStrip, Table, TD, TH, THead, TR, Textarea, VersionBadge } from "@/features/components/ui";
 import { FinanceFrame } from "./finance-frame";
+import { BooksOverview } from "./books-overview";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { accountingDestination } from "@/features/lib/store/actions/finance";
+import { NewBadge } from "@/features/components/ui";
 import { EXCHANGE_STATUS, OwnershipLegend, RecordFlags, TypeBadge } from "./shared";
 
 type Filter = "all" | "invoices" | "money_in" | "bills" | "other" | "flags";
@@ -32,12 +36,51 @@ type Filter = "all" | "invoices" | "money_in" | "bills" | "other" | "flags";
 export function AccountingScreen() {
   return (
     <FinanceFrame tab="accounting">
-      <Accounting />
+      <AccountingModes />
     </FinanceFrame>
   );
 }
 
-function Accounting() {
+/**
+ * 30 Sep call (BK-M1): Books is a mode of Accounting. It opens by default when
+ * the accounting destination is Books; in the prototype either mode can be
+ * opened to compare (?mode=books or ?mode=qbo).
+ */
+function AccountingModes() {
+  const db = useDb((d) => d);
+  const params = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  const dest = accountingDestination(db);
+  const mode = params.get("mode") === "books" || (params.get("mode") !== "qbo" && dest === "books") ? "books" : "qbo";
+  const set = (m: "books" | "qbo") => router.replace(`${pathname}?mode=${m}`, { scroll: false });
+  const toggle = (
+    <div className="mb-4 flex flex-wrap items-center gap-2">
+      <div className="flex rounded-xl border border-gray-200 bg-gray-100 p-1" role="tablist" aria-label="Accounting mode">
+        {(["qbo", "books"] as const).map((m) => (
+          <button key={m} type="button" role="tab" aria-selected={mode === m} onClick={() => set(m)}
+            className={`rounded-lg px-3 py-1.5 text-sm font-semibold ${mode === m ? "bg-white text-ink shadow-sm" : "text-gray-600 hover:text-ink"}`}>
+            {m === "qbo" ? "QuickBooks" : "Books"}
+          </button>
+        ))}
+      </div>
+      <NewBadge /><VersionBadge item="BK-M1" />
+      <span className="text-xs text-gray-500">Destination: {dest === "books" ? "Estimate Master Books" : dest === "qbo" ? "QuickBooks Online" : "None"}. Both stay visible in the prototype.</span>
+    </div>
+  );
+  if (mode === "books") {
+    return (
+      <>
+        <PageHeader title="Accounting" subtitle="Estimate Master Books: the full books, kept here." details="Every business event posts balanced journal lines. Nothing here moves money." />
+        {toggle}
+        <BooksOverview />
+      </>
+    );
+  }
+  return <Accounting toggle={toggle} />;
+}
+
+function Accounting({ toggle }: { toggle: React.ReactNode }) {
   const db = useDb((d) => d);
   const user = useCurrentUser();
   useStore((s) => s.clockMode);
@@ -91,6 +134,7 @@ function Accounting() {
         }
       />
 
+      {toggle}
       <Card className="mb-4 p-4" data-tour="qbo-strip">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-2">

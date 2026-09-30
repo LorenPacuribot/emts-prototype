@@ -49,3 +49,30 @@ export function printElement(el: HTMLElement | null, title: string) {
     w.print();
   }, 400);
 }
+
+const xmlEscape = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
+/**
+ * Excel download (BK-M8). SpreadsheetML (Excel 2003 XML), which Excel and
+ * Numbers open directly; numbers stay numbers.
+ */
+export function downloadExcel(filename: string, sheetName: string, rows: (string | number | undefined)[][]) {
+  if (IS_HOSTED_DEMO) return hostedNotice("Excel download");
+  const cell = (v: string | number | undefined) =>
+    typeof v === "number" ? `<Cell><Data ss:Type="Number">${v}</Data></Cell>` : `<Cell><Data ss:Type="String">${xmlEscape(v ?? "")}</Data></Cell>`;
+  const xml = `<?xml version="1.0"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
+<Worksheet ss:Name="${xmlEscape(sheetName.slice(0, 31))}"><Table>
+${rows.map((r) => `<Row>${r.map(cell).join("")}</Row>`).join("\n")}
+</Table></Worksheet></Workbook>`;
+  const blob = new Blob([xml], { type: "application/vnd.ms-excel" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}

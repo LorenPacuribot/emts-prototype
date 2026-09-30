@@ -22,6 +22,7 @@ import {
 import { jobLabourCost } from "@/features/lib/rules/labour-cost";
 import { contractSummary, coPricing } from "./change-orders";
 import { denied, fail, log, nextId, ok, randomRef, userName } from "../helpers";
+import { rollYearEnd } from "./ledger";
 
 const MODULE = "Finance";
 
@@ -644,6 +645,8 @@ export function closePeriod(db: Database, actor: User, period: string) {
   db.financeSettings.closedPeriods.push(period);
   db.financeSettings.closedPeriods.sort();
   log(db, actor, MODULE, `Finance: Period ${period} closed by ${actor.name}. Later corrections post to the next period.`);
+  // BK-M13: closing December rolls the year into 3900 Retained earnings.
+  if (period.endsWith("-12")) rollYearEnd(db, actor, Number(period.slice(0, 4)));
   return ok();
 }
 

@@ -20,7 +20,7 @@
 */
 import React, { Suspense, useState } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { Activity, BarChart3, Briefcase, ClipboardList, Clock3, Coins, FileSpreadsheet, Gauge, Landmark, Target, TrendingUp, Users } from 'lucide-react';
+import { Activity, BarChart3, Briefcase, ClipboardList, Clock3, Coins, FileSpreadsheet, Gauge, Landmark, Receipt, Scale, Target, TrendingUp, Users } from 'lucide-react';
 import { PageShell } from '@/components/Navigation';
 import { AreaNav, type Area } from '@/features/components/layout/area-nav';
 import { EstimatesLogTab, JobsSoldTab, JobsToDoTab, SalesByEstimatorTab } from '@/components/reports/TableTabs';
@@ -44,6 +44,12 @@ const TABS = [
   { key: 'job_margin', label: 'Job Margin', icon: Landmark, isNew: true },
   { key: 'income_expense', label: 'Income & Expense', icon: Coins, isNew: true },
   { key: 'aged_receivables', label: 'Aged Receivables', icon: Clock3, isNew: true },
+  // 30 Sep call, Estimate Master Books (BK).
+  { key: 'balance_sheet', label: 'Balance Sheet', icon: Scale, isNew: true, item: 'BK-M6' },
+  { key: 'sales_tax', label: 'Sales Tax', icon: Receipt, isNew: true, item: 'BK-M13' },
+  { key: 'job_profit', label: 'Job Profit (Books)', icon: BarChart3, isNew: true, item: 'BK-C3' },
+  { key: 'contractors', label: '1099 Contractors', icon: Users, isNew: true, item: 'BK-C6' },
+  { key: 'budget', label: 'Budget vs Actual', icon: Target, isNew: true, item: 'BK-C6' },
 ] as const;
 type TabKey = (typeof TABS)[number]['key'];
 
@@ -51,7 +57,7 @@ type TabKey = (typeof TABS)[number]['key'];
 const REPORT_AREAS: { key: string; label: string; tabs: TabKey[] }[] = [
   { key: 'sales', label: 'Sales', tabs: ['estimates', 'jobs_sold', 'sales_estimator', 'sales', 'summary'] },
   { key: 'production', label: 'Production', tabs: ['production', 'job_performance', 'estimating_feedback'] },
-  { key: 'finance', label: 'Finance', tabs: ['job_margin', 'income_expense', 'aged_receivables'] },
+  { key: 'finance', label: 'Finance', tabs: ['job_margin', 'income_expense', 'aged_receivables', 'balance_sheet', 'sales_tax', 'job_profit', 'contractors', 'budget'] },
 ];
 
 function ReportsInner() {
@@ -77,7 +83,7 @@ function ReportsInner() {
   // Finance only for roles that see finance reports, as before. Activity Log is a link on the right.
   const page = (key: TabKey) => {
     const t = TABS.find((x) => x.key === key)!;
-    return { href: hrefFor(key), label: t.label, icon: t.icon, active: tab === key, marker: 'isNew' in t && t.isNew ? <NewTabBadge tab={key as FeatureTabKey} /> : 'item' in t ? <><NewBadge /><VersionBadge item={t.item} /></> : undefined };
+    return { href: hrefFor(key), label: t.label, icon: t.icon, active: tab === key, marker: 'isNew' in t && t.isNew ? <>{<NewTabBadge tab={key as FeatureTabKey} />}{'item' in t && <VersionBadge item={t.item} />}</> : 'item' in t ? <><NewBadge /><VersionBadge item={t.item} /></> : undefined };
   };
   const areas: Area[] = REPORT_AREAS.map((a) => ({ key: a.key, label: a.label, pages: a.tabs.filter((k) => visible.some((t) => t.key === k)).map(page) }));
 
@@ -102,7 +108,11 @@ function ReportsInner() {
       {tab === 'production' && <JobsToDoTab year={year} range={range} setRange={setRange} />}
       {tab === 'summary' && <StatsTab year={year} />}
       {tab === 'activity' && <ActivityLogTab range={range} setRange={setRange} />}
-      {TABS.find((t) => t.key === tab && 'isNew' in t) && <FeatureTabBody key={tab} tab={tab as FeatureTabKey} />}
+      {TABS.find((t) => t.key === tab && 'isNew' in t) && (
+        <VersionScreenGate item={TABS.find((t) => t.key === tab && 'item' in t) ? (TABS.find((t) => t.key === tab) as { item: string }).item : 'X-M1'}>
+          <FeatureTabBody key={tab} tab={tab as FeatureTabKey} />
+        </VersionScreenGate>
+      )}
     </PageShell>
   );
 }

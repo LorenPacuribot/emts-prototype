@@ -29,6 +29,10 @@ import { userName } from "@/features/lib/store/helpers";
 import { PageHeader } from "@/features/components/layout/screen";
 import { Badge, Banner, Button, Card, ConfirmDialog, EmptyState, Field, Input, Modal, PillTabs, Select, Stat, StatStrip, Switch, Table, TD, TH, THead, TR } from "@/features/components/ui";
 import { FinanceFrame } from "./finance-frame";
+import { PaymentsToDepositCard } from "./books-overview";
+import { ReconcileModal } from "./books-reconcile";
+import { canKeepBooks } from "@/features/lib/store/actions/ledger";
+import { VersionBadge } from "@/features/components/ui";
 
 const cents = (n: number) => money(n, { cents: true });
 const today = () => now().slice(0, 10);
@@ -77,6 +81,7 @@ function Checkbook() {
   const [form, setForm] = useState<"check" | "deposit">();
   const [voiding, setVoiding] = useState<string>();
   const [reason, setReason] = useState("");
+  const [reconciling, setReconciling] = useState(false);
   const acct = byId(accounts, accountId) ?? accounts[0];
   if (!acct) return <EmptyState icon={<Wallet />} title="No bank accounts yet" body="Add the operating account to start the checkbook register." />;
   const { lines, balance, cleared } = registerLines(acct, db.checkRegister ?? []);
@@ -85,16 +90,19 @@ function Checkbook() {
   return (
     <>
       <PageHeader
+        eyebrow={<VersionBadge item="BK-M5" />}
         title="Checkbook"
         subtitle="Every check written and deposit made, with the running balance." details="A check carries its job and cost code into job cost and the QuickBooks queue. Nothing here moves money."
-        actions={canWrite && (
+        actions={(canWrite || canKeepBooks(user)) && (
           <div className="flex flex-wrap gap-2">
-            <Button onClick={() => setForm("deposit")}><Plus className="h-4 w-4" /> Enter deposit</Button>
-            <Button variant="primary" onClick={() => setForm("check")}><Pencil className="h-4 w-4" /> Write check</Button>
+            {canKeepBooks(user) && <Button onClick={() => setReconciling(true)}><CheckCircle2 className="h-4 w-4" /> Reconcile</Button>}
+            {canWrite && <><Button onClick={() => setForm("deposit")}><Plus className="h-4 w-4" /> Enter deposit</Button>
+            <Button variant="primary" onClick={() => setForm("check")}><Pencil className="h-4 w-4" /> Write check</Button></>}
           </div>
         )}
       />
       {accounts.length > 1 && <div className="mb-4"><PillTabs value={acct.id} onChange={setAccountId} options={accounts.map((a) => ({ value: a.id, label: `${a.name} ••${a.last4}` }))} /></div>}
+      <PaymentsToDepositCard />
       <StatStrip className="mb-4">
         <Stat label="Register balance" value={cents(balance)} tone={balance < 0 ? "danger" : "default"} />
         <Stat label="Cleared balance" value={cents(cleared)} hint="Lines the bank has cleared" />
@@ -142,6 +150,7 @@ function Checkbook() {
       </Card>
       <p className="mt-2 text-xs text-gray-500">Checks above $2,500 are held for the owner&apos;s approval (Accounting › Transfer Queue) before they go to QuickBooks. A voided check stays listed at zero.</p>
       {form && <RegisterForm kind={form} accountId={acct.id} onClose={() => setForm(undefined)} />}
+      {reconciling && <ReconcileModal account={acct} onClose={() => setReconciling(false)} />}
       <Modal
         open={!!voiding}
         onOpenChange={(v) => !v && setVoiding(undefined)}
@@ -224,6 +233,7 @@ function Feeds() {
   return (
     <>
       <PageHeader
+        eyebrow={<><VersionBadge item="BK-M5" /><VersionBadge item="BK-C1" /></>}
         title="Bank & Card Feeds"
         subtitle="Bank and card transactions waiting to be matched, coded or excluded." details="Each transaction waits here until someone matches, codes or excludes it. Matching to a record already in the books never creates a second expense."
         actions={canCode && (
@@ -237,6 +247,7 @@ function Feeds() {
           </div>
         )}
       />
+      <PaymentsToDepositCard />
       {!connected && <Banner tone="info" className="mb-4" title="Sandbox feed">No bank connection is configured, so Pull adds sample lines. CSV import works with any bank&apos;s export.</Banner>}
       <div className="mb-4"><PillTabs kind="view" value={tab} onChange={setTab} options={[{ value: "unreviewed", label: `To review (${open.length})` }, { value: "reviewed", label: `Reviewed (${done.length})` }]} /></div>
       {tab === "unreviewed" ? (
@@ -396,7 +407,7 @@ function Recurring() {
 
   return (
     <>
-      <PageHeader title="Recurring Expenses" subtitle="Insurance, rent, leases and subscriptions on a schedule." details="Each due date is posted once paid, so it counts as an expense exactly once." actions={canEdit && <Button variant="primary" onClick={() => setEditing("new")}><Plus className="h-4 w-4" /> Add recurring expense</Button>} />
+      <PageHeader eyebrow={<VersionBadge item="BK-C8" />} title="Recurring Expenses" subtitle="Insurance, rent, leases and subscriptions on a schedule." details="Each due date is posted once paid, so it counts as an expense exactly once." actions={canEdit && <Button variant="primary" onClick={() => setEditing("new")}><Plus className="h-4 w-4" /> Add recurring expense</Button>} />
       <StatStrip className="mb-4">
         <Stat label="Monthly overhead" value={cents(monthly)} hint={`${recs.filter((r) => r.active).length} active`} />
         <Stat label="Due in 30 days" value={cents(occ.filter((o) => o.dueDate <= new Date(Date.now() + 30 * 86_400_000).toISOString().slice(0, 10)).reduce((a, o) => a + o.amount, 0))} />

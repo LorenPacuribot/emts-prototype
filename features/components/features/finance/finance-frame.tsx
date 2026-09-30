@@ -12,7 +12,7 @@
  */
 import { AccountingDestinationCard } from "./destination-card";
 import type { ReactNode } from "react";
-import { ArrowLeftRight, BarChart3, Bell, FileCheck2, Inbox, Landmark, Lock, ReceiptText, Repeat, Search, Settings2, Wallet, Waves } from "lucide-react";
+import { ArrowLeftRight, BarChart3, Bell, FileCheck2, Inbox, Landmark, Lock, ReceiptText, Repeat, Search, Settings2, Wallet, Waves, BookOpen } from "lucide-react";
 import type { User } from "@/features/types";
 import { useCurrentUser, useDb } from "@/features/lib/store";
 import { can } from "@/features/lib/permissions";
@@ -27,6 +27,7 @@ import { unallocated } from "@/features/lib/store/actions/finance";
 
 export const FINANCE_TABS = [
   { key: "accounting", label: "Accounting", path: "/accounting", icon: Landmark },
+  { key: "journal", label: "Journal", path: "/accounting/journal", icon: BookOpen },
   { key: "queue", label: "Transfer Queue", path: "/accounting/transfer-queue", icon: ArrowLeftRight },
   { key: "unallocated", label: "Unallocated", path: "/accounting/unallocated", icon: Inbox },
   { key: "bills", label: "Bills & Matching", path: "/accounting/bills", icon: FileCheck2 },
@@ -44,7 +45,7 @@ export type FinanceTabKey = (typeof FINANCE_TABS)[number]["key"];
 
 /** The Accounting navigation's areas (L2). Reports and Vendors & Mappings live elsewhere. */
 const FINANCE_AREAS: { key: string; label: string; pages: FinanceTabKey[] }[] = [
-  { key: "overview", label: "Overview", pages: ["accounting", "alerts", "search"] },
+  { key: "overview", label: "Overview", pages: ["accounting", "journal", "alerts", "search"] },
   { key: "money", label: "Money in and out", pages: ["queue", "unallocated", "bills", "reimbursements"] },
   { key: "banking", label: "Banking", pages: ["checkbook", "feeds", "recurring"] },
 ];

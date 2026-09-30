@@ -28,6 +28,7 @@ import { buildSchedules } from "@/features/lib/rules/alerts";
 import { attemptSchedule, recycleDate } from "@/features/lib/rules/follow-up";
 import { workforceSeed } from "./seed-workforce";
 import { financeSeed } from "./seed-finance";
+import { createBooksSeed } from "./seed-books";
 import { performanceSeed } from "./seed-performance";
 import { feedbackSeed } from "./seed-feedback";
 import { marketingSeed } from "./seed-marketing";
@@ -61,6 +62,7 @@ export function createSeed(nowIso: string): Database {
     seededAt: nowIso,
     ...workforce,
     ...finance,
+    books: createBooksSeed(nowIso),
     completedJobs: performanceSeed(nowIso),
     // Features 30 and 34 fill these in their own seed modules.
     performanceSnapshots: [],
@@ -935,6 +937,7 @@ export function createSeed(nowIso: string): Database {
       alert: 1008, run: 3, fu: 1001, sch: 0, ext: 1, rcl: 0, qrq: 1, batch: 0, cust: 0, rep: 1, tur: 3, act: 4, task: 2, event: 0, invoice: 3, lead: 5, estimate: 9, attempt: 60,
       ...wfCounters,
       ...finCounters,
+      je: 1025,
     },
   };
 

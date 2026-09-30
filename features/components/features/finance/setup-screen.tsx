@@ -26,6 +26,8 @@ import { PageHeader } from "@/features/components/layout/screen";
 import { Badge, Banner, Button, Card, CardLabel, Input, Table, TD, TH, THead, TR, Tooltip } from "@/features/components/ui";
 import { FinanceFrame } from "./finance-frame";
 import { MatchContactsCard } from "./match-contacts";
+import { ChartOfAccountsCard, MoveFromQuickBooks } from "./books-settings";
+import { VersionGate } from "@/features/components/ui";
 import type { AccountMapping } from "@/features/types";
 import { NewBadge, VersionBadge } from "@/features/components/ui";
 
@@ -122,7 +124,7 @@ function Setup() {
         </Card>
 
         <Card className="p-4">
-          <CardLabel>Account mappings (bookkeeper)</CardLabel>
+          <CardLabel><span className="inline-flex items-center gap-1.5">Account mappings (bookkeeper) <VersionBadge item="BK-C7" /></span></CardLabel>
           <p className="mt-1 text-xs text-gray-500">A mapping change never silently changes a posted transaction.</p>
           <Table className="mt-3">
             <THead><tr><TH>Category</TH><TH>QuickBooks account</TH>{can(user, "finance.config") && <TH />}</tr></THead>
@@ -148,16 +150,20 @@ function Setup() {
 
         <MatchContactsCard />
 
+        <VersionGate item="BK-C5"><MoveFromQuickBooks /></VersionGate>
+
+        <ChartOfAccountsCard />
+
         <Card className="p-4">
           <CardLabel icon={<History />}>Periods, payroll journal and migration</CardLabel>
           <div className="mt-3 space-y-3 text-xs">
             <div>
-              <div className="font-semibold text-gray-700">Closed periods</div>
+              <div className="flex items-center gap-1.5 font-semibold text-gray-700">Closed periods <VersionBadge item="BK-M7" /></div>
               <div className="mt-1 flex flex-wrap items-center gap-1.5">
                 {fs.closedPeriods.map((p) => <Badge key={p} tone="gray">{p}</Badge>)}
                 {can(user, "finance.config") && openPeriod && <Button size="sm" onClick={() => act(closePeriod, openPeriod).ok && toast.success(`${openPeriod} closed`)}>Close {openPeriod}</Button>}
               </div>
-              <p className="mt-1 text-xs text-gray-500">Corrections dated in a closed period post to the next open period.</p>
+              <p className="mt-1 text-xs text-gray-500">Corrections dated in a closed period post to the next open period. Closing December rolls the year into 3900 Retained earnings.</p>
             </div>
             <div>
               <div className="font-semibold text-gray-700">Payroll journal</div>
