@@ -1,10 +1,11 @@
 "use client";
-import { Suspense, type ReactNode } from "react";
+import { Suspense, useEffect, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { DemoBar } from "./demo-bar";
 import { ProductTour } from "@/features/components/tour/product-tour";
 import { Toaster, TooltipProvider } from "@/features/components/ui";
 import { useHydrated } from "@/features/lib/hooks";
+import { useVersion } from "@/features/lib/prototype-version";
 import { WebsiteInboxSync } from "@/components/WebsiteInboxSync";
 import { LeadMessageScheduler } from "@/components/leads/LeadMessageScheduler";
 
@@ -19,6 +20,11 @@ const PUBLIC_PATHS = ["/estimates/view", "/paint-record/view", "/website-form", 
  */
 export function FeatureShell({ children }: { children: ReactNode }) {
   const hydrated = useHydrated();
+  const hideMarkers = useVersion((s) => s.hideMarkers);
+  // "Hide markers" (Prototype bar): globals.css hides every marker under html.hide-markers.
+  useEffect(() => {
+    document.documentElement.classList.toggle("hide-markers", hideMarkers);
+  }, [hideMarkers]);
   const pathname = usePathname() ?? "";
   const isPublic = PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p + "/")) || /\/client-view\/?$/.test(pathname);
   return (

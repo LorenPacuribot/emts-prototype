@@ -10,6 +10,9 @@ import type { ReactNode } from "react";
 import { Sparkles } from "lucide-react";
 import { cn } from "@/features/lib/cn";
 import { Tooltip } from "./menu";
+import { Button } from "./button";
+import { EmptyState } from "./misc";
+import { isCompleteItem, isVisible, useVersion } from "@/features/lib/prototype-version";
 import { useHowThisWorks } from "@/features/components/layout/how-this-works";
 
 /** Small "NEW" marker for a section, tab, button, column or field added by a feature. */
@@ -34,10 +37,53 @@ export function NewBadge({ feature, className }: { feature?: number | number[]; 
 export function ConfirmBadge({ className }: { className?: string }) {
   return (
     <Tooltip content="Not in the client's walkthrough. The host screen is a suggestion that needs client confirmation.">
-      <span className={cn("inline-flex shrink-0 items-center rounded-md border border-amber-300 bg-amber-50 px-1.5 py-px text-xxs font-bold uppercase leading-4 tracking-wider text-amber-800", className)}>
+      <span data-confirm-badge className={cn("inline-flex shrink-0 items-center rounded-md border border-amber-300 bg-amber-50 px-1.5 py-px text-xxs font-bold uppercase leading-4 tracking-wider text-amber-800", className)}>
         Needs client confirmation
       </span>
     </Tooltip>
+  );
+}
+
+/**
+ * Version marker for items from the 30 Sep call (X-M1). Same shape as
+ * NewBadge. Complete uses purple-700, not brand purple, so white text keeps
+ * 4.5:1 contrast.
+ */
+export function VersionBadge({ item, className }: { item: string; className?: string }) {
+  const complete = isCompleteItem(item);
+  return (
+    <Tooltip content={`${item} · ${complete ? "Complete" : "Minimal"} version`}>
+      <span
+        data-version-badge
+        className={cn(
+          "inline-flex shrink-0 items-center rounded-md px-1.5 py-px text-xxs font-black uppercase leading-4 tracking-wider text-white align-middle",
+          complete ? "bg-purple-700" : "bg-primary-700",
+          className,
+        )}
+      >
+        {complete ? "Complete" : "Minimal"}
+      </span>
+    </Tooltip>
+  );
+}
+
+/** Renders children only when the item is Minimal or the prototype is set to Complete. */
+export function VersionGate({ item, children }: { item: string; children: ReactNode }) {
+  const version = useVersion((s) => s.version);
+  return isVisible(item, version) ? <>{children}</> : null;
+}
+
+/** Whole view for a Complete-only item: in Minimal it explains and offers the switch. */
+export function VersionScreenGate({ item, children }: { item: string; children: ReactNode }) {
+  const version = useVersion((s) => s.version);
+  const setVersion = useVersion((s) => s.setVersion);
+  if (isVisible(item, version)) return <>{children}</>;
+  return (
+    <EmptyState
+      title="Part of the Complete version"
+      body={`${item} is in the Complete version. Switch to see it.`}
+      action={<Button variant="primary" onClick={() => setVersion("complete")}>Switch to Complete</Button>}
+    />
   );
 }
 
