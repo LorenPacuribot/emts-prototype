@@ -115,6 +115,10 @@ export function QuickBooksCard({ invoiceId }: { invoiceId: string }) {
         {q.rec?.externalRef && <span className="font-mono text-xs text-gray-500">{q.rec.externalRef}</span>}
         {q.rec?.variance && !q.rec.variance.reviewedAt && <span className="text-xs font-semibold text-amber-700">Edited in QuickBooks: variance to review</span>}
       </div>
+      {/* D1: once QuickBooks has the invoice, it is edited there. */}
+      {q.rec && q.items.some((i) => i.status === "accepted" || i.status === "sent") && (
+        <p className="mt-2 text-sm font-semibold text-gray-700">Edit this invoice in QuickBooks</p>
+      )}
       {q.items.length > 0 ? (
         <ul className="mt-3 space-y-1 text-xs text-gray-600">
           {q.items.map((i) => (
@@ -125,10 +129,10 @@ export function QuickBooksCard({ invoiceId }: { invoiceId: string }) {
           ))}
         </ul>
       ) : (
-        <p className="mt-2 text-xs text-gray-500">Sent to QuickBooks when the invoice is sent. QuickBooks owns the ledger; payments here are recorded, not charged.</p>
+        <p className="mt-2 text-xs text-gray-500">Sent to QuickBooks as soon as the invoice is saved and sent. QuickBooks owns the ledger; payments here are recorded, not charged.</p>
       )}
       <Link href="/accounting/transfer-queue" className="mt-3 inline-block text-xs font-bold text-primary-700 hover:underline">
-        Open the transfer queue →
+        Open the Sync Log →
       </Link>
     </div>
   );

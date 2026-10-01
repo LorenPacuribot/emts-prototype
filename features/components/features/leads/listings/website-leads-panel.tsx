@@ -141,7 +141,7 @@ function LiveForm() {
       <dl className="mt-3 space-y-2 text-xs">
         <div><dt className="font-semibold text-gray-600">Endpoint</dt><dd className="break-all font-mono text-gray-800">POST /api/website-form (on this site)</dd></div>
         <div><dt className="font-semibold text-gray-600">Fields</dt><dd className="text-gray-800">siteKey, name, phone or email, town, message; optional ref (your stable event id)</dd></div>
-        <div><dt className="font-semibold text-gray-600">Protection</dt><dd className="text-gray-800">Site key, hidden honeypot field, 5 submissions per 10 minutes per address</dd></div>
+        <div><dt className="font-semibold text-gray-600">Protection</dt><dd className="text-gray-800">Site key, hidden honeypot field, 5 submissions per hour per address</dd></div>
       </dl>
       <a href="/website-form" target="_blank" rel="noreferrer" className="mt-3 inline-flex h-9 w-full items-center justify-center rounded-lg border border-line bg-white text-sm font-semibold text-ink hover:border-gray-300">Open sample form</a>
     </Card>
@@ -157,7 +157,7 @@ function Simulator() {
     if (!r.ok) return;
     setLast(sub);
     const v = r.value!;
-    const text = { attached: `Attached to ${v.leadId} (matched by ${"on" in v ? v.on : ""})`, new: `New lead ${v.leadId}`, review: `Lead ${v.leadId} created and placed on the review list`, duplicate: `Event ${sub.ref} already recorded on ${v.leadId} — no duplicate` }[v.outcome];
+    const text = { possible_duplicate: `New lead ${v.leadId}, marked Possible duplicate (matched by ${v.on ?? ""})`, new: `New lead ${v.leadId}`, review: `Lead ${v.leadId} created and placed on the review list`, duplicate: `Event ${sub.ref} already recorded on ${v.leadId} — no duplicate` }[v.outcome];
     toast.success("Website event received", text);
     setForm({ ref: ref(), name: "", phone: "", email: "", town: "", message: "" });
   };

@@ -92,6 +92,11 @@ export interface Lead {
   email?: string;
   town?: string;
   message?: string;
+  /** 2 Oct 2026 (D5): property address and "What would you like painted?" from the website form. */
+  address?: string;
+  paintType?: "Interior" | "Exterior" | "Both" | "Cabinets" | "Other";
+  /** D5: the email or phone matched this open lead. The lead is still created and marked "Possible duplicate". */
+  possibleDuplicateOf?: ID;
   /** Stable reference of the website event that created the lead (never duplicated). */
   eventRef?: string;
   /** CRM-M5: the tracked link the website form was opened from. */
@@ -1982,25 +1987,39 @@ export interface FinanceRecord {
   retainageNote?: string;
 }
 
-/** EXCHANGE_QUEUE. Queued items can be edited; sent versions are frozen. */
+/**
+ * EXCHANGE_QUEUE. Queued items can be edited; sent versions are frozen.
+ * 2 Oct 2026 (D1): sent on save; failures retry after 1, 5, 30 and 120
+ * minutes, then go to Needs Attention. Parents go first: Customer, Project,
+ * Invoice, Payment; a child waits until its parent is accepted.
+ */
 export interface ExchangeItem {
   id: ID; // EXQ-1
+  /** A finance record id, or a customer / job id for `kind` customer and project. */
   recordId: ID;
+  /** D1: what is sent. Missing on older data = worked out from the record. */
+  kind?: "customer" | "project" | "invoice" | "payment" | "other";
   version: number;
-  status: "queued" | "sent" | "accepted" | "rejected";
+  /** waiting = held until its parent is accepted in QuickBooks (D1). */
+  status: "queued" | "waiting" | "sent" | "accepted" | "rejected";
   payload: { amount: number; jobId?: ID; costCode?: string; description: string };
   /** Retry-safe: a repeat send with the same key never creates a second QuickBooks record. */
   idempotencyKey: string;
   queuedAt: ISODate;
   queuedBy: ID;
   sentAt?: ISODate;
-  attempts: { at: ISODate; ok: boolean; error?: string }[];
-  escalatedAt?: ISODate;
+  attempts: { at: ISODate; ok: boolean; error?: string; manual?: boolean }[];
+  /** D1: when the next automatic retry runs (prototype clock). */
+  nextRetryAt?: ISODate;
+  /** D1: the retries ran out; a person retries it from Needs Attention. */
+  needsAttentionAt?: ISODate;
   /** Corrections after send are new versions; this points at the one that replaced it. */
   supersededBy?: ID;
   correctionOf?: ID;
   /** Prototype only: the error the simulated QuickBooks returns for this item. */
   simulateError?: string;
+  /** Prototype only: fail this many times, then succeed. Missing = always fail while simulateError is set. */
+  simulateFailures?: number;
 }
 
 export interface ReimbursementClaim {
@@ -2068,7 +2087,16 @@ export interface MigrationTotal {
 }
 
 export interface FinanceSettings {
-  qbo: { connected: boolean; connectedBy?: ID; connectedAt?: ISODate; lastExchangeAt?: ISODate; realm?: string };
+  qbo: {
+    connected: boolean; connectedBy?: ID; connectedAt?: ISODate;
+    /** The last successful sync (D1). */
+    lastExchangeAt?: ISODate;
+    realm?: string;
+    /** D1: QuickBooks account per tax region (region id → account). Every region must be mapped before sync starts. */
+    taxMap?: Record<ID, string>;
+    /** D1: the Start sync choice. Missing = sync not started. */
+    syncStart?: { mode: "from_date" | "new_only"; from?: string; at: ISODate; by: ID };
+  };
   closedPeriods: string[];
   /** Bookkeeper's written confirmation of whether Gusto posts the payroll journal. */
   gustoPostsJournal?: boolean;
@@ -2509,6 +2537,8 @@ export interface Database {
   accountMappings: AccountMapping[];
   migrationTotals: MigrationTotal[];
   financeSettings: FinanceSettings;
+  /** D3: organisation plan. QuickBooks is a paid add-on. Missing on older data = on. */
+  organisation?: { quickbooksAddOn: boolean };
   /** QuickBooks customers (simulated, QB-M3, QB-C1 to C4). Missing on older data. */
   qboCustomers?: QboCustomer[];
   /** Estimate Master Books (BK): chart of accounts, journal, budget. Missing on older data (filled from the seed). */

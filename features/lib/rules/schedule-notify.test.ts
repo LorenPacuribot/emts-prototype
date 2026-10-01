@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  baselineSnapshots, markNotified, messageText, peopleWaiting, personChanges, scheduleUpdateMessage, unsentJobIds, type NotifyJob,
+  DEFAULT_CREW_SUBJECT, baselineSnapshots, markNotified, messageText, peopleWaiting, personChanges, scheduleSubject, scheduleUpdateMessage, unsentJobIds, type NotifyJob,
 } from "./schedule-notify";
 
 const AT = "2026-09-30T10:00:00Z";
@@ -106,5 +106,20 @@ describe("schedule notify", () => {
     const es = scheduleUpdateMessage("Ana", changes, { lang: "es" });
     expect(es.greeting).toBe("Hola Ana,");
     expect(es.sections[0]!.title).toBe("Trabajos nuevos");
+  });
+
+  it("D7: the subject names the company and how many jobs changed, in English and Spanish", () => {
+    const before = [job("1", "2026-10-05", ["ana"]), job("3", "2026-10-09", ["ana"])];
+    const snaps = baselineSnapshots(before, AT);
+    const after = [job("1", "2026-10-06", ["ana"]), job("2", "2026-10-07", ["ana"]), job("3", "2026-10-09", ["ana"])];
+    const changes = personChanges("ana", after, snaps);
+    expect(scheduleUpdateMessage("Ana", changes, { company: "Paint Pro", subject: DEFAULT_CREW_SUBJECT }).subject).toBe("Schedule update from Paint Pro: 2 jobs changed");
+    expect(scheduleUpdateMessage("Ana", changes, { company: "Paint Pro", lang: "es" }).subject).toBe("Actualización de horario de Paint Pro: 2 trabajos cambiados");
+    expect(scheduleSubject("Paint Pro", 1)).toBe("Schedule update from Paint Pro: 1 job changed");
+    // A subject the office wrote keeps its words; the variables are filled in.
+    expect(scheduleUpdateMessage("Ana", changes, { company: "Paint Pro", subject: "{{orgName}} schedule: {{jobCount}} updates" }).subject).toBe("Paint Pro schedule: 2 updates");
+    // The changed job keeps its old dates for the preview to cross through.
+    const changed = scheduleUpdateMessage("Ana", changes).sections.find((s) => s.kind === "changed")!;
+    expect(changed.lines[0]!.was).toBeDefined();
   });
 });

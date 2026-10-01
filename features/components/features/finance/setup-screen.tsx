@@ -55,6 +55,8 @@ function Setup() {
   const [mapEdits, setMapEdits] = useState<Record<string, string>>({});
   // QB-M2 (New Features): the sync-option grouping and its two added mappings.
   const syncOn = useIsOn({ item: "QB-M2" });
+  // D3: Owner and Admin also edit the QuickBooks sync options; the bookkeeper edits every mapping.
+  const editsMapping = (m: { syncOption?: string }) => can(user, "finance.config") || (!!m.syncOption && can(user, "finance.connect"));
   const fs = db.financeSettings;
   const years = [...new Set(db.migrationTotals.map((m) => m.year))].sort((a, b) => b - a);
   // The bookkeeper can close last month once it has ended.
@@ -130,7 +132,7 @@ function Setup() {
           <CardLabel><span className="inline-flex items-center gap-1.5">Account mappings (bookkeeper) <VersionBadge item="BK-C7" withNew={false} /></span></CardLabel>
           <p className="mt-1 text-xs text-gray-500">A mapping change never silently changes a posted transaction.</p>
           <Table className="mt-3">
-            <THead><tr><TH>Category</TH><TH>QuickBooks account</TH>{can(user, "finance.config") && <TH />}</tr></THead>
+            <THead><tr><TH>Category</TH><TH>QuickBooks account</TH>{(can(user, "finance.config") || can(user, "finance.connect")) && <TH />}</tr></THead>
             <tbody>
               {syncOn && <TR>
                 <TD colSpan={3} className="bg-gray-50 text-xs font-bold uppercase tracking-wider text-gray-500">
@@ -143,8 +145,8 @@ function Setup() {
                     {syncOn && !m.syncOption && all[i - 1]?.syncOption && <span className="mb-2 block border-t border-gray-100 pt-2 text-xs font-bold uppercase tracking-wider text-gray-500">Other categories</span>}
                     {syncOn && m.syncOption ? <span className="inline-flex flex-wrap items-center gap-1.5">{SYNC_LABEL[m.syncOption]} <span className="font-normal text-gray-500">· {m.category}</span>{ADDED.includes(m.id) && <NewBadge />}</span> : m.category}
                   </TD>
-                  <TD>{can(user, "finance.config") ? <Input value={mapEdits[m.id] ?? m.account} onChange={(e) => setMapEdits({ ...mapEdits, [m.id]: e.target.value })} className="h-8" /> : m.account}</TD>
-                  {can(user, "finance.config") && <TD><Button size="sm" disabled={(mapEdits[m.id] ?? m.account) === m.account} onClick={() => act(updateMapping, m.id, mapEdits[m.id]).ok && toast.success("Mapping updated", "Posted transactions unaffected.")}>Save</Button></TD>}
+                  <TD>{editsMapping(m) ? <Input value={mapEdits[m.id] ?? m.account} onChange={(e) => setMapEdits({ ...mapEdits, [m.id]: e.target.value })} className="h-8" /> : m.account}</TD>
+                  {(can(user, "finance.config") || can(user, "finance.connect")) && <TD>{editsMapping(m) && <Button size="sm" disabled={(mapEdits[m.id] ?? m.account) === m.account} onClick={() => act(updateMapping, m.id, mapEdits[m.id]).ok && toast.success("Mapping updated", "Posted transactions unaffected.")}>Save</Button>}</TD>}
                 </TR>
               ))}
             </tbody>

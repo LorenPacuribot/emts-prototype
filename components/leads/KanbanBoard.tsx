@@ -17,7 +17,8 @@
 */
 import React, { useEffect, useRef, useState } from 'react';
 import type { Lead, LeadStatus, PipelineStage } from '@/lib/types';
-import { useLookups } from '@/lib/store';
+import { useCollection, useLookups } from '@/lib/store';
+import { resolveSource } from '@/features/lib/rules/lead-sources';
 import { useToast } from '@/components/ui/toast';
 import { cn } from '@/lib/utils';
 import { salesColumnFor } from '@/features/lib/rules/lead-pipeline';
@@ -45,6 +46,7 @@ export function KanbanBoard({
   const { toast } = useToast();
   const lockOf = useFollowUpLocks();
   const bySource = groupBy === 'source';
+  const { items: sourceList } = useCollection('leadSources');
 
   // Reset drag state if the drag ends anywhere (e.g. dropped outside the board).
   useEffect(() => {
@@ -100,9 +102,11 @@ export function KanbanBoard({
     onMove(lead, stage.leadStatus);
   };
 
-  // CRM-C1: columns are sources; each card shows its stage.
+  // CRM-C1: columns are sources; each card shows its stage. D6: the organisation's list,
+  // in its order; a lead whose source isn't on the list falls under Other.
+  const sourceOf = (l: Lead) => resolveSource(l.leadSource, sourceList);
   const sourceColumns = bySource
-    ? [...new Set(leads.map((l) => l.leadSource || 'Unknown'))].sort((a, b) => a.localeCompare(b)).map((src, i) => ({ id: `src:${src}`, name: src, color: SOURCE_COLORS[i % SOURCE_COLORS.length]! }))
+    ? sourceList.filter((s) => leads.some((l) => sourceOf(l) === s.name)).map((s, i) => ({ id: `src:${s.id}`, name: s.name, color: SOURCE_COLORS[i % SOURCE_COLORS.length]! }))
     : [];
 
   const card = (lead: Lead, draggable: boolean) => (
@@ -140,7 +144,7 @@ export function KanbanBoard({
       <div className="overflow-x-auto pb-8">
         <div className="flex h-full gap-3" style={{ minWidth: Math.max(1040, sourceColumns.length * 190) }}>
           {sourceColumns.map((col) => {
-            const list = leads.filter((l) => (l.leadSource || 'Unknown') === col.name);
+            const list = leads.filter((l) => sourceOf(l) === col.name);
             return (
               <div key={col.id} className="flex min-w-[170px] flex-1 basis-0 flex-col rounded-2xl border border-transparent bg-gray-100/60">
                 {header(col.name, col.color, list.length)}

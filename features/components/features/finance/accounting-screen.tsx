@@ -8,7 +8,7 @@
  * edited there, not here. Nothing on this screen initiates a payment.
  */
 import { useState } from "react";
-import { Banknote, CloudOff, FlaskConical, Landmark, Link2, Lock, RefreshCw, Scissors } from "lucide-react";
+import { Banknote, CloudOff, FlaskConical, Landmark, Link2, Lock, Scissors } from "lucide-react";
 import type { FinanceRecord } from "@/features/types";
 import { act, useCurrentUser, useDb, useStore } from "@/features/lib/store";
 import { useIsOn } from "@/features/lib/feature-visibility";
@@ -16,16 +16,15 @@ import { can } from "@/features/lib/permissions";
 import { byId } from "@/features/lib/selectors";
 import { dateLong, dateTime, money } from "@/features/lib/format";
 import { toast } from "@/features/lib/toast";
-import { now } from "@/features/lib/clock";
-import { inExchangeWindow, nextExchangeRun } from "@/features/lib/rules/finance";
 import {
-  applyDeposit, approvePayment, connectQuickBooks, editRecordAmount, isSentToQbo, latestItem, postCorrection, recordExternalPayment, reviewDeletion, reviewVariance, runExchange,
-  setRetainageNote, simulateQboArrival, simulateQboDelete, simulateQboEdit,
+  applyDeposit, approvePayment, connectQuickBooks, editRecordAmount, isSentToQbo, latestItem, postCorrection, recordExternalPayment, reviewDeletion, reviewVariance,
+  setRetainageNote, simulateQboArrival, simulateQboDelete, simulateQboEdit, syncActive, hasQuickBooksAddOn,
 } from "@/features/lib/store/actions/finance";
 import { userName } from "@/features/lib/store/helpers";
 import { PageHeader } from "@/features/components/layout/screen";
 import { Badge, Banner, Button, Card, CardLabel, Drawer, EmptyState, Field, Input, KV, Modal, PillTabs, RowMenu, Select, Stat, StatStrip, Table, TD, TH, THead, TR, Textarea, VersionBadge } from "@/features/components/ui";
 import { FinanceFrame } from "./finance-frame";
+import { SyncNowButton, useNeedsAttentionCount, usePendingCount } from "./qbo-sync-parts";
 import { BooksOverview } from "./books-overview";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { accountingDestination } from "@/features/lib/store/actions/finance";
@@ -90,10 +89,13 @@ function Accounting({ toggle }: { toggle: React.ReactNode }) {
   const user = useCurrentUser();
   useStore((s) => s.clockMode);
   const [filter, setFilter] = useState<Filter>("all");
-  const [openId, setOpenId] = useState<string>();
+  // ?record= opens a record (Needs Attention › Open record).
+  const [openId, setOpenId] = useState<string | undefined>(useSearchParams().get("record") ?? undefined);
+  const active = syncActive(db);
+  const pending = usePendingCount();
+  const attention = useNeedsAttentionCount();
   const [paying, setPaying] = useState(false);
   const [correcting, setCorrecting] = useState(false);
-  const t = new Date(now());
   const qbo = db.financeSettings.qbo;
 
   const flagged = (r: FinanceRecord) => (!!r.variance && !r.variance.reviewedAt) || (!!r.deletedInQbo && !r.deletedInQbo.reviewedAt) || !!r.approvalRequest;
@@ -133,7 +135,7 @@ function Accounting({ toggle }: { toggle: React.ReactNode }) {
           <>
             {can(user, "finance.recordPayment") && <Button onClick={() => setPaying(true)}><Banknote className="h-4 w-4" /> Record external payment</Button>}
             {can(user, "finance.code") && <Button onClick={() => setCorrecting(true)}><Scissors className="h-4 w-4" /> Post correction</Button>}
-            {can(user, "finance.exchange") && <Button variant="primary" onClick={() => { const r = act(runExchange); if (r.ok) { const v = r.value as { accepted: number; rejected: number }; toast.success("Exchange run complete", `${v.accepted} accepted, ${v.rejected} rejected.`); } }}><RefreshCw className="h-4 w-4" /> Run exchange now</Button>}
+            <SyncNowButton />
             <RowMenu label="Simulate QuickBooks" items={simulate} />
           </>
         }
@@ -146,14 +148,14 @@ function Accounting({ toggle }: { toggle: React.ReactNode }) {
             <Landmark className="h-4 w-4 text-brand" />
             <span className="font-display text-sm font-bold text-ink">QuickBooks Online</span>
             {qbo.connected ? <Badge tone="green">Connected · {qbo.realm}</Badge> : <Badge tone="red">Not connected</Badge>}
-            <Badge tone={inExchangeWindow(t) ? "blue" : "gray"}>{inExchangeWindow(t) ? "Exchange window open" : "Outside exchange window"}</Badge>
+            <Badge tone={active ? "blue" : "gray"}>{active ? "Syncs on save" : qbo.syncStart ? "Sync off" : "Sync not started"}</Badge>
           </div>
-          {!qbo.connected && can(user, "finance.connect") && <Button size="sm" variant="primary" onClick={() => act(connectQuickBooks).ok && toast.success("QuickBooks connected")}>Connect</Button>}
+          {!qbo.connected && hasQuickBooksAddOn(db) && can(user, "finance.connect") && <Button size="sm" variant="primary" onClick={() => act(connectQuickBooks).ok && toast.success("QuickBooks connected")}>Connect</Button>}
         </div>
         <div className="mt-3 grid gap-3 text-xs sm:grid-cols-4 [&>*]:min-w-0">
-          <div><div className="text-gray-500">Last successful exchange</div><div className="font-semibold">{dateTime(qbo.lastExchangeAt)}</div></div>
-          <div><div className="text-gray-500">Next scheduled run</div><div className="font-semibold">{dateTime(nextExchangeRun(t).toISOString())}</div></div>
-          <div><div className="text-gray-500">Window</div><div className="font-semibold">Hourly, 6:00 a.m.–6:00 p.m., Mon–Sat</div></div>
+          <div><div className="text-gray-500">Last successful sync</div><div className="font-semibold">{dateTime(qbo.lastExchangeAt)}</div></div>
+          <div><div className="text-gray-500">Waiting to send</div><div className="font-semibold">{pending ? `${pending} record${pending === 1 ? "" : "s"} (retries after 1, 5, 30 and 120 min)` : "Nothing waiting"}</div></div>
+          <div><div className="text-gray-500">When</div><div className="font-semibold">Each record is sent when it is saved, any time, any day</div></div>
           <div><div className="text-gray-500">Bank feeds</div><div className="font-semibold">Chase feeds stay in QuickBooks — never duplicated here</div></div>
         </div>
       </Card>
@@ -164,7 +166,7 @@ function Accounting({ toggle }: { toggle: React.ReactNode }) {
         <Stat label="Records" value={db.financeRecords.length} />
         <Stat label="Flags to review" value={count("flags")} tone={count("flags") ? "warn" : "good"} />
         <Stat label="Deposits held" value={money(liabilities)} hint="liabilities until invoiced" />
-        <Stat label="Rejected transfers" value={db.exchangeQueue.filter((q) => q.status === "rejected" && !q.supersededBy).length} tone="danger" />
+        <Stat label="Needs attention" value={attention} tone={attention ? "danger" : "good"} />
         <Stat label="Closed periods" value={db.financeSettings.closedPeriods.join(", ") || "—"} />
       </StatStrip>
 
@@ -270,7 +272,7 @@ function RecordDrawer({ recordId, onClose }: { recordId?: string; onClose: () =>
         <Card className="p-4">
           <CardLabel>Amount</CardLabel>
           {sent ? (
-            <p className="mt-2 text-xs text-gray-600">This record is in QuickBooks. Amounts are edited in QuickBooks; the new value returns on the next exchange.</p>
+            <p className="mt-2 text-xs text-gray-600">{r.type === "invoice" ? "Edit this invoice in QuickBooks." : "This record is in QuickBooks. Amounts are edited in QuickBooks; the new value comes back on the next sync."}</p>
           ) : (
             <p className="mt-2 text-xs text-gray-600">Queued, not yet sent — the amount can still be edited here.</p>
           )}

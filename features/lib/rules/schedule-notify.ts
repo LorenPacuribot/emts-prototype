@@ -170,9 +170,22 @@ export function baselineSnapshots(jobs: NotifyJob[], at: string): NotifySnapshot
 
 export type NotifyLang = "en" | "es";
 
+/**
+ * 2 Oct 2026 (D7): "Schedule update from {Company}: {N} jobs changed", and the
+ * Spanish equivalent. N counts the jobs in the update (new, changed, removed).
+ */
+export function scheduleSubject(company: string, jobs: number, lang: NotifyLang = "en"): string {
+  const org = company.trim() || (lang === "es" ? "su empresa" : "your company");
+  return lang === "es"
+    ? `Actualización de horario de ${org}: ${jobs} ${jobs === 1 ? "trabajo cambiado" : "trabajos cambiados"}`
+    : `Schedule update from ${org}: ${jobs} ${jobs === 1 ? "job" : "jobs"} changed`;
+}
+
+/** The template's default subject (Settings › Automated Messages › Schedule Update (crew)). */
+export const DEFAULT_CREW_SUBJECT = "Schedule update from {{orgName}}: {{jobCount}} jobs changed";
+
 const WORDS = {
   en: {
-    subject: "Your schedule has changed",
     hi: (n: string) => `Hi ${n},`,
     intro: "Your work schedule has changed. Here is what is new.",
     new: "New jobs",
@@ -182,7 +195,6 @@ const WORDS = {
     outro: "Reply to this email if you have a question.",
   },
   es: {
-    subject: "Su horario ha cambiado",
     hi: (n: string) => `Hola ${n},`,
     intro: "Su horario de trabajo ha cambiado. Esto es lo nuevo.",
     new: "Trabajos nuevos",
@@ -224,12 +236,20 @@ export function describeView(v: PersonJobView, lang: NotifyLang = "en"): string 
  * One Schedule Update message for one person, listing New jobs, Changed jobs
  * and Removed from. Empty sections are left out.
  */
-export function scheduleUpdateMessage(firstName: string, changes: PersonChange[], opts: { lang?: NotifyLang; subject?: string; addressOf?: (jobId: string) => string | undefined } = {}): ScheduleMessage {
+export function scheduleUpdateMessage(
+  firstName: string,
+  changes: PersonChange[],
+  opts: { lang?: NotifyLang; subject?: string; company?: string; addressOf?: (jobId: string) => string | undefined } = {},
+): ScheduleMessage {
   const lang = opts.lang ?? "en";
   const w = WORDS[lang];
   const order: ChangeKind[] = ["new", "changed", "removed"];
+  const jobs = new Set(changes.map((c) => c.jobId)).size;
+  const company = opts.company ?? "";
+  // D7: the default subject, or the template's own English words with the company and job count filled in.
+  const custom = lang === "en" && opts.subject && opts.subject !== DEFAULT_CREW_SUBJECT ? opts.subject : undefined;
   return {
-    subject: lang === "en" && opts.subject ? opts.subject : w.subject,
+    subject: custom ? custom.split("{{orgName}}").join(company).split("{{jobCount}}").join(String(jobs)) : scheduleSubject(company, jobs, lang),
     greeting: w.hi(firstName),
     intro: w.intro,
     sections: order

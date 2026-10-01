@@ -13,7 +13,7 @@ import { now } from "@/features/lib/clock";
 import { byId } from "@/features/lib/selectors";
 import { addDays } from "@/features/lib/rules/dates";
 import {
-  addressDetail, approvalCurrent, approvalReasons, consentCheck, findStreetAddress, lateness, localLabel, localParts, matchLead, materialEdit, missingLeadFields, resolveLocal,
+  addressDetail, approvalCurrent, approvalReasons, consentCheck, findStreetAddress, lateness, localLabel, localParts, matchLead, materialEdit, missingLeadFields, resolveLocal, isOpenLead,
   usable, validateUpload, type ApprovalReason,
 } from "@/features/lib/rules/marketing";
 import { denied, fail, log, nextId, nextNumber, ok, userName } from "../helpers";
@@ -482,6 +482,9 @@ export interface WebsiteSubmission {
   email: string;
   town: string;
   message: string;
+  /** D5: property address and "What would you like painted?". */
+  address?: string;
+  paintType?: import("@/features/types").Lead["paintType"];
   /** CRM-M5: source from the tracked link or referring site. Missing or "Website" = website. */
   sourceLabel?: string;
   trackedLinkId?: string;
@@ -495,7 +498,8 @@ export function leadContact(db: Database, leadId: string) {
 
 export interface WebsiteOutcome {
   leadId: string;
-  outcome: "duplicate" | "attached" | "new" | "review";
+  /** duplicate = the same event again (nothing created); possible_duplicate = a new lead matching an open one (D5). */
+  outcome: "duplicate" | "possible_duplicate" | "new" | "review";
   on?: "phone" | "email";
 }
 
@@ -509,32 +513,28 @@ export function submitWebsiteForm(db: Database, actor: User, sub: WebsiteSubmiss
   }
   const at = now();
   const missing = missingLeadFields(sub);
-  const contacts = db.leads.map((l) => ({ id: l.id, ...leadContact(db, l.id), lastActivityAt: l.lastActivityAt ?? l.createdAt }));
+  // D5: only open leads count; a match never drops the enquiry, it creates a lead marked "Possible duplicate".
+  const contacts = db.leads.map((l) => ({ id: l.id, ...leadContact(db, l.id), lastActivityAt: l.lastActivityAt ?? l.createdAt, open: isOpenLead(l.stage) }));
   const m = matchLead(contacts, sub, at);
-  if (m.kind === "attach") {
-    const lead = byId(db.leads, m.leadId)!;
-    lead.events = [...(lead.events ?? []), { ref: sub.ref, at, message: sub.message, matchedOn: m.on }];
-    lead.lastActivityAt = at;
-    log(db, actor, MODULE, `Marketing: Lead ${lead.id} updated from website form event ${sub.ref}. Source: ${lead.source}. Match: ${m.on === "phone" ? "MatchedByPhone" : "MatchedByEmail"}`);
-    return ok({ leadId: lead.id, outcome: "attached", on: m.on });
-  }
   const custId = nextId(db, "cust", "C-NEW-");
   db.customers.push({ id: custId, name: sub.name.trim() || "Unnamed website enquiry", phone: sub.phone.trim() || undefined, email: sub.email.trim() || undefined, contactVerified: false, preferredChannel: "phone", consentSigned: false, authorisedSigners: [] });
   const leadId = nextId(db, "lead", "LEAD-2026-");
   db.leads.unshift({
-    id: leadId, customerId: custId, source: "website", ...(sub.sourceLabel && sub.sourceLabel !== "Website" ? { sourceLabel: sub.sourceLabel } : {}),
+    id: leadId, customerId: custId, source: "website",
+    ...(sub.address?.trim() ? { address: sub.address.trim() } : {}), ...(sub.paintType ? { paintType: sub.paintType } : {}),
+    ...(m.kind === "possible_duplicate" ? { possibleDuplicateOf: m.leadId } : m.kind === "review" ? { possibleDuplicateOf: m.phoneLeadId } : {}), ...(sub.sourceLabel && sub.sourceLabel !== "Website" ? { sourceLabel: sub.sourceLabel } : {}),
     ...(sub.trackedLinkId ? { trackedLinkId: sub.trackedLinkId } : {}), stage: "new_lead", createdAt: at, name: sub.name.trim(), phone: sub.phone.trim(), email: sub.email.trim(), town: sub.town.trim(),
     message: sub.message.trim(), eventRef: sub.ref, lastActivityAt: at, events: [{ ref: sub.ref, at, message: sub.message }], missingFields: missing.length ? missing : undefined,
     review: m.kind === "review" ? { phoneMatchLeadId: m.phoneLeadId, emailMatchLeadId: m.emailLeadId, status: "open" } : undefined,
     note: m.kind === "new" ? m.reason : undefined,
   });
-  log(db, actor, MODULE, `Marketing: Lead ${leadId} created from website form event ${sub.ref}. Source: website. Match: NewLead${missing.length ? `. Missing mandatory fields: ${missing.join(", ")}` : ""}`);
+  log(db, actor, MODULE, `Marketing: Lead ${leadId} created from website form event ${sub.ref}. Source: website. Match: ${m.kind === "possible_duplicate" ? `Possible duplicate of ${m.leadId} (${m.on})` : "NewLead"}${missing.length ? `. Missing mandatory fields: ${missing.join(", ")}` : ""}`);
   if (m.kind === "review") {
     const a = leadContact(db, m.phoneLeadId).name;
     const b = leadContact(db, m.emailLeadId).name;
     log(db, actor, MODULE, `Marketing: Lead ${leadId} – Phone matches ${a} (${m.phoneLeadId}), email matches ${b} (${m.emailLeadId}). Placed on review list; no automatic merge.`);
   }
-  return ok({ leadId, outcome: m.kind === "review" ? "review" : "new" });
+  return ok({ leadId, outcome: m.kind, ...(m.kind === "possible_duplicate" ? { on: m.on } : {}) });
 }
 
 export function resolveLeadReview(db: Database, actor: User, leadId: string, resolution: string) {

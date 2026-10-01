@@ -7,7 +7,7 @@ Application records are saved to localStorage and, when Supabase is configured, 
 
 ## New features (merged from emts-prototype)
 
-The 14 features from the EMTS feature prototype (User Stories and Final Design v1.0) are built into this replica. Every new part has a green **NEW** badge. Features 33 and 34 also carry **Needs client confirmation**.
+The 14 features from the EMTS feature prototype (User Stories and Final Design v1.0) are built into this replica. The **New Features** panel at the top of the dashboard switches each one on or off; its "Show NEW badges on screens" switch brings back the green **NEW** badges (and **Needs client confirmation** on features 33 and 34).
 
 - **Inside the existing screens:**
   - Estimates: colour card, change orders, from history, preliminary list, amend rule.
@@ -26,12 +26,35 @@ The 14 features from the EMTS feature prototype (User Stories and Final Design v
 
 How it fits together:
 
-- `features/` is the prototype's engine, ported as is: its data model, store, actions, rules (346 tests, run `npm test`) and feature panels. Its docs are in the original prototype's `docs/` folder (DEV_HANDOFF.md, INTEGRATION_MAP.md).
+- `features/` is the prototype's engine, ported as is: its data model, store, actions, rules and feature panels. The repo has 721 tests in 63 files (run `npm test`). Its docs are in the original prototype's `docs/` folder (DEV_HANDOFF.md, INTEGRATION_MAP.md).
 - `lib/bridge/` keeps the two stores in step. A customer, lead, estimate, job, work order or invoice has the **same id** in both.
   - The prototype's demo story is projected into the replica collections.
   - Records made on replica screens are mirrored into the prototype.
   - Status changes go through the prototype's actions, so its rules apply. A refused change is rolled back with a toast.
 - Core document numbers come from one shared sequence, and a new record's number is also its id.
+
+## Decisions of 2 Oct 2026 (D1–D7)
+
+- **D1 – QuickBooks sync timing.** No more hourly 6 a.m.–6 p.m. window. A record is sent when it is saved, any time, any day.
+  - A failed send retries after 1, 5, 30 and 120 minutes on the prototype clock. When the last retry fails, the record goes to **Accounting › Needs Attention**, which has a count badge, Retry, Open record and Dismiss.
+  - Parents go first (Customer → Project → Invoice → Payment), and the idempotency key prevents duplicates. **Sync now** sends the queue at once.
+  - **Accounting › Sync Log** lists every send, newest first: the last 7 days by default, 25 rows a page.
+  - Settings › Accounting has a **Start sync** gate ("Map every tax region first"). A sent invoice says "Edit this invoice in QuickBooks".
+- **D2 – Contact matching.** A QuickBooks customer matches a contact on email *or* exact display name. It is a possible duplicate only when the email points at one contact and the name at another, or the name matches several contacts.
+- **D3 – QuickBooks is a paid add-on.** The add-on is an organisation flag, on for the demo; the Prototype bar has a toggle. Without it, Settings › Accounting shows "Add QuickBooks to your plan." With it, Owner and Admin (office manager) connect, disconnect, set sync options and confirm matches.
+- **D4 – Lead form rate limit.** 5 submissions per hour per address.
+- **D5 – Lead form fields** (`/website-form`):
+  - Full name (2–80 characters).
+  - US phone or email (one is required).
+  - Property address.
+  - "What would you like painted?" (Interior, Exterior, Both, Cabinets, Other).
+  - Message (up to 1,000 characters).
+
+  A match to an open lead still creates the lead, marked **Possible duplicate** with a link to the other lead.
+- **D6 – Lead sources.** An organisation list in Settings › Pipeline Stages › **Lead sources**.
+  - Eight are built in. Admins add, rename and deactivate the rest; a source with leads can't be deleted.
+  - Tracked links, the board's Source filter and Group by Source all use the list.
+- **D7 – Crew email.** The subject is "Schedule update from {Company}: {N} jobs changed" (Spanish too), and the template is "Schedule Update (crew)". The preview shows old dates crossed through beside the new ones.
 
 ## Run it
 

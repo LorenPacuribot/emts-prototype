@@ -4,28 +4,13 @@
  */
 import { describe, expect, it } from "vitest";
 import {
-  actualMargin, ageFromInvoiceDate, allocateSource, allocationDifference, inExchangeWindow, isDuplicateExpense, isExchangeRunTime, matchBill,
-  nextExchangeRun, paymentNeedsOwner, postingPeriod, projectedMargin, reimbursementSteps, shouldEscalate,
+  actualMargin, ageFromInvoiceDate, allocateSource, allocationDifference, isDuplicateExpense, matchBill,
+  paymentNeedsOwner, postingPeriod, projectedMargin, reimbursementSteps,
 } from "./finance";
 
 const local = (y: number, m: number, d: number, h = 0, mi = 0) => new Date(y, m - 1, d, h, mi);
 
-describe("Feature 33 — QuickBooks exchange window (33.Q02)", () => {
-  it("runs hourly 6 a.m. to 6 p.m., Monday to Saturday", () => {
-    expect(isExchangeRunTime(local(2026, 9, 26, 18, 0))).toBe(true); // Saturday 6 p.m.
-    expect(isExchangeRunTime(local(2026, 9, 27, 12, 0))).toBe(false); // Sunday
-    expect(inExchangeWindow(local(2026, 9, 22, 5, 59))).toBe(false);
-    expect(inExchangeWindow(local(2026, 9, 22, 6, 0))).toBe(true);
-  });
-  it("sends a record queued at 7 p.m. on the next run inside the window", () => {
-    expect(nextExchangeRun(local(2026, 9, 22, 19, 0))).toEqual(local(2026, 9, 23, 6, 0)); // Tue → Wed 6 a.m.
-    expect(nextExchangeRun(local(2026, 9, 26, 19, 0))).toEqual(local(2026, 9, 28, 6, 0)); // Sat → Mon 6 a.m.
-    expect(nextExchangeRun(local(2026, 9, 22, 10, 15))).toEqual(local(2026, 9, 22, 11, 0));
-  });
-  it("escalates to the bookkeeper after two failures", () => {
-    expect(shouldEscalate(1)).toBe(false);
-    expect(shouldEscalate(2)).toBe(true);
-  });
+describe("Feature 33 — posting periods", () => {
   it("posts a correction for a closed period to the next period", () => {
     expect(postingPeriod(local(2026, 8, 14).toISOString(), ["2026-08"])).toEqual({ period: "2026-09", movedFrom: "2026-08" });
     expect(postingPeriod(local(2026, 9, 14).toISOString(), ["2026-08"])).toEqual({ period: "2026-09" });

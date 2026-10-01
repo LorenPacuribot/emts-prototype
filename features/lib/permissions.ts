@@ -134,7 +134,12 @@ export const PERMISSIONS = {
   "mileage.rate": ["bookkeeper"],
   // Feature 33. Estimators have no ledger or company-finance access.
   "finance.access": ["owner", "office_manager", "bookkeeper"],
-  "finance.connect": ["office_manager"],
+  /**
+   * 2 Oct 2026 (D3): QuickBooks Connect / Disconnect, sync options and
+   * confirming contact matches are for Owner and Admin (the office manager in
+   * the prototype), and only with the QuickBooks add-on on the plan.
+   */
+  "finance.connect": OWNER_OFFICE, // PAYMENT_CONFIG
   "finance.code": ["owner", "office_manager", "bookkeeper"],
   "finance.exchange": ["owner", "office_manager", "bookkeeper"],
   "finance.reviewVariance": ["office_manager"],

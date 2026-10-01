@@ -255,6 +255,20 @@ export interface ProductionCard {
 }
 
 /** A link to the website form that tags the lead's source (CRM-M5). */
+/**
+ * 2 Oct 2026 (D6): the organisation's lead sources (Settings › Pipeline
+ * Stages › Lead sources). Built-in ones can't be deleted; a source with
+ * leads is deactivated, not deleted. Rules: features/lib/rules/lead-sources.ts.
+ */
+export interface LeadSourceDef {
+  id: ID; // src_…
+  name: string;
+  builtIn: boolean;
+  active: boolean;
+  /** Names it had before a rename. */
+  aliases?: string[];
+}
+
 export interface TrackedLink {
   id: ID; // tl_…
   name: string;

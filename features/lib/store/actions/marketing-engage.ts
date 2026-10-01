@@ -28,7 +28,7 @@ import { can, whoCan } from "@/features/lib/permissions";
 import { now } from "@/features/lib/clock";
 import { byId } from "@/features/lib/selectors";
 import { addDays, daysBetween } from "@/features/lib/rules/dates";
-import { findStreetAddress, matchLead, type LeadMatch } from "@/features/lib/rules/marketing";
+import { REPEAT_WINDOW_DAYS, findStreetAddress, matchLead, type LeadMatch } from "@/features/lib/rules/marketing";
 import { sourceFromLabel } from "@/features/lib/rules/lead-pipeline";
 import {
   day, dueAutomationTargets, fillTemplate, findPromotion, normCode, submissionToInbound, validateLandingPage, validatePromoCode, validateSubmission,
@@ -60,8 +60,9 @@ function channelOf(p?: SocialPlatform): MarketingChannel | undefined {
 }
 
 /**
- * One inbound enquiry → a lead. Phone first, then email: a repeat within 90
- * days attaches to the existing lead; phone and email matching different
+ * One inbound enquiry (social message, landing page) → a lead. Phone first,
+ * then email: a repeat within 90 days of an open lead's last activity
+ * attaches to it (the website form instead creates a "Possible duplicate", D5); phone and email matching different
  * leads makes a new lead on the review list (never an automatic merge).
  */
 function upsertLead(
@@ -71,8 +72,10 @@ function upsertLead(
   const t = now();
   const contacts = db.leads.map((l) => ({ id: l.id, ...leadContact(db, l.id), lastActivityAt: l.lastActivityAt ?? l.createdAt }));
   const m: LeadMatch = p.phone || p.email ? matchLead(contacts, { phone: p.phone, email: p.email }, t) : { kind: "new" };
-  if (m.kind === "attach") {
-    const lead = byId(db.leads, m.leadId)!;
+  const matched = m.kind === "possible_duplicate" ? byId(db.leads, m.leadId) : undefined;
+  const recent = !!matched && (new Date(t).getTime() - new Date(matched.lastActivityAt ?? matched.createdAt).getTime()) / 86_400_000 <= REPEAT_WINDOW_DAYS;
+  if (m.kind === "possible_duplicate" && recent) {
+    const lead = matched!;
     lead.events = [...(lead.events ?? []), { ref: p.ref, at: t, message: p.message ?? "", matchedOn: m.on }];
     lead.lastActivityAt = t;
     return { lead, outcome: "attached", customerId: lead.customerId };

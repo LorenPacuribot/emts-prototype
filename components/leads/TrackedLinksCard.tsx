@@ -13,11 +13,12 @@ import { QRCodeSVG } from 'qrcode.react';
 import { useCollection, useCurrentUser } from '@/lib/store';
 import { fullName, uid } from '@/lib/utils';
 import { trackedLinkPath } from '@/lib/website-form';
+import { NativeSelect } from '@/components/ui/form';
+import { activeSourceNames } from '@/features/lib/rules/lead-sources';
 import type { TrackedLink } from '@/lib/types';
 import { Badge, Button, Card, CardTitle, Field, Input, Modal, NewBadge, Table, TD, TH, THead, TR, VersionBadge } from '@/features/components/ui';
 import { toast } from '@/features/lib/toast';
 
-const SOURCES = ['Facebook', 'Instagram', 'Google', 'Nextdoor', 'Yard Sign', 'Truck Wrap', 'Mailer', 'Referral'];
 const DAY = 86_400_000;
 
 export function TrackedLinksCard() {
@@ -104,6 +105,8 @@ export function TrackedLinksCard() {
 }
 
 function AddLinkModal({ onClose, onAdd }: { onClose: () => void; onAdd: (name: string, source: string) => void }) {
+  // D6 (2 Oct 2026): links pick from the organisation's active lead sources (Settings › Pipeline Stages › Lead sources).
+  const sources = activeSourceNames(useCollection('leadSources').items);
   const [name, setName] = useState('');
   const [source, setSource] = useState('');
   const ok = name.trim() && source.trim();
@@ -118,9 +121,12 @@ function AddLinkModal({ onClose, onAdd }: { onClose: () => void; onAdd: (name: s
       <div className="space-y-4">
         <Field label="Name"><Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Facebook page button" autoFocus /></Field>
         <Field label="Source" hint="Leads from this link get this source.">
-          <Input value={source} onChange={(e) => setSource(e.target.value)} list="tracked-link-sources" placeholder="Facebook" />
+          <NativeSelect value={source} onChange={(e) => setSource(e.target.value)} aria-label="Source">
+            <option value="">Choose a source…</option>
+            {sources.map((s) => <option key={s} value={s}>{s}</option>)}
+          </NativeSelect>
         </Field>
-        <datalist id="tracked-link-sources">{SOURCES.map((s) => <option key={s} value={s} />)}</datalist>
+        <p className="-mt-2 text-xs text-gray-500">Missing one? An admin adds it in Settings › Pipeline Stages › Lead sources.</p>
       </div>
     </Modal>
   );

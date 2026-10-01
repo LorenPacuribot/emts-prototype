@@ -35,7 +35,7 @@ import { NotesSection } from '@/components/leads/NotesSection';
 import { LeadMessagesCard } from '@/components/leads/LeadMessagesCard';
 import { JourneyBar, StageHistoryCard } from '@/components/leads/StageHistory';
 import { FeatureGate } from '@/features/components/ui';
-import { FollowUpLockNote, LeadSourceChip, RepaintFollowUpHost, useFollowUpLocks } from '@/components/leads/leadFeatures';
+import { FollowUpLockNote, LeadSourceChip, PossibleDuplicateChip, RepaintFollowUpHost, useFollowUpLocks } from '@/components/leads/leadFeatures';
 import { PropertyMapCard, ServiceLocationModal, useAddServiceLocation } from '@/components/contacts/ServiceLocations';
 
 export default function LeadDetailPage() {
@@ -104,6 +104,7 @@ export default function LeadDetailPage() {
                   className="rounded-full uppercase tracking-wider"
                   fallback={<span className="rounded-full border border-gray-200 bg-gray-100 px-2 py-0.5 text-xxs font-bold uppercase tracking-wider text-gray-600">{lead.leadSource || 'Website'}</span>}
                 />
+                <PossibleDuplicateChip lead={lead} />
                 <span className="text-gray-500">Created: {shortDate(lead.date)}</span>
                 <span className="text-xs font-semibold text-gray-500">{lead.leadNumber}</span>
                 {lead.appointment && (

@@ -11,10 +11,11 @@
 */
 import { randomUUID } from 'node:crypto';
 import { appStateConfig } from '@/lib/app-state-server';
-import { checkSubmission, DEMO_SITE_KEY, INBOX_PREFIX, RateLimiter, type InboxSubmission } from '@/lib/website-form';
+import { checkSubmission, DEMO_SITE_KEY, INBOX_PREFIX, RATE_LIMIT, RateLimiter, type InboxSubmission } from '@/lib/website-form';
 
 const SITE_KEY = process.env.WEBSITE_FORM_SITE_KEY || DEMO_SITE_KEY;
-const limiter = new RateLimiter(5, 10 * 60 * 1000);
+// 2 Oct 2026 (D4): 5 submissions per hour per address.
+const limiter = new RateLimiter(RATE_LIMIT.max, RATE_LIMIT.windowMs);
 const memoryInbox = new Map<string, InboxSubmission>();
 
 const CORS = {
@@ -37,7 +38,7 @@ async function readBody(req: Request): Promise<unknown> {
 export async function POST(req: Request) {
   const ip = (req.headers.get('x-forwarded-for') ?? '').split(',')[0].trim() || 'local';
   if (!limiter.allow(ip, Date.now())) {
-    return Response.json({ error: 'Too many submissions. Please try again in a few minutes, or call us.' }, { status: 429, headers: { ...CORS, 'Retry-After': '600' } });
+    return Response.json({ error: 'Too many submissions. Please try again in an hour, or call us.' }, { status: 429, headers: { ...CORS, 'Retry-After': String(RATE_LIMIT.windowMs / 1000) } });
   }
   let body: unknown;
   try {

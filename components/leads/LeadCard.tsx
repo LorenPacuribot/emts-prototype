@@ -11,7 +11,7 @@ import { AlertTriangle, Archive, ArrowRight, Calendar, FileText, GripVertical, M
 import type { Estimate, Lead, TeamMember } from '@/lib/types';
 import { cn, longDate } from '@/lib/utils';
 import { LEAD_LIFECYCLE, NEXT_STAGE_MAP, canArchiveLeadStatus, formatPhone, time12, timeAgo } from './leadHelpers';
-import { FollowUpLockNote, LeadSourceChip } from './leadFeatures';
+import { FollowUpLockNote, LeadSourceChip, PossibleDuplicateChip } from './leadFeatures';
 import { Badge } from '@/features/components/ui';
 
 export function LeadCard({
@@ -81,6 +81,7 @@ export function LeadCard({
         <span className={chip}><Calendar className="mr-1 h-3 w-3 text-gray-500" />{longDate(lead.date)}</span>
         {/* CRM-M6: every card shows its source. */}
         <LeadSourceChip lead={lead} className="text-xs" fallback={<Badge tone="blue">{lead.leadSource || 'Unknown'}</Badge>} />
+        <PossibleDuplicateChip lead={lead} />
         {stageChip && <span className={chip}>{stageChip}</span>}
         <span className={chip}>{timeAgo(lead.date)}</span>
       </div>

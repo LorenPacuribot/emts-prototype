@@ -211,28 +211,35 @@ export interface LeadContact {
   phone?: string;
   email?: string;
   lastActivityAt: string;
+  /** Not sold, lost or archived. Missing = open. */
+  open?: boolean;
 }
+
+/** A lead still in play (D5). */
+export const isOpenLead = (stage: string) => stage !== "sold" && stage !== "lost" && stage !== "archived";
 
 export type LeadMatch =
   | { kind: "new"; reason?: string }
-  | { kind: "attach"; leadId: string; on: "phone" | "email" }
+  | { kind: "possible_duplicate"; leadId: string; on: "phone" | "email" }
   | { kind: "review"; phoneLeadId: string; emailLeadId: string };
 
 /**
- * Phone first, then email. A repeat enquiry within 90 days of the lead's most
- * recent activity attaches to it. Phone matching one lead and email another
- * creates a lead and puts it on the review list — never an automatic merge.
+ * 2 Oct 2026 (D5). Phone first, then email, against open leads only. A match
+ * still creates the lead, marked "Possible duplicate" with a link to the
+ * other lead. Phone matching one lead and email another also puts it on the
+ * review list. Never an automatic merge, and nothing is dropped.
  */
 export function matchLead(leads: LeadContact[], sub: { phone?: string; email?: string }, nowIso: string): LeadMatch {
-  const recent = (l: LeadContact) => (new Date(nowIso).getTime() - new Date(l.lastActivityAt).getTime()) / 86_400_000 <= REPEAT_WINDOW_DAYS;
+  void nowIso; // kept in the signature: the old 90-day window no longer applies
   const newest = (xs: LeadContact[]) => [...xs].sort((a, b) => b.lastActivityAt.localeCompare(a.lastActivityAt))[0];
+  const open = leads.filter((l) => l.open !== false);
   const phone = normPhone(sub.phone);
   const email = normEmail(sub.email);
-  const byPhone = phone ? newest(leads.filter((l) => normPhone(l.phone) === phone)) : undefined;
-  const byEmail = email ? newest(leads.filter((l) => normEmail(l.email) === email)) : undefined;
+  const byPhone = phone ? newest(open.filter((l) => normPhone(l.phone) === phone)) : undefined;
+  const byEmail = email ? newest(open.filter((l) => normEmail(l.email) === email)) : undefined;
   if (byPhone && byEmail && byPhone.id !== byEmail.id) return { kind: "review", phoneLeadId: byPhone.id, emailLeadId: byEmail.id };
-  if (byPhone) return recent(byPhone) ? { kind: "attach", leadId: byPhone.id, on: "phone" } : { kind: "new", reason: `Phone matches ${byPhone.id}, but its last activity was more than 90 days ago.` };
-  if (byEmail) return recent(byEmail) ? { kind: "attach", leadId: byEmail.id, on: "email" } : { kind: "new", reason: `Email matches ${byEmail.id}, but its last activity was more than 90 days ago.` };
+  if (byPhone) return { kind: "possible_duplicate", leadId: byPhone.id, on: "phone" };
+  if (byEmail) return { kind: "possible_duplicate", leadId: byEmail.id, on: "email" };
   return { kind: "new" };
 }
 

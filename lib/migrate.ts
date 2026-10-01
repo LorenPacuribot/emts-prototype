@@ -65,10 +65,27 @@ export function migrateEstimateVersions(e: Estimate): Estimate {
   return e;
 }
 
+/**
+ * 2 Oct 2026 (D7): the crew template is "Schedule Update (crew)" with the new
+ * default subject. Saves that still have the old, untouched defaults move to
+ * them; a subject someone changed is kept.
+ */
+function migrateCrewTemplate<T extends { id: string; name: string; subject?: string; availableVariables?: string[] }>(t: T, fresh: T[]): T {
+  if (t.id !== 'am_crew_schedule') return t;
+  const f = fresh.find((x) => x.id === t.id);
+  if (!f) return t;
+  return {
+    ...t,
+    name: t.name === 'Crew Schedule Update' ? f.name : t.name,
+    subject: t.subject === 'Your schedule has changed' ? f.subject : t.subject,
+    availableVariables: [...new Set([...(t.availableVariables ?? []), ...(f.availableVariables ?? [])])],
+  };
+}
+
 export function migrateCollections(saved: Collections, fresh: Collections): Collections {
   const next = { ...saved };
   if (saved.tableColumns) next.tableColumns = migrateTableColumns(saved.tableColumns, fresh.tableColumns);
-  if (saved.automatedMessages) next.automatedMessages = addMissingById(saved.automatedMessages, fresh.automatedMessages);
+  if (saved.automatedMessages) next.automatedMessages = addMissingById(saved.automatedMessages, fresh.automatedMessages).map((t) => migrateCrewTemplate(t, fresh.automatedMessages));
   if (saved.estimates) next.estimates = saved.estimates.map(migrateEstimateVersions);
   if (saved.pipelineStages) next.pipelineStages = migratePipelineStages(saved.pipelineStages, fresh.pipelineStages);
   return next;

@@ -1,7 +1,7 @@
 /**
  * Feature 33 — Financial And Accounting Management.
  *
- * Pure rules for the QuickBooks exchange window, posting periods, margins,
+ * Pure rules for posting periods, margins,
  * receivables ageing, bill matching, approvals and job allocation (Rule 5).
  * QuickBooks owns the ledger; Estimate Master owns the job. Nothing here
  * moves money.
@@ -10,56 +10,10 @@ import type { Role } from "@/features/types";
 import { roundMoney } from "./rounding";
 import { allocateMoney, type WeightedBucket } from "./allocation";
 
-/** The hourly exchange runs from 6:00 a.m. to 6:00 p.m. local time, Monday to Saturday (33.Q02). */
-export const EXCHANGE_FIRST_HOUR = 6;
-export const EXCHANGE_LAST_HOUR = 18;
 /** External payments above this need the owner's approval captured first. */
 export const OWNER_PAYMENT_THRESHOLD = 2500;
-/** A record that fails twice escalates to the bookkeeper. */
-export const EXCHANGE_ESCALATE_AFTER = 2;
 
-function isExchangeDay(d: Date) {
-  return d.getDay() >= 1 && d.getDay() <= 6;
-}
-
-/** True when an exchange run happens at this top of the hour. */
-export function isExchangeRunTime(d: Date): boolean {
-  return isExchangeDay(d) && d.getMinutes() === 0 && d.getHours() >= EXCHANGE_FIRST_HOUR && d.getHours() <= EXCHANGE_LAST_HOUR;
-}
-
-/** Is the exchange running now (between the first and last run of the day)? */
-export function inExchangeWindow(d: Date): boolean {
-  const h = d.getHours() + d.getMinutes() / 60;
-  return isExchangeDay(d) && h >= EXCHANGE_FIRST_HOUR && h <= EXCHANGE_LAST_HOUR;
-}
-
-/** The next hourly run at or after `from`. A record queued at 7 p.m. goes on the next morning's 6 a.m. run. */
-export function nextExchangeRun(from: Date): Date {
-  const d = new Date(from);
-  if (d.getMinutes() > 0 || d.getSeconds() > 0 || d.getMilliseconds() > 0) {
-    d.setHours(d.getHours() + 1, 0, 0, 0);
-  }
-  for (let i = 0; i < 24 * 8; i++) {
-    if (isExchangeRunTime(d)) return d;
-    d.setHours(d.getHours() + 1, 0, 0, 0);
-  }
-  return d;
-}
-
-/** The most recent run at or before `at`, if any in the last week. */
-export function lastExchangeRun(at: Date): Date | undefined {
-  const d = new Date(at);
-  d.setMinutes(0, 0, 0);
-  for (let i = 0; i < 24 * 8; i++) {
-    if (isExchangeRunTime(d)) return d;
-    d.setHours(d.getHours() - 1);
-  }
-  return undefined;
-}
-
-export function shouldEscalate(failures: number): boolean {
-  return failures >= EXCHANGE_ESCALATE_AFTER;
-}
+/* QuickBooks sync timing (sync on save, retries, Needs Attention) is in ./qbo-sync.ts (2 Oct 2026, D1). */
 
 /* ------------------------------ Periods ------------------------------ */
 

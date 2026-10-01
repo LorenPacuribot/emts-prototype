@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { checkSubmission, HONEYPOT_FIELD, leadSourceFor, MIN_FILL_MS, RateLimiter, trackedLinkPath } from './website-form';
+import {
+  CONTACT_REQUIRED, PAINT_TYPES, RATE_LIMIT, THANKS_MESSAGE, checkSubmission, HONEYPOT_FIELD, isUsPhone, leadSourceFor, MIN_FILL_MS, RateLimiter, trackedLinkPath,
+} from './website-form';
 
 const now = 1_800_000_000_000;
 const opts = { siteKey: 'k', now, newRef: () => 'WEB-NEW' };
@@ -34,7 +36,8 @@ describe('lead source (CRM-M5)', () => {
   it('uses the src tag first', () => {
     expect(leadSourceFor({ src: 'facebook', referrer: 'https://www.google.com/' })).toBe('Facebook');
     expect(leadSourceFor({ src: 'yard-sign' })).toBe('Yard Sign');
-    expect(leadSourceFor({ src: 'spring-mailer' })).toBe('Spring Mailer');
+    // D6: a tag the organisation's list doesn't have is Other.
+    expect(leadSourceFor({ src: 'spring-mailer' })).toBe('Other');
   });
   it('then the referring site', () => {
     expect(leadSourceFor({ referrer: 'https://m.facebook.com/somepage' })).toBe('Facebook');
@@ -53,5 +56,42 @@ describe('lead source (CRM-M5)', () => {
   });
   it('builds the tracked link path', () => {
     expect(trackedLinkPath({ id: 'tl_1', source: 'Yard Sign' })).toBe('/website-form?src=yard-sign&l=tl_1');
+  });
+});
+
+describe('2 Oct 2026 — D4 rate limit and D5 fields', () => {
+  it('D4: 5 submissions per hour per address', () => {
+    expect(RATE_LIMIT).toEqual({ max: 5, windowMs: 3_600_000 });
+    const l = new RateLimiter(RATE_LIMIT.max, RATE_LIMIT.windowMs);
+    const t = [0, 1, 2, 3, 4].map((i) => l.allow('a', i * 600_000));
+    expect(t).toEqual([true, true, true, true, true]);
+    expect(l.allow('a', 50 * 60_000)).toBe(false); // sixth inside the hour
+    expect(l.allow('a', 60 * 60_000)).toBe(true); // a new hour
+  });
+  it('full name: required, 2 to 80 characters', () => {
+    expect(checkSubmission({ ...good, name: 'A' }, opts)).toMatchObject({ ok: false, field: 'name' });
+    expect(checkSubmission({ ...good, name: 'x'.repeat(81) }, opts)).toMatchObject({ ok: false, field: 'name' });
+    expect(checkSubmission({ ...good, name: 'Al' }, opts).ok).toBe(true);
+  });
+  it('phone is a 10-digit US number; email a valid address; one of them is required', () => {
+    expect(checkSubmission({ ...good, email: '', phone: '' }, opts)).toMatchObject({ ok: false, field: 'phone', error: CONTACT_REQUIRED });
+    expect(CONTACT_REQUIRED).toBe('Please give us a phone number or email.');
+    expect(checkSubmission({ ...good, email: '', phone: '555-0161' }, opts)).toMatchObject({ ok: false, field: 'phone' });
+    expect(checkSubmission({ ...good, email: '', phone: '+1 (214) 555-0161' }, opts).ok).toBe(true);
+    expect(checkSubmission({ ...good, email: 'a@b' }, opts)).toMatchObject({ ok: false, field: 'email' });
+    expect(isUsPhone('214.555.0161')).toBe(true);
+  });
+  it('keeps the property address and "What would you like painted?" apart from the message', () => {
+    const r = checkSubmission({ ...good, address: '12 Elm St, Allen TX', paintType: 'Cabinets', message: 'Kitchen and vanity' }, opts);
+    expect(r.ok && !r.spam && r.submission).toMatchObject({ address: '12 Elm St, Allen TX', paintType: 'Cabinets', message: 'Kitchen and vanity' });
+    expect(PAINT_TYPES).toEqual(['Interior', 'Exterior', 'Both', 'Cabinets', 'Other']);
+    expect(checkSubmission({ ...good, paintType: 'Roof' }, opts)).toMatchObject({ ok: false, field: 'paintType' });
+  });
+  it('the message takes up to 1,000 characters', () => {
+    expect(checkSubmission({ ...good, message: 'x'.repeat(1000) }, opts).ok).toBe(true);
+    expect(checkSubmission({ ...good, message: 'x'.repeat(1001) }, opts)).toMatchObject({ ok: false, field: 'message' });
+  });
+  it('thanks the visitor in the agreed words', () => {
+    expect(THANKS_MESSAGE).toBe("Thanks, we've received your request and will be in touch soon.");
   });
 });

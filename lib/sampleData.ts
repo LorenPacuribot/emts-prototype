@@ -50,6 +50,7 @@ export function createInitialDatabase(): Database {
       // Filled from sold estimates when the store loads (lib/crm.ts).
       productionCards: [],
       trackedLinks: cfg.trackedLinks,
+      leadSources: cfg.leadSources,
       automationRules: cfg.automationRules,
       preparedMessages: [],
       automationEvents: [],

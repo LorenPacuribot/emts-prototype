@@ -18,9 +18,10 @@ export const RECORD_TYPE: Record<FinanceRecordType, { label: string; tone: Tone 
 
 export const EXCHANGE_STATUS: Record<ExchangeItem["status"], { label: string; tone: Tone }> = {
   queued: { label: "Queued", tone: "gray" },
+  waiting: { label: "Waiting for parent", tone: "gray" },
   sent: { label: "Sent", tone: "blue" },
   accepted: { label: "Accepted", tone: "green" },
-  rejected: { label: "Rejected", tone: "red" },
+  rejected: { label: "Failed", tone: "red" },
 };
 
 export function TypeBadge({ type }: { type: FinanceRecordType }) {

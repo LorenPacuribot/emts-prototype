@@ -102,24 +102,28 @@ describe("Feature 34 — scheduling and daylight saving (34.Q01)", () => {
   });
 });
 
-describe("Feature 34 — lead matching (34.Q02)", () => {
+describe("Feature 34 — lead matching (2 Oct 2026, D5)", () => {
   const NOW = "2026-09-25T12:00:00.000Z";
   const leads = [
     { id: "L-30", phone: "(214) 555-0101", email: "a@example.com", lastActivityAt: "2026-08-26T12:00:00.000Z" },
     { id: "L-120", phone: "(214) 555-0202", email: "b@example.com", lastActivityAt: "2026-05-28T12:00:00.000Z" },
     { id: "L-E", phone: "(469) 555-0303", email: "c@example.com", lastActivityAt: "2026-09-01T12:00:00.000Z" },
+    { id: "L-LOST", phone: "(469) 555-0404", email: "d@example.com", lastActivityAt: "2026-09-10T12:00:00.000Z", open: false },
   ];
-  it("attaches a phone match whose last activity was 30 days ago", () => {
-    expect(matchLead(leads, { phone: "214-555-0101", email: "new@example.com" }, NOW)).toEqual({ kind: "attach", leadId: "L-30", on: "phone" });
+  it("marks a phone match to an open lead as a possible duplicate", () => {
+    expect(matchLead(leads, { phone: "214-555-0101", email: "new@example.com" }, NOW)).toEqual({ kind: "possible_duplicate", leadId: "L-30", on: "phone" });
   });
-  it("creates a new lead when the phone's lead was last active 120 days ago", () => {
-    expect(matchLead(leads, { phone: "2145550202" }, NOW).kind).toBe("new");
+  it("still matches an open lead whose last activity was 120 days ago", () => {
+    expect(matchLead(leads, { phone: "2145550202" }, NOW)).toEqual({ kind: "possible_duplicate", leadId: "L-120", on: "phone" });
+  });
+  it("ignores leads that are sold, lost or archived", () => {
+    expect(matchLead(leads, { phone: "469-555-0404", email: "d@example.com" }, NOW)).toEqual({ kind: "new" });
   });
   it("puts a phone-one, email-another match on the review list", () => {
     expect(matchLead(leads, { phone: "214 555 0101", email: "C@example.com" }, NOW)).toEqual({ kind: "review", phoneLeadId: "L-30", emailLeadId: "L-E" });
   });
   it("falls back to email when there is no phone match", () => {
-    expect(matchLead(leads, { email: "c@example.com" }, NOW)).toEqual({ kind: "attach", leadId: "L-E", on: "email" });
+    expect(matchLead(leads, { email: "C@example.com" }, NOW)).toEqual({ kind: "possible_duplicate", leadId: "L-E", on: "email" });
   });
   it("names a missing phone number among the mandatory fields", () => {
     expect(missingLeadFields({ name: "A", email: "a@x.com", town: "Plano", message: "Quote?" })).toEqual(["phone"]);
@@ -228,14 +232,23 @@ describe("Feature 34 — seeded posts and actions", () => {
     expect(db.marketingPosts.length).toBe(count);
   });
 
-  it("website events: attach within 90 days, new after 120, review on conflict, one lead per event", () => {
+  it("website events (D5): a match to an open lead is still a new lead, marked Possible duplicate; review on conflict; one lead per event", () => {
     const db = fresh();
     const u = as(db, "U-OFFICE");
     const base = { name: "Aisha Roberts", town: "Lakewood", message: "Also the garage door." };
-    const a = submitWebsiteForm(db, u, { ...base, ref: "WF-T1", phone: "214-555-0161", email: "aisha.roberts@example.com" });
-    expect(val(a)).toMatchObject({ leadId: "LEAD-2026-6", outcome: "attached", on: "phone" });
+    const before = db.leads.length;
+    const a = submitWebsiteForm(db, u, { ...base, ref: "WF-T1", phone: "214-555-0161", email: "aisha.roberts@example.com", address: "12 Elm St, Lakewood", paintType: "Exterior" });
+    const av = val(a)!;
+    expect(av).toMatchObject({ outcome: "possible_duplicate", on: "phone" });
+    expect(av.leadId).not.toBe("LEAD-2026-6");
+    expect(db.leads.length).toBe(before + 1);
+    expect(db.leads.find((l) => l.id === av.leadId)).toMatchObject({ possibleDuplicateOf: "LEAD-2026-6", address: "12 Elm St, Lakewood", paintType: "Exterior" });
+    // Tom Becker's lead is still open (Contacted), however old: also a possible duplicate.
     const b = submitWebsiteForm(db, u, { ...base, name: "Tom Becker", ref: "WF-T2", phone: "(972) 555-0182", email: "tom.becker@example.com" });
-    expect(val(b)?.outcome).toBe("new");
+    expect(val(b)?.outcome).toBe("possible_duplicate");
+    // A brand-new person is a plain new lead.
+    const n = submitWebsiteForm(db, u, { ...base, name: "Pia Grant", ref: "WF-T4", phone: "(469) 555-0999", email: "pia.grant@example.com" });
+    expect(val(n)?.outcome).toBe("new");
     const c = submitWebsiteForm(db, u, { ...base, ref: "WF-T3", phone: "(214) 555-0161", email: "wen.li@example.com" });
     expect(val(c)?.outcome).toBe("review");
     const leads = db.leads.length;
@@ -246,6 +259,9 @@ describe("Feature 34 — seeded posts and actions", () => {
 
   it("the monthly report counts posts and leads by source, and leaves engagement Unavailable", () => {
     const db = fresh();
+    // On the first days of a month the seeded posts all fall in last month: publish one now, so the test holds on any date.
+    const p = db.marketingPosts[0]!;
+    p.publications = [...p.publications, { ...p.publications[0]!, platform: "facebook", status: "published", at: now() }];
     const r = monthlyReport(db, localParts(now()).date.slice(0, 7));
     expect(r.published).toBeGreaterThan(0);
     expect(r.unavailable).toContain("Engagement");

@@ -105,7 +105,7 @@ export const FEATURES: FeatureDef[] = [
   },
   {
     key: "f33", group: "built", number: 33, name: "Financial and Accounting Management",
-    breakdown: "The QuickBooks exchange, transfer queue, bills, checkbook, feeds and finance reports.",
+    breakdown: "The QuickBooks sync, Sync Log and Needs Attention, bills, checkbook, feeds and finance reports.",
     where: [{ label: "Accounting", href: "/accounting" }, { label: "Settings › Accounting", href: "/settings/accounting" }, { label: "Invoices › QuickBooks", href: "/invoices" }],
     parts: { minimal: ["Accounting module", "Settings › Accounting", "QuickBooks column and card on invoices", "Job Margin, Income & Expense, Aged Receivables"], complete: [] }, built: true,
   },

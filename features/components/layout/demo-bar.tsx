@@ -5,6 +5,8 @@
  * - Pin the clock to business hours (contact window, supplier clock).
  * - Open the New Features panel (dashboard), where new features and their
  *   Minimal / Complete parts are switched on or off.
+ * - Switch the organisation's QuickBooks add-on (2 Oct 2026, D3) to see
+ *   Settings › Accounting without it.
  * - Reset all data back to the demo seed (the New Features choices too).
  */
 import { useState } from "react";
@@ -15,7 +17,9 @@ import { useDataActions } from "@/lib/store";
 import { canResume, useTour } from "@/features/lib/tour";
 import { useStartTour } from "@/features/components/tour/product-tour";
 import { ROLE_LABEL } from "@/features/lib/permissions";
-import { Button, ConfirmDialog, Select } from "@/features/components/ui";
+import { Button, ConfirmDialog, Select, Switch } from "@/features/components/ui";
+import { act } from "@/features/lib/store";
+import { hasQuickBooksAddOn, setQuickBooksAddOn } from "@/features/lib/store/actions/finance";
 import { cn } from "@/features/lib/cn";
 
 export function DemoBar() {
@@ -71,6 +75,10 @@ export function DemoBar() {
                 <option value="business_hours">Pinned to 10:30 a.m. weekday</option>
               </Select>
             </label>
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-xxs font-bold uppercase tracking-[0.14em] text-gray-400">QuickBooks add-on</span>
+              <Switch checked={hasQuickBooksAddOn(db)} onCheckedChange={(on) => act(setQuickBooksAddOn, on)} label={<span className="sr-only">QuickBooks add-on on the plan</span>} />
+            </div>
             <Button size="sm" variant="secondary" className="w-full justify-center" onClick={() => { setOpen(false); router.push("/dashboard#new-features"); }}>
               <Sparkles className="h-3.5 w-3.5" /> New features panel
             </Button>

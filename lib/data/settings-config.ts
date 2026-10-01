@@ -5,8 +5,9 @@
 */
 import type {
   AutomatedMessage, DifficultyTier, DocumentNumbering, FinancialSettings, GeneralConfig,
-  AutomationRule, GoalsProfit, LaborConfig, Pipeline, PipelineStage, ProjectDiscount, SmsTemplate, TableColumn, TaxRegion, TrackedLink,
+  AutomationRule, GoalsProfit, LaborConfig, Pipeline, PipelineStage, ProjectDiscount, SmsTemplate, TableColumn, TaxRegion, TrackedLink, LeadSourceDef,
 } from '../types';
+import { defaultSources } from '@/features/lib/rules/lead-sources';
 
 export const generalConfig: GeneralConfig = {
   baseLaborRate: 70.3125,
@@ -140,11 +141,14 @@ export const pipelineStages: PipelineStage[] = [
   { id: 'pp_complete', stageId: 'COMPLETE', displayName: 'Complete', color: '#22C55E', sortOrder: 6, pipelineId: 'production', system: true },
 ];
 
-/* CRM-M5: sample tracked links for the website form. */
+/* D6: built-in sources plus the four an admin added (Nextdoor, Thumbtack, Angi, Yard Sign). */
+export const leadSources: LeadSourceDef[] = defaultSources();
+
+/* CRM-M5: sample tracked links for the website form. Sources come from the list above. */
 export const trackedLinks: TrackedLink[] = [
   { id: 'tl_facebook', name: 'Facebook page button', source: 'Facebook', status: 'active', createdAt: '2026-08-01T15:00:00.000Z', createdBy: 'Dana Ruiz' },
   { id: 'tl_yardsign', name: 'Yard sign QR code', source: 'Yard Sign', status: 'active', createdAt: '2026-08-12T15:00:00.000Z', createdBy: 'Dana Ruiz' },
-  { id: 'tl_spring', name: 'Spring mailer', source: 'Mailer', status: 'paused', createdAt: '2026-03-02T15:00:00.000Z', createdBy: 'Tim Skelly' },
+  { id: 'tl_spring', name: 'Spring mailer', source: 'Other', status: 'paused', createdAt: '2026-03-02T15:00:00.000Z', createdBy: 'Tim Skelly' },
 ];
 
 /*
@@ -183,7 +187,7 @@ export const automatedMessages: AutomatedMessage[] = [
   { id: 'am_jobsched', name: 'Job Scheduled', trigger: 'Job Scheduled', channel: 'EMAIL', delayValue: 0, delayUnit: 'minutes', subject: 'Your project is scheduled', body: 'Hi {{customerName}},\n\nYour project "{{projectName}}" has been scheduled. We look forward to working with you.', isActive: true, availableVariables: EST_VARS },
   { id: 'am_review', name: 'Estimate Amended', trigger: 'Estimate Amended', channel: 'EMAIL', delayValue: 0, delayUnit: 'minutes', subject: 'Your estimate for {{projectName}} was updated', body: 'Hi {{customerName}},\n\nWe updated your estimate for "{{projectName}}". View the latest version here: {{estimateLink}}', isActive: true, availableVariables: EST_VARS },
   /* Crew schedule changes (Job Scheduling, "Unsent changes"). Manual: the office decides when the crew is told. */
-  { id: 'am_crew_schedule', name: 'Crew Schedule Update', trigger: 'Crew Schedule Changed', channel: 'EMAIL', delayValue: 0, delayUnit: 'minutes', subject: 'Your schedule has changed', body: 'Hi {{firstName}},\n\nYour work schedule has changed. Here is what is new.\n\n{{scheduleChanges}}', isActive: true, availableVariables: ['firstName', 'scheduleChanges', 'orgName'], mode: 'manual' },
+  { id: 'am_crew_schedule', name: 'Schedule Update (crew)', trigger: 'Crew Schedule Changed', channel: 'EMAIL', delayValue: 0, delayUnit: 'minutes', subject: 'Schedule update from {{orgName}}: {{jobCount}} jobs changed', body: 'Hi {{firstName}},\n\nYour work schedule has changed. Here is what is new.\n\n{{scheduleChanges}}', isActive: true, availableVariables: ['firstName', 'scheduleChanges', 'orgName', 'jobCount'], mode: 'manual' },
   /* Lead pipeline stages (components/leads/stageMessages.ts sends these when a lead moves). */
   { id: 'am_lead_new', name: 'New Lead Received', trigger: 'Lead Received', channel: 'BOTH', delayValue: 0, delayUnit: 'minutes', subject: 'Thanks for contacting {{orgName}}', body: 'Hi {{customerName}},\n\nThanks for reaching out to {{orgName}}. We received your request and will contact you shortly to arrange your free estimate.', isActive: true, availableVariables: LEAD_VARS },
   { id: 'am_lead_contacted', name: 'Lead Contacted', trigger: 'Lead Contacted', channel: 'EMAIL', delayValue: 0, delayUnit: 'minutes', subject: 'Great speaking with you', body: 'Hi {{customerName}},\n\nThanks for speaking with us about your project. Reply to this email or call us any time with questions.', isActive: true, availableVariables: LEAD_VARS },

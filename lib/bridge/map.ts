@@ -202,13 +202,15 @@ export function projectLead(db: P.Database, l: P.Lead): Lead {
   const notes = [l.note, ...(l.notes ?? []).map((x) => x.text), l.message].filter(Boolean).join('\n\n');
   return {
     id: l.id, leadNumber: l.id, ...leadContact(db, l), companyName: n.companyName,
-    street: prop?.address ?? '', city: prop?.city ?? l.town ?? '', state: prop?.state ?? '', zip: prop?.zip ?? '',
-    leadSource: l.sourceLabel ?? SOURCE_R[l.source], serviceType: job ? SERVICE_TYPE[job.jobType] : 'Interior', status,
+    street: prop?.address ?? l.address ?? '', city: prop?.city ?? l.town ?? '', state: prop?.state ?? '', zip: prop?.zip ?? '',
+    // D5: "What would you like painted?" from the website form, until a job says otherwise.
+    leadSource: l.sourceLabel ?? SOURCE_R[l.source], serviceType: job ? SERVICE_TYPE[job.jobType] : l.paintType ?? 'Interior', status,
     estimatedValue: est?.total ?? 0, date: l.createdAt, createdAt: l.createdAt, updatedAt: l.lastActivityAt ?? l.createdAt,
     notes: notes || undefined, customerId: l.customerId, estimateId: l.estimateId,
     contactType: status === 'Sold' ? 'CLIENT' : l.estimateId || status === 'Scheduled' || status === 'Pending' ? 'CONTACT' : 'LEAD',
     assignedTo: l.assignedUserId, appointment: leadAppointment(l), appointmentDuration: l.durationMin,
     ...(l.trackedLinkId ? { trackedLinkId: l.trackedLinkId } : {}),
+    ...(l.possibleDuplicateOf ? { possibleDuplicateOf: l.possibleDuplicateOf } : {}),
   };
 }
 

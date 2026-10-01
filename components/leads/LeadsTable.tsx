@@ -19,7 +19,7 @@ import { RowMenu } from '@/components/ui/menu';
 import { Button } from '@/components/ui/button';
 import { cn, money, shortDate } from '@/lib/utils';
 import { LEAD_LIFECYCLE, LEAD_STATUS_BADGE, PIPELINE_STEPS, canArchiveLeadStatus, formatPhone } from './leadHelpers';
-import { LeadSourceChip, useFollowUpLocks } from './leadFeatures';
+import { LeadSourceChip, PossibleDuplicateChip, useFollowUpLocks } from './leadFeatures';
 import { pressable } from '@/lib/a11y';
 
 type SortKey = 'name' | 'status' | 'source' | 'service' | 'value' | 'date';
@@ -171,6 +171,7 @@ export function LeadsTable({
                       <td className="whitespace-nowrap px-5 py-4 text-gray-600">{l.city}, {l.state}</td>
                       <td className="px-5 py-4">
                         <LeadSourceChip lead={l} fallback={<span className="whitespace-nowrap rounded border border-gray-200 bg-gray-100 px-2 py-0.5 text-xxs font-medium text-gray-600">{l.leadSource}</span>} />
+                        <PossibleDuplicateChip lead={l} className="mt-1" />
                       </td>
                       <td className="whitespace-nowrap px-5 py-4 text-gray-600">{l.serviceType || '-'}</td>
                       <td className="whitespace-nowrap px-5 py-4 font-semibold text-gray-900">{money(l.estimatedValue)}</td>

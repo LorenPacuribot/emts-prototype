@@ -8,10 +8,15 @@
   CRM-M5: a tracked link opens it as /website-form?src={source}&l={linkId}.
   Both go to the endpoint with the referring site, which sets the lead
   source (lib/website-form.ts leadSourceFor). A paused link takes no requests.
+
+  2 Oct 2026 (D5): Full name (2–80 characters), Phone (US, 10 digits) and
+  Email (one of the two), Property address, "What would you like painted?"
+  (Interior, Exterior, Both, Cabinets, Other) and a Message of up to 1,000
+  characters. The endpoint checks the same rules (lib/website-form.ts).
 */
 import { useEffect, useState } from 'react';
 import { CheckCircle2, PauseCircle } from 'lucide-react';
-import { DEMO_SITE_KEY, HONEYPOT_FIELD } from '@/lib/website-form';
+import { CONTACT_REQUIRED, DEMO_SITE_KEY, HONEYPOT_FIELD, MESSAGE_MAX, NAME_LENGTH, PAINT_TYPES, THANKS_MESSAGE } from '@/lib/website-form';
 import { useCollection } from '@/lib/store';
 
 type Status = { kind: 'idle' | 'sending' | 'sent' } | { kind: 'error'; message: string; field?: string };
@@ -22,6 +27,7 @@ export default function Page() {
   const [startedAt, setStartedAt] = useState(0);
   const [status, setStatus] = useState<Status>({ kind: 'idle' });
   const [track, setTrack] = useState<{ src: string; l: string; referrer: string }>({ src: '', l: '', referrer: '' });
+  const [messageLength, setMessageLength] = useState(0);
   const { items: links } = useCollection('trackedLinks');
   useEffect(() => {
     setStartedAt(Date.now());
@@ -67,21 +73,31 @@ export default function Page() {
         ) : status.kind === 'sent' ? (
           <div className="mt-6 rounded-xl border border-green-200 bg-green-50 p-5 text-sm text-green-800" role="status">
             <CheckCircle2 className="mb-2 h-6 w-6" />
-            <b>Thanks, we have your request.</b> We&apos;ll contact you shortly.
-            <button type="button" className="mt-3 block font-semibold text-green-900 underline" onClick={() => { setStatus({ kind: 'idle' }); setStartedAt(Date.now()); }}>Send another request</button>
+            <b>{THANKS_MESSAGE}</b>
+            <button type="button" className="mt-3 block font-semibold text-green-900 underline" onClick={() => { setStatus({ kind: 'idle' }); setStartedAt(Date.now()); setMessageLength(0); }}>Send another request</button>
           </div>
         ) : (
           <form onSubmit={submit} className="mt-6 space-y-4 rounded-xl border border-gray-200 bg-white p-5 shadow-sm" noValidate>
-            {field('name', 'Name', { required: true, autoComplete: 'name' })}
+            {field('name', 'Full name', { required: true, autoComplete: 'name', minLength: NAME_LENGTH.min, maxLength: NAME_LENGTH.max })}
             <div className="grid gap-4 sm:grid-cols-2">
-              {field('phone', 'Phone', { type: 'tel', autoComplete: 'tel' })}
+              {field('phone', 'Phone', { type: 'tel', autoComplete: 'tel', inputMode: 'tel', placeholder: '(214) 555-0123' })}
               {field('email', 'Email', { type: 'email', autoComplete: 'email' })}
             </div>
-            <p className="-mt-2 text-xs text-gray-500">A phone number or an email is enough.</p>
-            {field('town', 'Address or town', { autoComplete: 'address-level2' })}
+            <p className="-mt-2 text-xs text-gray-500">{CONTACT_REQUIRED}</p>
+            {field('address', 'Property address (optional)', { autoComplete: 'street-address' })}
             <label className="block">
-              <span className="mb-1 block text-sm font-semibold text-gray-700">What would you like painted?</span>
-              <textarea name="message" rows={4} className={input} />
+              <span className="mb-1 block text-sm font-semibold text-gray-700">What would you like painted? (optional)</span>
+              <select name="paintType" defaultValue="" className={input} aria-invalid={!!err('paintType')}>
+                <option value="">Choose…</option>
+                {PAINT_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+              </select>
+              {err('paintType') && <span className="mt-1 block text-xs text-red-600">{err('paintType')}</span>}
+            </label>
+            <label className="block">
+              <span className="mb-1 block text-sm font-semibold text-gray-700">Message (optional)</span>
+              <textarea name="message" rows={4} maxLength={MESSAGE_MAX} className={input} onChange={(e) => setMessageLength(e.target.value.length)} aria-invalid={!!err('message')} />
+              <span className="mt-1 block text-right text-xs text-gray-500">{messageLength.toLocaleString('en-US')} / {MESSAGE_MAX.toLocaleString('en-US')}</span>
+              {err('message') && <span className="mt-1 block text-xs text-red-600">{err('message')}</span>}
             </label>
             {/* Honeypot: hidden from people, filled in by bots. */}
             <div aria-hidden="true" className="absolute -left-[9999px] h-px w-px overflow-hidden">

@@ -9,6 +9,7 @@ import { WebsiteInboxSync } from "@/components/WebsiteInboxSync";
 import { LeadMessageScheduler } from "@/components/leads/LeadMessageScheduler";
 import { NotifyCrewHost } from "@/components/scheduling/NotifyCrew";
 import { CrmSync } from "@/components/leads/CrmSync";
+import { QboSyncTicker } from "@/features/components/features/finance/qbo-sync-parts";
 
 /** Customer-facing pages and the sign-in page: no Prototype bar or tour on top of them. */
 const PUBLIC_PATHS = ["/estimates/view", "/paint-record/view", "/website-form", "/login", "/r"];
@@ -27,7 +28,7 @@ export function FeatureShell({ children }: { children: ReactNode }) {
     <TooltipProvider>
       {children}
       {hydrated && !isPublic && <DemoBar />}
-      {hydrated && !isPublic && <><WebsiteInboxSync /><LeadMessageScheduler /><NotifyCrewHost /><CrmSync /></>}
+      {hydrated && !isPublic && <><WebsiteInboxSync /><LeadMessageScheduler /><NotifyCrewHost /><CrmSync /><QboSyncTicker /></>}
       {hydrated && !isPublic && (
         <Suspense fallback={null}>
           <ProductTour />

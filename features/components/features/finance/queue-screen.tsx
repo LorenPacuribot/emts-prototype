@@ -1,138 +1,169 @@
 "use client";
 /**
- * Feature 33 — QuickBooks exchange queue (component 33.1).
- * Menu: Finance > Transfer Queue
+ * Feature 33 — QuickBooks sync (component 33.1), as decided on 2 Oct 2026 (D1).
+ * Menu: Accounting › Sync Log and Accounting › Needs Attention.
  *
- * Queued items can be edited. Sent items are frozen: a correction becomes a
- * new version and the sent or failed version is kept. Two failures escalate
- * to the bookkeeper. Repeat sends never create a second QuickBooks record.
+ * Records are sent when they are saved. A failed send retries after 1, 5, 30
+ * and 120 minutes; when those retries run out it moves to Needs Attention.
+ * - Sync Log (/accounting/transfer-queue): every send and every change that
+ *   came back from QuickBooks. Last 7 days by default, 25 rows a page,
+ *   newest first.
+ * - Needs Attention (/accounting/needs-attention): failed records with the
+ *   reason in plain words, and QuickBooks variance and deletion flags.
+ *   Retry, Open record, and Dismiss for the flags.
  */
 import { useState } from "react";
-import { ArrowLeftRight, GitBranch, Pencil, RefreshCw, RotateCcw } from "lucide-react";
-import type { ExchangeItem } from "@/features/types";
+import { useRouter } from "next/navigation";
+import { ArrowDownLeft, ArrowUpRight, CheckCircle2, ExternalLink, RotateCcw, X } from "lucide-react";
 import { act, useCurrentUser, useDb, useStore } from "@/features/lib/store";
 import { can } from "@/features/lib/permissions";
-import { byId } from "@/features/lib/selectors";
-import { dateTime, money } from "@/features/lib/format";
+import { dateTime } from "@/features/lib/format";
 import { toast } from "@/features/lib/toast";
 import { now } from "@/features/lib/clock";
-import { nextExchangeRun } from "@/features/lib/rules/finance";
-import { createCorrectionVersion, editQueuedItem, retryItem, runExchange } from "@/features/lib/store/actions/finance";
-import { userName } from "@/features/lib/store/helpers";
+import { SYNC_KIND_LABEL, defaultSyncLogRange, filterSyncLog, pageOf } from "@/features/lib/rules/qbo-sync";
+import { needsAttentionRows, retryItem, reviewDeletion, reviewVariance, syncLogRows, type AttentionRow } from "@/features/lib/store/actions/finance";
 import { PageHeader } from "@/features/components/layout/screen";
-import { Badge, Button, Card, EmptyState, Field, Input, Modal, PillTabs, Table, TD, TH, THead, TR, VersionBadge } from "@/features/components/ui";
+import { Badge, Button, Card, EmptyState, Field, Input, Table, TD, TH, THead, TR, VersionBadge } from "@/features/components/ui";
 import { FinanceFrame } from "./finance-frame";
-import { EXCHANGE_STATUS } from "./shared";
-
-type Filter = "all" | ExchangeItem["status"] | "escalated";
+import { SyncNowButton } from "./qbo-sync-parts";
 
 export function QueueScreen() {
   return (
     <FinanceFrame tab="queue">
-      <Queue />
+      <SyncLog />
     </FinanceFrame>
   );
 }
 
-function Queue() {
+export function NeedsAttentionScreen() {
+  return (
+    <FinanceFrame tab="attention">
+      <NeedsAttention />
+    </FinanceFrame>
+  );
+}
+
+const RESULT_TONE = { Accepted: "green", Failed: "red", "Changed in QuickBooks": "amber", "Deleted in QuickBooks": "red", "Created in QuickBooks": "blue" } as const;
+
+function SyncLog() {
   const db = useDb((d) => d);
-  const user = useCurrentUser();
   useStore((s) => s.clockMode);
-  const [filter, setFilter] = useState<Filter>("all");
-  const [editing, setEditing] = useState<{ item: ExchangeItem; mode: "edit" | "correct" }>();
-  const pick: Record<Filter, (q: ExchangeItem) => boolean> = {
-    all: () => true, queued: (q) => q.status === "queued", sent: (q) => q.status === "sent", accepted: (q) => q.status === "accepted", rejected: (q) => q.status === "rejected",
-    escalated: (q) => !!q.escalatedAt && !q.supersededBy,
-  };
-  const rows = db.exchangeQueue.filter(pick[filter]);
-  const n = (f: Filter) => db.exchangeQueue.filter(pick[f]).length;
+  const initial = defaultSyncLogRange(now());
+  const [from, setFrom] = useState(initial.from);
+  const [to, setTo] = useState(initial.to);
+  const [page, setPage] = useState(1);
+  const all = filterSyncLog(syncLogRows(db), from, to);
+  const p = pageOf(all, page);
 
   return (
     <>
       <PageHeader
         eyebrow={<VersionBadge item="QB-M5" withNew={false} />}
-        title="Transfer Queue"
-        subtitle={`Records moving between Estimate Master and QuickBooks. Next run ${dateTime(nextExchangeRun(new Date(now())).toISOString())}.`}
-        actions={can(user, "finance.exchange") && <Button variant="primary" onClick={() => { const r = act(runExchange); if (r.ok) { const v = r.value as { accepted: number; rejected: number }; toast.success("Exchange run complete", `${v.accepted} accepted, ${v.rejected} rejected.`); } }}><RefreshCw className="h-4 w-4" /> Run exchange now</Button>}
-      />
-      <PillTabs<Filter>
-        className="mb-4"
-        value={filter}
-        onChange={setFilter}
-        options={[
-          { value: "all", label: "All", count: n("all") }, { value: "queued", label: "Queued", count: n("queued") }, { value: "sent", label: "Sent", count: n("sent") },
-          { value: "accepted", label: "Accepted", count: n("accepted") }, { value: "rejected", label: "Rejected", count: n("rejected") }, { value: "escalated", label: "Escalated to bookkeeper", count: n("escalated") },
-        ]}
+        title="Sync Log"
+        subtitle="Every record sent to QuickBooks and every change that came back. Records are sent when they are saved."
+        actions={<SyncNowButton />}
       />
       <Card className="p-4" data-tour="transfer-queue">
-        {rows.length === 0 ? <EmptyState icon={<ArrowLeftRight />} title="Nothing in this view" body="Pick another view above to see other items." /> : (
-          <Table>
-            <THead><tr><TH>Item</TH><TH>Record</TH><TH className="text-right">Amount</TH><TH>Job / code</TH><TH>Status</TH><TH>Attempts</TH><TH /></tr></THead>
-            <tbody>
-              {rows.map((q) => {
-                const r = byId(db.financeRecords, q.recordId);
-                const s = EXCHANGE_STATUS[q.status];
-                const fails = q.attempts.filter((a) => !a.ok);
-                return (
-                  <TR key={q.id} className={q.supersededBy ? "opacity-60" : ""}>
-                    <TD className="font-semibold">{q.id}<div className="text-xs font-normal text-gray-500">v{q.version} · key {q.idempotencyKey}</div></TD>
-                    <TD className="max-w-[240px] whitespace-normal">{q.payload.description}<div className="text-xs text-gray-500">{r?.ref}</div></TD>
-                    <TD className="text-right tabular-nums">{money(q.payload.amount)}</TD>
-                    <TD>{q.payload.jobId ?? "—"}<div className="text-xs text-gray-500">{q.payload.costCode ?? ""}</div></TD>
+        <div className="mb-4 flex flex-wrap items-end gap-3">
+          <Field label="From"><Input type="date" value={from} max={to} onChange={(e) => { setFrom(e.target.value); setPage(1); }} className="w-40" /></Field>
+          <Field label="To"><Input type="date" value={to} min={from} onChange={(e) => { setTo(e.target.value); setPage(1); }} className="w-40" /></Field>
+          <span className="ml-auto pb-2 text-xs text-gray-500">{all.length} {all.length === 1 ? "entry" : "entries"}</span>
+        </div>
+        {all.length === 0 ? <EmptyState icon={<CheckCircle2 />} title="Nothing synced in these dates" body="Widen the dates to see older entries." /> : (
+          <>
+            <Table>
+              <THead><tr><TH>Time</TH><TH>Record type</TH><TH>EM number</TH><TH>QuickBooks ref</TH><TH>Direction</TH><TH>Result</TH></tr></THead>
+              <tbody>
+                {p.rows.map((r) => (
+                  <TR key={r.key}>
+                    <TD className="whitespace-nowrap">{dateTime(r.at)}</TD>
+                    <TD>{SYNC_KIND_LABEL[r.kind]}</TD>
+                    <TD className="font-semibold">{r.emNumber}</TD>
+                    <TD className="font-mono text-xs">{r.qboRef ?? "—"}</TD>
                     <TD>
-                      <div className="flex flex-wrap gap-1">
-                        <Badge tone={s.tone}>{s.label}</Badge>
-                        {q.escalatedAt && <Badge tone="red">Escalated to bookkeeper</Badge>}
-                        {q.supersededBy && <Badge tone="gray">Replaced by {q.supersededBy}</Badge>}
-                        {q.correctionOf && <Badge tone="purple">Correction of {q.correctionOf}</Badge>}
-                      </div>
-                      {fails.length > 0 && <div className="mt-1 text-xs text-red-700">{fails[fails.length - 1].error}</div>}
+                      {r.direction === "to_qbo"
+                        ? <span className="inline-flex items-center gap-1"><ArrowUpRight className="h-3.5 w-3.5 text-gray-500" /> To QuickBooks</span>
+                        : <span className="inline-flex items-center gap-1"><ArrowDownLeft className="h-3.5 w-3.5 text-gray-500" /> From QuickBooks</span>}
                     </TD>
-                    <TD className="text-xs">{q.attempts.length ? `${q.attempts.length} (${fails.length} failed)` : "—"}<div className="text-xs text-gray-500">{q.sentAt ? `sent ${dateTime(q.sentAt)}` : `queued ${dateTime(q.queuedAt)} by ${userName(db, q.queuedBy)}`}</div></TD>
                     <TD>
-                      {can(user, "finance.exchange") && !q.supersededBy && (
-                        <div className="flex gap-1">
-                          {q.status === "queued" && <Button size="sm" onClick={() => setEditing({ item: q, mode: "edit" })}><Pencil className="h-3.5 w-3.5" /> Edit</Button>}
-                          {q.status === "rejected" && <Button size="sm" onClick={() => act(retryItem, q.id).ok && toast.success("Re-queued", "It goes on the next run.")}><RotateCcw className="h-3.5 w-3.5" /> Retry</Button>}
-                          {q.status !== "queued" && <Button size="sm" onClick={() => setEditing({ item: q, mode: "correct" })}><GitBranch className="h-3.5 w-3.5" /> Correction version</Button>}
-                        </div>
-                      )}
+                      <Badge tone={RESULT_TONE[r.result]}>{r.result}</Badge>
+                      {r.error && <div className="mt-1 text-xs text-red-700">{r.error}</div>}
                     </TD>
                   </TR>
-                );
-              })}
-            </tbody>
-          </Table>
+                ))}
+              </tbody>
+            </Table>
+            {p.pages > 1 && (
+              <div className="mt-3 flex items-center justify-end gap-2 text-xs text-gray-600">
+                <Button size="sm" disabled={p.page <= 1} onClick={() => setPage(p.page - 1)}>Previous</Button>
+                <span>Page {p.page} of {p.pages}</span>
+                <Button size="sm" disabled={p.page >= p.pages} onClick={() => setPage(p.page + 1)}>Next</Button>
+              </div>
+            )}
+          </>
         )}
       </Card>
-      <EditModal target={editing} onClose={() => setEditing(undefined)} />
     </>
   );
 }
 
-function EditModal({ target, onClose }: { target?: { item: ExchangeItem; mode: "edit" | "correct" }; onClose: () => void }) {
-  const [amount, setAmount] = useState("");
-  const [description, setDescription] = useState("");
-  const [err, setErr] = useState<string>();
-  const item = target?.item;
+function NeedsAttention() {
+  const db = useDb((d) => d);
+  const user = useCurrentUser();
+  const router = useRouter();
+  useStore((s) => s.clockMode);
+  const rows = needsAttentionRows(db);
+
+  const open = (r: AttentionRow) => {
+    if (r.type !== "failure") return router.push(`/accounting?mode=qbo&record=${r.record.id}`);
+    if (r.kind === "customer") return router.push(`/contacts/${r.item.recordId}`);
+    if (r.kind === "project") return router.push(`/jobs/${r.item.recordId}`);
+    router.push(`/accounting?mode=qbo&record=${r.item.recordId}`);
+  };
+  const retry = (r: Extract<AttentionRow, { type: "failure" }>) => {
+    const res = act(retryItem, r.item.id);
+    if (res.ok) toast.success(res.value === "waiting" ? "Sent after its parent" : "Accepted by QuickBooks", r.emNumber);
+  };
+  const dismiss = (r: AttentionRow) => {
+    const res = r.type === "variance" ? act(reviewVariance, r.record.id) : r.type === "deletion" ? act(reviewDeletion, r.record.id, "Dismissed from Needs Attention.") : undefined;
+    if (res?.ok) toast.success("Dismissed", r.emNumber);
+  };
+
   return (
-    <Modal
-      open={!!target}
-      onOpenChange={(v) => !v && onClose()}
-      size="sm"
-      title={target?.mode === "edit" ? `Edit queued ${item?.id}` : `Correction version for ${item?.id}`}
-      description={target?.mode === "edit" ? "Not sent yet, so it can still be edited." : "The sent version stays exactly as it was. The correction is a new queued version."}
-      footer={<><Button onClick={onClose}>Cancel</Button><Button variant="primary" onClick={() => {
-        const changes = { amount: amount ? Number(amount) : undefined, description: description || undefined };
-        const r = target!.mode === "edit" ? act(editQueuedItem, item!.id, changes) : act(createCorrectionVersion, item!.id, changes);
-        if (r.ok) { toast.success(target!.mode === "edit" ? "Queued item updated" : "Correction version queued"); setAmount(""); setDescription(""); onClose(); }
-        else setErr(r.error);
-      }}>{target?.mode === "edit" ? "Save" : "Queue correction"}</Button></>}
-    >
-      <div className="space-y-3">
-        <Field label="Amount" error={err}><Input type="number" value={amount} placeholder={String(item?.payload.amount ?? "")} onChange={(e) => setAmount(e.target.value)} /></Field>
-        <Field label="Description"><Input value={description} placeholder={item?.payload.description} onChange={(e) => setDescription(e.target.value)} /></Field>
-      </div>
-    </Modal>
+    <>
+      <PageHeader
+        title="Needs Attention"
+        subtitle="Records QuickBooks kept turning down after the automatic retries, and changes made in QuickBooks to review."
+        actions={<SyncNowButton />}
+      />
+      <Card className="p-4">
+        {rows.length === 0 ? <EmptyState icon={<CheckCircle2 />} title="Everything is in sync." /> : (
+          <Table>
+            <THead><tr><TH>Record</TH><TH>Reason</TH><TH>First failure</TH><TH className="text-right">Attempts</TH><TH /></tr></THead>
+            <tbody>
+              {rows.map((r) => (
+                <TR key={r.key}>
+                  <TD>
+                    <div className="font-semibold">{r.emNumber}</div>
+                    <div className="text-xs text-gray-500">{SYNC_KIND_LABEL[r.kind]}{r.type !== "failure" && <> · <Badge tone={r.type === "variance" ? "amber" : "red"}>{r.type === "variance" ? "Changed in QuickBooks" : "Deleted in QuickBooks"}</Badge></>}</div>
+                  </TD>
+                  <TD className="max-w-[360px] whitespace-normal">{r.reason}</TD>
+                  <TD className="whitespace-nowrap">{dateTime(r.firstFailureAt)}</TD>
+                  <TD className="text-right tabular-nums">{r.type === "failure" ? r.attempts : "—"}</TD>
+                  <TD>
+                    <div className="flex flex-wrap justify-end gap-1">
+                      {r.type === "failure" && can(user, "finance.exchange") && <Button size="sm" variant="primary" onClick={() => retry(r)}><RotateCcw className="h-3.5 w-3.5" /> Retry</Button>}
+                      <Button size="sm" onClick={() => open(r)}><ExternalLink className="h-3.5 w-3.5" /> Open record</Button>
+                      {r.type === "variance" && can(user, "finance.reviewVariance") && <Button size="sm" onClick={() => dismiss(r)}><X className="h-3.5 w-3.5" /> Dismiss</Button>}
+                      {r.type === "deletion" && can(user, "finance.code") && <Button size="sm" onClick={() => dismiss(r)}><X className="h-3.5 w-3.5" /> Dismiss</Button>}
+                    </div>
+                  </TD>
+                </TR>
+              ))}
+            </tbody>
+          </Table>
+        )}
+      </Card>
+    </>
   );
 }

@@ -29,6 +29,7 @@ import { ConfirmDialog, Modal } from '@/components/Modals/Modal';
 import { useCollection, useCurrentUser } from '@/lib/store';
 import { cn, uid } from '@/lib/utils';
 import { createPipeline } from '@/lib/crm';
+import { resolveSource } from '@/features/lib/rules/lead-sources';
 import { KanbanBoard } from '@/components/leads/KanbanBoard';
 import { LeadPipelineBoard, ProductionBoard } from '@/components/leads/PipelineBoards';
 import { LeadsTable } from '@/components/leads/LeadsTable';
@@ -130,19 +131,28 @@ function LeadPipeline() {
   // Board columns of the chosen pipeline, in the order set in Settings (Archived is not a column).
   const stages = useMemo(() => pipelineColumns(stagesCol.items, pipelineId), [stagesCol.items, pipelineId]);
 
-  const sources = useMemo(() => [...new Set(leads.map((l) => l.leadSource).filter(Boolean))].sort(), [leads]);
+  // D6 (2 Oct 2026): the Source filter offers the organisation's list (inactive sources only while they still have leads).
+  const { items: sourceList } = useCollection('leadSources');
+  const sourceOf = (l: Lead) => resolveSource(l.leadSource, sourceList);
+  const sources = useMemo(
+    () => sourceList.filter((s) => s.active || leads.some((l) => resolveSource(l.leadSource, sourceList) === s.name)).map((s) => s.name),
+    [sourceList, leads],
+  );
+  // A remembered filter that is no longer on the list (renamed or deleted) is ignored.
+  const sourceFilter = sources.includes(source) ? source : '';
   const matches = useMemo(() => {
     const q = search.trim().toLowerCase();
     return leads.filter(
       (l) =>
         // The Source filter belongs to the board; the table has its own filters.
-        (view !== 'kanban' || !crmOn || !source || l.leadSource === source) &&
+        (view !== 'kanban' || !crmOn || !sourceFilter || sourceOf(l) === sourceFilter) &&
         (!q ||
           `${l.firstName} ${l.lastName}`.toLowerCase().includes(q) ||
           l.email.toLowerCase().includes(q) ||
           l.city.toLowerCase().includes(q)),
     );
-  }, [leads, search, source, view, crmOn]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [leads, search, sourceFilter, view, crmOn, sourceList]);
 
   const active = matches.filter((l) => l.status !== 'Archived');
   const archived = matches.filter((l) => l.status === 'Archived');
@@ -264,7 +274,7 @@ function LeadPipeline() {
           {pipeline?.kind !== 'production' && (
             <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-gray-500">
               Source
-              <NativeSelect value={source} onChange={(e) => setSource(e.target.value)} className="h-9 w-44 normal-case">
+              <NativeSelect value={sourceFilter} onChange={(e) => setSource(e.target.value)} className="h-9 w-44 normal-case">
                 <option value="">All sources</option>
                 {sources.map((s) => <option key={s} value={s}>{s}</option>)}
               </NativeSelect>

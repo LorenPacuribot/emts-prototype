@@ -14,7 +14,7 @@ import type {
   EstimateTemplate, EstimateType, FinancialSettings, GeneralConfig, GoalsProfit, LaborConfig,
   LineItemTemplate, Material, PackageTemplate, PaintProduct, PaymentGateway, Pipeline, PipelineStage, PreparedMessage, ProductionCard,
   ProjectDiscount, RateGroup, Role, SmsTemplate, Subscription, SurfaceRate, TableColumn, TaxRegion,
-  TermsCondition, TrackedLink, UserProfile,
+  TermsCondition, TrackedLink, UserProfile, LeadSourceDef,
 } from './types/settings';
 
 /** Every list of records in the app. Each key is a "collection". */
@@ -48,6 +48,8 @@ export interface Collections {
   productionCards: ProductionCard[];
   /** CRM-M5: website form links that tag the lead source. */
   trackedLinks: TrackedLink[];
+  /** D6 (2 Oct 2026): the organisation's lead sources. */
+  leadSources: LeadSourceDef[];
   /** CRM-C4: automation rules (linked steps). */
   automationRules: AutomationRule[];
   /** CRM-C3 to C5: customer messages prepared by rules and templates (the approval queue). */

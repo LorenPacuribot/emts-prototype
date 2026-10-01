@@ -150,7 +150,7 @@ function Checkbook() {
           </tbody>
         </Table>
       </Card>
-      <p className="mt-2 text-xs text-gray-500">Checks above $2,500 are held for the owner&apos;s approval (Accounting › Transfer Queue) before they go to QuickBooks. A voided check stays listed at zero.</p>
+      <p className="mt-2 text-xs text-gray-500">Checks above $2,500 are held for the owner&apos;s approval (Accounting › Sync Log) before they go to QuickBooks. A voided check stays listed at zero.</p>
       {form && <RegisterForm kind={form} accountId={acct.id} onClose={() => setForm(undefined)} />}
       {reconciling && <ReconcileModal account={acct} onClose={() => setReconciling(false)} />}
       <Modal

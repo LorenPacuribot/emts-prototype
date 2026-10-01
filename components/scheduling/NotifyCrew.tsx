@@ -20,7 +20,7 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { create } from 'zustand';
 import { BellRing, ChevronDown, Eye, Mail, MessageSquare, Send } from 'lucide-react';
-import { useCollection, useCurrentUser, useLogActivity } from '@/lib/store';
+import { useCollection, useCurrentUser, useLogActivity, useSingleton } from '@/lib/store';
 import type { ScheduleMessageLog, TeamMember } from '@/lib/types';
 import { cn, fullName, uid } from '@/lib/utils';
 import { Badge, Button, Checkbox, EmptyState, Modal, NewBadge, PillTabs, VersionBadge, FeatureGate } from '@/features/components/ui';
@@ -73,13 +73,14 @@ export function useCrewNotify() {
   const me = useCurrentUser();
   const log = useLogActivity();
   const template = templates.find((t) => t.id === CREW_TEMPLATE_ID);
+  const [bp] = useSingleton('businessProfile');
 
   const unsent = useMemo(() => unsentJobIds(jobs, snapshots.items), [jobs, snapshots.items]);
   const waiting = (jobIds?: string[]) => peopleWaiting(jobs, snapshots.items, jobIds);
   const member = (id: string) => team.find((t) => t.id === id);
 
   const messageFor = (m: TeamMember | undefined, changes: PersonChange[], lang: NotifyLang): ScheduleMessage =>
-    scheduleUpdateMessage(m?.firstName || 'there', changes, { lang, subject: template?.subject, addressOf: (id) => jobs.find((j) => j.id === id)?.address });
+    scheduleUpdateMessage(m?.firstName || 'there', changes, { lang, subject: template?.subject, company: bp.companyName, addressOf: (id) => jobs.find((j) => j.id === id)?.address });
 
   /** Logs one Schedule Update per person and channel, then moves the snapshots of everyone reached. */
   const send = (rows: { memberId: string; channels: Channel[] }[], opts: { lang?: NotifyLang; jobIds?: string[] } = {}) => {
@@ -419,8 +420,10 @@ function PreviewModal({ people, onBack, lang, setLang }: { people: { memberId: s
                 <ul className="space-y-1">
                   {s.lines.map((l) => (
                     <li key={l.job}>
-                      <b>{l.job}</b>: {s.kind === 'removed' ? <s className="text-gray-500">{l.when}</s> : l.when}
-                      {l.was && <span className="text-gray-500"> ({msg.wasLabel} <s>{l.was}</s>)</span>}
+                      <b>{l.job}</b>:{' '}
+                      {/* D7: old dates crossed through beside the new ones. */}
+                      {l.was && <><s className="text-gray-500" aria-label={`${msg.wasLabel} ${l.was}`}>{l.was}</s>{' → '}</>}
+                      {s.kind === 'removed' ? <s className="text-gray-500">{l.when}</s> : l.when}
                       {l.address && <span className="text-gray-500">, {l.address}</span>}
                     </li>
                   ))}

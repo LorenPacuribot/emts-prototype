@@ -13,7 +13,8 @@
   - RepaintFollowUpHost: the NEW Repaint Follow-Up card on /leads/[id].
 */
 import React from 'react';
-import { BellRing } from 'lucide-react';
+import Link from 'next/link';
+import { BellRing, Copy } from 'lucide-react';
 import type { Lead } from '@/lib/types';
 import type { Database as PDatabase, FollowUp } from '@/features/types';
 import { getDb, useDb } from '@/features/lib/store';
@@ -87,4 +88,24 @@ export function RepaintFollowUpHost({ leadId }: { leadId: string }) {
   const on = useIsOn({ feature: 29 });
   if (!on || !lead || !db.followUps.some((f) => f.leadId === leadId)) return null;
   return <RepaintFollowUpCard lead={lead} />;
+}
+
+/**
+ * 2 Oct 2026 (D5): a website enquiry whose email or phone matched an open
+ * lead is still created, marked "Possible duplicate" with a link to the other
+ * lead. Nothing is merged automatically.
+ */
+export function PossibleDuplicateChip({ lead, className }: { lead: Pick<Lead, 'possibleDuplicateOf'>; className?: string }) {
+  if (!lead.possibleDuplicateOf) return null;
+  return (
+    <Link
+      href={`/leads/${lead.possibleDuplicateOf}`}
+      onClick={(e) => e.stopPropagation()}
+      onPointerDown={(e) => e.stopPropagation()}
+      title={`The email or phone matches ${lead.possibleDuplicateOf}. Open it to compare.`}
+      className={cn('inline-flex items-center gap-1 whitespace-nowrap rounded border border-amber-200 bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-800 hover:bg-amber-100', className)}
+    >
+      <Copy className="h-3 w-3" /> Possible duplicate of {lead.possibleDuplicateOf}
+    </Link>
+  );
 }

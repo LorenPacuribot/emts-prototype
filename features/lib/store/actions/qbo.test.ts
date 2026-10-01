@@ -43,14 +43,17 @@ describe("match your contacts (QB-M3)", () => {
       ...m.matched.map((x) => ({ qboId: x.qbo.id, customerId: x.customerId, duplicate: false })),
       ...m.duplicates.map((x) => ({ qboId: x.qbo.id, customerId: x.customerId, duplicate: true })),
     ];
-    expect(run(db, "U-BOOK", completeContactMatch, links).result.error).toMatch(/Choose Link or Create new for 2 possible duplicates/);
-    db = run(db, "U-BOOK", decideContactMatch, m.duplicates[0]!.qbo.id, "link" as const).db;
-    db = run(db, "U-BOOK", decideContactMatch, m.duplicates[1]!.qbo.id, "create" as const).db;
+    // D2: the seed has one: QuickBooks' "Jeremy Irons" carries Olivia Bennett's email.
+    expect(m.duplicates.map((d) => d.qbo.id)).toEqual(["QBO-C-108"]);
+    expect(run(db, "U-BOOK", completeContactMatch, links).result.error).toMatch(/Choose Link or Create new for 1 possible duplicate/);
+    const linked = run(run(db, "U-BOOK", decideContactMatch, "QBO-C-108", "link" as const).db, "U-BOOK", completeContactMatch, links);
+    expect(linked.result.ok).toBe(true);
+    expect(linked.db.qboCustomers!.find((q) => q.id === "QBO-C-108")!.customerId).toBe(m.duplicates[0]!.customerId);
+    db = run(db, "U-BOOK", decideContactMatch, "QBO-C-108", "create" as const).db;
     const before = db.customers.length;
     const r = run(db, "U-BOOK", completeContactMatch, links);
     expect(r.result.ok).toBe(true);
     expect(r.db.customers.length).toBe(before + 1);
-    expect(r.db.qboCustomers!.find((q) => q.id === m.duplicates[0]!.qbo.id)!.customerId).toBe(m.duplicates[0]!.customerId);
     expect(r.db.financeSettings.contactMatch?.completedAt).toBeTruthy();
   });
 });

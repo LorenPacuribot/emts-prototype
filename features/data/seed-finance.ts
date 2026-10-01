@@ -19,7 +19,7 @@
 import type { AccountMapping, CostCode, EstimateBaseline, ExchangeItem, FinanceRecord, MigrationTotal, QboCustomer, ReimbursementClaim, Vendor } from "@/features/types";
 import type { BankAccount, FeedTransaction, FinanceAlertRule, RecurringExpense, RegisterEntry } from "@/features/types/finance";
 import { addDays, addMonths } from "@/features/lib/rules/dates";
-import { lastExchangeRun, periodOf } from "@/features/lib/rules/finance";
+import { periodOf } from "@/features/lib/rules/finance";
 
 /** Overhead codes the recurring expenses use (also added to older saved data, see books.ts). */
 export const BOOK_COST_CODES = [
@@ -39,7 +39,9 @@ export function financeSeed(nowIso: string) {
     x.setHours(12, 0, 0, 0);
     return x.toISOString();
   })();
-  const lastRun = lastExchangeRun(new Date(nowIso))?.toISOString() ?? d(-1);
+  // The last successful sync, two hours ago (records are sent on save, D1).
+  const lastRun = new Date(new Date(nowIso).getTime() - 2 * 3_600_000).toISOString();
+  const inMinutes = (m: number) => new Date(new Date(nowIso).getTime() + m * 60_000).toISOString();
 
   const r = (x: Omit<FinanceRecord, "period"> & { period?: string }): FinanceRecord => ({ period: p(x.date), ...x });
 
@@ -70,7 +72,12 @@ export function financeSeed(nowIso: string) {
     q({ id: "EXQ-6", recordId: "FIN-8", version: 1, status: "queued", payload: { amount: 640, jobId: "JOB-2026-5", costCode: "SUB", description: "Job allocation for Brightline Drywall BD-2207" }, queuedAt: d(0), queuedBy: "U-OFFICE", attempts: [] }),
     q({ id: "EXQ-3", recordId: "FIN-3", version: 1, status: "queued", payload: { amount: 4992.9, jobId: "JOB-2026-5", description: "Invoice INV-2026-3" }, queuedAt: d(-2), queuedBy: "U-OFFICE", attempts: [] }),
     q({ id: "EXQ-4", recordId: "FIN-16", version: 1, status: "rejected", payload: { amount: 1450, jobId: "JOB-2026-1", description: "Supplemental invoice SUP-2026-1-01 (CO-2026-1-01)" }, queuedAt: d(-28), queuedBy: "U-OFFICE",
-      sentAt: d(-27), attempts: [{ at: d(-28), ok: false, error: "503 Service Unavailable" }, { at: d(-27), ok: false, error: "503 Service Unavailable" }], escalatedAt: d(-27), simulateError: "503 Service Unavailable" }),
+      // D1: the first send and its four automatic retries (1, 5, 30, 120 minutes) failed, so it is in Needs Attention.
+      sentAt: d(-27), attempts: [0, 1, 6, 36, 156].map((m) => ({ at: new Date(new Date(d(-28)).getTime() + m * 60_000).toISOString(), ok: false, error: "503 Service Unavailable" })),
+      needsAttentionAt: new Date(new Date(d(-28)).getTime() + 156 * 60_000).toISOString(), simulateError: "503 Service Unavailable" }),
+    // D1: a check failing twice; its next automatic retry is in 25 minutes and succeeds the time after.
+    q({ id: "EXQ-8", recordId: "FIN-17", kind: "other", version: 1, status: "rejected", payload: { amount: 600, jobId: "JOB-2026-5", costCode: "SUB", description: "Check 1189 to Brightline Drywall" }, queuedAt: inMinutes(-10), queuedBy: "U-OFFICE",
+      sentAt: inMinutes(-5), attempts: [{ at: inMinutes(-10), ok: false, error: "503 Service Unavailable" }, { at: inMinutes(-9), ok: false, error: "503 Service Unavailable" }], nextRetryAt: inMinutes(25), simulateError: "503 Service Unavailable", simulateFailures: 3 }),
     q({ id: "EXQ-5", recordId: "FIN-5", version: 1, status: "accepted", payload: { amount: 1006, jobId: "JOB-2026-1", costCode: "PAINT", description: "Job allocation for SW 7132 invoice 88410-B" }, queuedAt: d(-6), queuedBy: "U-OFFICE", sentAt: d(-5), attempts: [{ at: d(-5), ok: true }] }),
     q({ id: "EXQ-2", recordId: "FIN-2", version: 1, status: "accepted", payload: { amount: 2283.33, jobId: "JOB-2026-2", description: "Invoice INV-2026-2" }, queuedAt: d(-20), queuedBy: "U-OFFICE", sentAt: d(-20), attempts: [{ at: d(-20), ok: true }] }),
     q({ id: "EXQ-1", recordId: "FIN-1", version: 1, status: "accepted", payload: { amount: 4160, jobId: "JOB-2026-1", description: "Invoice INV-2026-1" }, queuedAt: d(-100), queuedBy: "U-OFFICE", sentAt: d(-100), attempts: [{ at: d(-100), ok: true }] }),
@@ -163,7 +170,8 @@ export function financeSeed(nowIso: string) {
     { id: "QBO-C-105", displayName: "Maria Chen", email: "maria.chen@example.com", phone: "(469) 555-0133", balance: 0, active: true, lastUpdatedAt: d(-21) },
     { id: "QBO-C-106", displayName: "Ruth Alvarez", email: "ruth.alvarez@example.com", phone: "(972) 555-0154", balance: 0, active: true, lastUpdatedAt: d(-70) },
     { id: "QBO-C-107", displayName: "Steve Omodth", email: "steven.omodth@example.com", phone: "(972) 555-0112", balance: 0, active: true, lastUpdatedAt: d(-100) },
-    { id: "QBO-C-108", displayName: "Jeremy Irons", email: "jirons@oldmail.example.com", phone: "(972) 555-0101", balance: 0, active: true, lastUpdatedAt: d(-300) },
+    { id: "QBO-C-108", displayName: "Jeremy Irons", email: "olivia.bennett@example.com", // D2: email is Olivia Bennett's, name is Jeremy Irons's: a possible duplicate
+      phone: "(972) 555-0101", balance: 0, active: true, lastUpdatedAt: d(-300) },
     { id: "QBO-C-201", displayName: "Harbor View HOA", email: "board@harborviewhoa.example.com", phone: "(214) 555-0177", balance: 980, active: true, lastUpdatedAt: d(-2), createdInQbo: true },
     { id: "QBO-C-202", displayName: "Pat Nguyen", email: "pat.nguyen@example.com", phone: "(469) 555-0150", balance: 0, active: true, lastUpdatedAt: d(-5), createdInQbo: true },
   ];
@@ -203,12 +211,19 @@ export function financeSeed(nowIso: string) {
     migrationTotals,
     estimateBaselines,
     financeSettings: {
-      qbo: { connected: true, connectedBy: "U-OFFICE", connectedAt: d(-120), lastExchangeAt: lastRun, realm: "QBO-9130-4471" },
+      qbo: {
+        connected: true, connectedBy: "U-OFFICE", connectedAt: d(-120), lastExchangeAt: lastRun, realm: "QBO-9130-4471",
+        // D1: every tax region mapped (Settings › Taxes regions), sync started for new records.
+        taxMap: { tx_austin: "2200 Sales Tax Payable", tx_dallas: "2200 Sales Tax Payable", tx_nashville: "2210 Sales Tax Payable — TN", tx_none: "2200 Sales Tax Payable" },
+        syncStart: { mode: "new_only" as const, at: d(-120), by: "U-OFFICE" },
+      },
       closedPeriods: [twoMonths, lastMonth],
       gustoPostsJournal: true,
       migrationSignOff: { by: "U-BOOK", at: d(-60), batchId: "MIG-1" },
       jurisdiction: "Dallas County, TX",
     },
-    counters: { fin: 17, exq: 7, rmb: 4, ven: 5, reg: 4, ftx: 5, rec: 4, far: 2 },
+    // D3: QuickBooks is a paid add-on; the demo organisation has it.
+    organisation: { quickbooksAddOn: true },
+    counters: { fin: 17, exq: 8, rmb: 4, ven: 5, reg: 4, ftx: 5, rec: 4, far: 2 },
   };
 }

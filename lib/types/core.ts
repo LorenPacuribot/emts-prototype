@@ -138,6 +138,8 @@ export interface Lead {
   stageStatus?: LeadStatus;
   /** CRM-C2: stage in each added pipeline (pipeline id → stage id). Missing = the first stage. */
   pipelineStages?: Record<ID, ID>;
+  /** 2 Oct 2026 (D5): website enquiry matching this open lead by email or phone. Shown as "Possible duplicate". */
+  possibleDuplicateOf?: ID;
   /** CRM-M7: every stage the lead was in, oldest first. */
   stageHistory?: import('./settings').StageMove[];
   /** CRM-M5: the tracked link the website form was opened from. */
