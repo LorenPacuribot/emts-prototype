@@ -71,10 +71,16 @@ export function dueToSend(q: Pick<ExchangeItem, "status" | "supersededBy" | "nee
 
 /* ------------------------------ Start sync ------------------------------ */
 
-/** Why sync can't start yet, or undefined when it can. */
-export function startSyncBlocker(p: { incomeAccount?: string; regionIds: string[]; taxMap?: Record<string, string> }): string | undefined {
-  const unmapped = p.regionIds.filter((id) => !p.taxMap?.[id]?.trim());
-  if (!p.incomeAccount?.trim() || unmapped.length) return "Map every tax region first";
+/**
+ * Why sync can't start yet, or undefined when it can. Every sync option is
+ * required (tab 1, Component 1): income account, deposit account, card
+ * payment method, and a QuickBooks tax account for every tax region.
+ */
+export function startSyncBlocker(p: {
+  incomeAccount?: string; depositAccount?: string; cardMethod?: string; regionIds: string[]; taxMap?: Record<string, string>;
+}): string | undefined {
+  if (p.regionIds.some((id) => !p.taxMap?.[id]?.trim())) return "Map every tax region first";
+  if (!p.incomeAccount?.trim() || !p.depositAccount?.trim() || !p.cardMethod?.trim()) return "Set the income account, deposit account and card payment method first";
   return undefined;
 }
 
@@ -86,21 +92,46 @@ export function defaultSyncStartDate(nowIso: string): string {
 
 /* ------------------------------- Sync log ------------------------------- */
 
+/** Sync Log results, as tab 1 names them. */
+export const SYNC_RESULTS = ["Sent", "Updated", "Received", "Failed"] as const;
+export type SyncResult = (typeof SYNC_RESULTS)[number];
+/** Sync Log entries are kept for 12 months. */
+export const SYNC_LOG_RETENTION_MONTHS = 12;
+
 export interface SyncLogRow {
   key: string;
   at: string;
   kind: SyncKind;
   emNumber: string;
+  /** Where the EM number links to. */
+  href?: string;
   qboRef?: string;
   direction: "to_qbo" | "from_qbo";
-  result: "Accepted" | "Failed" | "Changed in QuickBooks" | "Deleted in QuickBooks" | "Created in QuickBooks";
-  error?: string;
+  result: SyncResult;
+  /** What came back from QuickBooks ("Amount changed", "Deleted in QuickBooks"…), or the error of a failed send. */
+  detail?: string;
 }
 
-/** Rows in the date range (inclusive, YYYY-MM-DD), newest first. */
-export function filterSyncLog(rows: SyncLogRow[], from?: string, to?: string): SyncLogRow[] {
+/** The oldest day (YYYY-MM-DD) the Sync Log still keeps. */
+export function retentionStart(nowIso: string): string {
+  const d = new Date(nowIso);
+  d.setMonth(d.getMonth() - SYNC_LOG_RETENTION_MONTHS);
+  return d.toISOString().slice(0, 10);
+}
+
+/**
+ * Rows in the date range (inclusive, YYYY-MM-DD) and the chosen record type
+ * and result, never older than 12 months, newest first.
+ */
+export function filterSyncLog(
+  rows: SyncLogRow[],
+  f: { from?: string; to?: string; kind?: SyncKind | ""; result?: SyncResult | ""; nowIso?: string } = {},
+): SyncLogRow[] {
+  const oldest = f.nowIso ? retentionStart(f.nowIso) : undefined;
+  const from = oldest && (!f.from || f.from < oldest) ? oldest : f.from;
   return rows
-    .filter((r) => (!from || r.at.slice(0, 10) >= from) && (!to || r.at.slice(0, 10) <= to))
+    .filter((r) => (!from || r.at.slice(0, 10) >= from) && (!f.to || r.at.slice(0, 10) <= f.to))
+    .filter((r) => (!f.kind || r.kind === f.kind) && (!f.result || r.result === f.result))
     .sort((a, b) => b.at.localeCompare(a.at));
 }
 
@@ -131,3 +162,23 @@ export function plainReason(error?: string): string {
   if (/tax/.test(e)) return "The sales tax on this record doesn't match a mapped tax region.";
   return error ? `QuickBooks turned it down: ${error}.` : "QuickBooks turned it down.";
 }
+
+/* --------------------------- Contacts on save --------------------------- */
+
+/** What QuickBooks holds for a contact. A change here sends an update. */
+export const customerFingerprint = (c: { name?: string; email?: string; phone?: string }) =>
+  [c.name ?? "", (c.email ?? "").trim().toLowerCase(), (c.phone ?? "").replace(/\D/g, "")].join("|");
+
+/* ----------------------------- Activity log ----------------------------- */
+
+/** The activity log lines tab 1 lists, word for word. */
+export const qboLogText = {
+  connect: (company: string, user: string, at: string) => `Finance: QuickBooks Online company ${company} connected by ${user} at ${at}.`,
+  disconnect: (user: string, at: string) => `Finance: QuickBooks Online disconnected by ${user} at ${at}.`,
+  options: (user: string, field: string, from: string, to: string) => `Finance: QuickBooks sync options changed by ${user}: ${field} from ${from} to ${to}.`,
+  sent: (recordType: string, recordNo: string, qbRef: string) => `Finance: ${recordType} ${recordNo} sent to QuickBooks as ${qbRef}.`,
+  failed: (recordType: string, recordNo: string, attempts: number, error: string) => `Finance: ${recordType} ${recordNo} failed to sync after ${attempts} attempts. Reason: ${error}.`,
+  variance: (invoiceNo: string, sent: string, current: string) => `Finance: Invoice ${invoiceNo} amount changed in QuickBooks from ${sent} to ${current}.`,
+  deleted: (qbRef: string, recordType: string, recordNo: string) => `Finance: QuickBooks record ${qbRef} reported deleted. ${recordType} ${recordNo} flagged for review.`,
+  review: (qbName: string, outcome: "linked to contact" | "created as contact" | "ignored", user: string) => `Finance: QuickBooks Customer ${qbName} ${outcome} by ${user}.`,
+};

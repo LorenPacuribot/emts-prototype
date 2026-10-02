@@ -18,7 +18,7 @@ import { dateLong, dateTime, money } from "@/features/lib/format";
 import { toast } from "@/features/lib/toast";
 import {
   applyDeposit, approvePayment, connectQuickBooks, editRecordAmount, isSentToQbo, latestItem, postCorrection, recordExternalPayment, reviewDeletion, reviewVariance,
-  setRetainageNote, simulateQboArrival, simulateQboDelete, simulateQboEdit, syncActive, hasQuickBooksAddOn,
+  setRetainageNote, simulateQboArrival, simulateQboDelete, simulateQboEdit, simulateQboExpired, syncActive, hasQuickBooksAddOn,
 } from "@/features/lib/store/actions/finance";
 import { userName } from "@/features/lib/store/helpers";
 import { PageHeader } from "@/features/components/layout/screen";
@@ -123,6 +123,7 @@ function Accounting({ toggle }: { toggle: React.ReactNode }) {
       if (act(simulateQboDelete, rec.id).ok) toast.success("Deletion flagged", `${rec.ref} is flagged for review. The local record stays.`);
     } },
     { label: "A receipt arrives with no job", icon: <Link2 />, onSelect: () => act(simulateQboArrival).ok && toast.success("Unallocated receipt arrived", "Code it under Unallocated.") },
+    { label: "The QuickBooks connection expires", icon: <CloudOff />, onSelect: () => act(simulateQboExpired).ok && toast.info("Reconnect needed", "Sync is paused. Records keep queuing until someone reconnects in Settings › Accounting.") },
   ];
 
   return (
@@ -148,7 +149,7 @@ function Accounting({ toggle }: { toggle: React.ReactNode }) {
             <Landmark className="h-4 w-4 text-brand" />
             <span className="font-display text-sm font-bold text-ink">QuickBooks Online</span>
             {qbo.connected ? <Badge tone="green">Connected · {qbo.realm}</Badge> : <Badge tone="red">Not connected</Badge>}
-            <Badge tone={active ? "blue" : "gray"}>{active ? "Syncs on save" : qbo.syncStart ? "Sync off" : "Sync not started"}</Badge>
+            <Badge tone={qbo.expiredAt ? "amber" : active ? "blue" : "gray"}>{qbo.expiredAt ? "Reconnect needed" : active ? "Syncs on save" : qbo.syncStart ? "Sync off" : "Sync not started"}</Badge>
           </div>
           {!qbo.connected && hasQuickBooksAddOn(db) && can(user, "finance.connect") && <Button size="sm" variant="primary" onClick={() => act(connectQuickBooks).ok && toast.success("QuickBooks connected")}>Connect</Button>}
         </div>

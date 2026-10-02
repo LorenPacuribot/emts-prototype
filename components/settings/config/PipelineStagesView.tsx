@@ -25,6 +25,8 @@ import { createPipeline } from '@/lib/crm';
 import { cn, uid } from '@/lib/utils';
 import { Field as FField, Input as FInput, Modal, NewBadge, VersionBadge, FeatureGate } from '@/features/components/ui';
 import { useIsOn } from '@/features/lib/feature-visibility';
+import { useCurrentUser as useFeatureUser } from '@/features/lib/store';
+import { can } from '@/features/lib/permissions';
 import { LeadSourcesPanel } from './LeadSourcesPanel';
 import {
   MAX_STAGES, deleteStageProblem, insertStage, moveStage, pipelineColumns, stageCounts, stageNameProblem, stageOrderProblem, stagePipeline,
@@ -41,6 +43,8 @@ export function PipelineStagesView() {
   const { toast } = useToast();
   // New Features (dashboard): Production needs CRM Minimal, added pipelines CRM Complete.
   const crmOn = useIsOn({ featureKey: 'crm' });
+  // Tab 2: only Admin Master Data (Owner and Admin) changes stages; everyone else sees them read-only, with no edit controls.
+  const admin = can(useFeatureUser(), 'settings.masterData');
   const crmComplete = useIsOn({ featureKey: 'crm', part: 'complete' });
   const sortedPipelines = [...pipelines.items]
     .filter((p) => p.kind === 'sales' || (crmOn && (p.kind !== 'custom' || crmComplete)))
@@ -146,12 +150,13 @@ export function PipelineStagesView() {
           ))}
         </div>
         {crmOn && <VersionBadge item="CRM-M1" />}
-        <FeatureGate item="CRM-C2">
+        {admin && <FeatureGate item="CRM-C2">
           <Button variant="secondary" size="sm" icon={<Plus className="h-4 w-4" />} onClick={() => setAdding(true)}>
             Add pipeline <VersionBadge item="CRM-C2" />
           </Button>
-        </FeatureGate>
+        </FeatureGate>}
       </div>
+      {!admin && <p className="mb-4 text-sm text-gray-500">Only the owner or an admin changes stages and lead sources.</p>}
 
       {tab === LEAD_SOURCES_TAB ? <LeadSourcesPanel /> : <>
       <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
@@ -163,22 +168,24 @@ export function PipelineStagesView() {
           {columns.map((s) => (
             <li
               key={s.id}
-              draggable={!s.system}
+              draggable={admin && !s.system}
               onDragStart={(e) => { e.dataTransfer.effectAllowed = 'move'; setDragId(s.id); }}
               onDragOver={(e) => e.preventDefault()}
               onDrop={(e) => { e.preventDefault(); drop(s.id); }}
               onDragEnd={() => setDragId(undefined)}
               className={cn('flex flex-wrap items-center gap-3 border-b border-gray-100 px-5 py-3 last:border-0', dragId === s.id && 'opacity-50')}
             >
-              <span className={cn('text-gray-400', s.system ? 'cursor-not-allowed opacity-40' : 'cursor-grab')} aria-hidden title={s.system ? undefined : 'Drag to reorder'}>
+              {admin && <span className={cn('text-gray-400', s.system ? 'cursor-not-allowed opacity-40' : 'cursor-grab')} aria-hidden title={s.system ? undefined : 'Drag to reorder'}>
                 <GripVertical className="h-4 w-4" />
-              </span>
-              <label className="relative h-7 w-7 shrink-0 cursor-pointer rounded-lg border border-gray-200" style={{ backgroundColor: s.color }} title="Change colour">
-                <span className="sr-only">{s.displayName} colour</span>
-                <input type="color" value={s.color} onChange={(e) => patch(s.id, { color: e.target.value.toUpperCase() })} className="absolute inset-0 cursor-pointer opacity-0" />
-              </label>
+              </span>}
+              {admin ? (
+                <label className="relative h-7 w-7 shrink-0 cursor-pointer rounded-lg border border-gray-200" style={{ backgroundColor: s.color }} title="Change colour">
+                  <span className="sr-only">{s.displayName} colour</span>
+                  <input type="color" value={s.color} onChange={(e) => patch(s.id, { color: e.target.value.toUpperCase() })} className="absolute inset-0 cursor-pointer opacity-0" />
+                </label>
+              ) : <span className="h-7 w-7 shrink-0 rounded-lg border border-gray-200" style={{ backgroundColor: s.color }} aria-hidden />}
               <div className="min-w-[200px] flex-1">
-                <Input aria-label={`${s.displayName} name`} value={s.displayName} invalid={!!errors[s.id]} onChange={(e) => patch(s.id, { displayName: e.target.value })} />
+                {admin ? <Input aria-label={`${s.displayName} name`} value={s.displayName} invalid={!!errors[s.id]} onChange={(e) => patch(s.id, { displayName: e.target.value })} /> : <span className="text-sm font-semibold text-gray-900">{s.displayName}</span>}
                 {errors[s.id] && <p className="mt-1 text-xs text-red-600">{errors[s.id]}</p>}
               </div>
               {s.system && (
@@ -187,7 +194,7 @@ export function PipelineStagesView() {
                 </span>
               )}
               <span className="w-20 text-right text-xs text-gray-500">{counts[s.id] ?? 0} {counts[s.id] === 1 ? 'card' : 'cards'}</span>
-              <button
+              {admin && <button
                 type="button"
                 onClick={() => remove(s)}
                 disabled={s.system}
@@ -196,21 +203,21 @@ export function PipelineStagesView() {
                 className="rounded-lg p-2 text-gray-400 hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent"
               >
                 <Trash2 className="h-4 w-4" />
-              </button>
+              </button>}
             </li>
           ))}
         </ul>
-        <div className="border-t border-gray-100 px-5 py-3">
+        {admin && <div className="border-t border-gray-100 px-5 py-3">
           <Button variant="secondary" size="sm" icon={<Plus className="h-4 w-4" />} onClick={addStage} disabled={columns.length >= MAX_STAGES}>
             Add stage
           </Button>
-        </div>
+        </div>}
       </div>
 
-      <div className="mt-8 flex justify-end gap-2">
+      {admin && <div className="mt-8 flex justify-end gap-2">
         <Button variant="secondary" onClick={discard} disabled={!dirty} icon={<RotateCcw className="h-4 w-4" />}>Discard</Button>
         <Button onClick={save} disabled={!dirty} icon={<Save className="h-4 w-4" />}>Save Changes</Button>
-      </div>
+      </div>}
       </>}
 
       {adding && <AddPipelineModal onClose={() => setAdding(false)} onAdd={addPipeline} taken={pipelines.items.map((p) => p.name)} />}

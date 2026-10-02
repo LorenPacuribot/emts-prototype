@@ -15,6 +15,8 @@ import { fullName, uid } from '@/lib/utils';
 import { trackedLinkPath } from '@/lib/website-form';
 import { NativeSelect } from '@/components/ui/form';
 import { activeSourceNames } from '@/features/lib/rules/lead-sources';
+import { useCurrentUser as useFeatureUser } from '@/features/lib/store';
+import { can } from '@/features/lib/permissions';
 import type { TrackedLink } from '@/lib/types';
 import { Badge, Button, Card, CardTitle, Field, Input, Modal, NewBadge, Table, TD, TH, THead, TR, VersionBadge } from '@/features/components/ui';
 import { toast } from '@/features/lib/toast';
@@ -26,6 +28,8 @@ export function TrackedLinksCard() {
   const { items: leads } = useCollection('leads');
   const me = fullName(useCurrentUser());
   const [adding, setAdding] = useState(false);
+  // Tab 2: managing lead capture links is for Admin Master Data (Owner and Admin).
+  const admin = can(useFeatureUser(), 'settings.masterData');
   const [qr, setQr] = useState<TrackedLink>();
   const origin = typeof window === 'undefined' ? '' : window.location.origin;
   const since = Date.now() - 30 * DAY;
@@ -47,7 +51,7 @@ export function TrackedLinksCard() {
 
   return (
     <Card className="p-5">
-      <CardTitle icon={<Link2 />} badge={<><VersionBadge item="CRM-M5" /></>} right={<Button variant="primary" size="sm" onClick={() => setAdding(true)}><Plus className="h-4 w-4" /> Add link</Button>}>
+      <CardTitle icon={<Link2 />} badge={<><VersionBadge item="CRM-M5" /></>} right={admin ? <Button variant="primary" size="sm" onClick={() => setAdding(true)}><Plus className="h-4 w-4" /> Add link</Button> : undefined}>
         Tracked links
       </CardTitle>
       <p className="-mt-3 mb-4 text-sm text-gray-500">Share these instead of the plain form. Each lead is tagged with the link&apos;s source.</p>
@@ -69,9 +73,9 @@ export function TrackedLinksCard() {
                 <span className="inline-flex gap-1">
                   <Button size="sm" variant="secondary" onClick={() => void copy(l)} aria-label={`Copy ${l.name}`}><Copy className="h-3.5 w-3.5" /> Copy</Button>
                   <Button size="sm" variant="secondary" onClick={() => setQr(l)} aria-label={`QR code for ${l.name}`}><QrCode className="h-3.5 w-3.5" /> QR code</Button>
-                  <Button size="sm" variant="secondary" onClick={() => togglePause(l)}>
+                  {admin && <Button size="sm" variant="secondary" onClick={() => togglePause(l)}>
                     {l.status === 'active' ? <><Pause className="h-3.5 w-3.5" /> Pause</> : <><Play className="h-3.5 w-3.5" /> Resume</>}
-                  </Button>
+                  </Button>}
                 </span>
               </TD>
             </TR>

@@ -212,7 +212,7 @@ export function financeSeed(nowIso: string) {
     estimateBaselines,
     financeSettings: {
       qbo: {
-        connected: true, connectedBy: "U-OFFICE", connectedAt: d(-120), lastExchangeAt: lastRun, realm: "QBO-9130-4471",
+        connected: true, connectedBy: "U-OFFICE", connectedAt: d(-120), lastExchangeAt: lastRun, realm: "QBO-9130-4471", companyName: "Technologia",
         // D1: every tax region mapped (Settings › Taxes regions), sync started for new records.
         taxMap: { tx_austin: "2200 Sales Tax Payable", tx_dallas: "2200 Sales Tax Payable", tx_nashville: "2210 Sales Tax Payable — TN", tx_none: "2200 Sales Tax Payable" },
         syncStart: { mode: "new_only" as const, at: d(-120), by: "U-OFFICE" },
@@ -223,7 +223,7 @@ export function financeSeed(nowIso: string) {
       jurisdiction: "Dallas County, TX",
     },
     // D3: QuickBooks is a paid add-on; the demo organisation has it.
-    organisation: { quickbooksAddOn: true },
+    organisation: { quickbooksAddOn: true, defaultEstimatorId: "U-EST" },
     counters: { fin: 17, exq: 8, rmb: 4, ven: 5, reg: 4, ftx: 5, rec: 4, far: 2 },
   };
 }

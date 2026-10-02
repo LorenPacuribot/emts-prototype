@@ -52,7 +52,7 @@ export function NotificationBell() {
           {mine.length === 0 ? (
             <div className="flex flex-col items-center gap-2 px-6 py-8 text-center text-sm text-gray-500">
               <CheckCircle2 className="h-6 w-6 text-gray-300" />
-              You&apos;re all caught up. You&apos;ll be told here when a customer accepts an estimate.
+              You&apos;re all caught up. You&apos;ll be told here about accepted estimates, new leads and QuickBooks problems.
             </div>
           ) : (
             <ul className="max-h-96 divide-y divide-gray-100 overflow-y-auto">

@@ -68,7 +68,6 @@ export function LeadSourcesPanel() {
         <span className="flex items-center gap-2">Lead sources <NewBadge /></span>
         <span>{sources.items.filter((s) => s.active).length} active</span>
       </div>
-      {!admin && <p className="border-b border-gray-100 bg-gray-50 px-5 py-2 text-xs text-gray-500">Only the owner or an admin changes lead sources.</p>}
       <ul>
         {sources.items.map((s) => {
           const leadsHere = count(s.name);
@@ -78,7 +77,7 @@ export function LeadSourcesPanel() {
           return (
             <li key={s.id} className={cn('flex flex-wrap items-center gap-3 border-b border-gray-100 px-5 py-3 last:border-0', !s.active && 'bg-gray-50')}>
               <div className="min-w-[200px] flex-1">
-                <div className="flex items-center gap-2">
+                {!admin ? <span className="text-sm font-semibold text-gray-900">{s.name}</span> : <div className="flex items-center gap-2">
                   <Input
                     aria-label={`${s.name} name`}
                     value={value}
@@ -88,8 +87,8 @@ export function LeadSourcesPanel() {
                     onChange={(e) => setEdits({ ...edits, [s.id]: e.target.value })}
                     onKeyDown={(e) => e.key === 'Enter' && value !== s.name && rename(s.id)}
                   />
-                  {admin && value !== s.name && <Button size="sm" onClick={() => rename(s.id)}>Save</Button>}
-                </div>
+                  {value !== s.name && <Button size="sm" onClick={() => rename(s.id)}>Save</Button>}
+                </div>}
                 {errors[s.id] && <p className="mt-1 text-xs text-red-600">{errors[s.id]}</p>}
               </div>
               {s.builtIn && (
@@ -98,25 +97,26 @@ export function LeadSourcesPanel() {
                 </span>
               )}
               <span className="w-20 text-right text-xs text-gray-500">{leadsHere} {leadsHere === 1 ? 'lead' : 'leads'}</span>
-              <Button
+              {!admin && <span className={cn('text-xs font-semibold', s.active ? 'text-green-700' : 'text-gray-500')}>{s.active ? 'Active' : 'Inactive'}</span>}
+              {admin && <Button
                 size="sm"
                 variant="secondary"
-                disabled={!admin || !!off}
+                disabled={!!off}
                 title={off}
                 onClick={() => { sources.update(s.id, { active: !s.active }); toast(`${s.name} ${s.active ? 'deactivated' : 'activated'}`); }}
               >
                 {s.active ? 'Deactivate' : 'Activate'}
-              </Button>
-              <button
+              </Button>}
+              {admin && <button
                 type="button"
                 onClick={() => { sources.remove(s.id); toast(`${s.name} deleted`); }}
-                disabled={!admin || !!del}
+                disabled={!!del}
                 aria-label={`Delete ${s.name}`}
                 title={del ?? 'Delete source'}
                 className="rounded-lg p-2 text-gray-400 hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent"
               >
                 <Trash2 className="h-4 w-4" />
-              </button>
+              </button>}
             </li>
           );
         })}

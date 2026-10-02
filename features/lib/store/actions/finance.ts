@@ -9,7 +9,8 @@
  *
  * QuickBooks is simulated. Records are sent as they are saved (2 Oct 2026, D1).
  */
-import type { Database, ExchangeItem, FinanceAllocation, FinanceRecord, FinanceRecordType, User } from "@/features/types";
+import type { AccountMapping, Database, ExchangeItem, FinanceAllocation, FinanceRecord, FinanceRecordType, User } from "@/features/types";
+import { notify } from "./notifications";
 import { can, whoCan } from "@/features/lib/permissions";
 import { now } from "@/features/lib/clock";
 import { byId } from "@/features/lib/selectors";
@@ -20,7 +21,7 @@ import {
   periodOf, postingPeriod, projectedMargin, reimbursementSteps,
 } from "@/features/lib/rules/finance";
 import {
-  SYNC_KIND_LABEL, SYNC_ORDER, dueToSend, failuresOf, nextRetryAt, parentFirst, plainReason, retriesExhausted, startSyncBlocker, syncKindOf, type SyncKind, type SyncLogRow,
+  SYNC_KIND_LABEL, SYNC_ORDER, customerFingerprint, dueToSend, failuresOf, nextRetryAt, parentFirst, plainReason, qboLogText, retriesExhausted, startSyncBlocker, syncKindOf, type SyncKind, type SyncLogRow,
 } from "@/features/lib/rules/qbo-sync";
 import { jobLabourCost } from "@/features/lib/rules/labour-cost";
 import { contractSummary, coPricing } from "./change-orders";
@@ -124,22 +125,62 @@ export function unallocated(db: Database): FinanceRecord[] {
 
 /* ------------------------------ Connection --------------------------- */
 
-export function connectQuickBooks(db: Database, actor: User) {
+const stamp = (iso: string = now()) => new Date(iso).toLocaleString();
+
+/** Owner and Admin (PAYMENT_CONFIG) hear about connection problems. */
+const qboAdmins = (db: Database) => db.users.filter((u) => can(u, "finance.connect")).map((u) => u.id);
+
+/** The QuickBooks company's name (simulated: the organisation's business name, or the realm). */
+export const qboCompanyName = (db: Database) => db.financeSettings.qbo.companyName ?? db.financeSettings.qbo.realm ?? "QuickBooks company";
+
+export function connectQuickBooks(db: Database, actor: User, companyName?: string) {
   if (!can(actor, "finance.connect")) return denied(db, actor, MODULE, "connect QuickBooks Online", whoCan("finance.connect"));
   if (!hasQuickBooksAddOn(db)) return fail("Add QuickBooks to your plan.");
   if (db.financeSettings.qbo.connected) return fail("QuickBooks Online is already connected.");
-  db.financeSettings.qbo = { ...db.financeSettings.qbo, connected: true, connectedBy: actor.id, connectedAt: now(), realm: `QBO-${randomRef(6)}` };
-  log(db, actor, MODULE, `Finance: QuickBooks Online connection established by ${actor.name} at ${new Date().toLocaleString()}`);
+  const at = now();
+  db.financeSettings.qbo = {
+    ...db.financeSettings.qbo, connected: true, connectedBy: actor.id, connectedAt: at, expiredAt: undefined,
+    realm: db.financeSettings.qbo.realm ?? `QBO-${randomRef(6)}`, companyName: companyName?.trim() || db.financeSettings.qbo.companyName,
+  };
+  log(db, actor, MODULE, qboLogText.connect(qboCompanyName(db), actor.name, stamp(at)));
+  sendDue(db, actor, false);
   return ok();
 }
 
-/** D3: Disconnect (Owner and Admin). Nothing is sent until QuickBooks is connected again. */
+/** D3: Disconnect (Owner and Admin). Nothing is sent until QuickBooks is connected again; QuickBooks ids are kept. */
 export function disconnectQuickBooks(db: Database, actor: User) {
   if (!can(actor, "finance.connect")) return denied(db, actor, MODULE, "disconnect QuickBooks Online", whoCan("finance.connect"));
   if (!db.financeSettings.qbo.connected) return fail("QuickBooks Online isn't connected.");
-  db.financeSettings.qbo = { ...db.financeSettings.qbo, connected: false };
-  log(db, actor, MODULE, `Finance: QuickBooks Online disconnected by ${actor.name} at ${new Date().toLocaleString()}`);
+  db.financeSettings.qbo = { ...db.financeSettings.qbo, connected: false, expiredAt: undefined };
+  log(db, actor, MODULE, qboLogText.disconnect(actor.name, stamp()));
   return ok();
+}
+
+/**
+ * Tab 1: the connection expired. Sync pauses, records keep queuing, the card
+ * shows Reconnect needed, and admins get an in-app notice. Simulated from the
+ * Accounting "Simulate QuickBooks" menu.
+ */
+export function simulateQboExpired(db: Database, actor: User) {
+  const q = db.financeSettings.qbo;
+  if (!q.connected) return fail("QuickBooks Online isn't connected.");
+  if (q.expiredAt) return fail("The connection has already expired.");
+  q.expiredAt = now();
+  log(db, actor, MODULE, `Finance: QuickBooks Online connection to ${qboCompanyName(db)} expired at ${stamp(q.expiredAt)}. Sync paused.`);
+  notify(db, qboAdmins(db), { kind: "quickbooks", title: "QuickBooks needs reconnecting", body: "Sync is paused. Records keep queuing and send once you reconnect.", href: "/settings/accounting" });
+  return ok();
+}
+
+/** Reconnect after the connection expired (Owner and Admin). Waiting records send straight away. */
+export function reconnectQuickBooks(db: Database, actor: User) {
+  if (!can(actor, "finance.connect")) return denied(db, actor, MODULE, "reconnect QuickBooks Online", whoCan("finance.connect"));
+  const q = db.financeSettings.qbo;
+  if (!q.connected || !q.expiredAt) return fail("The QuickBooks connection is working.");
+  q.expiredAt = undefined;
+  q.connectedAt = now();
+  q.connectedBy = actor.id;
+  log(db, actor, MODULE, qboLogText.connect(qboCompanyName(db), actor.name, stamp(q.connectedAt)));
+  return ok(sendDue(db, actor, true));
 }
 
 /** D3, prototype only: switch the organisation's QuickBooks add-on (Prototype bar). */
@@ -155,10 +196,10 @@ export function hasQuickBooksAddOn(db: Database): boolean {
   return db.organisation?.quickbooksAddOn ?? true;
 }
 
-/** D1: records are sent as they are saved once the add-on is on, QuickBooks is connected and sync has started. */
+/** D1: records are sent as they are saved once the add-on is on, QuickBooks is connected (not expired) and sync has started. */
 export function syncActive(db: Database): boolean {
   const q = db.financeSettings.qbo;
-  return hasQuickBooksAddOn(db) && q.connected && !!q.syncStart && accountingDestination(db) !== "books";
+  return hasQuickBooksAddOn(db) && q.connected && !q.expiredAt && !!q.syncStart && accountingDestination(db) !== "books";
 }
 
 export function itemKind(db: Database, q: ExchangeItem): SyncKind {
@@ -173,6 +214,22 @@ export function itemNumber(db: Database, q: ExchangeItem): string {
   if (kind === "customer") return byId(db.customers, q.recordId)?.name ?? q.recordId;
   if (kind === "project") return q.recordId;
   return byId(db.financeRecords, q.recordId)?.ref ?? q.recordId;
+}
+
+/** Record type in log lines and the Sync Log: Customer, Project, Invoice, Payment, Deposit, Check… */
+function recordTypeLabel(db: Database, q: ExchangeItem): string {
+  const kind = itemKind(db, q);
+  if (kind !== "other" && kind !== "payment") return SYNC_KIND_LABEL[kind];
+  const t = byId(db.financeRecords, q.recordId)?.type;
+  return t ? t.charAt(0).toUpperCase() + t.slice(1).replace("_", " ") : SYNC_KIND_LABEL[kind];
+}
+
+/** Where the EM number links to. */
+function recordHref(db: Database, kind: SyncKind, id: string): string {
+  if (kind === "customer") return `/contacts/${id}`;
+  if (kind === "project") return `/jobs/${id}`;
+  const r = byId(db.financeRecords, id);
+  return r?.type === "invoice" && r.invoiceId ? `/invoices/${r.invoiceId}` : `/accounting?mode=qbo&record=${id}`;
 }
 
 const accepted = (db: Database, kind: SyncKind, id: string) =>
@@ -221,8 +278,64 @@ function newItem(db: Database, actor: User, recordId: string, kind: SyncKind, pa
 function queueParent(db: Database, actor: User, [kind, id]: [SyncKind, string]): ExchangeItem {
   const open = db.exchangeQueue.find((x) => x.recordId === id && itemKind(db, x) === kind && !x.supersededBy && x.status !== "accepted");
   if (open) return open;
-  const description = kind === "customer" ? `Customer ${byId(db.customers, id)?.name ?? id}` : `Project ${id} ${byId(db.jobs, id)?.name ?? ""}`.trim();
-  return newItem(db, actor, id, kind, { amount: 0, jobId: kind === "project" ? id : undefined, description });
+  const c = kind === "customer" ? byId(db.customers, id) : undefined;
+  const description = c ? `Customer ${c.name}` : `Project ${id} ${byId(db.jobs, id)?.name ?? ""}`.trim();
+  return newItem(db, actor, id, kind, { amount: 0, jobId: kind === "project" ? id : undefined, description, ...(c ? { fingerprint: customerFingerprint(c) } : {}) });
+}
+
+/**
+ * A contact is sent once it is a real contact, not a lead: it has a job or
+ * estimate (tab 1: leads are never sent).
+ */
+const isContact = (db: Database, c: Database["customers"][number]) => !c.leadOnly && db.jobs.some((j) => j.customerId === c.id);
+
+/**
+ * Contacts and jobs saved since sync started, and contacts edited since they
+ * were last sent (tab 1: "when the contact is created or edited", "when the
+ * job is created"). Read-only; queueEntities queues them. Records that
+ * existed when sync started follow the Start sync choice instead.
+ */
+export function entitiesToQueue(db: Database): { kind: "customer" | "project"; id: string; update?: boolean }[] {
+  const base = db.financeSettings.qbo.syncStart?.baseline;
+  if (!base) return [];
+  const out: { kind: "customer" | "project"; id: string; update?: boolean }[] = [];
+  for (const c of db.customers) {
+    if (!isContact(db, c)) continue;
+    const items = db.exchangeQueue.filter((x) => x.recordId === c.id && itemKind(db, x) === "customer");
+    if (items.some((x) => x.status !== "accepted" && !x.supersededBy)) continue;
+    const last = items.filter((x) => x.status === "accepted").sort((a, b) => b.version - a.version)[0];
+    if (!last) {
+      if (!base.customerIds.includes(c.id) && !db.qboCustomers?.some((x) => x.customerId === c.id)) out.push({ kind: "customer", id: c.id });
+    } else if (last.payload.fingerprint && last.payload.fingerprint !== customerFingerprint(c)) {
+      out.push({ kind: "customer", id: c.id, update: true });
+    }
+  }
+  for (const j of db.jobs.filter((x) => x.contractSigned)) {
+    if (base.jobIds.includes(j.id) || db.exchangeQueue.some((x) => x.recordId === j.id && itemKind(db, x) === "project")) continue;
+    out.push({ kind: "project", id: j.id });
+  }
+  return out;
+}
+
+function queueEntities(db: Database, actor: User) {
+  const start = db.financeSettings.qbo.syncStart;
+  if (!start) return;
+  // Older saves started sync before the baseline existed: what is there now counts as already handled.
+  start.baseline ??= { customerIds: db.customers.map((c) => c.id), jobIds: db.jobs.filter((j) => j.contractSigned).map((j) => j.id) };
+  for (const e of entitiesToQueue(db)) {
+    if (e.kind === "customer") {
+      const c = byId(db.customers, e.id)!;
+      newItem(db, actor, c.id, "customer", { amount: 0, description: `Customer ${c.name}${e.update ? " (updated)" : ""}`, fingerprint: customerFingerprint(c) });
+    } else {
+      newItem(db, actor, e.id, "project", { amount: 0, jobId: e.id, description: `Project ${e.id} ${byId(db.jobs, e.id)?.name ?? ""}`.trim() });
+    }
+  }
+}
+
+/** True when the background sync has something to do (the ticker checks this before calling processSync). */
+export function hasSyncWork(db: Database, at: string): boolean {
+  if (!syncActive(db)) return false;
+  return !db.financeSettings.qbo.syncStart?.baseline || entitiesToQueue(db).length > 0 || db.exchangeQueue.some((q) => dueToSend(q, at));
 }
 
 /**
@@ -240,7 +353,6 @@ function sendItem(db: Database, actor: User, q: ExchangeItem, at: string, manual
   }
   const kind = itemKind(db, q);
   const record = byId(db.financeRecords, q.recordId);
-  const label = `${SYNC_KIND_LABEL[kind]} ${itemNumber(db, q)}`;
   q.sentAt = at;
   const duplicate = db.exchangeQueue.some((x) => x !== q && x.idempotencyKey === q.idempotencyKey && x.status === "accepted");
   const failures = failuresOf(q.attempts);
@@ -253,9 +365,7 @@ function sendItem(db: Database, actor: User, q: ExchangeItem, at: string, manual
     if (manual || retriesExhausted(n)) {
       q.needsAttentionAt = at;
       q.nextRetryAt = undefined;
-      log(db, actor, MODULE, `Finance: ${label} failed ${n} times. Moved to Needs Attention at ${new Date(at).toLocaleString()}`);
-    } else {
-      log(db, actor, MODULE, `Finance: ${label} failed (attempt ${q.attempts.length}). Retrying at ${new Date(q.nextRetryAt!).toLocaleString()}`);
+      log(db, actor, MODULE, qboLogText.failed(recordTypeLabel(db, q), itemNumber(db, q), q.attempts.length, plainReason(q.simulateError)));
     }
     return q.status;
   }
@@ -263,17 +373,27 @@ function sendItem(db: Database, actor: User, q: ExchangeItem, at: string, manual
   q.nextRetryAt = undefined;
   q.needsAttentionAt = undefined;
   q.attempts.push({ at, ok: true, ...(manual ? { manual } : {}) });
+  // The QuickBooks id: a record keeps its external ref; a customer or project keeps the id it was first given.
   if (record && !record.externalRef) record.externalRef = `QBO-${record.type.toUpperCase().slice(0, 3)}-${randomRef(5)}`;
+  const earlier = db.exchangeQueue.find((x) => x !== q && x.recordId === q.recordId && itemKind(db, x) === kind && x.qboRef);
+  q.qboRef = record?.externalRef ?? earlier?.qboRef ?? (kind === "customer" ? db.qboCustomers?.find((c) => c.customerId === q.recordId)?.id : undefined) ?? `QBO-${kind === "customer" ? "CUS" : "PRJ"}-${randomRef(5)}`;
+  if (kind === "customer") {
+    const c = byId(db.customers, q.recordId);
+    if (c) q.payload.fingerprint = customerFingerprint(c);
+  }
   db.financeSettings.qbo.lastExchangeAt = at;
-  log(db, actor, MODULE, `Finance: ${label} accepted by QuickBooks at ${new Date(at).toLocaleString()}. Attempt ${q.attempts.length}${duplicate ? " (already in QuickBooks — no duplicate created)" : ""}`);
+  log(db, actor, MODULE, qboLogText.sent(recordTypeLabel(db, q), itemNumber(db, q), q.qboRef));
   return q.status;
 }
 
 /**
  * Send everything that is due, parents first. Children waiting on a parent
- * accepted in the same pass go straight after it.
+ * accepted in the same pass go straight after it. New and edited contacts
+ * and new jobs are queued first.
  */
 function sendDue(db: Database, actor: User, force: boolean) {
+  if (!syncActive(db)) return { accepted: 0, failed: 0 };
+  queueEntities(db, actor);
   const at = now();
   let acceptedCount = 0;
   let failed = 0;
@@ -296,17 +416,16 @@ function sendDue(db: Database, actor: User, force: boolean) {
 /** Queue a record for QuickBooks. With sync on (D1) it is sent straight away. */
 export function queue(db: Database, actor: User, record: FinanceRecord, description: string, extra: Partial<ExchangeItem> = {}) {
   const item = newItem(db, actor, record.id, syncKindOf(record.type), { amount: record.amount, jobId: record.jobId, costCode: record.costCode, description }, extra);
-  log(db, actor, MODULE, `Finance: Record ${record.type} ${record.ref} queued for QuickBooks at ${new Date().toLocaleString()}.`);
-  if (syncActive(db)) sendDue(db, actor, false);
+  sendDue(db, actor, false);
   return item;
 }
 
 /**
- * D1: the background sync (prototype clock). Sends queued and waiting
- * records and every retry whose time has come. Runs for any signed-in user.
+ * D1: the background sync (prototype clock). Queues new and edited contacts
+ * and new jobs, then sends queued and waiting records and every retry whose
+ * time has come. Runs for any signed-in user.
  */
 export function processSync(db: Database, actor: User) {
-  if (!syncActive(db)) return ok({ accepted: 0, failed: 0 });
   return ok(sendDue(db, actor, false));
 }
 
@@ -315,9 +434,9 @@ export function syncNow(db: Database, actor: User) {
   if (!can(actor, "finance.exchange")) return denied(db, actor, MODULE, "sync with QuickBooks", whoCan("finance.exchange"));
   if (!hasQuickBooksAddOn(db)) return fail("Add QuickBooks to your plan.");
   if (!db.financeSettings.qbo.connected) return fail("Connect QuickBooks Online first.");
+  if (db.financeSettings.qbo.expiredAt) return fail("Reconnect QuickBooks first. Sync is paused.");
   if (!db.financeSettings.qbo.syncStart) return fail("Start sync in Settings › Accounting first.");
-  const due = db.exchangeQueue.filter((q) => dueToSend(q, now(), true));
-  if (!due.length) return fail("Everything is in sync.");
+  if (!entitiesToQueue(db).length && !db.exchangeQueue.some((q) => dueToSend(q, now(), true))) return fail("Everything is in sync.");
   return ok(sendDue(db, actor, true));
 }
 
@@ -337,21 +456,28 @@ export function retryItem(db: Database, actor: User, itemId: string) {
   return status === "accepted" ? ok("accepted") : status === "waiting" ? ok("waiting") : fail(plainReason(q.attempts[q.attempts.length - 1]?.error));
 }
 
+/** The sync options Start sync needs (tab 1, Component 1). */
+export function syncOptions(db: Database) {
+  const acct = (o: AccountMapping["syncOption"]) => db.accountMappings.find((m) => m.syncOption === o)?.account;
+  return { incomeAccount: acct("income"), depositAccount: acct("deposit"), cardMethod: acct("card_method"), taxMap: db.financeSettings.qbo.taxMap };
+}
+
 /**
- * D1: Start sync (Settings › Accounting). Only once the income account and
+ * D1: Start sync (Settings › Accounting). Only once every sync option and
  * every tax region are mapped. "From a start date" sends contacts and jobs
- * created on or after it; "new records only" sends nothing old.
+ * from it; "new records only" sends nothing old. From then on, new and edited
+ * contacts, new jobs, invoices and payments are sent as they are saved.
  */
 export function startQuickBooksSync(db: Database, actor: User, input: { mode: "from_date" | "new_only"; from?: string; regionIds: string[] }) {
   if (!can(actor, "finance.connect")) return denied(db, actor, MODULE, "start QuickBooks sync", whoCan("finance.connect"));
   if (!hasQuickBooksAddOn(db)) return fail("Add QuickBooks to your plan.");
   if (!db.financeSettings.qbo.connected) return fail("Connect QuickBooks Online first.");
-  const income = db.accountMappings.find((m) => m.syncOption === "income")?.account;
-  const blocker = startSyncBlocker({ incomeAccount: income, regionIds: input.regionIds, taxMap: db.financeSettings.qbo.taxMap });
+  const blocker = startSyncBlocker({ ...syncOptions(db), regionIds: input.regionIds });
   if (blocker) return fail(blocker);
   if (input.mode === "from_date" && !/^\d{4}-\d{2}-\d{2}$/.test(input.from ?? "")) return fail("Pick a start date.", "from");
   const at = now();
-  db.financeSettings.qbo.syncStart = { mode: input.mode, from: input.mode === "from_date" ? input.from : undefined, at, by: actor.id };
+  const baseline = { customerIds: db.customers.map((c) => c.id), jobIds: db.jobs.filter((j) => j.contractSigned).map((j) => j.id) };
+  db.financeSettings.qbo.syncStart = { mode: input.mode, from: input.mode === "from_date" ? input.from : undefined, at, by: actor.id, baseline };
   let queued = 0;
   if (input.mode === "from_date") {
     const from = input.from!;
@@ -360,7 +486,7 @@ export function startQuickBooksSync(db: Database, actor: User, input: { mode: "f
     for (const id of [...new Set(jobs.map((j) => j.customerId))]) {
       const c = byId(db.customers, id);
       if (!c || accepted(db, "customer", c.id) || db.qboCustomers?.some((x) => x.customerId === c.id)) continue;
-      newItem(db, actor, c.id, "customer", { amount: 0, description: `Customer ${c.name}` });
+      newItem(db, actor, c.id, "customer", { amount: 0, description: `Customer ${c.name}`, fingerprint: customerFingerprint(c) });
       queued++;
     }
     for (const j of jobs.filter((j) => !accepted(db, "project", j.id))) {
@@ -374,12 +500,14 @@ export function startQuickBooksSync(db: Database, actor: User, input: { mode: "f
 }
 
 /** D1: QuickBooks account for one tax region (blank clears it). */
-export function mapTaxRegion(db: Database, actor: User, regionId: string, account: string) {
+export function mapTaxRegion(db: Database, actor: User, regionId: string, account: string, regionName = regionId) {
   if (!can(actor, "finance.connect") && !can(actor, "finance.config")) return denied(db, actor, MODULE, "map tax regions", whoCan("finance.connect"));
   const map = { ...(db.financeSettings.qbo.taxMap ?? {}) };
+  const before = map[regionId] ?? "none";
   if (account.trim()) map[regionId] = account.trim();
   else delete map[regionId];
   db.financeSettings.qbo.taxMap = map;
+  log(db, actor, MODULE, qboLogText.options(actor.name, `Tax mapping for ${regionName}`, before, account.trim() || "none"));
   return ok();
 }
 
@@ -389,17 +517,20 @@ export function syncLogRows(db: Database): SyncLogRow[] {
   for (const q of db.exchangeQueue) {
     const kind = itemKind(db, q);
     const record = byId(db.financeRecords, q.recordId);
-    const qboRef = kind === "customer" ? db.qboCustomers?.find((c) => c.customerId === q.recordId)?.id : record?.externalRef;
+    const qboRef = q.qboRef ?? (kind === "customer" ? db.qboCustomers?.find((c) => c.customerId === q.recordId)?.id : record?.externalRef);
     q.attempts.forEach((a, i) => rows.push({
-      key: `${q.id}-${i}`, at: a.at, kind, emNumber: itemNumber(db, q), qboRef: a.ok ? qboRef : undefined,
-      direction: "to_qbo", result: a.ok ? "Accepted" : "Failed", error: a.error,
+      key: `${q.id}-${i}`, at: a.at, kind, emNumber: itemNumber(db, q), href: recordHref(db, kind, q.recordId), qboRef: a.ok ? qboRef : undefined,
+      direction: "to_qbo", result: a.ok ? (q.version > 1 ? "Updated" : "Sent") : "Failed", detail: a.ok ? undefined : a.error,
     }));
   }
   for (const r of db.financeRecords) {
-    const base = { kind: syncKindOf(r.type), emNumber: r.ref, qboRef: r.externalRef, direction: "from_qbo" as const };
-    if (r.origin === "quickbooks") rows.push({ ...base, key: `${r.id}-in`, at: r.date, result: "Created in QuickBooks" });
-    if (r.variance) rows.push({ ...base, key: `${r.id}-var`, at: r.variance.at, result: "Changed in QuickBooks" });
-    if (r.deletedInQbo) rows.push({ ...base, key: `${r.id}-del`, at: r.deletedInQbo.at, result: "Deleted in QuickBooks" });
+    const base = { kind: syncKindOf(r.type), emNumber: r.ref, href: recordHref(db, syncKindOf(r.type), r.id), qboRef: r.externalRef, direction: "from_qbo" as const, result: "Received" as const };
+    if (r.origin === "quickbooks") rows.push({ ...base, key: `${r.id}-in`, at: r.date, detail: "Created in QuickBooks" });
+    if (r.variance) rows.push({ ...base, key: `${r.id}-var`, at: r.variance.at, detail: `Amount changed from $${r.variance.sent.toFixed(2)} to $${r.variance.current.toFixed(2)}` });
+    if (r.deletedInQbo) rows.push({ ...base, key: `${r.id}-del`, at: r.deletedInQbo.at, detail: "Deleted in QuickBooks" });
+    if (r.origin === "estimate_master" && r.paymentDate && r.paymentStatus && r.paymentStatus !== "unpaid" && isSentToQbo(db, r)) {
+      rows.push({ ...base, key: `${r.id}-pay`, at: r.paymentDate, detail: r.paymentStatus === "paid" ? "Payment status: Paid" : "Payment status: Partly paid" });
+    }
   }
   return rows;
 }
@@ -468,7 +599,7 @@ export function simulateQboEdit(db: Database, actor: User, recordId: string, new
   const sent = r.variance?.sent ?? r.amount;
   r.amount = roundMoney(newAmount);
   r.variance = { sent, current: r.amount, at: now() };
-  log(db, actor, MODULE, `Finance: Invoice ${r.ref} amount edited in QuickBooks from ${sent.toFixed(2)} to ${r.amount.toFixed(2)}. Variance flag raised for office manager review.`);
+  log(db, actor, MODULE, qboLogText.variance(r.ref, `$${sent.toFixed(2)}`, `$${r.amount.toFixed(2)}`));
   return ok();
 }
 
@@ -478,7 +609,7 @@ export function simulateQboDelete(db: Database, actor: User, recordId: string) {
   if (!r) return fail("Record not found.");
   if (r.deletedInQbo) return fail("Already flagged as deleted in QuickBooks.");
   r.deletedInQbo = { at: now() };
-  log(db, actor, MODULE, `Finance: QuickBooks record ${r.externalRef ?? r.ref} reported deleted. Local record ${r.id} flagged for review, not deleted.`);
+  log(db, actor, MODULE, qboLogText.deleted(r.externalRef ?? r.ref, r.type.charAt(0).toUpperCase() + r.type.slice(1).replace("_", " "), r.ref));
   return ok();
 }
 
@@ -862,7 +993,8 @@ export function updateMapping(db: Database, actor: User, id: string, account: st
   if (!account.trim()) return fail("Enter the QuickBooks account.", "account");
   const old = m.account;
   Object.assign(m, { account: account.trim(), updatedBy: actor.id, updatedAt: now() });
-  log(db, actor, MODULE, `Finance: Account mapping ${m.id} changed from ${old} to ${m.account} by ${actor.name}. Posted transactions unaffected.`);
+  if (m.syncOption) log(db, actor, MODULE, qboLogText.options(actor.name, m.category, old, m.account));
+  else log(db, actor, MODULE, `Finance: Account mapping ${m.id} changed from ${old} to ${m.account} by ${actor.name}. Posted transactions unaffected.`);
   return ok();
 }
 
@@ -986,6 +1118,6 @@ export function reviewQboCustomer(db: Database, actor: User, qboId: string, acti
     q.customerId = id;
   }
   q.review = { status: action === "link" ? "linked" : action === "create" ? "created" : "ignored", by: actor.id, at: now() };
-  log(db, actor, MODULE, `Finance: QuickBooks customer ${q.displayName} ${q.review.status} by ${actor.name}`);
+  log(db, actor, MODULE, qboLogText.review(q.displayName, q.review.status === "linked" ? "linked to contact" : q.review.status === "created" ? "created as contact" : "ignored", actor.name));
   return ok(q.customerId);
 }

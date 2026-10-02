@@ -16,7 +16,7 @@
 */
 import { useEffect, useState } from 'react';
 import { CheckCircle2, PauseCircle } from 'lucide-react';
-import { CONTACT_REQUIRED, DEMO_SITE_KEY, HONEYPOT_FIELD, MESSAGE_MAX, NAME_LENGTH, PAINT_TYPES, THANKS_MESSAGE } from '@/lib/website-form';
+import { CONTACT_REQUIRED, DEMO_SITE_KEY, HONEYPOT_FIELD, MESSAGE_MAX, NAME_LENGTH, PAINT_TYPES, THANKS_MESSAGE, addressSuggestions } from '@/lib/website-form';
 import { useCollection } from '@/lib/store';
 
 type Status = { kind: 'idle' | 'sending' | 'sent' } | { kind: 'error'; message: string; field?: string };
@@ -28,6 +28,7 @@ export default function Page() {
   const [status, setStatus] = useState<Status>({ kind: 'idle' });
   const [track, setTrack] = useState<{ src: string; l: string; referrer: string }>({ src: '', l: '', referrer: '' });
   const [messageLength, setMessageLength] = useState(0);
+  const [addressQuery, setAddressQuery] = useState('');
   const { items: links } = useCollection('trackedLinks');
   useEffect(() => {
     setStartedAt(Date.now());
@@ -50,7 +51,10 @@ export default function Page() {
     }
   };
 
-  const err = (f: string) => (status.kind === 'error' && status.field === f ? status.message : undefined);
+  // "Please give us a phone number or email." shows under both fields (tab 2, S-CRM4).
+  const err = (f: string) =>
+    status.kind !== 'error' ? undefined
+      : status.field === f || (status.message === CONTACT_REQUIRED && (f === 'phone' || f === 'email')) ? status.message : undefined;
   const field = (name: string, label: string, props: React.InputHTMLAttributes<HTMLInputElement> = {}) => (
     <label className="block">
       <span className="mb-1 block text-sm font-semibold text-gray-700">{label}</span>
@@ -84,7 +88,11 @@ export default function Page() {
               {field('email', 'Email', { type: 'email', autoComplete: 'email' })}
             </div>
             <p className="-mt-2 text-xs text-gray-500">{CONTACT_REQUIRED}</p>
-            {field('address', 'Property address (optional)', { autoComplete: 'street-address' })}
+            {field('address', 'Property address (optional)', {
+              autoComplete: 'street-address', list: 'address-lookup', onChange: (e) => setAddressQuery(e.target.value), placeholder: 'Start typing the street address',
+            })}
+            {/* Address lookup. Prototype: suggestions from a local list; the real form uses an address service. */}
+            <datalist id="address-lookup">{addressSuggestions(addressQuery).map((a) => <option key={a} value={a} />)}</datalist>
             <label className="block">
               <span className="mb-1 block text-sm font-semibold text-gray-700">What would you like painted? (optional)</span>
               <select name="paintType" defaultValue="" className={input} aria-invalid={!!err('paintType')}>

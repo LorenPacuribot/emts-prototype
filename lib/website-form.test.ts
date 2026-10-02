@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
-  CONTACT_REQUIRED, PAINT_TYPES, RATE_LIMIT, THANKS_MESSAGE, checkSubmission, HONEYPOT_FIELD, isUsPhone, leadSourceFor, MIN_FILL_MS, RateLimiter, trackedLinkPath,
+  CONTACT_REQUIRED, PAINT_TYPES, RATE_LIMIT, THANKS_MESSAGE, addressSuggestions, checkSubmission, HONEYPOT_FIELD, isUsPhone, leadSourceFor, MIN_FILL_MS, RateLimiter, trackedLinkPath,
 } from './website-form';
 
 const now = 1_800_000_000_000;
@@ -93,5 +93,13 @@ describe('2 Oct 2026 — D4 rate limit and D5 fields', () => {
   });
   it('thanks the visitor in the agreed words', () => {
     expect(THANKS_MESSAGE).toBe("Thanks, we've received your request and will be in touch soon.");
+  });
+});
+
+describe('Tab 2 — property address lookup', () => {
+  it('suggests addresses once 3 characters are typed', () => {
+    expect(addressSuggestions('el')).toEqual([]);
+    expect(addressSuggestions('elm')).toContain('12 Elm St, Lakewood, TX 75214');
+    expect(addressSuggestions('plano').length).toBeGreaterThan(1);
   });
 });

@@ -27,7 +27,7 @@ import { Badge, Button, Checkbox, EmptyState, Modal, NewBadge, PillTabs, Version
 import { toast } from '@/features/lib/toast';
 import { useIsOn } from '@/features/lib/feature-visibility';
 import {
-  describeView, markNotified, messageText, peopleWaiting, scheduleUpdateMessage, unsentJobIds,
+  describeView, markNotified, messageText, peopleWaiting, scheduleLogText, scheduleUpdateMessage, unsentJobIds,
   type NotifyLang, type PersonChange, type ScheduleMessage,
 } from '@/features/lib/rules/schedule-notify';
 
@@ -83,7 +83,7 @@ export function useCrewNotify() {
     scheduleUpdateMessage(m?.firstName || 'there', changes, { lang, subject: template?.subject, company: bp.companyName, addressOf: (id) => jobs.find((j) => j.id === id)?.address });
 
   /** Logs one Schedule Update per person and channel, then moves the snapshots of everyone reached. */
-  const send = (rows: { memberId: string; channels: Channel[] }[], opts: { lang?: NotifyLang; jobIds?: string[] } = {}) => {
+  const send = (rows: { memberId: string; channels: Channel[] }[], opts: { lang?: NotifyLang; jobIds?: string[]; skipped?: string[] } = {}) => {
     const lang = opts.lang ?? 'en';
     const at = new Date().toISOString();
     let snaps = snapshots.items;
@@ -105,13 +105,22 @@ export function useCrewNotify() {
       });
       logs.push(...mine);
       // Their pills clear once the update reached them.
-      if (mine.some((x) => x.delivery === 'delivered')) snaps = markNotified(snaps, m.id, jobs, at, opts.jobIds);
+      const name = fullName(m);
+      if (mine.some((x) => x.delivery === 'delivered')) {
+        snaps = markNotified(snaps, m.id, jobs, at, opts.jobIds);
+        log(scheduleLogText.sent(name, fullName(me), [...new Set(changes.map((c) => c.jobNumber))]), 'job', changes[0]!.jobId);
+      }
+      for (const f of mine.filter((x) => x.delivery === 'not_delivered')) log(scheduleLogText.failed(name, f.error ?? 'Unknown error.'), 'job', changes[0]!.jobId);
+    }
+    // Tab 4: people the scheduler unticked keep their marker; the log says so.
+    for (const id of opts.skipped ?? []) {
+      const m = member(id);
+      const changes = waiting(opts.jobIds).find((p) => p.memberId === id)?.changes ?? [];
+      if (m && changes.length) log(scheduleLogText.skipped(fullName(m), fullName(me), [...new Set(changes.map((c) => c.jobNumber))]), 'job', changes[0]!.jobId);
     }
     if (logs.length) {
       snapshots.setAll(snaps);
       messages.setAll([...logs, ...messages.items]);
-      const people = new Set(logs.map((x) => x.memberId)).size;
-      log(`Schedule update sent to ${people} crew member${people === 1 ? '' : 's'} (sandbox, not delivered outside the prototype)`, 'job', logs[0]!.jobIds[0]);
     }
     return logs;
   };
@@ -229,13 +238,15 @@ function NotifyCrewModal({ jobIds, title, onClose }: { jobIds?: string[]; title?
   };
 
   const sendNow = () => {
-    const logs = n.send(ticked.map((p) => ({ memberId: p.memberId, channels: choices[p.memberId]!.channels })), { jobIds, lang: complete ? lang : 'en' });
+    const skipped = people.filter((p) => !ticked.includes(p)).map((p) => p.memberId);
+    const logs = n.send(ticked.map((p) => ({ memberId: p.memberId, channels: choices[p.memberId]!.channels })), { jobIds, lang: complete ? lang : 'en', skipped });
     const count = new Set(logs.map((x) => x.memberId)).size;
     if (complete) {
       setResults(logs); // JS-C4: show Delivered / Not delivered per person.
       return;
     }
-    toast.success(`Schedule updates sent to ${count} ${count === 1 ? 'person' : 'people'}`, 'Sandbox: logged in the prototype, nothing was delivered.');
+    // JS-C1: one job (Send Email) uses tab 4's toast, "Update sent to {N} people."
+    toast.success(jobIds?.length === 1 ? `Update sent to ${count} ${count === 1 ? 'person' : 'people'}.` : `Schedule updates sent to ${count} ${count === 1 ? 'person' : 'people'}`, 'Sandbox: logged in the prototype, nothing was delivered.');
     onClose();
   };
 

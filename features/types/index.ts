@@ -2002,13 +2002,16 @@ export interface ExchangeItem {
   version: number;
   /** waiting = held until its parent is accepted in QuickBooks (D1). */
   status: "queued" | "waiting" | "sent" | "accepted" | "rejected";
-  payload: { amount: number; jobId?: ID; costCode?: string; description: string };
+  /** fingerprint: a customer's name, email and phone when sent, so an edit sends an update. */
+  payload: { amount: number; jobId?: ID; costCode?: string; description: string; fingerprint?: string };
   /** Retry-safe: a repeat send with the same key never creates a second QuickBooks record. */
   idempotencyKey: string;
   queuedAt: ISODate;
   queuedBy: ID;
   sentAt?: ISODate;
   attempts: { at: ISODate; ok: boolean; error?: string; manual?: boolean }[];
+  /** The id QuickBooks gave the customer or project (records keep theirs in externalRef). */
+  qboRef?: string;
   /** D1: when the next automatic retry runs (prototype clock). */
   nextRetryAt?: ISODate;
   /** D1: the retries ran out; a person retries it from Needs Attention. */
@@ -2092,10 +2095,15 @@ export interface FinanceSettings {
     /** The last successful sync (D1). */
     lastExchangeAt?: ISODate;
     realm?: string;
+    /** The connected QuickBooks company's name. */
+    companyName?: string;
+    /** The connection expired: sync is paused until someone reconnects (tab 1). */
+    expiredAt?: ISODate;
     /** D1: QuickBooks account per tax region (region id → account). Every region must be mapped before sync starts. */
     taxMap?: Record<ID, string>;
     /** D1: the Start sync choice. Missing = sync not started. */
-    syncStart?: { mode: "from_date" | "new_only"; from?: string; at: ISODate; by: ID };
+    /** baseline: contacts and signed jobs that existed when sync started (they follow the Start sync choice; later ones are sent on save). */
+    syncStart?: { mode: "from_date" | "new_only"; from?: string; at: ISODate; by: ID; baseline?: { customerIds: ID[]; jobIds: ID[] } };
   };
   closedPeriods: string[];
   /** Bookkeeper's written confirmation of whether Gusto posts the payroll journal. */
@@ -2538,7 +2546,11 @@ export interface Database {
   migrationTotals: MigrationTotal[];
   financeSettings: FinanceSettings;
   /** D3: organisation plan. QuickBooks is a paid add-on. Missing on older data = on. */
-  organisation?: { quickbooksAddOn: boolean };
+  organisation?: {
+    quickbooksAddOn: boolean;
+    /** Tab 2: new website leads go to this estimator, who is notified with the admins. */
+    defaultEstimatorId?: ID;
+  };
   /** QuickBooks customers (simulated, QB-M3, QB-C1 to C4). Missing on older data. */
   qboCustomers?: QboCustomer[];
   /** Estimate Master Books (BK): chart of accounts, journal, budget. Missing on older data (filled from the seed). */
@@ -2629,7 +2641,7 @@ export interface PaintPassport {
 export interface Notification {
   id: ID;
   userId: ID;
-  kind: "estimate_accepted" | "finance_alert" | "campaign";
+  kind: "estimate_accepted" | "finance_alert" | "campaign" | "quickbooks" | "new_lead";
   title: string;
   body: string;
   /** Page the notification opens. */

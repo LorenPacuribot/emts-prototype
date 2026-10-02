@@ -247,8 +247,12 @@ describe("Feature 34 — seeded posts and actions", () => {
     const b = submitWebsiteForm(db, u, { ...base, name: "Tom Becker", ref: "WF-T2", phone: "(972) 555-0182", email: "tom.becker@example.com" });
     expect(val(b)?.outcome).toBe("possible_duplicate");
     // A brand-new person is a plain new lead.
-    const n = submitWebsiteForm(db, u, { ...base, name: "Pia Grant", ref: "WF-T4", phone: "(469) 555-0999", email: "pia.grant@example.com" });
+    const n = submitWebsiteForm(db, u, { ...base, name: "Pia Grant", ref: "WF-T4", phone: "(469) 555-0999", email: "pia.grant@example.com", sourceLabel: "Nextdoor" });
     expect(val(n)?.outcome).toBe("new");
+    // Tab 2: admins and the default estimator are told "New lead from {Source}: {Name}.", and the lead is theirs.
+    const told = (db.notifications ?? []).filter((x) => x.kind === "new_lead" && x.title === "New lead from Nextdoor: Pia Grant.").map((x) => x.userId).sort();
+    expect(told).toEqual(["U-EST", "U-OFFICE", "U-OWNER"]);
+    expect(db.leads.find((l) => l.id === val(n)!.leadId)?.assignedUserId).toBe("U-EST");
     const c = submitWebsiteForm(db, u, { ...base, ref: "WF-T3", phone: "(214) 555-0161", email: "wen.li@example.com" });
     expect(val(c)?.outcome).toBe("review");
     const leads = db.leads.length;

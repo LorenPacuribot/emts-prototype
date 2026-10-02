@@ -17,6 +17,7 @@ import {
   usable, validateUpload, type ApprovalReason,
 } from "@/features/lib/rules/marketing";
 import { denied, fail, log, nextId, nextNumber, ok, userName } from "../helpers";
+import { notify } from "./notifications";
 
 const MODULE = "Marketing";
 
@@ -521,6 +522,7 @@ export function submitWebsiteForm(db: Database, actor: User, sub: WebsiteSubmiss
   const leadId = nextId(db, "lead", "LEAD-2026-");
   db.leads.unshift({
     id: leadId, customerId: custId, source: "website",
+    ...(db.organisation?.defaultEstimatorId ? { assignedUserId: db.organisation.defaultEstimatorId } : {}),
     ...(sub.address?.trim() ? { address: sub.address.trim() } : {}), ...(sub.paintType ? { paintType: sub.paintType } : {}),
     ...(m.kind === "possible_duplicate" ? { possibleDuplicateOf: m.leadId } : m.kind === "review" ? { possibleDuplicateOf: m.phoneLeadId } : {}), ...(sub.sourceLabel && sub.sourceLabel !== "Website" ? { sourceLabel: sub.sourceLabel } : {}),
     ...(sub.trackedLinkId ? { trackedLinkId: sub.trackedLinkId } : {}), stage: "new_lead", createdAt: at, name: sub.name.trim(), phone: sub.phone.trim(), email: sub.email.trim(), town: sub.town.trim(),
@@ -534,6 +536,12 @@ export function submitWebsiteForm(db: Database, actor: User, sub: WebsiteSubmiss
     const b = leadContact(db, m.emailLeadId).name;
     log(db, actor, MODULE, `Marketing: Lead ${leadId} – Phone matches ${a} (${m.phoneLeadId}), email matches ${b} (${m.emailLeadId}). Placed on review list; no automatic merge.`);
   }
+  // Tab 2: admins and the lead's default estimator get "New lead from {Source}: {Name}."
+  const sourceLabel = sub.sourceLabel?.trim() || "Website";
+  notify(db, [...db.users.filter((u) => u.role === "owner" || u.role === "office_manager").map((u) => u.id), db.organisation?.defaultEstimatorId], {
+    kind: "new_lead", title: `New lead from ${sourceLabel}: ${sub.name.trim() || "Unnamed enquiry"}.`,
+    body: m.kind === "possible_duplicate" ? `Possible duplicate of ${m.leadId}.` : "Website form enquiry.", href: `/leads/${leadId}`,
+  });
   return ok({ leadId, outcome: m.kind, ...(m.kind === "possible_duplicate" ? { on: m.on } : {}) });
 }
 

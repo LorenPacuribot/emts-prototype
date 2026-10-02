@@ -6,13 +6,15 @@
  * Records are sent when they are saved. A failed send retries after 1, 5, 30
  * and 120 minutes; when those retries run out it moves to Needs Attention.
  * - Sync Log (/accounting/transfer-queue): every send and every change that
- *   came back from QuickBooks. Last 7 days by default, 25 rows a page,
- *   newest first.
+ *   came back from QuickBooks (Sent, Updated, Received, Failed). Filters for
+ *   dates (last 7 days by default), record type and result; 25 rows a page,
+ *   newest first; kept for 12 months.
  * - Needs Attention (/accounting/needs-attention): failed records with the
  *   reason in plain words, and QuickBooks variance and deletion flags.
  *   Retry, Open record, and Dismiss for the flags.
  */
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowDownLeft, ArrowUpRight, CheckCircle2, ExternalLink, RotateCcw, X } from "lucide-react";
 import { act, useCurrentUser, useDb, useStore } from "@/features/lib/store";
@@ -20,10 +22,10 @@ import { can } from "@/features/lib/permissions";
 import { dateTime } from "@/features/lib/format";
 import { toast } from "@/features/lib/toast";
 import { now } from "@/features/lib/clock";
-import { SYNC_KIND_LABEL, defaultSyncLogRange, filterSyncLog, pageOf } from "@/features/lib/rules/qbo-sync";
+import { SYNC_KIND_LABEL, SYNC_ORDER, SYNC_RESULTS, defaultSyncLogRange, filterSyncLog, pageOf, retentionStart, type SyncKind, type SyncResult } from "@/features/lib/rules/qbo-sync";
 import { needsAttentionRows, retryItem, reviewDeletion, reviewVariance, syncLogRows, type AttentionRow } from "@/features/lib/store/actions/finance";
 import { PageHeader } from "@/features/components/layout/screen";
-import { Badge, Button, Card, EmptyState, Field, Input, Table, TD, TH, THead, TR, VersionBadge } from "@/features/components/ui";
+import { Badge, Button, Card, EmptyState, Field, Input, Select, Table, TD, TH, THead, TR, VersionBadge } from "@/features/components/ui";
 import { FinanceFrame } from "./finance-frame";
 import { SyncNowButton } from "./qbo-sync-parts";
 
@@ -43,33 +45,51 @@ export function NeedsAttentionScreen() {
   );
 }
 
-const RESULT_TONE = { Accepted: "green", Failed: "red", "Changed in QuickBooks": "amber", "Deleted in QuickBooks": "red", "Created in QuickBooks": "blue" } as const;
+const RESULT_TONE: Record<SyncResult, "green" | "blue" | "amber" | "red"> = { Sent: "green", Updated: "blue", Received: "amber", Failed: "red" };
 
 function SyncLog() {
   const db = useDb((d) => d);
   useStore((s) => s.clockMode);
-  const initial = defaultSyncLogRange(now());
+  const today = now();
+  const initial = defaultSyncLogRange(today);
   const [from, setFrom] = useState(initial.from);
   const [to, setTo] = useState(initial.to);
+  const [kind, setKind] = useState<SyncKind | "">("");
+  const [result, setResult] = useState<SyncResult | "">("");
   const [page, setPage] = useState(1);
-  const all = filterSyncLog(syncLogRows(db), from, to);
+  // Kept for 12 months: the date filter can't go further back.
+  const oldest = retentionStart(today);
+  const all = filterSyncLog(syncLogRows(db), { from, to, kind, result, nowIso: today });
   const p = pageOf(all, page);
+  const reset = () => setPage(1);
 
   return (
     <>
       <PageHeader
         eyebrow={<VersionBadge item="QB-M5" withNew={false} />}
         title="Sync Log"
-        subtitle="Every record sent to QuickBooks and every change that came back. Records are sent when they are saved."
+        subtitle="Every record sent to QuickBooks and everything that came back. Records are sent when they are saved; entries are kept for 12 months."
         actions={<SyncNowButton />}
       />
       <Card className="p-4" data-tour="transfer-queue">
         <div className="mb-4 flex flex-wrap items-end gap-3">
-          <Field label="From"><Input type="date" value={from} max={to} onChange={(e) => { setFrom(e.target.value); setPage(1); }} className="w-40" /></Field>
-          <Field label="To"><Input type="date" value={to} min={from} onChange={(e) => { setTo(e.target.value); setPage(1); }} className="w-40" /></Field>
+          <Field label="From"><Input type="date" value={from} min={oldest} max={to} onChange={(e) => { setFrom(e.target.value); reset(); }} className="w-40" /></Field>
+          <Field label="To"><Input type="date" value={to} min={from} onChange={(e) => { setTo(e.target.value); reset(); }} className="w-40" /></Field>
+          <Field label="Record type">
+            <Select value={kind} onChange={(e) => { setKind(e.target.value as SyncKind | ""); reset(); }} className="w-40" aria-label="Record type">
+              <option value="">All types</option>
+              {SYNC_ORDER.map((k) => <option key={k} value={k}>{SYNC_KIND_LABEL[k]}</option>)}
+            </Select>
+          </Field>
+          <Field label="Result">
+            <Select value={result} onChange={(e) => { setResult(e.target.value as SyncResult | ""); reset(); }} className="w-36" aria-label="Result">
+              <option value="">All results</option>
+              {SYNC_RESULTS.map((r) => <option key={r} value={r}>{r}</option>)}
+            </Select>
+          </Field>
           <span className="ml-auto pb-2 text-xs text-gray-500">{all.length} {all.length === 1 ? "entry" : "entries"}</span>
         </div>
-        {all.length === 0 ? <EmptyState icon={<CheckCircle2 />} title="Nothing synced in these dates" body="Widen the dates to see older entries." /> : (
+        {all.length === 0 ? <EmptyState icon={<CheckCircle2 />} title="Nothing has synced in this period." /> : (
           <>
             <Table>
               <THead><tr><TH>Time</TH><TH>Record type</TH><TH>EM number</TH><TH>QuickBooks ref</TH><TH>Direction</TH><TH>Result</TH></tr></THead>
@@ -78,7 +98,7 @@ function SyncLog() {
                   <TR key={r.key}>
                     <TD className="whitespace-nowrap">{dateTime(r.at)}</TD>
                     <TD>{SYNC_KIND_LABEL[r.kind]}</TD>
-                    <TD className="font-semibold">{r.emNumber}</TD>
+                    <TD className="font-semibold">{r.href ? <Link href={r.href} className="text-primary-700 hover:underline">{r.emNumber}</Link> : r.emNumber}</TD>
                     <TD className="font-mono text-xs">{r.qboRef ?? "—"}</TD>
                     <TD>
                       {r.direction === "to_qbo"
@@ -87,7 +107,7 @@ function SyncLog() {
                     </TD>
                     <TD>
                       <Badge tone={RESULT_TONE[r.result]}>{r.result}</Badge>
-                      {r.error && <div className="mt-1 text-xs text-red-700">{r.error}</div>}
+                      {r.detail && <div className={`mt-1 text-xs ${r.result === "Failed" ? "text-red-700" : "text-gray-500"}`}>{r.detail}</div>}
                     </TD>
                   </TR>
                 ))}

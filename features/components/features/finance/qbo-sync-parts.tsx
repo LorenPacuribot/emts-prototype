@@ -14,13 +14,26 @@ import { can } from "@/features/lib/permissions";
 import { now } from "@/features/lib/clock";
 import { toast } from "@/features/lib/toast";
 import { dueToSend } from "@/features/lib/rules/qbo-sync";
-import { needsAttentionRows, processSync, syncActive, syncNow } from "@/features/lib/store/actions/finance";
+import { hasSyncWork, needsAttentionRows, processSync, syncActive, syncNow } from "@/features/lib/store/actions/finance";
 import { Button } from "@/features/components/ui";
+
+/** Shared so the QuickBooks card can show its Syncing badge while Sync now runs. */
+let syncingListeners: ((v: boolean) => void)[] = [];
+const setSyncingAll = (v: boolean) => syncingListeners.forEach((f) => f(v));
+export function useSyncing() {
+  const [syncing, setSyncing] = useState(false);
+  useEffect(() => {
+    syncingListeners.push(setSyncing);
+    return () => { syncingListeners = syncingListeners.filter((f) => f !== setSyncing); };
+  }, []);
+  return syncing;
+}
 
 export function SyncNowButton({ size }: { size?: "sm" | "md" }) {
   const user = useCurrentUser();
   const active = useDb((d) => syncActive(d));
-  const [syncing, setSyncing] = useState(false);
+  const syncing = useSyncing();
+  const setSyncing = setSyncingAll;
   if (!can(user, "finance.exchange")) return null;
   const run = () => {
     setSyncing(true);
@@ -45,9 +58,8 @@ export function QboSyncTicker() {
   useEffect(() => {
     const tick = () => {
       // Only call into the store when something is due, so idle ticks change nothing.
-      const db = getDb();
-      const at = now();
-      if (syncActive(db) && db.exchangeQueue.some((q) => dueToSend(q, at))) act(processSync);
+      // New and edited contacts, new jobs, queued records and due retries.
+      if (hasSyncWork(getDb(), now())) act(processSync);
     };
     tick();
     const id = window.setInterval(tick, 15_000);

@@ -312,3 +312,20 @@ Made in the Prototype Alignment Check (EMTS Phase 2, tab 9). They override the m
 | D7 | Crew email subject "Schedule update from {Company}: {N} jobs changed" (Spanish equivalent). Template "Schedule Update (crew)". Old dates crossed through beside the new ones in the preview. | `features/lib/rules/schedule-notify.ts` (+ tests), `lib/data/settings-config.ts`, `lib/migrate.ts`, `components/scheduling/NotifyCrew.tsx` | `/job-scheduling` › Unsent changes › Preview; `/settings/automated-messages` |
 
 Also: `features/lib/rules/marketing.test.ts` no longer fails on the first days of a month (the monthly-report test publishes a post now), and the README lists the real test count.
+
+### Follow-up: spec check of 2 Oct (all 30 checks pass)
+
+A check against tabs 1, 2, 4 and 9 found gaps. They are now fixed:
+
+| Check | Fix | Files |
+| --- | --- | --- |
+| Contacts and jobs sent on save | A new or edited contact (not a lead) and a new signed job are queued and sent; an edit updates the same QuickBooks customer. | `features/lib/store/actions/finance.ts`, `features/lib/rules/qbo-sync.ts` |
+| Invoice locked once in QuickBooks | The invoice page's Edit becomes a disabled "Edit this invoice in QuickBooks". | `app/invoices/[id]/page.tsx`, `components/invoices/InvoiceFeatureParts.tsx` |
+| Sync Log | Record type and result filters, EM number links, results Sent / Updated / Received / Failed, 12-month retention, "Nothing has synced in this period." | `queue-screen.tsx`, `qbo-sync.ts` |
+| Start sync gate | Also needs the deposit account and card payment method. | `qbo-sync.ts`, `qbo-connection-card.tsx` |
+| Disconnect, Reconnect needed | Confirmation "Stop syncing with {CompanyName}? Records already in QuickBooks stay there."; an expired connection pauses sync, shows Reconnect needed with the waiting count, and notifies admins. | `qbo-connection-card.tsx`, `finance.ts`, `accounting-screen.tsx` |
+| Activity log strings | Tab 1 and tab 4 lines word for word (`qboLogText`, `scheduleLogText`). | `qbo-sync.ts`, `schedule-notify.ts`, `NotifyCrew.tsx` |
+| Lead form | Property address lookup; the contact error shows under Phone and Email. | `app/website-form/page.tsx`, `lib/website-form.ts` |
+| New-lead notification | "New lead from {Source}: {Name}." to admins and the default estimator (`organisation.defaultEstimatorId`). | `features/lib/store/actions/marketing.ts` |
+| Admin Master Data | Pipeline stages, lead sources and tracked links are read-only, with no edit controls, for everyone but Owner and Admin. | `PipelineStagesView.tsx`, `LeadSourcesPanel.tsx`, `TrackedLinksCard.tsx` |
+| Send Email (JS-C1) | Disabled with "No changes to send."; toast "Update sent to {N} people." | `ShiftSchedulePanel.tsx`, `NotifyCrew.tsx` |

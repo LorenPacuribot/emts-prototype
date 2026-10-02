@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  DEFAULT_CREW_SUBJECT, baselineSnapshots, markNotified, messageText, peopleWaiting, personChanges, scheduleSubject, scheduleUpdateMessage, unsentJobIds, type NotifyJob,
+  DEFAULT_CREW_SUBJECT, baselineSnapshots, markNotified, messageText, peopleWaiting, personChanges, scheduleLogText, scheduleSubject, scheduleUpdateMessage, unsentJobIds, type NotifyJob,
 } from "./schedule-notify";
 
 const AT = "2026-09-30T10:00:00Z";
@@ -121,5 +121,13 @@ describe("schedule notify", () => {
     // The changed job keeps its old dates for the preview to cross through.
     const changed = scheduleUpdateMessage("Ana", changes).sections.find((s) => s.kind === "changed")!;
     expect(changed.lines[0]!.was).toBeDefined();
+  });
+});
+
+describe("Tab 4 — activity log lines, word for word", () => {
+  it("logs sent, skipped and failed updates per person", () => {
+    expect(scheduleLogText.sent("Braden Skelly", "Tim Skelly", ["JOB-2026-37", "JOB-2026-38"])).toBe("Scheduling: Schedule update sent to Braden Skelly by Tim Skelly covering 2 jobs: JOB-2026-37, JOB-2026-38.");
+    expect(scheduleLogText.skipped("Luis Ortega", "Tim Skelly", ["JOB-2026-37"])).toBe("Scheduling: Luis Ortega unticked by Tim Skelly. Update not sent for JOB-2026-37.");
+    expect(scheduleLogText.failed("Dana Ruiz", "The address is not a valid email.")).toBe("Scheduling: Schedule update to Dana Ruiz not delivered. Reason: The address is not a valid email.");
   });
 });

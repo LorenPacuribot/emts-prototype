@@ -16,7 +16,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import { ArrowLeft, Ban, Briefcase, CheckCheck, CreditCard, Download, ExternalLink, History, Pencil, Plus, Send, Trash2, User } from 'lucide-react';
+import { ArrowLeft, Ban, Briefcase, CheckCheck, CreditCard, Download, ExternalLink, History, Lock, Pencil, Plus, Send, Trash2, User } from 'lucide-react';
 import { PageShell } from '@/components/Navigation';
 import { ConfirmDialog } from '@/components/Modals/Modal';
 import { Button } from '@/components/ui/button';
@@ -29,7 +29,7 @@ import { fullName, longDate, shortDate } from '@/lib/utils';
 import { InvoiceDocument } from '@/components/invoices/InvoiceDocument';
 import { EditInvoiceModal, RecordPaymentModal, SendInvoiceModal } from '@/components/invoices/InvoiceModals';
 import { methodLabel, statusAfterPayments, usd, useInvoiceSaver } from '@/components/invoices/invoice-utils';
-import { InvoiceKindChip, QuickBooksCard, useShowQuickBooks } from '@/components/invoices/InvoiceFeatureParts';
+import { InvoiceKindChip, QuickBooksCard, useInvoiceInQuickBooks, useShowQuickBooks } from '@/components/invoices/InvoiceFeatureParts';
 
 export default function InvoiceDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -41,6 +41,7 @@ export default function InvoiceDetailPage() {
   const { get, remove } = useCollection('invoices');
   const invoice = get(id);
   const showQbo = useShowQuickBooks();
+  const inQuickBooks = useInvoiceInQuickBooks(id);
 
   const [modal, setModal] = useState<null | 'pay' | 'send' | 'edit' | 'void' | 'delete'>(null);
   const [paymentToDelete, setPaymentToDelete] = useState<string | null>(null);
@@ -91,7 +92,10 @@ export default function InvoiceDetailPage() {
         </div>
         <div className="ml-auto flex flex-wrap justify-end gap-3">
           <Button variant="secondary" icon={<Download className="h-4 w-4" />} onClick={() => router.push(`/invoices/${invoice.id}/preview`)}>Download PDF</Button>
-          {status !== 'Void' && <Button variant="secondary" icon={<Pencil className="h-4 w-4" />} onClick={() => setModal('edit')}>Edit</Button>}
+          {/* Tab 1: once QuickBooks has it, the amount and date are edited in QuickBooks. */}
+          {status !== 'Void' && (inQuickBooks
+            ? <Button variant="secondary" icon={<Lock className="h-4 w-4" />} disabled title="Edit this invoice in QuickBooks">Edit this invoice in QuickBooks</Button>
+            : <Button variant="secondary" icon={<Pencil className="h-4 w-4" />} onClick={() => setModal('edit')}>Edit</Button>)}
           {!closed &&
             (status === 'Draft' ? (
               <>
@@ -182,7 +186,7 @@ export default function InvoiceDetailPage() {
       {/* Modals */}
       <RecordPaymentModal invoice={invoice} open={modal === 'pay'} onOpenChange={openModal('pay')} />
       <SendInvoiceModal invoice={invoice} open={modal === 'send'} onOpenChange={openModal('send')} />
-      <EditInvoiceModal invoice={invoice} open={modal === 'edit'} onOpenChange={openModal('edit')} />
+      <EditInvoiceModal invoice={invoice} open={modal === 'edit' && !inQuickBooks} onOpenChange={openModal('edit')} />
       <ConfirmDialog
         open={modal === 'void'}
         onOpenChange={openModal('void')}

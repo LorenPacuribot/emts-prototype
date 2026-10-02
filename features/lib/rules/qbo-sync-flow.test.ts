@@ -8,7 +8,8 @@ import { produce } from "immer";
 import type { ActionResult, Database, ExchangeItem, User } from "@/features/types";
 import { createSeed } from "@/features/data/seed";
 import {
-  connectQuickBooks, disconnectQuickBooks, mapTaxRegion, needsAttentionRows, processSync, queue, retryItem, setQuickBooksAddOn, startQuickBooksSync, syncNow,
+  connectQuickBooks, disconnectQuickBooks, mapTaxRegion, needsAttentionRows, processSync, queue, reconnectQuickBooks, retryItem, setQuickBooksAddOn,
+  simulateQboExpired, startQuickBooksSync, syncNow,
 } from "@/features/lib/store/actions/finance";
 
 const NOW = "2026-10-03T22:15:00.000Z"; // Saturday night: the old window was closed
@@ -162,5 +163,60 @@ describe("D3 — QuickBooks is a paid add-on", () => {
     expect(run(db, "U-OWNER", disconnectQuickBooks).result.ok).toBe(true);
     expect(run(db, "U-OFFICE", disconnectQuickBooks).result.ok).toBe(true);
     expect(run(db, "U-BOOK", disconnectQuickBooks).result.ok).toBe(false);
+  });
+});
+
+describe("Tab 1 — contacts and jobs are sent when saved", () => {
+  /** A synced demo, then a new contact with a signed job saved after sync started. */
+  function withNewContact(leadOnly = false) {
+    const synced = run(createSeed(NOW), "U-OFFICE", processSync).db; // sets the baseline: what existed at the start
+    return produce(synced, (d) => {
+      d.customers.push({ ...d.customers[0]!, id: "C-T-1", name: "Pia Grant", email: "pia@example.com", phone: "(469) 555-0999", leadOnly: leadOnly || undefined });
+      // A lead has no job or estimate yet; a contact does.
+      if (!leadOnly) d.jobs.push({ ...d.jobs[0]!, id: "JOB-T-1", customerId: "C-T-1", contractSigned: true });
+    });
+  }
+  const sent = (db: Database, kind: string, id: string) => db.exchangeQueue.filter((q) => q.kind === kind && q.recordId === id && q.status === "accepted");
+
+  it("a new contact goes to QuickBooks as a Customer, and its job as a Project under it", () => {
+    const r = run(withNewContact(), "U-OFFICE", processSync);
+    expect(sent(r.db, "customer", "C-T-1")).toHaveLength(1);
+    expect(sent(r.db, "project", "JOB-T-1")).toHaveLength(1);
+    expect(sent(r.db, "customer", "C-T-1")[0]!.qboRef).toMatch(/^QBO-CUS-/);
+  });
+  it("an edited contact sends an update to the same QuickBooks customer", () => {
+    let db = run(withNewContact(), "U-OFFICE", processSync).db;
+    const first = sent(db, "customer", "C-T-1")[0]!;
+    db = produce(db, (d) => { d.customers.find((c) => c.id === "C-T-1")!.email = "pia.grant@example.com"; });
+    db = run(db, "U-OFFICE", processSync).db;
+    const both = sent(db, "customer", "C-T-1");
+    expect(both).toHaveLength(2);
+    expect(both.every((q) => q.qboRef === first.qboRef)).toBe(true);
+    // Nothing changed since: nothing more is sent.
+    expect(run(db, "U-OFFICE", processSync).db.exchangeQueue.length).toBe(db.exchangeQueue.length);
+  });
+  it("a lead (no job or estimate yet) is never sent", () => {
+    const r = run(withNewContact(true), "U-OFFICE", processSync);
+    expect(r.db.exchangeQueue.some((q) => q.kind === "customer" && q.recordId === "C-T-1")).toBe(false);
+  });
+  it("logs the send in tab 1's words", () => {
+    const r = run(withNewContact(), "U-OFFICE", processSync);
+    expect(r.db.activity.map((a) => a.message).join(" | ")).toMatch(/Finance: Customer Pia Grant sent to QuickBooks as QBO-CUS-/);
+  });
+});
+
+describe("Tab 1 — an expired connection pauses sync", () => {
+  it("records queue while Reconnect is needed, and send once reconnected; admins are told", () => {
+    let db = run(createSeed(NOW), "U-OFFICE", simulateQboExpired).db;
+    expect(db.notifications?.some((n) => n.kind === "quickbooks" && n.userId === "U-OWNER")).toBe(true);
+    const q = run(db, "U-OFFICE", (d, actor) => {
+      const rec = d.financeRecords.find((x) => x.id === "FIN-14")!;
+      return { ok: true, value: queue(d, actor, rec, "Check").id } as ActionResult<string>;
+    });
+    db = q.db;
+    expect(item(db, idOf(q.result)).status).toBe("queued");
+    expect(run(db, "U-OFFICE", syncNow).result.ok).toBe(false);
+    db = run(db, "U-OFFICE", reconnectQuickBooks).db;
+    expect(item(db, idOf(q.result)).status).toBe("accepted");
   });
 });

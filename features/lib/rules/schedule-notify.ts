@@ -276,3 +276,13 @@ export function messageText(m: ScheduleMessage): string {
   const body = m.sections.map((s) => [s.title.toUpperCase(), ...s.lines.map((l) => `- ${l.job}: ${l.when}${l.was ? ` (${m.wasLabel} ${l.was})` : ""}${l.address ? `, ${l.address}` : ""}`)].join("\n"));
   return [m.greeting, "", m.intro, "", ...body.flatMap((b) => [b, ""]), m.outro].join("\n");
 }
+
+/* ---------------------------- Activity log ---------------------------- */
+
+/** Tab 4's activity log lines, word for word. */
+export const scheduleLogText = {
+  sent: (employee: string, user: string, jobNos: string[]) =>
+    `Scheduling: Schedule update sent to ${employee} by ${user} covering ${jobNos.length} jobs: ${jobNos.join(", ")}.`,
+  skipped: (employee: string, user: string, jobNos: string[]) => `Scheduling: ${employee} unticked by ${user}. Update not sent for ${jobNos.join(", ")}.`,
+  failed: (employee: string, error: string) => `Scheduling: Schedule update to ${employee} not delivered. Reason: ${error}`,
+};

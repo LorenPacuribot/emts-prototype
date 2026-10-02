@@ -26,7 +26,7 @@ The 14 features from the EMTS feature prototype (User Stories and Final Design v
 
 How it fits together:
 
-- `features/` is the prototype's engine, ported as is: its data model, store, actions, rules and feature panels. The repo has 721 tests in 63 files (run `npm test`). Its docs are in the original prototype's `docs/` folder (DEV_HANDOFF.md, INTEGRATION_MAP.md).
+- `features/` is the prototype's engine, ported as is: its data model, store, actions, rules and feature panels. The repo has 733 tests in 63 files (run `npm test`). Its docs are in the original prototype's `docs/` folder (DEV_HANDOFF.md, INTEGRATION_MAP.md).
 - `lib/bridge/` keeps the two stores in step. A customer, lead, estimate, job, work order or invoice has the **same id** in both.
   - The prototype's demo story is projected into the replica collections.
   - Records made on replica screens are mirrored into the prototype.

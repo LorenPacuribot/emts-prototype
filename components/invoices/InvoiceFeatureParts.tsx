@@ -20,6 +20,7 @@ import { useCurrentUser, useDb as useFeatureDb } from '@/features/lib/store';
 import { can } from '@/features/lib/permissions';
 import { dateTime } from '@/features/lib/format';
 import { coHref } from '@/features/components/features/change-orders/shared';
+import { isSentToQbo } from '@/features/lib/store/actions/finance';
 import { Button, ConfirmBadge, NewBadge, StatusPill, VersionBadge, FeatureGate } from '@/features/components/ui';
 import { useIsOn, useVisibility } from '@/features/lib/feature-visibility';
 import { invoiceBalance } from '@/features/lib/store/actions/invoices';
@@ -46,6 +47,18 @@ function qboState(db: Database, invoiceId: string) {
             : 'Queued';
   const tone: Tone = state === 'Accepted' ? 'green' : state === 'Rejected' || state.startsWith('Deleted') ? 'red' : state === 'Not sent' ? 'gray' : 'amber';
   return { rec, items, state, tone };
+}
+
+/**
+ * Tab 1: once QuickBooks has the invoice, its amount and date are locked here
+ * ("Edit this invoice in QuickBooks"). True when the invoice's finance record
+ * reached QuickBooks.
+ */
+export function useInvoiceInQuickBooks(invoiceId: string): boolean {
+  return useFeatureDb((d) => {
+    const rec = d.financeRecords.find((r) => r.type === 'invoice' && r.invoiceId === invoiceId);
+    return !!rec && isSentToQbo(d, rec);
+  });
 }
 
 /** Finance roles see the QuickBooks column and card, while Accounting (33) or QuickBooks is on in New Features. */

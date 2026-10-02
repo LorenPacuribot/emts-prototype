@@ -18,7 +18,7 @@ import { cn, fullName, uid } from '@/lib/utils';
 import { memberDayLoad, scheduleError, requiredHoursChange } from '@/lib/scheduling';
 import { assignedTotal, fmtDay, fmtSpan, fmtTime, memberBookedHours, parseKey, round1, shiftWindow, todayKey, weekDays, windowHours, workingShiftDays } from './schedule-utils';
 import { boundSchedule, datedShiftCrew, moveShifts, scheduleDraft } from './shift-draft';
-import { useNotifyModal, useScheduleSaved } from './NotifyCrew';
+import { useCrewNotify, useNotifyModal, useScheduleSaved } from './NotifyCrew';
 import { VersionBadge, FeatureGate } from '@/features/components/ui';
 
 const label = 'text-xxs font-bold uppercase tracking-wide text-gray-500';
@@ -33,6 +33,8 @@ export function ShiftSchedulePanel({ job, onClose, initialStart }: { job: Job; o
   const look = useLookups();
   const { saveSchedule } = useJobActions();
   const scheduleSaved = useScheduleSaved();
+  // JS-C1: Send Email is disabled when nobody on this job is waiting for an update.
+  const hasChanges = useCrewNotify().waiting([job.id]).length > 0;
   const twin = useJobTwin(job.id);
   const canManage = useCan('workOrder.updateStatus');
   const awaitingDeposit = twin?.wo?.status === 'PENDING_DEPOSIT';
@@ -61,7 +63,7 @@ export function ShiftSchedulePanel({ job, onClose, initialStart }: { job: Job; o
         {job.startDate && (
           <FeatureGate item="JS-C1">
             {/* JS-C1: the Notify crew modal, for this job only. Closes the panel first (the modal sits under it). */}
-            <Button variant="secondary" className="w-full" icon={<Mail className="h-4 w-4" />} onClick={() => { onClose(); useNotifyModal.getState().show({ jobIds: [job.id] }); }}>
+            <Button variant="secondary" className="w-full" icon={<Mail className="h-4 w-4" />} disabled={!hasChanges} title={hasChanges ? undefined : 'No changes to send.'} onClick={() => { onClose(); useNotifyModal.getState().show({ jobIds: [job.id] }); }}>
               Send Email <VersionBadge item="JS-C1" />
             </Button>
           </FeatureGate>

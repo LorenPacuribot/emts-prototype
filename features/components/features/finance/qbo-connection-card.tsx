@@ -11,25 +11,30 @@
  *   or send new records only. After that, records are sent on save.
  */
 import { useState } from "react";
-import { CheckCircle2, Lock, Plug, Unplug, Wifi } from "lucide-react";
-import { useCollection } from "@/lib/store";
+import { AlertTriangle, CheckCircle2, Loader2, Lock, Plug, Unplug, Wifi } from "lucide-react";
+import { useCollection, useSingleton } from "@/lib/store";
 import { act, useCurrentUser, useDb } from "@/features/lib/store";
 import { can } from "@/features/lib/permissions";
 import { dateLong, dateTime } from "@/features/lib/format";
 import { toast } from "@/features/lib/toast";
 import { now } from "@/features/lib/clock";
-import { defaultSyncStartDate, startSyncBlocker } from "@/features/lib/rules/qbo-sync";
+import { defaultSyncStartDate, dueToSend, startSyncBlocker } from "@/features/lib/rules/qbo-sync";
+import { userName } from "@/features/lib/store/helpers";
 import {
-  connectQuickBooks, disconnectQuickBooks, hasQuickBooksAddOn, mapTaxRegion, startQuickBooksSync,
+  connectQuickBooks, disconnectQuickBooks, hasQuickBooksAddOn, mapTaxRegion, qboCompanyName, reconnectQuickBooks, startQuickBooksSync, syncOptions,
 } from "@/features/lib/store/actions/finance";
-import { Banner, Button, Input, VersionBadge } from "@/features/components/ui";
-import { SyncNowButton } from "./qbo-sync-parts";
+import { Badge, Banner, Button, ConfirmDialog, Input, VersionBadge } from "@/features/components/ui";
+import { SyncNowButton, useSyncing } from "./qbo-sync-parts";
 
 export function QboConnectionCard() {
   const db = useDb((d) => d);
   const user = useCurrentUser();
   const q = db.financeSettings.qbo;
   const manage = can(user, "finance.connect");
+  const syncing = useSyncing();
+  const [bp] = useSingleton("businessProfile");
+  const [confirmDisconnect, setConfirmDisconnect] = useState(false);
+  const waiting = db.exchangeQueue.filter((x) => dueToSend(x, "9999", true)).length;
 
   if (!hasQuickBooksAddOn(db)) {
     return (
@@ -41,31 +46,54 @@ export function QboConnectionCard() {
     );
   }
 
+  // States (tab 1, Component 1): Not connected, Connected, Syncing, Reconnect needed.
+  const state = !q.connected ? "off" : q.expiredAt ? "expired" : syncing ? "syncing" : "on";
+  const company = qboCompanyName(db);
+  const banner = {
+    off: { box: "border-gray-200 bg-gray-50", icon: "text-gray-400", title: "Not connected", body: "Connect QuickBooks Online to send contacts, jobs, invoices and payments as they are saved." },
+    on: { box: "border-green-200 bg-green-50", icon: "text-green-600", title: "Connected", body: `${company} · connected by ${userName(db, q.connectedBy)} on ${dateLong(q.connectedAt)} · last sync ${dateTime(q.lastExchangeAt)}` },
+    syncing: { box: "border-blue-200 bg-blue-50", icon: "text-blue-600", title: "Syncing", body: `${company} · sending the queue now` },
+    expired: { box: "border-amber-200 bg-amber-50", icon: "text-amber-600", title: "Reconnect needed", body: `Sync is paused. ${waiting} ${waiting === 1 ? "record is" : "records are"} waiting.` },
+  }[state];
+  const badge = { off: <Badge tone="gray">Not connected</Badge>, on: <Badge tone="green">Connected</Badge>, syncing: <Badge tone="blue" icon={<Loader2 className="h-3 w-3 animate-spin" />}>Syncing</Badge>, expired: <Badge tone="amber">Reconnect needed</Badge> }[state];
+
   return (
     <div className="mb-8 max-w-3xl space-y-4">
-      <div className={`flex gap-3 rounded-xl border p-4 ${q.connected ? "border-green-200 bg-green-50" : "border-red-200 bg-red-50"}`}>
-        <CheckCircle2 className={`h-5 w-5 shrink-0 ${q.connected ? "text-green-600" : "text-red-600"}`} />
+      <div className={`flex gap-3 rounded-xl border p-4 ${banner.box}`} role={state === "expired" ? "alert" : "status"}>
+        {state === "expired" ? <AlertTriangle className={`h-5 w-5 shrink-0 ${banner.icon}`} /> : <CheckCircle2 className={`h-5 w-5 shrink-0 ${banner.icon}`} />}
         <div className="text-sm">
-          <div className="font-bold text-gray-900">{q.connected ? "Connected" : "Not connected"}</div>
-          <div className="text-gray-600">{q.connected ? `Company ${q.realm} · connected ${dateTime(q.connectedAt)} · last sync ${dateTime(q.lastExchangeAt)}` : "Connect QuickBooks Online to send contacts, jobs, invoices and payments as they are saved."}</div>
+          <div className="font-bold text-gray-900">{banner.title}</div>
+          <div className="text-gray-600">{banner.body}</div>
         </div>
       </div>
       <div className="space-y-4 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm md:p-8">
-        <div className="flex items-center gap-2 text-xxs font-bold uppercase tracking-widest text-gray-500">QuickBooks Online <VersionBadge item="QB-M1" withNew={false} /></div>
+        <div className="flex flex-wrap items-center gap-2 text-xxs font-bold uppercase tracking-widest text-gray-500">QuickBooks Online {badge} <VersionBadge item="QB-M1" withNew={false} /></div>
         <p className="text-sm text-gray-600">QuickBooks owns the ledger. Estimate Master sends customers, projects, invoices and payments when they are saved, and receives bills. Nothing here moves money.</p>
         <div className="flex flex-wrap gap-2 border-t border-gray-100 pt-4">
-          {q.connected ? (
+          {state === "off" && manage && (
+            <Button variant="primary" onClick={() => act(connectQuickBooks, bp.companyName).ok && toast.success("QuickBooks connected", bp.companyName)}><Plug className="h-4 w-4" /> Connect</Button>
+          )}
+          {state === "expired" && manage && (
+            <Button variant="primary" onClick={() => act(reconnectQuickBooks).ok && toast.success("QuickBooks reconnected", "Waiting records are being sent.")}><Plug className="h-4 w-4" /> Reconnect</Button>
+          )}
+          {state !== "off" && (
             <>
-              <Button disabled={!manage} onClick={() => toast.success("Connection OK", "QuickBooks answered (simulated).")}><Wifi className="h-4 w-4" /> Test Connection</Button>
-              {manage && <Button onClick={() => act(disconnectQuickBooks).ok && toast.success("QuickBooks disconnected", "Nothing is sent until it is connected again.")}><Unplug className="h-4 w-4" /> Disconnect</Button>}
+              {state !== "expired" && <Button disabled={!manage} onClick={() => toast.success("Connection OK", "QuickBooks answered (simulated).")}><Wifi className="h-4 w-4" /> Test Connection</Button>}
+              {manage && <Button onClick={() => setConfirmDisconnect(true)}><Unplug className="h-4 w-4" /> Disconnect</Button>}
             </>
-          ) : (
-            manage && <Button variant="primary" onClick={() => act(connectQuickBooks).ok && toast.success("QuickBooks connected")}><Plug className="h-4 w-4" /> Connect</Button>
           )}
           {!manage && <span className="self-center text-xs text-gray-500">The owner or an admin connects QuickBooks.</span>}
         </div>
         {q.connected && <StartSync manage={manage} />}
       </div>
+      <ConfirmDialog
+        open={confirmDisconnect}
+        onOpenChange={setConfirmDisconnect}
+        title="Disconnect QuickBooks?"
+        body={`Stop syncing with ${company}? Records already in QuickBooks stay there.`}
+        confirmLabel="Disconnect"
+        onConfirm={() => act(disconnectQuickBooks).ok && toast.success("QuickBooks disconnected", "Nothing is sent until it is connected again.")}
+      />
     </div>
   );
 }
@@ -74,8 +102,10 @@ function StartSync({ manage }: { manage: boolean }) {
   const db = useDb((d) => d);
   const regions = useCollection("taxRegions").items;
   const q = db.financeSettings.qbo;
-  const income = db.accountMappings.find((m) => m.syncOption === "income")?.account;
-  const blocker = startSyncBlocker({ incomeAccount: income, regionIds: regions.map((r) => r.id), taxMap: q.taxMap });
+  // Every sync option is required (income, deposit, card method, each tax region).
+  const options = syncOptions(db);
+  const income = options.incomeAccount;
+  const blocker = startSyncBlocker({ ...options, regionIds: regions.map((r) => r.id) });
   const [mode, setMode] = useState<"from_date" | "new_only">("from_date");
   const [from, setFrom] = useState(defaultSyncStartDate(now()));
   const [edits, setEdits] = useState<Record<string, string>>({});
@@ -84,7 +114,7 @@ function StartSync({ manage }: { manage: boolean }) {
     <div className="space-y-4 border-t border-gray-100 pt-4">
       <div>
         <div className="text-sm font-bold text-gray-900">Tax regions</div>
-        <p className="text-xs text-gray-500">Each tax region needs its QuickBooks account before sync starts. Income account: <b>{income || "not mapped"}</b> (sync options below).</p>
+        <p className="text-xs text-gray-500">Each tax region needs its QuickBooks account before sync starts. Income account: <b>{income || "not set"}</b>, deposit account: <b>{options.depositAccount || "not set"}</b>, card payment method: <b>{options.cardMethod || "not set"}</b> (sync options below).</p>
         <div className="mt-2 space-y-1.5">
           {regions.map((r) => {
             const value = edits[r.id] ?? q.taxMap?.[r.id] ?? "";
@@ -93,7 +123,7 @@ function StartSync({ manage }: { manage: boolean }) {
                 <span className="w-40 shrink-0 text-gray-700">{r.name}</span>
                 <Input value={value} disabled={!manage} placeholder="QuickBooks tax account" onChange={(e) => setEdits({ ...edits, [r.id]: e.target.value })} className="h-8 max-w-xs" aria-label={`QuickBooks account for ${r.name}`} />
                 {manage && (edits[r.id] ?? q.taxMap?.[r.id] ?? "") !== (q.taxMap?.[r.id] ?? "") && (
-                  <Button size="sm" onClick={() => { if (act(mapTaxRegion, r.id, value).ok) { const next = { ...edits }; delete next[r.id]; setEdits(next); toast.success(value.trim() ? "Tax region mapped" : "Tax region unmapped", r.name); } }}>Save</Button>
+                  <Button size="sm" onClick={() => { if (act(mapTaxRegion, r.id, value, r.name).ok) { const next = { ...edits }; delete next[r.id]; setEdits(next); toast.success(value.trim() ? "Tax region mapped" : "Tax region unmapped", r.name); } }}>Save</Button>
                 )}
               </div>
             );

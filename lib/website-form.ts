@@ -62,6 +62,22 @@ export type FormCheck =
 const raw = (v: unknown) => (typeof v === 'string' ? v.trim() : '');
 const str = (v: unknown, max: number) => raw(v).slice(0, max);
 
+/**
+ * Property address lookup (tab 2: "Address lookup"). The prototype suggests
+ * from a small local list of service-area streets once 3 characters are typed;
+ * the real form calls an address service with the same contract.
+ */
+const SAMPLE_ADDRESSES = [
+  '12 Elm St, Lakewood, TX 75214', '418 Maple Ave, Dallas, TX 75201', '2207 Oak Lawn Ave, Dallas, TX 75219', '905 Preston Rd, Plano, TX 75093',
+  '33 Willow Bend Dr, Plano, TX 75093', '1500 Main St, Frisco, TX 75034', '76 Cedar Springs Rd, Dallas, TX 75204', '4111 Allen Pkwy, Allen, TX 75013',
+  '8100 Burnet Rd, Austin, TX 78757', '210 Congress Ave, Austin, TX 78701', '5 Broadway, Nashville, TN 37201', '640 Greenway Blvd, Richardson, TX 75080',
+];
+export function addressSuggestions(query: string, limit = 6): string[] {
+  const q = query.trim().toLowerCase();
+  if (q.length < 3) return [];
+  return SAMPLE_ADDRESSES.filter((a) => a.toLowerCase().includes(q)).slice(0, limit);
+}
+
 /** Ten digits, optionally written with a leading 1 and any punctuation: (214) 555-0161, 214.555.0161, +1 214 555 0161. */
 export function isUsPhone(phone: string): boolean {
   return phone.replace(/\D/g, '').replace(/^1(?=\d{10}$)/, '').length === 10;
