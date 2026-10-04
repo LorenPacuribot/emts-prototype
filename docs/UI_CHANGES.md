@@ -243,10 +243,33 @@ Layout and styling only. `amendBlockedReason`, `changeOrderAllowed`, the `can(..
 
 Checked in a production build at 1280, 1440 and 1920px on EST-2026-1 (work started), EST-2026-10 and EST-2026-8 (Draft), EST-2026-5 (Sent), EST-2026-3 and EST-2026-6 (approved), EST-2026-41 (approved, no job), and EST-2026-3 while editing an amendment. Each time the title was on one line, the chips on one row, all buttons lined up, there was exactly one primary, and nothing floated over the document. Create Change Order, Amend (through to Send for Re-approval), Resend, Mark Approved, Convert to Job and View Job all still work. The product-tour check found the same anchors as before this change.
 
+### Marketing: photo upload, post preview and customer permission (5 Oct 2026)
+
+Feature 34. Three gaps the client raised: there was no real place to upload photos, nobody could see what a post would look like, and a photo with no release couldn't be unlocked when the customer said yes, even on the phone.
+
+| Screen / area | What changed | Files |
+| --- | --- | --- |
+| Media Library › upload | The "Upload (simulated)" card (typed label and size, no file picker) is gone. An **Upload photos** button sits in the page header and a drag-and-drop area at the top of Job media. The pop-up takes several photos at once, shows a thumbnail and an editable label for each, and sets the kind and job for the batch. Each file is checked: JPG, PNG or WebP, under 8 MB, no video. An iPhone HEIC photo is refused with a fix ("Most Compatible", or share as JPG). | `features/components/features/marketing/media-upload.tsx`, `media-screen.tsx` |
+| Media Library › storage | Each photo is resized in the browser to 960px on its long side and stored on its media record, so everyone sharing the demo data sees it. The shared record holds about 10 uploaded photos (`PHOTO_STORE_BUDGET_CHARS`); after that the upload says to reset the demo. Crops show their original's photo without storing a second copy. A personal-data deletion deletes the stored photo too. The live app needs cloud storage instead (see `docs/emts-phase-2/11-meta-integration.md`). | `lib/image.ts` (`imageFileToJpeg`), `features/lib/rules/marketing.ts`, `features/lib/store/actions/marketing.ts` |
+| Photo tiles (Media Library, composer) | Show the uploaded photo. Seed media keeps its tinted tile. | `features/components/features/marketing/shared.tsx` |
+| Post Composer › Media | **Upload photos** button in the Media card. Photos uploaded there are ticked for the post. The hint now says where to record a customer's permission. | `compose-screen.tsx` |
+| Post Composer › Preview | New card at the top of the right column, with Facebook and Instagram tabs, updating as you type. Facebook: page name and avatar, "See more" after 240 characters or 4 lines, hashtags and mentions in blue, Facebook's layouts for 1 to 5+ photos with "+N", Like / Comment / Share. Instagram: handle with ring, carousel with arrows, "1/3" and dots, every slide at the first photo's shape (4:5 to 1.91:1), "… more" after 125 characters or 2 lines, and a warning when there is no photo. A line under it says it is a close likeness; the platform decides the final crop. | `post-preview.tsx`, `features/lib/rules/marketing-preview.ts` |
+| Post Composer › Owner approval | **Preview saved vN** button opens the saved version the owner is approving, not the unsaved form. | `compose-screen.tsx` |
+| Posts & Drafts | **Preview** button on every row opens the post's preview, with **Open post**. | `posts-screen.tsx` |
+| Content Calendar | Clicking a post opens its preview, with **Open post** to go to the composer. | `calendar-screen.tsx` |
+| Media Library › Record permission | Every photo with **No release** (not crew) has a **Record permission** button. The pop-up asks how permission was given (verbally or in writing), who gave it (filled in with the job's customer) and a required note of what they agreed to and when. The photo and its crops with no release become **Released**, the tile shows the record ("Verbal permission from …, recorded by … on …: '…'"), and the activity log has the same line. A withdrawn photo can't be given permission again here. Owner approval of the post is still required. | `media-screen.tsx`, `recordRelease` in `features/lib/store/actions/marketing.ts`, `ReleaseRecord` and the `verbal_approval` release in `features/types` |
+| Upload pop-up › permission | "The customer has already given permission to post these photos" box. Ticked, it asks the same three questions and records the permission on every photo in the batch. Crew photos skip it (hiring release). | `media-upload.tsx`, `uploadMedia` |
+
+Release types are now: signed contract, written approval, **verbal approval** (new), hiring release, none.
+
+Checked: `npx tsc --noEmit` clean; `npx vitest run` 64 files and 744 tests passing, including new ones for the preview rules (`marketing-preview.test.ts`), the upload checks, the storage cap, crops sharing the original's photo, deletion removing the photo, and recording permission (note required, crops included, withdrawn photos refused). Clicked through in Chrome at 1440px and 390px: upload of three photos plus a refused HEIC, the composer preview on both platforms with the carousel, Preview saved v1, the Posts & Drafts and calendar previews, and Record permission on MED-4. No console errors.
+
 ## Moved, not removed
 
 | Action | Was | Now |
 | --- | --- | --- |
+| Content Calendar › open a post | Clicking a post opened the composer | Clicking opens the post preview; **Open post** goes to the composer (one more click) |
+| Media Library › upload | "Upload (simulated)" card in the right column | **Upload photos** in the page header and the drop area above Job media |
 | Supplier Orders › Exception list | "Exception List" button in the page header, and the "Exception list" tab | The tab only (one click, same view) |
 | Follow-Ups › show unqualified alerts | Primary "Qualify" button in the header, which set the Unqualified filter | The "Unqualified" filter chip (one click, same filter). Each row keeps its "Qualify" button. |
 | Paint History › QR Links | Primary "QR Links" button in the paint record's header | The "QR Links" view in the Paint History bar just above (one click) |
@@ -304,6 +327,12 @@ Phase 8:
 - A screen that prints stored text without `usText()` still shows the stored spelling. The job status and the known activity-log and correction strings are covered.
 - The Paint Library dims inactive products to 60% opacity, which puts their brand and category text under 4.5:1. That is a deliberate "inactive" look, so it was left as it is.
 - Editable grids and printed documents still scroll sideways, as Phase 5 decided.
+
+Marketing (5 Oct):
+
+- Uploaded photos live in the shared demo record, capped at about 10. The live app needs cloud storage (`docs/emts-phase-2/11-meta-integration.md`, step 4).
+- A recorded permission can't be edited or removed from the Media Library. Withdraw stops the photo being used.
+- The preview is drawn by the app. It is close to the feeds, not identical, and Meta has no preview service for organic posts.
 
 Overall:
 

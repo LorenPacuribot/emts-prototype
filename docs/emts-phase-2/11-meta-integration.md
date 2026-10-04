@@ -24,6 +24,7 @@ The action functions in `features/lib/store/actions/*` describe what each API en
 | --- | --- | --- |
 | Settings › Social Accounts, access health, test account, draft fallback | `features/components/features/marketing/accounts-screen.tsx`, `SocialAccount` in `features/types` | The connect flow and stored tokens (steps 2 and 3) |
 | Media Library upload, crops, withdrawals | `media-screen.tsx`, `media-upload.tsx`, `uploadMedia` / `createCrop` / `withdrawMedia` | Cloud storage (step 4) |
+| Customer permission per photo (signed contract, written, verbal with a required note), recorded in the Media Library or at upload | `recordRelease`, `ReleaseRecord`, `consentCheck` / `usable` in `features/lib/rules/marketing.ts` | Stored per photo with who recorded it and when. The server checks it before every publish (step 5). |
 | Post preview | `post-preview.tsx`, `features/lib/rules/marketing-preview.ts` | Stays client-side. Meta has no preview service for organic posts. |
 | Consent check, owner approval, checklist | `postChecks` in `actions/marketing.ts` | Unchanged. The server must enforce these before every publish, not just the UI. |
 | Schedule, "nothing publishes late on its own", missed after 30 minutes | `schedulePost`, `runScheduler`, `lateness` | The scheduler (step 6) |
@@ -98,7 +99,7 @@ Only the business owner can connect or remove accounts (`marketing.accounts` per
 
 ## Step 5: Publishing
 
-Run these server-side only, after re-running the consent check and approval check on the exact version being published.
+Run these server-side only, after re-running the consent check and approval check on the exact version being published. The consent check reads each photo's recorded permission; a photo of a customer's property with none, or with permission withdrawn, blocks the publish.
 
 **Facebook Page**
 
