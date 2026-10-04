@@ -1,6 +1,6 @@
 # EMTS Phase 2
 
-This folder holds the EMTS Phase 2 spec, exported from Claude Docs on 2 Oct 2026, and a check of the prototype against it. The spec files are copies; the live doc is the source of truth. When the doc changes, export it again over these files.
+This folder holds the EMTS Phase 2 spec, last exported from Claude Docs on 5 Oct 2026, and a check of the prototype against it. The spec files are copies; the live doc is the source of truth. When the doc changes, export it again over these files.
 
 | File | What it covers |
 | --- | --- |

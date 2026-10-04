@@ -224,7 +224,7 @@ System behaviour:
 - Source is set in this order: the link's source tag; if none, the site the visitor came from (facebook.com → Facebook, instagram.com → Instagram, google → Google); if neither, Website.
 - The lead records the link name it came through, so two Facebook links can be told apart.
 - If the email or phone matches an open lead, the new lead is created and marked "Possible duplicate" with a link to the other lead.
-- Admins and the lead's default estimator get an in-app notification: "New lead from {Source}: {Name}."
+- Admins and the organisation's default estimator (a new organisation setting; new website leads are assigned to them) get an in-app notification: "New lead from {Source}: {Name}."
 - No email or text is sent to the visitor automatically.
 - Spam protection: a hidden honeypot field, and no more than 5 submissions per hour from one address.
 

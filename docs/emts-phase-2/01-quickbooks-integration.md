@@ -43,7 +43,7 @@ One rule keeps the two systems from disagreeing: every field has one owner. Esti
 | Payment recorded in QuickBooks (cheque, cash, bank transfer) | Payment | QuickBooks → Estimate Master (status only) | Next sync after it is recorded | QuickBooks |
 | Customer created in QuickBooks | Customer | QuickBooks → review list | Next sync after it is created | Decided in the review list |
 
-Leads are never sent. A lead only becomes a QuickBooks Customer once it is converted to a contact in Estimate Master. This answers Tim's lead-versus-contact question from the call.
+Leads are never sent. A person only becomes a QuickBooks Customer once they have a job or an estimate in Estimate Master. Before that they are a lead. This answers Tim's lead-versus-contact question from the call.
 
 ### Design sequence
 
@@ -66,7 +66,7 @@ Leads are never sent. A lead only becomes a QuickBooks Customer once it is conve
 - Sync is automatic. A record syncs when it is saved in Estimate Master. No user presses a button for normal work.
 - Records sync in order: Customer, then Project, then Invoice, then Payment. A child record waits until its parent exists in QuickBooks.
 - Each sent record stores the QuickBooks ID it was given. A repeat send updates that record and never creates a duplicate.
-- A failed send goes to the retry queue. The system retries after 1 minute, 5 minutes, 30 minutes and 2 hours. After the fourth failure it moves to Needs Attention.
+- A failed send goes to the retry queue. The system retries after 1 minute, 5 minutes, 30 minutes and 2 hours. After the fourth failed retry (the fifth attempt) it moves to Needs Attention.
 - Sync runs around the clock. There is no business-hours window and no hourly batch, and nobody has to press Run or Retry for normal work. Retry stays available in Needs Attention for records that failed four times. (Decided 2 Oct 2026.)
 - Once an invoice has been sent to QuickBooks, its amount and date are locked in Estimate Master. The edit controls show "Edit this invoice in QuickBooks".
 - COMPLETE (QB-C3): If an invoice amount is changed in QuickBooks, the new amount shows in Estimate Master with a variance flag for the office manager.

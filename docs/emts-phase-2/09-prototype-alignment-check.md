@@ -2,73 +2,70 @@
 
 Oct 2, 2026 · @Lors
 
-The prototype matches this doc closely, but not everywhere. Business rules for amended estimates, CRM stages, crew emails, Books and the 14 v1.0 features match the spec. QuickBooks sync timing, contact matching and permissions follow the older Feature 33 design instead of tab 1, and the lead form differs in several small rules. All seven decisions below were made on 2 Oct 2026 and written into tabs 1, 2 and 4. The code still has to be changed to match.
+The prototype now matches this doc for tabs 1 to 5 and the 14 v1.0 features. The seven decisions of 2 Oct (D1–D7) are built, and a 30-item spec check against tabs 1, 2, 4 and 9 passes in full (tab 10). What remains is backend work the prototype only simulates, listed under Build health below.
 
-Checked against emts-prototype at commit fbdc747 (1 Oct 2026). Where the spec and the code disagree, this tab says which one the dev should follow, or that someone must decide.
+First checked against emts-prototype at commit fbdc747 (1 Oct 2026). Re-checked at f9041e5 (2 Oct 2026), after commits 9f530a6 (D1–D7) and f9041e5 (spec check gaps). The repo also keeps a copy of this doc in docs/emts-phase-2/; this doc is the source of truth.
 
 How to read the status column: **Matches** = code does what the spec says. **Differs** = code does something else; the spec wins unless a decision says otherwise. **Partial** = some of it is built. **Placed differently** = built, but on another screen, on purpose (see tab 7). **Mocked** = works in the prototype only; real backend work needed.
 
 ## Decisions (made 2 Oct 2026)
 
-Each row was a place where the spec and the prototype gave different answers. The Decision column is now the rule. The spec tabs are updated; the prototype code is not yet.
+Each row was a place where the spec and the prototype gave different answers. The Decision column is the rule. The spec tabs and the code both follow it now.
 
-| # | Topic | Prototype does today | Decision | Spec updated | Code |
-| --- | --- | --- | --- | --- | --- |
-| D1 | QuickBooks sync timing | Hourly run, 6 a.m. to 6 p.m. Mon to Sat; manual Retry; escalates after 2 failures | Automatic sync on save, around the clock. Auto retry at 1, 5, 30 and 120 min; Needs Attention after 4 failures | Tab 1, System behaviour | To change |
-| D2 | QuickBooks contact matching | Matched only when email AND name match | Matched when either the email or the exact name matches. Possible duplicate only when email and name point to different contacts, or the name fits several | Tab 1, Component 2 | To change |
-| D3 | Who can connect QuickBooks | Office manager only | QuickBooks is a paid add-on. Only organisations subscribed to it can connect; others see "Add QuickBooks to your plan" | Tab 1, Access validations | To change |
-| D4 | Lead form spam limit | 5 per 10 minutes | 5 per hour per address | Already in tab 2 | To change |
-| D5 | Lead form fields | Free-text address and painted question; name up to 120; phone 7+ digits; message 2,000 | Use the spec fields: name 2 to 80; US phone 10 digits; property address; "What would you like painted?" dropdown; message up to 1,000 | Already in tab 2 | To change |
-| D6 | Lead sources | Fixed list plus Nextdoor, Thumbtack, Angi, Yard Sign | Dynamic: built-in sources plus any platform the admin adds, on a Lead sources tab in Settings › Pipeline Stages | Tab 2, System validations | To change |
-| D7 | Crew email subject | "Your schedule has changed" | "Schedule update from {Company}: {N} jobs changed" | Already in tab 4 | To change |
+| # | Topic | Prototype before | Decision | Spec | Code | Where to see it |
+| --- | --- | --- | --- | --- | --- | --- |
+| D1 | QuickBooks sync timing | Hourly run, 6 a.m. to 6 p.m. Mon to Sat; manual Retry | Sync on save, around the clock. Auto retry at 1, 5, 30 and 120 min, then Needs Attention | Tab 1 | Done | /accounting/transfer-queue (Sync Log), /accounting/needs-attention |
+| D2 | QuickBooks contact matching | Matched only when email AND name match | Matched on email OR exact name. Possible duplicate only on a split or several names | Tab 1 | Done | /settings/accounting › Match your contacts |
+| D3 | Who can connect QuickBooks | Office manager only | Paid add-on. Without it: "Add QuickBooks to your plan." With it: Owner and Admin connect | Tab 1 | Done | /settings/accounting; Prototype bar › QuickBooks add-on |
+| D4 | Lead form spam limit | 5 per 10 minutes | 5 per hour per address | Tab 2 | Done | /api/website-form |
+| D5 | Lead form fields | Free-text address and question; loose limits | Spec fields: name 2–80, US phone, property address, painted dropdown, message 1,000 | Tab 2 | Done | /website-form |
+| D6 | Lead sources | Fixed list | Built-in eight plus admin-added sources | Tab 2 | Done | /settings/pipeline-stages › Lead sources |
+| D7 | Crew email subject | "Your schedule has changed" | "Schedule update from {Company}: {N} jobs changed" | Tab 4 | Done | /job-scheduling › Unsent changes › Preview |
 
 ## Tab 1 — QuickBooks
 
-The data rules are built and tested. The timing and the screen host are not as tab 1 describes. Code: features/lib/store/actions/finance.ts, features/lib/rules/qbo-contacts.ts, features/components/features/finance/.
+Everything in tab 1 is built, except the real Intuit connection. Code: features/lib/rules/qbo-sync.ts and qbo-contacts.ts (with tests), features/lib/store/actions/finance.ts, features/components/features/finance/.
 
 | Spec item | Status | Where in prototype | Dev note |
 | --- | --- | --- | --- |
-| Connect / Disconnect, one company per org (QB-M1) | Mocked | Settings › Accounting (setup-screen, destination-card) | Intuit OAuth pop-up is simulated. Real OAuth, token refresh and Reconnect needed |
-| Integrations page with one card per integration | Placed differently | Settings › Accounting, not Settings › Integrations | Agreed in tab 7 and the build plan. Update tab 1 (see Doc fixes) |
-| Sync options: income, deposit, tax mapping, card method (QB-M2) | Partial | setup-screen.tsx | Mappings exist. No Start sync gate yet: add "Map every tax region first" and the send-existing-records choice (from a start date, or new only) |
-| Sync on save, retry 1/5/30/120 min, Needs Attention after 4 | Differs | runExchange() in actions/finance.ts | See D1 |
-| Parent before child: Customer → Project → Invoice → Payment | Partial | Exchange queue | Order exists for records sent together; add an explicit "waits for parent" check |
-| No duplicates on resend (stored QuickBooks ID) | Matches | idempotencyKey per record version | Keep this key in the real build |
-| Invoice amount and date locked once sent | Differs (wording) | editRecordAmount() | Blocks the edit. Message reads "This record is in QuickBooks. Change the amount in QuickBooks…" Spec: "Edit this invoice in QuickBooks" |
-| First-connection matching, three groups (QB-M3) | Differs | match-contacts.tsx | Groups match. Rule differs, see D2 |
-| Review list for customers made in QuickBooks (QB-C1) | Matches | customer-review.tsx | Link, Create as contact, Ignore |
-| Variance and deletion flags (QB-C3) | Matches | actions/finance.ts (variance, deletedInQbo) | Never deletes locally, as specified |
-| Sync Log and Needs Attention screens | Partial | queue-screen.tsx (one queue table with attempts) | Split into Sync Log (filters, 25 rows, 12 months) and Needs Attention (count badge on menu) |
-| QuickBooks badge on contacts, jobs, invoices | Matches | QuickBooksContact.tsx, InvoiceRow.tsx, JobFeatures.tsx |  |
-| Leads never sent | Matches | Only contacts and records sync |  |
-| Activity log strings | Differs (wording) | log() calls in actions/finance.ts | Rewrite to the exact strings in tab 1 |
-| Access (PAYMENT\_CONFIG) | Differs | features/lib/permissions.ts | See D3 |
+| Connect / Disconnect, one company per org (QB-M1) | Mocked | qbo-connection-card.tsx | Disconnect confirmation and Reconnect needed are built. Real Intuit OAuth and token refresh still needed |
+| Integrations page with one card per integration | Placed differently | Settings › Accounting | Agreed in tab 7 |
+| Sync options and Start sync gate (QB-M2) | Matches | qbo-connection-card.tsx | Needs income, deposit, card method and every tax region; then from a start date or new only |
+| Sync on save, retry 1/5/30/120 min, Needs Attention (D1) | Matches | qbo-sync.ts | Moves after the 4th failed retry (5th attempt) |
+| Parent first: Customer → Project → Invoice → Payment | Matches | qbo-sync.ts | Child shows "Waiting for parent" |
+| No duplicates on resend | Matches | Idempotency key per record version | Keep this key in the real build |
+| Contacts and jobs sent when saved | Matches | actions/finance.ts | A person is sent once they have a job or estimate; leads never |
+| Invoice amount and date locked once sent | Matches | app/invoices/\[id\] | Disabled "Edit this invoice in QuickBooks" |
+| First-connection matching (QB-M3, D2) | Matches | qbo-contacts.ts | Names compared ignoring case and extra spaces |
+| Review list for customers made in QuickBooks (QB-C1) | Matches | customer-review.tsx |  |
+| Variance and deletion flags (QB-C3) | Matches | actions/finance.ts | Never deletes locally |
+| Sync Log | Matches | /accounting/transfer-queue | Filters, 25 a page, newest first, 12 months |
+| Needs Attention | Matches | /accounting/needs-attention | Count badge, Retry, Open record, Dismiss |
+| QuickBooks badge on records | Matches | QuickBooksContact.tsx, InvoiceRow.tsx, JobFeatures.tsx |  |
+| Activity log strings | Matches | qboLogText() in qbo-sync.ts | Word for word |
+| Access: add-on plus PAYMENT\_CONFIG (D3) | Matches | features/lib/permissions.ts | Admin is the office manager in the prototype |
 
 ## Tab 2 — CRM lead pipelines
 
-Stages, boards and the handover match the spec. The lead form is where the gaps are. Code: features/lib/rules/lead-pipeline.ts, lib/crm.ts, components/leads/, components/settings/config/PipelineStagesView.tsx, lib/website-form.ts.
+Everything in tab 2 is built. The address lookup uses a short local list; the real build needs an address service. Code: features/lib/rules/lead-pipeline.ts and lead-sources.ts, lib/crm.ts, lib/website-form.ts, components/leads/, components/settings/config/.
 
 | Spec item | Status | Where in prototype | Dev note |
 | --- | --- | --- | --- |
-| Sales and Production boards with a switch (CRM-M1) | Matches | /leads (PipelineBoards.tsx) |  |
-| Default Production stages: Pick Colours, Ready to Schedule, Scheduled, In Progress, Touch-ups, Complete | Matches | lib/data/settings-config.ts | Still open for Tim to confirm (Overview) |
-| Locked system stages: New, Sold, Lost, Complete | Matches | lead-pipeline.ts | Archived is also a hidden system state, as the spec allows |
-| Max 12 stages; names required, 30 chars, unique | Matches | MAX\_STAGES = 12; stage name check | Message is "Keep it under 30 characters." |
+| Sales and Production boards with a switch (CRM-M1) | Matches | /leads |  |
+| Default Production stages | Matches | lib/data/settings-config.ts | Still open for Tim to confirm (Overview) |
+| Locked system stages; max 12; names 30 chars, unique | Matches | lead-pipeline.ts |  |
 | Delete blocked: "Move the {N} cards in this stage first." | Matches | lead-pipeline.ts |  |
-| Sold creates one Production card; never a second one | Matches | productionCardsToCreate(); lib/crm.ts |  |
-| Moving out of Sold asks Keep / Remove from Production | Matches | app/leads/page.tsx |  |
-| iPad Move to menu on cards | Matches | LeadCard.tsx |  |
-| Group by Source, no drag between source columns (CRM-C1) | Matches | KanbanBoard.tsx |  |
-| Stage history: stage, moved by, moved at (CRM-M7) | Matches | StageHistory.tsx |  |
-| Lead capture links with copy, QR, pause | Placed differently | TrackedLinksCard.tsx on /leads, not Settings › Lead Capture | Agreed in tab 7. Add the "leads in last 30 days" count if missing |
-| Source order: link tag, then referring site, then Website | Matches | leadSourceFor() in lib/website-form.ts |  |
-| Source list | Differs | lib/website-form.ts | See D6 |
-| Form fields and validation | Differs | app/website-form/page.tsx, checkSubmission() | See D5 |
-| Honeypot | Matches | HONEYPOT\_FIELD; also a 2.5 s minimum fill time |  |
-| Rate limit | Differs | app/api/website-form/route.ts | See D4 |
-| Possible duplicate on new leads | Differs | Website form rule returns "duplicate" and creates no lead | Spec: create the lead AND mark it "Possible duplicate" with a link to the other one |
-| Nothing sent to the customer on card move | Matches | No sends on move |  |
-| Access: ADMIN\_MASTER\_DATA for stage edits | Check | Prototype roles in PipelineStagesView.tsx | Map to the live app's permission codes |
+| Sold creates one Production card; Keep / Remove when moved out | Matches | lib/crm.ts, app/leads/page.tsx |  |
+| Group by Source; Move to menu; stage history | Matches | KanbanBoard.tsx, LeadCard.tsx, StageHistory.tsx |  |
+| Lead capture links with copy, QR, pause | Placed differently | TrackedLinksCard.tsx on /leads | Agreed in tab 7 |
+| Source order: link tag, referring site, Website | Matches | leadSourceFor() |  |
+| Lead sources list (D6) | Matches | LeadSourcesPanel.tsx, lead-sources.ts | A rename keeps the old name so existing leads keep their source |
+| Form fields and validation (D5) | Matches | /website-form | Address lookup is mocked |
+| Honeypot; 5 per hour (D4) | Matches | lib/website-form.ts, api route |  |
+| Possible duplicate: lead created and marked, with a link | Matches | marketing.ts |  |
+| "New lead from {Source}: {Name}." notice | Matches | actions/marketing.ts | Goes to admins and the organisation's default estimator (defaultEstimatorId, new setting) |
+| Stages, sources and links editable by Admin Master Data only | Matches | PipelineStagesView.tsx, LeadSourcesPanel.tsx, TrackedLinksCard.tsx | Read-only for everyone else |
+| Nothing sent to the customer on card move | Matches |  |  |
 
 ## Tab 3 — Amended estimates in reports
 
@@ -91,20 +88,21 @@ The entry rule matches the spec, including Tim's $6,463 + $1,495 case. Code: fea
 
 ## Tab 4 — Job scheduling emails
 
-The Minimal behaviour matches: nothing sends on save, one email per person, markers clear when a change is undone. Code: features/lib/rules/schedule-notify.ts (with tests), components/scheduling/NotifyCrew.tsx.
+Everything in tab 4 is built; email delivery is sandboxed. Code: features/lib/rules/schedule-notify.ts (with tests), components/scheduling/NotifyCrew.tsx.
 
 | Spec item | Status | Where in prototype | Dev note |
 | --- | --- | --- | --- |
 | No crew email on save; snapshot rule (JS-M1) | Matches | schedule-notify.ts |  |
 | "Changes not sent" marker; clears when undone (JS-M2) | Matches | NotifyCrew.tsx |  |
-| Unsent changes (N) button and Notify crew modal (JS-M3) | Matches | NotifyCrew.tsx | Select all, Clear all, Not now, Send updates, "No email on file" all present |
-| One summary email: New jobs, Changed jobs, Removed from; empty sections left out (JS-M4) | Matches | scheduleUpdateMessage() | Old dates show as "was …". Spec asks for them crossed through in the email |
-| Email subject | Differs | schedule-notify.ts | See D7 |
-| Template in Automated Messages as "Schedule Update (crew)" | Check |  | Confirm the template name in Settings › Automated Messages |
-| Send Email for one job (JS-C1) | Placed differently | Edit Schedule panel (ShiftSchedulePanel.tsx) | Spec puts it in the Edit Shift popup footer, left of Assign shift. Add the "No changes to send" disabled state |
+| Unsent changes (N) and Notify crew modal (JS-M3) | Matches | NotifyCrew.tsx |  |
+| One summary email with New, Changed, Removed from (JS-M4) | Matches | scheduleUpdateMessage() | Old dates crossed through in the preview |
+| Subject "Schedule update from {Company}: {N} jobs changed" (D7) | Matches | schedule-notify.ts | English and Spanish |
+| Template "Schedule Update (crew)" | Matches | Settings › Automated Messages |  |
+| Send Email for one job (JS-C1) | Placed differently | Edit Schedule panel | Disabled with "No changes to send."; toast "Update sent to {N} people." |
 | Notify step after Bulk Reschedule (JS-C2) | Matches | NotifyCrew.tsx |  |
-| Delivered / Not delivered per person (JS-C4) | Mocked | NotifyCrew.tsx | Sandbox only. Real email delivery status needed |
-| Text message option (JS-C5), Spanish email (JS-C6) | Matches | NotifyCrew.tsx | Spanish depends on EMTS-339 |
+| Delivered / Not delivered per person (JS-C4) | Mocked | NotifyCrew.tsx | Real email delivery status needed |
+| Text option (JS-C5), Spanish email (JS-C6) | Matches | NotifyCrew.tsx | Spanish depends on EMTS-339 |
+| Activity log per person | Matches | scheduleLogText() | Sent, unticked, not delivered |
 
 ## Tab 5 — Estimate Master Books
 
@@ -143,15 +141,14 @@ Feature 33 is partly overridden by tabs 1 and 5: where they disagree (QuickBooks
 
 ## Build health and prototype-only parts
 
-The prototype installs, typechecks and builds cleanly. One test fails, and only at the start of a month.
+At f9041e5 the prototype installs, typechecks and builds cleanly, and all 733 tests pass.
 
 | Check | Result | Note |
 | --- | --- | --- |
-| npm ci | Pass | 0 vulnerabilities |
 | npm run typecheck | Pass |  |
-| npm test | 682 of 683 pass | features/lib/rules/marketing.test.ts, "monthly report counts posts": no seeded posts fall in the current month on 1 Oct. Date-dependent test; pin the clock |
+| npm test | 733 of 733 pass | The start-of-month marketing test is fixed |
 | npm run build | Pass |  |
-| README | Out of date | Says 346 tests; there are 683 |
+| README | Up to date | Test count and D1–D7 notes added |
 
 What the dev must replace, not copy:
 
