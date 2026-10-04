@@ -9,7 +9,7 @@
  * wall-clock time with a daylight-saving note, and per-platform publishing.
  */
 import { useState } from "react";
-import { CalendarClock, CheckCircle2, Copy, History, MapPinOff, Send, ShieldCheck, XCircle } from "lucide-react";
+import { CalendarClock, CheckCircle2, Copy, Eye, History, MapPinOff, Send, ShieldCheck, XCircle } from "lucide-react";
 import type { MarketingPost, PostTemplate, SocialPlatform } from "@/features/types";
 import { act, useCurrentUser, useDb } from "@/features/lib/store";
 import { can } from "@/features/lib/permissions";
@@ -29,6 +29,8 @@ import { PageHeader } from "@/features/components/layout/screen";
 import { Badge, Banner, Button, Card, CardLabel, Checkbox, Field, Input, Modal, Select, Textarea, DemoButton } from "@/features/components/ui";
 import { MarketingFrame } from "./marketing-frame";
 import { AssetTile, PlatformChip, PostStateBadge } from "./shared";
+import { UploadPhotosButton } from "./media-upload";
+import { PostPreview, PostPreviewModal } from "./post-preview";
 
 export function ComposeScreen() {
   const id = useParam("id");
@@ -108,8 +110,11 @@ function Composer({ post }: { post?: MarketingPost }) {
           </Card>
 
           <Card className="p-4" data-tour="marketing-media">
-            <CardLabel right={<AppLink href="/marketing/media" className="text-xs font-semibold text-brand">Crop or upload in the Media Library</AppLink>}>Media</CardLabel>
-            <p className="mt-1 text-xs text-gray-500">Without a release, only surface images can be used. Withdrawn media can&apos;t be selected. Crops keep the original job media untouched.</p>
+            <CardLabel right={<AppLink href="/marketing/media" className="text-xs font-semibold text-brand">Crop in the Media Library</AppLink>}>Media</CardLabel>
+            <div className="mt-1 flex flex-wrap items-start justify-between gap-2">
+              <p className="min-w-0 flex-1 text-xs text-gray-500">Without a release, only surface images can be used. Got the customer&apos;s OK, even verbally? Record it with Record permission in the Media Library. Withdrawn media can&apos;t be selected. Crops keep the original job media untouched.</p>
+              {!locked && can(user, "marketing.post") && <UploadPhotosButton size="sm" variant="secondary" onUploaded={(ids) => set("assetIds", [...form.assetIds, ...ids])} />}
+            </div>
             <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
               {assets.map((a) => <AssetTile key={a.id} asset={a} selected={form.assetIds.includes(a.id)} onClick={locked ? undefined : () => toggleAsset(a.id)} />)}
             </div>
@@ -118,16 +123,23 @@ function Composer({ post }: { post?: MarketingPost }) {
           {post && <Versions post={post} />}
         </div>
 
-        {post ? (
-          <div className="space-y-4">
-            <Checks post={post} />
-            <Approval post={post} />
-            <Schedule post={post} />
-            <Publishing post={post} />
-          </div>
-        ) : (
-          <Card className="p-4 text-xs text-gray-500">Save the draft to run the consent check, the checklist and the approval route.{!can(user, "marketing.post") && " Your role can't draft posts."}</Card>
-        )}
+        <div className="space-y-4">
+          <Card className="p-4" data-tour="marketing-preview">
+            <CardLabel icon={<Eye />}>Preview</CardLabel>
+            <p className="mb-3 mt-1 text-xs text-gray-500">How the post will look in the feed. Updates as you type{post && !locked ? "; unsaved changes included" : ""}.</p>
+            <PostPreview content={{ ...form, variants: post?.variants, accountIds: post?.accountIds }} when={post?.schedule ? localLabel(post.schedule.utc) : undefined} />
+          </Card>
+          {post ? (
+            <>
+              <Checks post={post} />
+              <Approval post={post} />
+              <Schedule post={post} />
+              <Publishing post={post} />
+            </>
+          ) : (
+            <Card className="p-4 text-xs text-gray-500">Save the draft to run the consent check, the checklist and the approval route.{!can(user, "marketing.post") && " Your role can't draft posts."}</Card>
+          )}
+        </div>
       </div>
     </>
   );
@@ -161,6 +173,7 @@ function Approval({ post }: { post: MarketingPost }) {
   const db = useDb((d) => d);
   const user = useCurrentUser();
   const [rejecting, setRejecting] = useState(false);
+  const [previewing, setPreviewing] = useState(false);
   const [comment, setComment] = useState("");
   const c = postChecks(db, post);
   return (
@@ -180,7 +193,9 @@ function Approval({ post }: { post: MarketingPost }) {
             <Button variant="danger" onClick={() => setRejecting(true)}>Reject</Button>
           </>
         ) : <Badge tone="purple">Waiting for the business owner</Badge>)}
+        {c.needsApproval && <Button onClick={() => setPreviewing(true)}><Eye className="h-4 w-4" /> Preview saved v{post.version}</Button>}
       </div>
+      {previewing && <PostPreviewModal post={post} onClose={() => setPreviewing(false)} />}
       <Modal open={rejecting} onOpenChange={setRejecting} size="sm" title={`Return ${post.id} to draft`} description="Say what needs to change."
         footer={<><Button onClick={() => setRejecting(false)}>Cancel</Button><Button variant="danger" onClick={() => { if (act(rejectPost, post.id, comment).ok) { setRejecting(false); toast.success("Returned to draft"); } }}>Reject</Button></>}>
         <Field label="Comment" required><Textarea value={comment} onChange={(e) => setComment(e.target.value)} /></Field>

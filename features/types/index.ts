@@ -2361,7 +2361,7 @@ export interface MediaAsset {
   /** Shows faces, house numbers, licence plates or a neighbouring property. */
   identifying: boolean;
   identifyingNote?: string;
-  release: "signed_contract" | "written_approval" | "hiring_release" | "none";
+  release: "signed_contract" | "written_approval" | "verbal_approval" | "hiring_release" | "none";
   releaseRef?: string;
   withdrawnAt?: ISODate;
   withdrawnBy?: ID;

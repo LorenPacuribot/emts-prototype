@@ -84,11 +84,31 @@ export function addressDetail(a: MediaAsset): boolean {
 
 /* ------------------------------ Uploads ------------------------------ */
 
+/** Photo formats the browser can read and re-encode as the JPEG that Instagram requires. */
+export const UPLOAD_TYPES = ["image/jpeg", "image/png", "image/webp"];
+
+/**
+ * Prototype only: uploaded photos ride in the shared demo record, so their
+ * total size is capped (about 10 photos). Production keeps files in cloud storage.
+ */
+export const PHOTO_STORE_BUDGET_CHARS = 1_500_000;
+
 export function validateUpload(file: { sizeMb: number; type: string }): { ok: boolean; error?: string } {
   if (file.type.startsWith("video/")) return { ok: false, error: "Video is not supported at launch. Upload a finished photograph." };
   if (!file.type.startsWith("image/")) return { ok: false, error: "Only photographs can be uploaded." };
+  if (!UPLOAD_TYPES.includes(file.type)) return { ok: false, error: "Upload a JPG, PNG or WebP photo. On an iPhone, set Camera › Formats to Most Compatible, or share the photo as a JPG." };
   if (!(file.sizeMb < MAX_UPLOAD_MB)) return { ok: false, error: `Images must be under ${MAX_UPLOAD_MB} MB. This one is ${file.sizeMb} MB.` };
   return { ok: true };
+}
+
+/** Space the uploaded photos already take in the demo record. */
+export function photoStoreUsed(assets: Pick<MediaAsset, "dataUrl">[]): number {
+  return assets.reduce((n, a) => n + (a.dataUrl?.length ?? 0), 0);
+}
+
+/** The picture to show for an asset: its own upload, else (for a crop) its original's. Seed media has none. */
+export function assetImage(assets: MediaAsset[], a: MediaAsset): string | undefined {
+  return a.dataUrl ?? (a.cropOf ? assets.find((x) => x.id === a.cropOf)?.dataUrl : undefined);
 }
 
 /* ------------------------- Material edit vs typo ---------------------- */

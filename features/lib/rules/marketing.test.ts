@@ -9,10 +9,10 @@ import { createSeed } from "@/features/data/seed";
 import { now } from "@/features/lib/clock";
 import {
   approvePost, checkOutcome, copyToPlatform, createCrop, createPost, postChecks, publishPost, retryFailed, runScheduler, schedulePost, sendForApproval, submitWebsiteForm, updatePost,
-  uploadMedia, withdrawMedia, monthlyReport, simulateAccountIssue, removeAccess,
+  recordRelease, uploadMedia, withdrawMedia, monthlyReport, simulateAccountIssue, removeAccess,
 } from "@/features/lib/store/actions/marketing";
 import {
-  addressDetail, approvalReasons, consentCheck, dstDates, findStreetAddress, lateness, localLabel, localParts, matchLead, materialEdit, missingLeadFields, resolveLocal, validateUpload,
+  addressDetail, approvalReasons, assetImage, consentCheck, PHOTO_STORE_BUDGET_CHARS, dstDates, findStreetAddress, lateness, localLabel, localParts, matchLead, materialEdit, missingLeadFields, resolveLocal, usable, validateUpload,
 } from "./marketing";
 
 const asset = (x: Partial<MediaAsset> = {}): MediaAsset => ({
@@ -189,6 +189,70 @@ describe("Feature 34 — seeded posts and actions", () => {
     const c = createCrop(db, as(db, "U-OFFICE"), "MED-1", "vertical", "finished_job");
     expect(JSON.stringify(db.mediaAssets.find((a) => a.id === "MED-1"))).toBe(before);
     expect(db.mediaAssets.find((a) => a.id === val(c))?.identifying).toBe(false);
+  });
+
+  it("rejects formats the browser can't turn into a JPEG, such as iPhone HEIC", () => {
+    expect(validateUpload({ sizeMb: 2, type: "image/heic" }).error).toMatch(/JPG, PNG or WebP/);
+    expect(validateUpload({ sizeMb: 2, type: "image/png" }).ok).toBe(true);
+  });
+
+  it("an uploaded photo is stored on its record; a crop shows the original's photo without a second copy", () => {
+    const db = fresh();
+    const id = val(uploadMedia(db, as(db, "U-OFFICE"), { label: "Trim", sizeMb: 2, type: "image/jpeg", kind: "surface_detail", dataUrl: "data:image/jpeg;base64,AAAA", width: 3000, height: 4000 }))!;
+    const up = db.mediaAssets.find((a) => a.id === id)!;
+    expect(up).toMatchObject({ dataUrl: "data:image/jpeg;base64,AAAA", width: 3000, height: 4000, mediaType: "image" });
+    const cropId = val(createCrop(db, as(db, "U-OFFICE"), id, "square", "finished_job"));
+    const crop = db.mediaAssets.find((a) => a.id === cropId)!;
+    expect(crop.dataUrl).toBeUndefined();
+    expect(assetImage(db.mediaAssets, crop)).toBe(up.dataUrl);
+  });
+
+  it("caps the photos stored in the shared demo record", () => {
+    const db = fresh();
+    const big = `data:image/jpeg;base64,${"A".repeat(PHOTO_STORE_BUDGET_CHARS - 100)}`;
+    expect(uploadMedia(db, as(db, "U-OFFICE"), { label: "a", sizeMb: 2, type: "image/jpeg", kind: "surface_detail", dataUrl: big }).ok).toBe(true);
+    const r = uploadMedia(db, as(db, "U-OFFICE"), { label: "b", sizeMb: 2, type: "image/jpeg", kind: "surface_detail", dataUrl: "data:image/jpeg;base64,AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" });
+    expect(r.ok).toBe(false);
+    expect(r.ok ? "" : r.error).toMatch(/photo storage is full/);
+  });
+
+  it("recording a customer's verbal permission unlocks a house photo and its crops, with the note kept", () => {
+    const db = fresh();
+    const id = val(uploadMedia(db, as(db, "U-OFFICE"), { label: "Front of house", sizeMb: 2, type: "image/jpeg", kind: "customer_property", jobId: "JOB-2026-1" }))!;
+    const cropId = val(createCrop(db, as(db, "U-OFFICE"), id, "vertical", "finished_job"))!;
+    const get = (x: string) => db.mediaAssets.find((a) => a.id === x)!;
+    expect(usable(get(id)).ok).toBe(false);
+    expect(recordRelease(db, as(db, "U-OFFICE"), id, { type: "verbal_approval", givenBy: "Korah Singer", note: "" }).ok).toBe(false);
+    const r = recordRelease(db, as(db, "U-OFFICE"), id, { type: "verbal_approval", givenBy: "Korah Singer", note: "Said yes on the phone, 5 Oct" });
+    expect(val(r)).toBe(2);
+    for (const x of [id, cropId]) {
+      expect(usable(get(x)).ok).toBe(true);
+      expect(get(x).releaseRecord).toMatchObject({ type: "verbal_approval", givenBy: "Korah Singer", note: "Said yes on the phone, 5 Oct", by: "U-OFFICE" });
+      expect(get(x).releaseRef).toMatch(/Verbal permission from Korah Singer.*Said yes on the phone/);
+    }
+    expect(recordRelease(db, as(db, "U-OFFICE"), id, { type: "written_approval", givenBy: "K", note: "again" }).ok).toBe(false);
+  });
+
+  it("permission given at upload is recorded on the new photo; a missing note stops the upload", () => {
+    const db = fresh();
+    const base = { label: "Porch", sizeMb: 2, type: "image/jpeg", kind: "customer_property" as const };
+    expect(uploadMedia(db, as(db, "U-OFFICE"), { ...base, release: { type: "written_approval", givenBy: "Wen Li", note: " " } }).ok).toBe(false);
+    const id = val(uploadMedia(db, as(db, "U-OFFICE"), { ...base, release: { type: "written_approval", givenBy: "Wen Li", note: "Texted OK" } }))!;
+    expect(db.mediaAssets.find((a) => a.id === id)).toMatchObject({ release: "written_approval", releaseRecord: { givenBy: "Wen Li" } });
+  });
+
+  it("a withdrawn photo can't be given permission again from the library", () => {
+    const db = fresh();
+    const id = val(uploadMedia(db, as(db, "U-OFFICE"), { label: "Porch", sizeMb: 2, type: "image/jpeg", kind: "customer_property" }))!;
+    withdrawMedia(db, as(db, "U-OFFICE"), id, "Customer changed their mind");
+    expect(recordRelease(db, as(db, "U-OFFICE"), id, { type: "verbal_approval", givenBy: "K", note: "yes" }).ok).toBe(false);
+  });
+
+  it("a personal-data deletion removes the stored photo", () => {
+    const db = fresh();
+    const id = val(uploadMedia(db, as(db, "U-OFFICE"), { label: "Porch", sizeMb: 2, type: "image/jpeg", kind: "surface_detail", dataUrl: "data:image/jpeg;base64,AAAA" }))!;
+    withdrawMedia(db, as(db, "U-OWNER"), id, "Customer emailed", true);
+    expect(db.mediaAssets.find((a) => a.id === id)?.dataUrl).toBeUndefined();
   });
 
   it("a late post is never published by the scheduler: 10 minutes waits, over 30 is missed", () => {

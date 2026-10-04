@@ -4,7 +4,7 @@
  * (retained one year; withdrawn media left out of exports).
  */
 import { useState } from "react";
-import { Download, PenSquare } from "lucide-react";
+import { Download, Eye, PenSquare } from "lucide-react";
 import { act, useDb } from "@/features/lib/store";
 import { AppLink } from "@/features/lib/navigation";
 import { downloadCsv } from "@/features/lib/export";
@@ -18,6 +18,7 @@ import { PageHeader } from "@/features/components/layout/screen";
 import { Badge, Button, Card, EmptyState, PillTabs, Table, TD, TH, THead, TR } from "@/features/components/ui";
 import { MarketingFrame } from "./marketing-frame";
 import { PlatformChip, PostStateBadge } from "./shared";
+import { PostPreviewModal } from "./post-preview";
 
 export function PostsScreen() {
   return (
@@ -35,6 +36,7 @@ const FILTERS = [
 function Posts() {
   const db = useDb((d) => d);
   const [filter, setFilter] = useState("all");
+  const [previewing, setPreviewing] = useState<string>();
   const list = db.marketingPosts.filter((p) => filter === "all" || (filter === "problem" ? p.state === "missed" || p.state === "partially_failed" : filter === "draft" ? p.state === "draft" || p.state === "approved" : p.state === filter));
 
   const csv = () => {
@@ -63,7 +65,7 @@ function Posts() {
       <Card className="p-4">
         {list.length === 0 ? <EmptyState title="No posts here" body="Pick another view above, or write a post in Compose." /> : (
           <Table>
-            <THead><tr><TH>Post</TH><TH>Template</TH><TH>Platforms</TH><TH>State</TH><TH>Owner approval</TH><TH>When</TH></tr></THead>
+            <THead><tr><TH>Post</TH><TH>Template</TH><TH>Platforms</TH><TH>State</TH><TH>Owner approval</TH><TH>When</TH><TH><span className="sr-only">Preview</span></TH></tr></THead>
             <tbody>
               {list.map((p) => {
                 const c = postChecks(db, p);
@@ -75,6 +77,7 @@ function Posts() {
                     <TD><div className="flex flex-wrap gap-1"><PostStateBadge state={p.state} />{p.takedown && !p.takedown.doneAt && <Badge tone="red">Takedown</Badge>}</div></TD>
                     <TD className="text-xs">{!c.needsApproval ? <span className="text-gray-500">Not required</span> : c.approved ? <Badge tone="green">Approved v{p.approval!.version}</Badge> : p.approvalVoided ? <Badge tone="amber">Voided — material edit</Badge> : <Badge tone="purple">Required</Badge>}</TD>
                     <TD className="whitespace-nowrap text-xs text-gray-600">{p.schedule ? localLabel(p.schedule.utc) : `Created ${dateLong(p.createdAt)}`}</TD>
+                    <TD><Button size="sm" variant="ghost" aria-label={`Preview ${p.title}`} onClick={() => setPreviewing(p.id)}><Eye className="h-4 w-4" /> Preview</Button></TD>
                   </TR>
                 );
               })}
@@ -82,6 +85,7 @@ function Posts() {
           </Table>
         )}
       </Card>
+      <PostPreviewModal post={db.marketingPosts.find((p) => p.id === previewing)} onClose={() => setPreviewing(undefined)} />
     </>
   );
 }

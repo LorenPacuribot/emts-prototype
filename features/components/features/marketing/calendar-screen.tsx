@@ -3,7 +3,8 @@
  * Feature 34 — Content Calendar.
  * Menu: Marketing > Content Calendar
  *
- * One chip per post on its local date, with platform chips and state.
+ * One chip per post on its local date, with platform chips and state; a
+ * chip opens the post preview, which links on to the composer.
  * Nothing late publishes on its own: the scheduler run only records a post
  * as missed once it is more than 30 minutes late.
  */
@@ -11,7 +12,7 @@ import { useState } from "react";
 import { ChevronLeft, ChevronRight, PenSquare, Timer } from "lucide-react";
 import type { MarketingPost } from "@/features/types";
 import { act, useDb } from "@/features/lib/store";
-import { AppLink, useNav } from "@/features/lib/navigation";
+import { AppLink } from "@/features/lib/navigation";
 import { toast } from "@/features/lib/toast";
 import { now } from "@/features/lib/clock";
 import { cn } from "@/features/lib/cn";
@@ -21,6 +22,7 @@ import { PageHeader } from "@/features/components/layout/screen";
 import { Badge, Button, Card, CardLabel } from "@/features/components/ui";
 import { MarketingFrame } from "./marketing-frame";
 import { AccountHealth, PlatformChip, POST_STATE, PostStateBadge } from "./shared";
+import { PostPreviewModal } from "./post-preview";
 
 export function ContentCalendarScreen() {
   return (
@@ -40,7 +42,7 @@ const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 function Calendar() {
   const db = useDb((d) => d);
-  const { push } = useNav();
+  const [previewing, setPreviewing] = useState<string>();
   const today = localParts(now()).date;
   const [month, setMonth] = useState(today.slice(0, 7));
   const [y, m] = month.split("-").map(Number);
@@ -97,7 +99,7 @@ function Calendar() {
                       <div className={cn("mb-1 text-xs font-semibold", day === today ? "inline-flex h-5 w-5 items-center justify-center rounded-full bg-brand text-white" : "text-gray-500")}>{Number(day.slice(8))}</div>
                       <div className="space-y-1">
                         {posts.filter((p) => postDay(p) === day).map((p) => (
-                          <button key={p.id} type="button" onClick={() => push(`/marketing/compose?id=${p.id}`)} className="block w-full rounded-md border border-line bg-white px-1.5 py-1 text-left hover:border-gray-300">
+                          <button key={p.id} type="button" onClick={() => setPreviewing(p.id)} title="Preview the post" className="block w-full rounded-md border border-line bg-white px-1.5 py-1 text-left hover:border-gray-300">
                             <div className="flex items-center gap-1"><span className={cn("h-1.5 w-1.5 shrink-0 rounded-full", POST_STATE[p.state].dot)} aria-hidden /><span className="truncate text-xs font-semibold text-ink">{p.title}</span></div>
                             <div className="mt-0.5 flex items-center gap-0.5">{p.platforms.map((pl) => <PlatformChip key={pl} platform={pl} status={p.publications.find((x) => x.platform === pl)?.status} />)}<span className="ml-1 min-w-0 truncate text-xxs text-gray-500">{POST_STATE[p.state].label}</span></div>
                           </button>
@@ -131,6 +133,7 @@ function Calendar() {
           </div>
         </Card>
       </div>
+      <PostPreviewModal post={db.marketingPosts.find((p) => p.id === previewing)} onClose={() => setPreviewing(undefined)} />
     </>
   );
 }

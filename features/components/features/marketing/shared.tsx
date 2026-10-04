@@ -6,7 +6,7 @@ import { useDb } from "@/features/lib/store";
 import { cn } from "@/features/lib/cn";
 import { dateLong } from "@/features/lib/format";
 import { now } from "@/features/lib/clock";
-import { consentState, usable } from "@/features/lib/rules/marketing";
+import { assetImage, consentState, usable } from "@/features/lib/rules/marketing";
 import { affectedPosts, PLATFORM_LABEL } from "@/features/lib/store/actions/marketing";
 import { Badge, Card } from "@/features/components/ui";
 import type { Tone } from "@/features/components/ui/badge";
@@ -38,16 +38,19 @@ export function ConsentBadge({ asset }: { asset: MediaAsset }) {
   return <Badge tone="green" icon={<CheckCircle2 className="h-3 w-3" />}>Released</Badge>;
 }
 
-/** A tinted tile stands in for the photograph. */
+/** The uploaded photograph, or a tinted tile standing in for seed media. */
 export function AssetTile({ asset, selected, onClick, compact }: { asset: MediaAsset; selected?: boolean; onClick?: () => void; compact?: boolean }) {
+  const assets = useDb((d) => d.mediaAssets);
+  const src = assetImage(assets, asset);
   const u = usable(asset);
   const locked = !u.ok;
   const body = (
     <>
-      <div className={cn("relative flex items-end rounded-lg p-2", compact ? "h-16" : "h-24")} style={{ background: `linear-gradient(135deg, ${asset.hex}, ${asset.hex}cc)` }}>
+      <div className={cn("relative flex items-end overflow-hidden rounded-lg p-2", compact ? "h-16" : "h-24")} style={{ background: `linear-gradient(135deg, ${asset.hex}, ${asset.hex}cc)` }}>
+        {src && <img src={src} alt={asset.label} className="absolute inset-0 h-full w-full object-cover" />}
         {asset.crop && <span className="absolute right-1.5 top-1.5 rounded bg-white/85 px-1 text-xs font-bold text-gray-700">{asset.crop.format === "square" ? "1080×1080" : "1080×1350"}</span>}
         {locked && <span className="absolute inset-0 flex items-center justify-center rounded-lg bg-gray-900/45 text-white"><Lock className="h-5 w-5" /></span>}
-        <span className="rounded bg-white/85 px-1 text-xs font-bold text-gray-700">{asset.id}</span>
+        <span className="relative rounded bg-white/85 px-1 text-xs font-bold text-gray-700">{asset.id}</span>
       </div>
       <div className="mt-1.5 text-left">
         <div className="line-clamp-2 text-xs font-semibold text-ink">{asset.label}</div>

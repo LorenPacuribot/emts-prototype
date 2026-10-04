@@ -14,8 +14,9 @@ import { byId } from "@/features/lib/selectors";
 import { addDays } from "@/features/lib/rules/dates";
 import {
   addressDetail, approvalCurrent, approvalReasons, consentCheck, findStreetAddress, lateness, localLabel, localParts, matchLead, materialEdit, missingLeadFields, resolveLocal, isOpenLead,
-  usable, validateUpload, type ApprovalReason,
+  photoStoreUsed, PHOTO_STORE_BUDGET_CHARS, usable, validateUpload, type ApprovalReason,
 } from "@/features/lib/rules/marketing";
+import type { ReleaseRecord } from "@/features/types/marketing-social";
 import { denied, fail, log, nextId, nextNumber, ok, userName } from "../helpers";
 import { notify } from "./notifications";
 
@@ -318,12 +319,24 @@ export function copyToPlatform(db: Database, actor: User, id: string, platform: 
 
 /* ------------------------------- Media ------------------------------- */
 
-export function uploadMedia(db: Database, actor: User, file: { label: string; sizeMb: number; type: string; kind: MediaAsset["kind"]; jobId?: string }) {
+export function uploadMedia(db: Database, actor: User, file: {
+  label: string; sizeMb: number; type: string; kind: MediaAsset["kind"]; jobId?: string;
+  /** The resized photo and the original's pixel size, read in the browser. */
+  dataUrl?: string; width?: number; height?: number;
+  /** The customer's permission, when it was already given. Ignored for crew photos (hiring release). */
+  release?: { type: ReleaseRecord["type"]; givenBy: string; note: string };
+}) {
   if (!can(actor, "marketing.post")) return denied(db, actor, MODULE, "upload media", whoCan("marketing.post"));
   const v = validateUpload(file);
   if (!v.ok) {
     log(db, actor, MODULE, `Marketing: Upload "${file.label || "untitled"}" rejected. ${v.error}`, true);
     return fail(v.error!, "file");
+  }
+  const release = file.kind === "crew" ? undefined : file.release;
+  if (release && !release.givenBy.trim()) return fail("Say who gave permission.", "givenBy");
+  if (release && !release.note.trim()) return fail("Note what the customer agreed to, and when.", "note");
+  if (file.dataUrl && photoStoreUsed(db.mediaAssets) + file.dataUrl.length > PHOTO_STORE_BUDGET_CHARS) {
+    return fail("The demo's photo storage is full (about 10 photos). Reset the demo data to clear it. The live app stores photos in cloud storage, with no such limit.", "file");
   }
   const job = byId(db.jobs, file.jobId);
   const id = nextId(db, "med", "MED-");
@@ -331,9 +344,36 @@ export function uploadMedia(db: Database, actor: User, file: { label: string; si
     id, label: file.label.trim() || "Uploaded photo", jobId: job?.id, propertyId: job?.propertyId, kind: file.kind, identifying: false,
     release: file.kind === "crew" ? "hiring_release" : "none", releaseRef: file.kind === "crew" ? "Employee hiring release" : undefined,
     sizeMb: file.sizeMb, takenAt: now(), uploadedBy: actor.id, hex: "#94a3b8",
+    ...(file.dataUrl ? { dataUrl: file.dataUrl, width: file.width, height: file.height, mimeType: file.type, mediaType: "image" as const } : {}),
   });
   log(db, actor, MODULE, `Marketing: Media ${id} uploaded by ${actor.name} (${file.sizeMb} MB${job ? `, job ${job.id}` : ""}).`);
+  if (release) recordRelease(db, actor, id, release);
   return ok(id);
+}
+
+export const RELEASE_LABEL: Record<ReleaseRecord["type"], string> = { verbal_approval: "Verbal permission", written_approval: "Written permission" };
+
+/**
+ * Records a customer's permission on a photo that has none: verbal (phone or
+ * in person) or written (email, text, form). The note of what was said is
+ * required. Crops of the photo that have no release get the same permission.
+ * Owner approval of the post is still required as before.
+ */
+export function recordRelease(db: Database, actor: User, assetId: string, input: { type: ReleaseRecord["type"]; givenBy: string; note: string }) {
+  if (!can(actor, "marketing.post")) return denied(db, actor, MODULE, "record a photo release", whoCan("marketing.post"));
+  const src = byId(db.mediaAssets, assetId);
+  if (!src) return fail("Media not found.");
+  if (src.withdrawnAt || src.deletedForPrivacyAt) return fail("Permission for this photo was withdrawn. It can't be given again here.");
+  if (src.release !== "none") return fail("This photo already has a release.");
+  if (!input.givenBy.trim()) return fail("Say who gave permission.", "givenBy");
+  if (!input.note.trim()) return fail("Note what the customer agreed to, and when.", "note");
+  const at = now();
+  const record: ReleaseRecord = { type: input.type, givenBy: input.givenBy.trim(), note: input.note.trim(), by: actor.id, at };
+  const ref = `${RELEASE_LABEL[input.type]} from ${record.givenBy}, recorded by ${actor.name} on ${localParts(at).date}: "${record.note}"`;
+  const family = db.mediaAssets.filter((a) => (a.id === src.id || a.cropOf === src.id) && a.release === "none" && !a.withdrawnAt);
+  for (const a of family) Object.assign(a, { release: input.type, releaseRef: ref, releaseRecord: record });
+  log(db, actor, MODULE, `Marketing: ${RELEASE_LABEL[input.type]} recorded on ${family.map((a) => a.id).join(", ")} by ${actor.name}. Given by ${record.givenBy}: ${record.note}`);
+  return ok(family.length);
 }
 
 /**
@@ -369,7 +409,8 @@ export function createCrop(db: Database, actor: User, assetId: string, format: "
   const id = nextId(db, "med", "MED-");
   const cropsOutAddress = addressDetail(src);
   db.mediaAssets.unshift({
-    ...src, id, label: `${src.label} — ${format} crop`, cropOf: src.id, crop: { format, template: TEMPLATE_LABEL[template] }, takenAt: src.takenAt, uploadedBy: actor.id,
+    // The crop shows its original's picture (assetImage) rather than storing a second copy.
+    ...src, dataUrl: undefined, id, label: `${src.label} — ${format} crop`, cropOf: src.id, crop: { format, template: TEMPLATE_LABEL[template] }, takenAt: src.takenAt, uploadedBy: actor.id,
     identifying: cropsOutAddress ? false : src.identifying, identifyingNote: cropsOutAddress ? "Address detail cropped out" : src.identifyingNote,
   });
   log(db, actor, MODULE, `Marketing: Publication crop ${id} (${format}, ${TEMPLATE_LABEL[template]}) made from ${src.id} by ${actor.name}. Original preserved.`);
@@ -388,7 +429,7 @@ export function withdrawMedia(db: Database, actor: User, assetId: string, reason
   const at = now();
   const family = db.mediaAssets.filter((a) => a.id === src.id || a.cropOf === src.id);
   const ids = new Set(family.map((a) => a.id));
-  for (const a of family) Object.assign(a, { withdrawnAt: at, withdrawnBy: actor.id, withdrawReason: reason.trim(), ...(privacy ? { deletedForPrivacyAt: at } : {}) });
+  for (const a of family) Object.assign(a, { withdrawnAt: at, withdrawnBy: actor.id, withdrawReason: reason.trim(), ...(privacy ? { deletedForPrivacyAt: at, dataUrl: undefined } : {}) });
   let scheduled = 0;
   for (const post of db.marketingPosts) {
     if (!post.assetIds.some((a) => ids.has(a))) continue;

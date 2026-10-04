@@ -8,7 +8,7 @@
  * and puts published posts on the takedown list.
  */
 import { useState } from "react";
-import { Crop, ShieldOff, Upload } from "lucide-react";
+import { Crop, ShieldCheck, ShieldOff } from "lucide-react";
 import type { MediaAsset, PostTemplate } from "@/features/types";
 import { act, useCurrentUser, useDb } from "@/features/lib/store";
 import { can } from "@/features/lib/permissions";
@@ -16,14 +16,15 @@ import { byId } from "@/features/lib/selectors";
 import { AppLink } from "@/features/lib/navigation";
 import { dateLong } from "@/features/lib/format";
 import { toast } from "@/features/lib/toast";
-import { MAX_UPLOAD_MB, TEMPLATE_SIZES } from "@/features/lib/rules/marketing";
-import { createCrop, TEMPLATE_LABEL, uploadMedia, withdrawMedia } from "@/features/lib/store/actions/marketing";
+import { TEMPLATE_SIZES } from "@/features/lib/rules/marketing";
+import { createCrop, recordRelease, TEMPLATE_LABEL, withdrawMedia } from "@/features/lib/store/actions/marketing";
 import { userName } from "@/features/lib/store/helpers";
 import { PageHeader } from "@/features/components/layout/screen";
-import { Badge, Banner, Button, Card, CardLabel, Checkbox, Field, Input, Modal, Select, Textarea } from "@/features/components/ui";
+import { Badge, Banner, Button, Card, CardLabel, Checkbox, Field, Modal, Select, Textarea } from "@/features/components/ui";
 import { jobHref } from "@/features/lib/hrefs";
 import { MarketingFrame } from "./marketing-frame";
 import { AssetTile } from "./shared";
+import { DropZone, ReleaseFields, UploadPhotosButton, UploadPhotosModal, type ReleaseInput } from "./media-upload";
 
 export function MediaScreen() {
   return (
@@ -38,15 +39,19 @@ function Media() {
   const user = useCurrentUser();
   const [cropping, setCropping] = useState<MediaAsset>();
   const [withdrawing, setWithdrawing] = useState<MediaAsset>();
+  const [releasing, setReleasing] = useState<MediaAsset>();
+  const [dropped, setDropped] = useState<File[]>();
   const office = can(user, "marketing.post");
   const withdrawn = db.mediaAssets.filter((a) => a.withdrawnAt);
   const takedowns = db.marketingPosts.filter((p) => p.takedown);
   return (
     <>
-      <PageHeader title="Media Library" subtitle="Finished job photos, with the release evidence for each." details="Only the neighborhood is ever shown. Job media and releases are kept ten years against the job, unless a personal-data deletion overrides it." />
+      <PageHeader title="Media Library" subtitle="Finished job photos, with the release evidence for each." details="Only the neighborhood is ever shown. Job media and releases are kept ten years against the job, unless a personal-data deletion overrides it."
+        actions={office && <UploadPhotosButton />} />
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_340px] [&>*]:min-w-0">
         <Card className="p-4" data-tour="marketing-library">
           <CardLabel>Job media</CardLabel>
+          {office && <DropZone compact className="mt-3" onFiles={setDropped} />}
           <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
             {db.mediaAssets.map((a) => (
               <div key={a.id} className="rounded-xl border border-line p-2">
@@ -59,6 +64,7 @@ function Media() {
                 </div>
                 {office && !a.withdrawnAt && (
                   <div className="mt-2 flex flex-wrap gap-1">
+                    {a.release === "none" && a.kind !== "crew" && <Button size="sm" variant="primary" onClick={() => setReleasing(a)}><ShieldCheck className="h-3.5 w-3.5" /> Record permission</Button>}
                     <Button size="sm" onClick={() => setCropping(a)}><Crop className="h-3.5 w-3.5" /> Crop</Button>
                     <Button size="sm" variant="ghost" onClick={() => setWithdrawing(a)}><ShieldOff className="h-3.5 w-3.5" /> Withdraw</Button>
                   </div>
@@ -68,7 +74,6 @@ function Media() {
           </div>
         </Card>
         <div className="space-y-4">
-          {office && <UploadCard />}
           <Card className="p-4">
             <CardLabel>Templates</CardLabel>
             <p className="mt-1 text-xs text-gray-500">Supplied by the office in both sizes, with the logo and brand colors. Overlay only — no image or video generation.</p>
@@ -103,37 +108,34 @@ function Media() {
         </div>
       </Card>
 
+      <UploadPhotosModal open={!!dropped} files={dropped} onClose={() => setDropped(undefined)} />
       <CropModal asset={cropping} onClose={() => setCropping(undefined)} />
       <WithdrawModal asset={withdrawing} onClose={() => setWithdrawing(undefined)} />
+      {releasing && <ReleaseModal asset={releasing} onClose={() => setReleasing(undefined)} />}
     </>
   );
 }
 
-function UploadCard() {
+/** Records the customer's permission (verbal or written) on a photo that has none. */
+function ReleaseModal({ asset, onClose }: { asset: MediaAsset; onClose: () => void }) {
   const db = useDb((d) => d);
-  const [label, setLabel] = useState("");
-  const [size, setSize] = useState("3.5");
-  const [type, setType] = useState("image/jpeg");
-  const [kind, setKind] = useState<MediaAsset["kind"]>("surface_detail");
-  const [jobId, setJobId] = useState("JOB-2026-1");
-  const [err, setErr] = useState<string>();
+  const job = byId(db.jobs, asset.jobId);
+  const [release, setRelease] = useState<ReleaseInput>({ type: "verbal_approval", givenBy: byId(db.customers, job?.customerId)?.name ?? "", note: "" });
+  const [err, setErr] = useState<{ field?: string; error: string }>();
+  const crops = db.mediaAssets.filter((a) => a.cropOf === asset.id && a.release === "none" && !a.withdrawnAt).length;
+  const save = () => {
+    const r = act(recordRelease, asset.id, release);
+    if (!r.ok) return setErr({ field: r.field, error: r.error });
+    toast.success("Permission recorded", r.value! > 1 ? `${asset.id} and ${r.value! - 1} crop${r.value === 2 ? "" : "s"} can now be used in posts.` : `${asset.id} can now be used in posts.`);
+    onClose();
+  };
   return (
-    <Card className="p-4">
-      <CardLabel icon={<Upload />}>Upload (simulated)</CardLabel>
-      <p className="mt-1 text-xs text-gray-500">Finished phone photographs under {MAX_UPLOAD_MB} MB. No uploaded video at launch.</p>
-      <div className="mt-3 space-y-2">
-        <Field label="Label"><Input value={label} onChange={(e) => setLabel(e.target.value)} placeholder="e.g. Trim detail after second coat" /></Field>
-        <div className="grid grid-cols-2 gap-2">
-          <Field label="Size (MB)" error={err}><Input type="number" step="0.1" value={size} onChange={(e) => setSize(e.target.value)} /></Field>
-          <Field label="File type"><Select value={type} onChange={(e) => setType(e.target.value)}><option value="image/jpeg">Photo (JPEG)</option><option value="image/png">Photo (PNG)</option><option value="video/mp4">Video (MP4)</option></Select></Field>
-        </div>
-        <div className="grid grid-cols-2 gap-2">
-          <Field label="Kind"><Select value={kind} onChange={(e) => setKind(e.target.value as MediaAsset["kind"])}><option value="surface_detail">Surface detail</option><option value="customer_property">Customer property</option><option value="crew">Crew</option><option value="seasonal">Seasonal</option></Select></Field>
-          <Field label="Job"><Select value={jobId} onChange={(e) => setJobId(e.target.value)}>{db.jobs.map((j) => <option key={j.id} value={j.id}>{j.id}</option>)}</Select></Field>
-        </div>
-        <Button variant="primary" className="w-full" onClick={() => { setErr(undefined); const r = act(uploadMedia, { label, sizeMb: Number(size), type, kind, jobId }); if (r.ok) { toast.success(`${r.value} uploaded`); setLabel(""); } else setErr(r.error); }}>Upload</Button>
-      </div>
-    </Card>
+    <Modal open onOpenChange={(v) => !v && onClose()} size="sm" title={`Record permission for ${asset.id}`}
+      description={`${asset.label}${job ? ` · ${job.id}` : ""}. Write down what the customer agreed to. The business owner still approves every post that shows their property.`}
+      footer={<><Button onClick={onClose}>Cancel</Button><Button variant="primary" onClick={save}><ShieldCheck className="h-4 w-4" /> Record permission</Button></>}>
+      <ReleaseFields value={release} onChange={setRelease} errors={err} />
+      {crops > 0 && <p className="mt-3 text-xs text-gray-500">Also applies to {crops} crop{crops === 1 ? "" : "s"} of this photo.</p>}
+    </Modal>
   );
 }
 

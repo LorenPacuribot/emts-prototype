@@ -16,5 +16,6 @@ This folder holds the EMTS Phase 2 spec, last exported from Claude Docs on 5 Oct
 | [08-final-design-v1.0.md](08-final-design-v1.0.md) | Tab 8: the 14 v1.0 features and the cross-feature rules |
 | [09-prototype-alignment-check.md](09-prototype-alignment-check.md) | Tab 9: the decisions of 2 Oct (D1–D7) |
 | [10-spec-check.md](10-spec-check.md) | Pass / fail check of the code against tabs 1, 2, 4 and 9: all 30 pass |
+| [11-meta-integration.md](11-meta-integration.md) | Dev handoff: connecting the Marketing module to Facebook and Instagram. Written here, not exported from Claude Docs |
 
 The build history of these features is in [EMTS_BUILD_MINIMAL_COMPLETE.md](../../EMTS_BUILD_MINIMAL_COMPLETE.md), including the "Decisions 2 Oct 2026" section.

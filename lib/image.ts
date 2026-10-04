@@ -9,6 +9,11 @@ export const IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'
 
 /** Reads an image file and returns a JPEG data URL no larger than `maxSide` pixels on its long side. */
 export async function imageFileToDataUrl(file: File, maxSide = 1600, quality = 0.82): Promise<string> {
+  return (await imageFileToJpeg(file, maxSide, quality)).dataUrl;
+}
+
+/** Like imageFileToDataUrl, and also returns the original's pixel size (its shape decides how social feeds crop it). */
+export async function imageFileToJpeg(file: File, maxSide = 1600, quality = 0.82): Promise<{ dataUrl: string; width: number; height: number }> {
   if (!IMAGE_TYPES.includes(file.type)) throw new Error('Choose a JPG, PNG, WebP or GIF image.');
   if (file.size > MAX_IMAGE_BYTES) throw new Error('Images must be under 12 MB.');
   const url = URL.createObjectURL(file);
@@ -31,7 +36,7 @@ export async function imageFileToDataUrl(file: File, maxSide = 1600, quality = 0
     ctx.fillStyle = '#fff';
     ctx.fillRect(0, 0, w, h);
     ctx.drawImage(img, 0, 0, w, h);
-    return canvas.toDataURL('image/jpeg', quality);
+    return { dataUrl: canvas.toDataURL('image/jpeg', quality), width: img.naturalWidth, height: img.naturalHeight };
   } finally {
     URL.revokeObjectURL(url);
   }

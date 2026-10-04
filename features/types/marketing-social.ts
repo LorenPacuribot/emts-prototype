@@ -239,6 +239,17 @@ export interface SocialAdCampaign {
   history: { at: ISODate; by: ID; note: string }[];
 }
 
+/** A customer's permission to use a photo, recorded in the Media Library. */
+export interface ReleaseRecord {
+  type: "verbal_approval" | "written_approval";
+  /** Who gave permission, usually the customer. */
+  givenBy: string;
+  /** What was said and how: "Said yes on the phone, OK to show the front of the house". */
+  note: string;
+  by: ID;
+  at: ISODate;
+}
+
 /* ---------------- Optional fields on existing feature-34 records ---------------- */
 
 declare module "./index" {
@@ -275,6 +286,17 @@ declare module "./index" {
     durationSec?: number;
     /** Key of the file in the browser's IndexedDB media store. */
     blobKey?: string;
+    /**
+     * The uploaded photo, resized to a small JPEG and kept on the record so
+     * every viewer of the shared demo sees it. Production stores the file in
+     * cloud storage and keeps only its address here.
+     */
+    dataUrl?: string;
+    /** The original photo's pixel size: its shape decides how each feed crops it. */
+    width?: number;
+    height?: number;
+    /** Permission recorded by the office after the fact (verbal or written), with the note of what was said. */
+    releaseRecord?: ReleaseRecord;
     /** Before / after pairing for job photos. */
     phase?: "before" | "after";
     pairId?: ID;
