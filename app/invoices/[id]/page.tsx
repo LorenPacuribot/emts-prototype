@@ -29,7 +29,8 @@ import { fullName, longDate, shortDate } from '@/lib/utils';
 import { InvoiceDocument } from '@/components/invoices/InvoiceDocument';
 import { EditInvoiceModal, RecordPaymentModal, SendInvoiceModal } from '@/components/invoices/InvoiceModals';
 import { methodLabel, statusAfterPayments, usd, useInvoiceSaver } from '@/components/invoices/invoice-utils';
-import { InvoiceKindChip, QuickBooksCard, useInvoiceInQuickBooks, useShowQuickBooks } from '@/components/invoices/InvoiceFeatureParts';
+import { InvoiceKindChip, QuickBooksCard, useInvoiceInQuickBooks, useShowQuickBooks } from '@/components/invoices/InvoiceFeatureParts';
+import { JourneyCard } from '@/components/automations/JourneyCard';
 
 export default function InvoiceDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -165,6 +166,8 @@ export default function InvoiceDetailPage() {
       </div>
 
       {showQbo && <QuickBooksCard invoiceId={invoice.id} />}
+
+      <div className="mx-auto mt-6 max-w-[8.5in]"><JourneyCard type="INVOICE" id={invoice.id} /></div>
 
       {/* History timeline */}
       <div className="mx-auto mt-6 max-w-[8.5in] rounded-lg border border-gray-200 bg-white p-8 shadow-sm">

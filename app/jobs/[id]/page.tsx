@@ -37,7 +37,8 @@ import { JOB_STATUSES } from '@/lib/constants';
 import { useCollection, useLookups } from '@/lib/store';
 import type { JobStatus } from '@/lib/types';
 import { cn, money } from '@/lib/utils';
-import { usText } from '@/features/lib/display-text';
+import { usText } from '@/features/lib/display-text';
+import { JourneyCard } from '@/components/automations/JourneyCard';
 
 export default function JobDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -174,6 +175,7 @@ export default function JobDetailPage() {
               toast(v ? 'Date protected from bulk rescheduling' : 'Date protection removed');
             }}
           />
+          <JourneyCard type="JOB" id={job.id} />
           <CustomerCard job={job} customer={customer} />
           <CrewCard job={job} />
         </div>

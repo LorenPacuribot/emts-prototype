@@ -1,6 +1,10 @@
 'use client';
 
-/* Header bell: the signed-in person's notifications (patent 12: estimate accepted). */
+/*
+  Header bell: the signed-in person's notifications (patent 12: estimate accepted),
+  plus Automations notices (spec 6.12). An "Ask me first" item has an Approve
+  button; approving happens in the app only, never by email.
+*/
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import * as Popover from '@radix-ui/react-popover';
@@ -9,12 +13,17 @@ import { act, useCurrentUser, useDb } from '@/features/lib/store';
 import { markAllNotificationsRead, markNotificationRead } from '@/features/lib/store/actions/notifications';
 import { dateTime } from '@/features/lib/format';
 import { cn } from '@/lib/utils';
+import { can } from '@/features/lib/permissions';
+import { approveReviewItem, useAuto } from '@/lib/automations/store';
+import { toast } from '@/features/lib/toast';
 
 export function NotificationBell() {
   const router = useRouter();
   const user = useCurrentUser();
   const all = useDb((d) => d.notifications);
   const [open, setOpen] = useState(false);
+  const reviews = useAuto((x) => x.reviews);
+  const canReview = can(user, 'automation.review');
   const mine = (all ?? []).filter((n) => n.userId === user.id).slice(0, 20);
   const unread = mine.filter((n) => !n.readAt).length;
 
@@ -57,7 +66,7 @@ export function NotificationBell() {
           ) : (
             <ul className="max-h-96 divide-y divide-gray-100 overflow-y-auto">
               {mine.map((n) => (
-                <li key={n.id}>
+                <li key={n.id} className="relative">
                   <button onClick={() => openOne(n.id, n.href)} className={cn('flex w-full gap-3 px-4 py-3 text-left hover:bg-gray-50', !n.readAt && 'bg-primary-50/40')}>
                     <span className={cn('mt-1.5 h-2 w-2 shrink-0 rounded-full', n.readAt ? 'bg-transparent' : 'bg-primary-600')} aria-hidden />
                     <span className="min-w-0">
@@ -66,9 +75,22 @@ export function NotificationBell() {
                       <span className="mt-0.5 block text-xs text-gray-500">{dateTime(n.createdAt)}{!n.readAt && <span className="sr-only"> · unread</span>}</span>
                     </span>
                   </button>
+                  {n.reviewItemId && canReview && reviews.some((r) => r.id === n.reviewItemId && r.status === 'WAITING') && (
+                    <button
+                      onClick={() => { const r = approveReviewItem(n.reviewItemId!); if (r.ok) { act(markNotificationRead, n.id); toast.success('Approved', 'The step runs now.'); } else toast.error('Not approved', r.error); }}
+                      className="absolute right-3 top-3 rounded-lg bg-primary-600 px-2.5 py-1 text-xs font-bold text-white hover:bg-primary-700"
+                    >
+                      Approve
+                    </button>
+                  )}
                 </li>
               ))}
             </ul>
+          )}
+          {canReview && (
+            <div className="border-t border-gray-100 px-4 py-2 text-right">
+              <button onClick={() => { setOpen(false); router.push('/automations?tab=review'); }} className="text-xs font-semibold text-primary-600 hover:underline">See all</button>
+            </div>
           )}
         </Popover.Content>
       </Popover.Portal>

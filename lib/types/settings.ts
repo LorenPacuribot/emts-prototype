@@ -46,6 +46,8 @@ export interface BusinessProfile {
   logoInvertedUrl?: string;
   /** Automated Messages > Email Header & Footer (plain text / light HTML) */
   emailHeader?: string;
+  /** Automations: link customers use to leave a review ({{reviewLink}}). Backend gap 9. */
+  reviewLink?: string;
   emailFooter?: string;
   /** CRM-C6: simulated Facebook Lead Ads connection (no call to Facebook). */
   facebookLeadAds?: { pageName: string; connectedAt: string; by: string };
@@ -300,6 +302,8 @@ export interface AutomatedMessage {
   ruleTrigger?: AutomationTrigger;
   /** CRM-C3: set = sends without asking. Any edit removes it. Missing = "Ask me first". */
   approval?: AutomationApproval;
+  /** Automations module: send-queue group (REPLY, REMINDER or OTHER). Set on messages made there. */
+  automationCategory?: string;
 }
 
 /* ---------- Automation rules and approvals (CRM-C3 to C5) ---------- */
@@ -380,6 +384,8 @@ export interface SmsTemplate {
   isDefault: boolean;
   /** Original body, restored by "Reset to default" */
   defaultBody?: string;
+  /** Automations module: send-queue group (REPLY, REMINDER or OTHER). Set on messages made there. */
+  automationCategory?: string;
 }
 
 export interface DocumentNumbering {

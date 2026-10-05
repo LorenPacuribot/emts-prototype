@@ -38,7 +38,8 @@ import { useCollection, useLogActivity, useLookups } from '@/lib/store';
 import { useCurrentUser as useFeatureUser } from '@/features/lib/store';
 import { SectionIndex } from '@/components/ui/SectionIndex';
 import type { WorkOrder } from '@/lib/types';
-import { cn, fullName, shortDate, uid } from '@/lib/utils';
+import { cn, fullName, shortDate, uid } from '@/lib/utils';
+import { JourneyCard } from '@/components/automations/JourneyCard';
 
 const card = 'rounded-2xl border border-gray-200 bg-white shadow-sm';
 
@@ -209,6 +210,8 @@ export default function WorkOrderDetailPage() {
         </div>
 
         {twin && crewFirst && <WoFieldSections twin={twin} />}
+
+        <JourneyCard type="WORK_ORDER" id={wo.id} />
 
         {/* 2. Location & crew */}
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">

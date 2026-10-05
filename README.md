@@ -35,6 +35,15 @@ How it fits together:
   - Status changes go through the prototype's actions, so its rules apply. A refused change is rolled back with a toast.
 - Core document numbers come from one shared sequence, and a new record's number is also its id.
 
+## Automations module (6 Oct 2026)
+
+Its own sidebar module after Reports. A business sets up each next step once (When, Only if, Then); deploying approves the steps to run on their own (Cross-Feature Rule 4, revised).
+
+- Engine and rules: `lib/automations/` (registry, run engine, drop rules, readiness, validation, templates, sample messages). Tests: `lib/automations/*.test.ts`.
+- Screens: `components/automations/`. The engine ticks from `AutomationsSync` and acts through the features actions as the person who deployed, so the app's rules apply.
+- Messages share one library with Settings › Automated Messages and SMS Templates.
+- Sending is sandboxed (mock provider, no limits) until a provider and its plan limits are set in Automations › Settings. Texting stays locked until released by the owner.
+
 ## Decisions of 2 Oct 2026 (D1–D7)
 
 - **D1 – QuickBooks sync timing.** No more hourly 6 a.m.–6 p.m. window. A record is sent when it is saved, any time, any day.
@@ -98,6 +107,7 @@ To go back to the original sample data, open **Help & Support** and click **Rese
 | Invoices | `/invoices`, `/invoices/new?jobId=`, `/invoices/[id]`, `/invoices/[id]/preview`, `/invoices/[id]/pay` |
 | Presentation Builder | `/presentations`, `/presentations/[id]` (builder), `/presentations/[id]/view` |
 | Reports | `/reports` |
+| Automations | `/automations` (Board, All automations, Messages, Templates, Activity, Waiting for review), `/automations/[id]`, `/automations/templates/[id]` |
 | Help & Support | `/support` |
 | Settings | `/settings/<section>`, 28 sections in three groups: Organization, Configuration and Libraries |
 

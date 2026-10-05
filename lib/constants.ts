@@ -18,6 +18,8 @@ export const MAIN_NAV = [
   { href: '/invoices', label: 'Invoices', icon: 'Receipt' },
   { href: '/presentations', label: 'Presentation Builder', icon: 'MonitorPlay' },
   { href: '/reports', label: 'Reports', icon: 'BarChart3' },
+  /* Automations module: its own module, after Reports. Hidden for roles without AUTOMATION_VIEW. */
+  { href: '/automations', label: 'Automations', icon: 'Zap', hiddenFor: ['crew_lead'] },
 ] as const;
 
 /**

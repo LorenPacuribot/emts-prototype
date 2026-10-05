@@ -56,7 +56,8 @@ import { publicEstimateHref } from '@/features/lib/hrefs';
 import { areaFromTemplate, newLine, priceLine, quantityFromDimensions, sendBlocker } from '@/components/estimates/estimate-utils';
 import { coverageFor, materialPerUnit } from '@/lib/estimating';
 import { TableColumnsModal } from '@/components/estimates/TableColumnsModal';
-import { ScopeTotals } from '@/components/estimates/ScopeTotals';
+import { ScopeTotals } from '@/components/estimates/ScopeTotals';
+import { JourneyCard } from '@/components/automations/JourneyCard';
 
 export default function EstimateBuilderPage() {
   const { id } = useParams<{ id: string }>();
@@ -655,6 +656,8 @@ export default function EstimateBuilderPage() {
         confirmLabel="Remove"
         onConfirm={() => areaToDelete && removeArea(areaToDelete)}
       />
+      <div className="mt-8"><JourneyCard type="ESTIMATE" id={draft.id} /></div>
+
       <Modal
         open={declineOpen}
         onOpenChange={setDeclineOpen}

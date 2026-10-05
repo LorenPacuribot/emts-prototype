@@ -73,6 +73,7 @@ export function BusinessProfileView() {
     email: bp.email,
     website: bp.website,
     licenseNumber: bp.licenseNumber,
+    reviewLink: bp.reviewLink ?? '',
   });
   const [logo, setLogo] = useState(bp.logoUrl ?? '');
   const [logoInv, setLogoInv] = useState(bp.logoInvertedUrl ?? '');
@@ -94,6 +95,7 @@ export function BusinessProfileView() {
     if (!form.email.trim()) e.email = 'Email is required';
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = 'Invalid email address';
     if (!isValidWebsite(form.website.trim())) e.website = 'Website must be a valid URL';
+    if (form.reviewLink.trim() && !isValidWebsite(form.reviewLink.trim())) e.reviewLink = 'Review link must be a valid URL';
     setErrors(e);
     if (Object.keys(e).length) {
       toast('Please fix the validation errors', 'error');
@@ -111,6 +113,7 @@ export function BusinessProfileView() {
       email: form.email.trim(),
       website: form.website.trim(),
       licenseNumber: form.licenseNumber.trim(),
+      reviewLink: form.reviewLink.trim() || undefined,
       logoUrl: logo || undefined,
       logoInvertedUrl: logoInv || undefined,
     });
@@ -173,6 +176,9 @@ export function BusinessProfileView() {
             </Field>
             <Field label="Website URL" error={errors.website}>
               <Input placeholder="https://www.propainters.com" {...clearable('website')} />
+            </Field>
+            <Field label="Review link" error={errors.reviewLink} hint="Where customers leave a review. Used by the review request message ({{reviewLink}}).">
+              <Input placeholder="https://g.page/r/your-business/review" {...clearable('reviewLink')} />
             </Field>
             <Field label="License / Registration #">
               <Input placeholder="TX-12345-LLC" {...clearable('licenseNumber')} />

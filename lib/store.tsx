@@ -29,6 +29,7 @@ import { getDb as getFeatureDb, useStore as useFeatureStore } from '@/features/l
 import { nextNumber as featureNextNumber } from '@/features/lib/store/helpers';
 import { produce } from 'immer';
 import { onRemoteChange, remoteSave } from './remote-state';
+import { resetAutomations } from './automations/store';
 
 // v2: core records now come from the feature prototype (lib/bridge).
 const STORAGE_KEY = 'emts-replica-db-v2';
@@ -265,6 +266,8 @@ export function useDataActions() {
       }
       resetBridge();
       useFeatureStore.getState().resetDemo();
+      // The Automations module starts empty again.
+      resetAutomations();
       // The New Features panel goes back to its defaults too.
       useVisibility.getState().reset();
       const fresh = createInitialDatabase();

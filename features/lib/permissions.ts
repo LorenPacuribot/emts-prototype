@@ -173,6 +173,12 @@ export const PERMISSIONS = {
   "marketing.post": OWNER_OFFICE,
   "marketing.approve": ["owner"],
   "marketing.accounts": ["owner"],
+  // Automations module (AUTOMATION_VIEW, _MANAGE, _DELETE, _DEPLOY, _REVIEW). The business owner has all of them.
+  "automation.view": ["owner", "office_manager", "senior_estimator", "estimator", "bookkeeper"],
+  "automation.manage": OWNER_OFFICE,
+  "automation.delete": ["owner"],
+  "automation.deploy": OWNER_OFFICE,
+  "automation.review": OWNER_OFFICE,
 } satisfies Record<string, Role[]>;
 
 export type Permission = keyof typeof PERMISSIONS;

@@ -37,6 +37,7 @@ import { JourneyBar, StageHistoryCard } from '@/components/leads/StageHistory';
 import { FeatureGate } from '@/features/components/ui';
 import { FollowUpLockNote, LeadSourceChip, PossibleDuplicateChip, RepaintFollowUpHost, useFollowUpLocks } from '@/components/leads/leadFeatures';
 import { PropertyMapCard, ServiceLocationModal, useAddServiceLocation } from '@/components/contacts/ServiceLocations';
+import { JourneyCard } from '@/components/automations/JourneyCard';
 
 export default function LeadDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -178,6 +179,7 @@ export default function LeadDetailPage() {
           <ContactInfoCard lead={lead} customerHref={customer ? `/contacts/${customer.id}` : undefined} />
           <JobLocationCard lead={lead} />
           <LeadDetailsCard lead={lead} assignedName={assigned ? fullName(assigned) : undefined} />
+          <JourneyCard type="LEAD" id={lead.id} />
         </div>
         <div className="min-w-0 space-y-8 lg:col-span-2">
           <RepaintFollowUpHost leadId={lead.id} />

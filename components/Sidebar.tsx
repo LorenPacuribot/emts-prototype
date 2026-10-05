@@ -34,6 +34,12 @@ function useNewNav(): NavItem[] {
   return NEW_NAV.filter((i) => !i.hiddenFor?.includes(role) && featureOn({ feature: i.feature, ...(i.href === '/accounting' ? { featureKey: 'bk' as const } : {}) }));
 }
 
+/** Main modules visible to the current prototype role (Automations is hidden for roles without AUTOMATION_VIEW). */
+function useMainNav(): NavItem[] {
+  const role = useFeatureUser().role;
+  return (MAIN_NAV as readonly NavItem[]).filter((i) => !i.hiddenFor?.includes(role));
+}
+
 /** True when the scroll area has content above / below its visible edge. */
 function useScrollEdges() {
   const ref = useRef<HTMLDivElement>(null);
@@ -71,6 +77,7 @@ export function Sidebar() {
   const isActive = useIsActive();
   const signOut = useSignOut();
   const newNav = useNewNav();
+  const mainNav = useMainNav();
   const scroll = useScrollEdges();
 
   return (
@@ -101,7 +108,7 @@ export function Sidebar() {
         <div className="relative min-h-0 flex-1">
           <div ref={scroll.ref} onScroll={scroll.update} className="h-full w-full overflow-y-auto overscroll-contain px-4 custom-scrollbar">
             <nav className="flex w-full flex-col gap-1 pb-4" aria-label="Main">
-              {(MAIN_NAV as readonly NavItem[]).map((item) => (
+              {mainNav.map((item) => (
                 <SidebarItem key={item.href} item={item} collapsed={collapsed} active={isActive(item.href)} />
               ))}
               {/* Divider and group label for the new modules: gone when New Features hides them all. */}
@@ -213,6 +220,7 @@ export function MobileSidebar() {
   const isActive = useIsActive();
   const router = useRouter();
   const newNav = useNewNav();
+  const mainNav = useMainNav();
   if (!open) return null;
   const go = (href: string) => {
     setOpen(false);
@@ -230,7 +238,7 @@ export function MobileSidebar() {
         </div>
         <nav className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto custom-scrollbar" aria-label="Main">
           {([
-            ...MAIN_NAV.map((item) => ({ item, group: false })),
+            ...mainNav.map((item) => ({ item, group: false })),
             ...newNav.map((item, i) => ({ item, group: i === 0 })),
             ...BOTTOM_NAV.map((item) => ({ item, group: false })),
           ] as { item: NavItem; group: boolean }[]).map(({ item, group }) => {

@@ -367,6 +367,8 @@ export function projectPayments(inv: P.Invoice): Payment[] {
   return rows;
 }
 
+const AUTOMATION_INVOICE_TYPE = { deposit: 'Deposit', progress: 'Progress', final: 'Final' } as const;
+
 const INV_KIND: Record<P.Invoice['kind'], string> = { standard: 'Deposit', supplemental: 'Change order (supplemental)', credit_note: 'Credit note' };
 
 export function projectInvoice(db: P.Database, inv: P.Invoice): Invoice {
@@ -381,7 +383,7 @@ export function projectInvoice(db: P.Database, inv: P.Invoice): Invoice {
     ...projectInvoiceLines(inv, job?.name),
     payments: projectPayments(inv), sentAt: inv.sentAt, history: [{ date: inv.createdAt, text: 'Invoice created' }],
     // A scope invoice is the contract invoice: its first Send asks for the deposit percent.
-    invoiceType: inv.lines ? 'Final' : inv.kind === 'standard' ? 'Deposit' : 'Progress',
+    invoiceType: inv.automationType ? AUTOMATION_INVOICE_TYPE[inv.automationType] : inv.lines ? 'Final' : inv.kind === 'standard' ? 'Deposit' : 'Progress',
   };
 }
 

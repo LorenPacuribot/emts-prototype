@@ -13,7 +13,8 @@ import { Field, Input, Switch } from '@/components/ui/form';
 import { Modal } from '@/components/Modals/Modal';
 import { useToast } from '@/components/ui/toast';
 import { useSingleton } from '@/lib/store';
-import { digitsOnly, formatPhone, readImageFile, SettingsCard } from '@/components/settings/config/ui';
+import { digitsOnly, formatPhone, readImageFile, SettingsCard } from '@/components/settings/config/ui';
+import { AutomationEmailPrefs } from '@/components/automations/EmailPrefs';
 
 export function MyProfileView() {
   const [profile, setProfile] = useSingleton('userProfile');
@@ -140,6 +141,7 @@ export function MyProfileView() {
             <Button variant="secondary" onClick={() => setPwOpen(true)}>Update Password</Button>
           </div>
         </SettingsCard>
+        <AutomationEmailPrefs />
       </div>
 
       <ChangePasswordModal open={pwOpen} onOpenChange={setPwOpen} />

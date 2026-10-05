@@ -276,6 +276,8 @@ export interface Invoice {
   discount?: number;
   /** Deposit requested from the customer at acceptance (paid against this invoice). */
   depositDue?: number;
+  /** Automations module: a deposit, progress or final invoice created by an automation step. */
+  automationType?: "deposit" | "progress" | "final";
 }
 
 export interface InvoiceLine {
@@ -2641,13 +2643,17 @@ export interface PaintPassport {
 export interface Notification {
   id: ID;
   userId: ID;
-  kind: "estimate_accepted" | "finance_alert" | "campaign" | "quickbooks" | "new_lead";
+  kind: "estimate_accepted" | "finance_alert" | "campaign" | "quickbooks" | "new_lead" | "automation";
   title: string;
   body: string;
   /** Page the notification opens. */
   href: string;
   createdAt: ISODate;
   readAt?: ISODate;
+  /** Automations: the "Ask me first" item this notification is about (the bell shows Approve). */
+  reviewItemId?: ID;
+  /** Automations: which kind of automation notice (spec 6.12). */
+  automationKind?: "REVIEW_WAITING" | "STEP_FAILED" | "STUCK_ALERT" | "DEPLOYED_BY_OTHER" | "MESSAGE_NEEDS_APPROVAL" | "SENDING_CAPACITY";
 }
 
 /** Standard result shape for store actions. */

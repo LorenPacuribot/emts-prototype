@@ -193,6 +193,7 @@ export function PipelineStagesView() {
                   <Lock className="h-3.5 w-3.5" /> System
                 </span>
               )}
+              <AutomateLink stage={s} kind={sortedPipelines.find((x) => x.id === tab)?.kind} />
               <span className="w-20 text-right text-xs text-gray-500">{counts[s.id] ?? 0} {counts[s.id] === 1 ? 'card' : 'cards'}</span>
               {admin && <button
                 type="button"
@@ -242,5 +243,16 @@ export function AddPipelineModal({ onClose, onAdd, taken }: { onClose: () => voi
         <FInput value={name} onChange={(e) => setName(e.target.value)} autoFocus />
       </FField>
     </Modal>
+  );
+}
+
+/** Automations: "Automate this stage" opens the Automations board for this pipeline, at this stage. */
+function AutomateLink({ stage, kind }: { stage: { leadStatus?: string; displayName: string }; kind?: string }) {
+  const pipeline = kind === 'sales' ? 'LEAD' : 'JOB';
+  const key = (stage.leadStatus ?? stage.displayName).toUpperCase().replace(/[^A-Z]+/g, '_');
+  return (
+    <a href={`/automations?tab=board&pipeline=${pipeline}&stage=${key}`} className="inline-flex items-center gap-1 text-xs font-semibold text-primary-700 hover:underline">
+      Automate this stage
+    </a>
   );
 }
