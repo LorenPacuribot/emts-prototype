@@ -66,7 +66,7 @@ export function ProductionBoard({ stages, search }: { stages: PipelineStage[]; s
   };
 
   return (
-    <div className="overflow-x-auto pb-8" onDragEnd={() => { setDragId(undefined); setOverId(undefined); }}>
+    <div className="overflow-x-auto pb-8" data-tour="crm-production" onDragEnd={() => { setDragId(undefined); setOverId(undefined); }}>
       <div className="flex h-full gap-3" style={{ minWidth: Math.max(1040, stages.length * 175) }}>
         {stages.map((s) => {
           const list = shown.filter((c) => c.stageId === s.id);

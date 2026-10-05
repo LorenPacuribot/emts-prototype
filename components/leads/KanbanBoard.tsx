@@ -141,7 +141,7 @@ export function KanbanBoard({
 
   if (bySource) {
     return (
-      <div className="overflow-x-auto pb-8">
+      <div className="overflow-x-auto pb-8" data-tour="crm-board">
         <div className="flex h-full gap-3" style={{ minWidth: Math.max(1040, sourceColumns.length * 190) }}>
           {sourceColumns.map((col) => {
             const list = leads.filter((l) => sourceOf(l) === col.name);
@@ -159,7 +159,7 @@ export function KanbanBoard({
   }
 
   return (
-    <div ref={scrollRef} onDragOver={handleBoardDragOver} className="overflow-x-auto pb-8">
+    <div ref={scrollRef} onDragOver={handleBoardDragOver} className="overflow-x-auto pb-8" data-tour="crm-board">
       <div className="flex h-full gap-3" style={{ minWidth: Math.max(1040, stages.length * 175) }}>
         {stages.map((stage) => {
           const stageLeads = leads.filter((l) => columnOf(l)?.id === stage.id);

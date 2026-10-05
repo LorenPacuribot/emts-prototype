@@ -7,6 +7,7 @@
 
   - "Show new features": the master switch. Off hides every new feature and
     the prototype looks like the live app; the rows keep their ticks.
+  - Tour: starts that feature's own short tour (components/tour/feature-tours.ts).
   - Minimal / Complete per feature. Complete builds on Minimal (ticking it
     ticks Minimal; unticking Minimal unticks Complete). Built features have no
     split: Minimal is "the feature as built", Complete shows "—".
@@ -18,20 +19,23 @@
 */
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ChevronDown, Sparkles } from 'lucide-react';
+import { ChevronDown, Compass, Sparkles } from 'lucide-react';
 import { Checkbox } from '@/components/ui/form';
 import { Badge, Button, Card, CardTitle, Switch, Table, TD, TH, THead } from '@/features/components/ui';
 import { FEATURES, type FeatureDef } from '@/features/lib/feature-registry';
 import { useVisibility } from '@/features/lib/feature-visibility';
+import { useStartTour } from '@/features/components/tour/product-tour';
+import { FEATURE_TOURS } from '@/features/components/tour/feature-tours';
 import { cn } from '@/lib/utils';
 
 const GROUPS: { id: FeatureDef['group']; label: string }[] = [
-  { id: 'built', label: 'Built in the prototype' },
+  { id: 'built', label: 'Core modules (each built as one package)' },
   { id: 'sep30', label: 'From the 30 Sep call' },
 ];
 
 export function NewFeaturesPanel() {
   const v = useVisibility();
+  const startTour = useStartTour();
   const [open, setOpen] = useState<Record<string, boolean>>({});
   const showing = v.showNew ? FEATURES.filter((f) => v.rows[f.key]?.minimal).length : 0;
 
@@ -91,8 +95,19 @@ export function NewFeaturesPanel() {
                     <tr key={f.key} className="border-b border-line align-top last:border-0">
                       <TD className="min-w-[180px] align-top">
                         <div className="font-bold text-gray-900">{f.name}</div>
-                        <div className="mt-0.5 text-xs text-gray-500">{f.number ? `Feature ${f.number}` : f.prefix}</div>
+                        <div className="mt-0.5 text-xs text-gray-500">{f.number ? `Feature ${f.number} · Core module` : `${f.prefix} · Minimal + Complete`}</div>
                         {!f.built && <Badge tone="gray" className="mt-1">Not built yet</Badge>}
+                        {f.built && FEATURE_TOURS[f.key] && (
+                          <button
+                            type="button"
+                            disabled={!row?.minimal || !v.showNew}
+                            title={row?.minimal ? undefined : 'Switch the feature on to take its tour'}
+                            onClick={() => startTour(f.key)}
+                            className="mt-1.5 inline-flex items-center gap-1 rounded-lg border border-gray-200 px-2 py-0.5 text-xs font-bold text-primary-700 hover:border-primary-300 disabled:cursor-not-allowed disabled:text-gray-400"
+                          >
+                            <Compass className="h-3 w-3" /> Tour
+                          </button>
+                        )}
                       </TD>
                       <TD className="max-w-[360px] whitespace-normal align-top">
                         <p className="text-gray-600">{f.breakdown}</p>

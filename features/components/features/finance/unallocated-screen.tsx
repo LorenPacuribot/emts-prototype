@@ -50,7 +50,7 @@ function Unallocated() {
     <>
       <PageHeader eyebrow={<VersionBadge item="QB-M6" withNew={false} />} title="Unallocated" subtitle="QuickBooks records with no job or cost code, waiting to be coded here." details="QuickBooks never edits a job or cost code, so allocation conflicts can't happen." />
       <FeatureGate item="QB-C1">
-        <PillTabs className="mb-4" value={tab} onChange={setTab} options={[{ value: "records", label: "Records", count: list.length }, { value: "customers", label: "Customer Review", count: toReview }]} />
+        <div data-tour="qb-review-tab"><PillTabs className="mb-4" value={tab} onChange={setTab} options={[{ value: "records", label: "Records", count: list.length }, { value: "customers", label: "Customer Review", count: toReview }]} /></div>
       </FeatureGate>
       {complete && tab === "customers" ? <CustomerReview /> : <>
       <Card className="mb-4 p-4" data-tour="unallocated-list">

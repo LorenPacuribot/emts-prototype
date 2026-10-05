@@ -95,7 +95,7 @@ export function EstimatesLogTab({ year, range, setRange }: { year: number; range
           <MultiSelect label="Status" value={statuses} onChange={setStatuses} groups={ESTIMATE_STATUS_GROUPS} />
         </div>
       </div>
-      <div className="rtable overflow-x-auto">
+      <div className="rtable overflow-x-auto" data-tour="rp-log">
         <table className="w-full border-collapse text-left">
           <thead>
             <tr className={theadRow}>
@@ -252,7 +252,7 @@ export function JobsSoldTab({ year, range, setRange }: { year: number; range: Da
   return (
     <div className="space-y-4">
       {/* RP-M4: new sales and amendments, added up by entry date. */}
-      <FeatureGate item="RP-M4"><div>
+      <FeatureGate item="RP-M4"><div data-tour="rp-sales">
         <div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gray-500">
           Sales in this period <VersionBadge item="RP-M4" />
         </div>
@@ -341,7 +341,7 @@ export function SalesByEstimatorTab({ year, range, setRange }: { year: number; r
 
   return (
     <ReportCard>
-      <div className="flex flex-col justify-between gap-4 border-b border-gray-200 px-4 py-5 sm:px-6 lg:flex-row lg:items-end">
+      <div className="flex flex-col justify-between gap-4 border-b border-gray-200 px-4 py-5 sm:px-6 lg:flex-row lg:items-end" data-tour="rp-estimator">
         <div className="flex flex-col items-start gap-4 md:flex-row md:items-end">
           <h3 className="flex items-center gap-2 whitespace-nowrap pb-2 text-lg font-bold text-gray-900">
             Sales by Estimator ({year}) <VersionBadge item="RP-C2" />

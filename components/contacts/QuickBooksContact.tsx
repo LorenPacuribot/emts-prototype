@@ -44,7 +44,7 @@ export function QuickBooksContactCard({ customerId }: { customerId: string }) {
   const q = useQboCustomer(customerId);
   const connected = useFeatureDb((d) => d.financeSettings.qbo.connected);
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+    <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm" data-tour="qb-contact">
       <div className="mb-4 flex flex-wrap items-center gap-2 text-gray-500">
         <Landmark className="h-4 w-4" />
         <span className="text-xs font-bold uppercase tracking-widest">QuickBooks</span>

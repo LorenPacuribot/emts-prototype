@@ -170,7 +170,7 @@ export function PaintColors({ job, editable, paintColourId, onPaint }: {
       )}
 
       {/* Desktop table */}
-      <div className="hidden overflow-x-auto rounded-2xl border border-gray-200 md:block">
+      <div className="hidden overflow-x-auto rounded-2xl border border-gray-200 md:block" data-tour="colour-table">
         <table className="w-full min-w-[1180px] text-left">
           <thead className="border-b border-gray-100 bg-white">
             <tr>
@@ -310,7 +310,7 @@ export function PaintColors({ job, editable, paintColourId, onPaint }: {
       </div>
 
       {canCard && (
-        <button onClick={() => setManage({ open: true })} className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-gray-200 py-4 text-sm font-bold text-primary-600 hover:border-primary-300 hover:bg-primary-50/40">
+        <button data-tour="colour-add" onClick={() => setManage({ open: true })} className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-gray-200 py-4 text-sm font-bold text-primary-600 hover:border-primary-300 hover:bg-primary-50/40">
           <Plus className="h-4 w-4" /> Add Paint Color
         </button>
       )}

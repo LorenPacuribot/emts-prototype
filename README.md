@@ -23,7 +23,8 @@ The 14 features from the EMTS feature prototype (User Stories and Final Design v
 - **New sidebar modules:** Time, Supplier Orders, Repaint Alerts, Accounting, Marketing.
   - Marketing's Media Library takes real photo uploads and records a customer's permission per photo (verbal or written, with a note). The Post Composer shows a Facebook and Instagram preview. Details in `docs/UI_CHANGES.md`; the plan for connecting Facebook and Instagram is `docs/emts-phase-2/11-meta-integration.md`.
 - **New settings pages:** Social Accounts, Accounting, Suppliers, Repaint Intervals.
-- **Demo tools:** the **Prototype** bar (bottom-left) switches the demo user to show the access rules, pins the clock, starts the product tour and resets all demo data.
+- **Demo tools:** the **Prototype** bar (bottom-left) switches the demo user to show the access rules, pins the clock, opens the feature tours and resets all demo data.
+- **Feature tours:** one short guided tour per new feature, started from the **Feature tours** card on the dashboard or the **Tour** button in New Features. Each opens with what the feature solves, the flow before it and its Minimal and Complete versions (or "core module" for the 14 patent features), then walks add, update, delete and approve on the real screens, saying where each result shows. See `docs/UI_CHANGES.md`.
 
 How it fits together:
 

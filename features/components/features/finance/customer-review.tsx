@@ -30,7 +30,7 @@ export function CustomerReview() {
   };
 
   return (
-    <Card className="p-4">
+    <Card className="p-4" data-tour="qb-review">
       <CardLabel icon={<UserCheck />}>
         <span className="inline-flex items-center gap-1.5">Customers created in QuickBooks <VersionBadge item="QB-C1" /></span>
       </CardLabel>

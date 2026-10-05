@@ -21,8 +21,11 @@ import { byId, propertyAddress } from '@/features/lib/selectors';
 import { now } from '@/features/lib/clock';
 import { ackException } from '@/features/lib/rules/procurement';
 import { alertQueueState } from '@/features/lib/rules/alerts';
-import { canResume, useTour } from '@/features/lib/tour';
-import { useStartTour } from '@/features/components/tour/product-tour';
+import { resumable, useTour } from '@/features/lib/tour';
+import { featureTag, useStartTour } from '@/features/components/tour/product-tour';
+import { FEATURE_TOURS } from '@/features/components/tour/feature-tours';
+import { flatSteps } from '@/features/components/tour/tour-steps';
+import { FEATURES, featureDef, type FeatureDef } from '@/features/lib/feature-registry';
 import { Drawer, NewBadge } from '@/features/components/ui';
 import { useFeatureFilter, useVisibility } from '@/features/lib/feature-visibility';
 import { ChangeOrderExceptionsPanel } from '@/features/components/features/change-orders/exceptions-panel';
@@ -165,59 +168,61 @@ export function RepaintAlertsWidget() {
 
 export function DemoWalkthroughCard() {
   const startTour = useStartTour();
-  const tourStop = useTour((s) => s.stop);
-  const resumable = useTour((s) => !s.active && canResume(s));
-  const btn = 'inline-flex h-9 items-center gap-1.5 rounded-xl px-3 text-xs font-bold shadow-sm transition-colors';
-  // Steps and links for features switched off in New Features drop out; with the
-  // master switch off the prototype looks like the live app, so the card goes.
-  const on = useFeatureFilter();
-  const showNew = useVisibility((s) => s.showNew);
-  const journey = JOURNEY.filter((j) => !j.features || on({ feature: numbersIn(j.features) }));
-  const alsoNew = ALSO_NEW.filter((a) => on({ feature: numbersIn(a.label) }));
-  if (!showNew) return null;
+  const tour = useTour();
+  const left = resumable(tour);
+  const vis = useVisibility();
+  // With the master switch off the prototype looks like the live app, so the card goes.
+  if (!vis.showNew) return null;
+  const groups: { id: FeatureDef['group']; label: string; note: string }[] = [
+    { id: 'built', label: 'Core modules', note: 'Built and delivered as one package each.' },
+    { id: 'sep30', label: 'From the 30 Sep call', note: 'Each has a Minimal and a Complete version.' },
+  ];
   return (
-    <div className="mb-6 rounded-2xl border border-dashed border-green-300 bg-gradient-to-r from-green-50/80 to-white p-5" data-tour="walkthrough">
+    <div id="feature-tours" className="mb-6 scroll-mt-24 rounded-2xl border border-dashed border-green-300 bg-gradient-to-r from-green-50/80 to-white p-5" data-tour="walkthrough">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2 text-xs font-black uppercase tracking-[0.15em] text-green-800">
-          <Sparkles className="h-4 w-4" /> Demo journey
+          <Sparkles className="h-4 w-4" /> Feature tours
           <span className="rounded bg-green-100 px-1.5 py-0.5 text-xs tracking-wider">Prototype only</span>
         </div>
-        <div className="flex flex-wrap gap-2">
-          {resumable && (
-            <button onClick={() => startTour(true)} className={`${btn} border border-gray-200 bg-white text-gray-700 hover:border-gray-300`}>
-              Resume at stop {tourStop + 1}
-            </button>
-          )}
-          <button onClick={() => startTour(false)} className={`${btn} bg-primary-600 text-white hover:bg-primary-700`}>
-            <Compass className="h-3.5 w-3.5" /> {resumable ? 'Start over' : 'Start product tour'}
+        {left && (
+          <button onClick={() => startTour(left, true)} className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-primary-600 px-3 text-xs font-bold text-white shadow-sm hover:bg-primary-700">
+            <Compass className="h-3.5 w-3.5" /> Resume {featureDef(left).name}
           </button>
-        </div>
+        )}
       </div>
-      <ol className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
-        {journey.map((j, i) => (
-          <li key={j.title}>
-            <Link href={j.href} className="group flex h-full items-start gap-3 rounded-xl border border-gray-200 bg-white p-3 hover:border-primary-300">
-              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gray-900 text-xs font-bold text-white">{i + 1}</span>
-              <span className="min-w-0 flex-1">
-                <span className="block text-sm font-bold text-gray-900 group-hover:text-primary-700">
-                  {j.title}
-                  {j.features && <span className="font-medium text-gray-500"> · F{j.features}</span>}
-                </span>
-                <span className="block text-xs text-gray-500">{j.body}</span>
-              </span>
-            </Link>
-          </li>
-        ))}
-      </ol>
-      {alsoNew.length > 0 && <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
-        <span className="font-bold text-gray-500">Also new:</span>
-        {alsoNew.map((a) => (
-          <Link key={a.label} href={a.href} className="rounded-full border border-gray-200 bg-white px-2.5 py-1 font-semibold text-gray-700 hover:border-primary-300">
-            {a.label}
-          </Link>
-        ))}
-      </div>}
+      <p className="mt-1 text-sm text-gray-600">One short tour per new feature: what it was like before, its version, how to add, update and remove, and where each result shows.</p>
+      {groups.map((g) => (
+        <section key={g.id} className="mt-4">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500">{g.label} <span className="font-medium normal-case tracking-normal text-gray-400">· {g.note}</span></h3>
+          <ul className="mt-2 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+            {FEATURES.filter((f) => f.group === g.id && FEATURE_TOURS[f.key]).map((f) => {
+              const on = !!vis.rows[f.key]?.minimal;
+              const done = tour.completed.includes(f.key);
+              const steps = flatSteps(FEATURE_TOURS[f.key]).length - 1;
+              return (
+                <li key={f.key} className={`flex h-full items-start gap-3 rounded-xl border border-gray-200 bg-white p-3 ${on ? '' : 'opacity-60'}`}>
+                  <span className="flex h-6 min-w-6 shrink-0 items-center justify-center rounded-md bg-gray-900 px-1 text-xs font-bold text-white">{featureTag(f)}</span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-sm font-bold text-gray-900">{f.name}{done && <span className="ml-1.5 text-xs font-semibold text-green-700">✓ Toured</span>}</span>
+                    <span className="block text-xs text-gray-500">{f.group === 'built' ? 'Core module' : 'Minimal + Complete'} · {steps} steps</span>
+                  </span>
+                  <button
+                    type="button"
+                    disabled={!on}
+                    title={on ? undefined : 'Switched off in New Features'}
+                    onClick={() => startTour(f.key)}
+                    className="shrink-0 rounded-lg border border-gray-200 px-2.5 py-1 text-xs font-bold text-primary-700 hover:border-primary-300 disabled:cursor-not-allowed disabled:text-gray-400"
+                  >
+                    {left === f.key ? 'Restart' : 'Take the tour'}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      ))}
       <p className="mt-3 text-xs text-gray-500">Switch roles, pin the clock to business hours or reset the demo data in the Prototype bar (bottom left).</p>
     </div>
   );
 }
+

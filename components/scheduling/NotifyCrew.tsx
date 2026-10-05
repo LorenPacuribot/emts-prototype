@@ -183,7 +183,7 @@ export function UnsentChangesButton() {
   const n = waiting().length;
   if (!on || !n) return null;
   return (
-    <Button variant="primary" onClick={() => useNotifyModal.getState().show()}>
+    <Button variant="primary" data-tour="js-unsent" onClick={() => useNotifyModal.getState().show()}>
       <BellRing className="h-4 w-4" /> Unsent changes ({n}) <VersionBadge item="JS-M3" />
     </Button>
   );

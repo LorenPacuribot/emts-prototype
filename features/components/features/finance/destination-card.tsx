@@ -39,7 +39,7 @@ export function AccountingDestinationCard() {
   };
 
   return (
-    <Card className="mb-6 max-w-3xl p-5">
+    <Card className="mb-6 max-w-3xl p-5" data-tour="qb-destination">
       <CardLabel icon={<Landmark />}>
         <span className="inline-flex items-center gap-1.5">Accounting destination <VersionBadge item="X-M2" /></span>
       </CardLabel>

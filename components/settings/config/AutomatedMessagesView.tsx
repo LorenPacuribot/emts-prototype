@@ -112,7 +112,7 @@ export function AutomatedMessagesView() {
                 <div className="flex flex-wrap items-center justify-end gap-3">
                   <FeatureGate item="JS-C3">
                     {/* JS-C3: Automatic sends when the trigger happens; Manual waits for someone to send it. */}
-                    <span className="flex items-center gap-2 text-xs font-medium text-gray-500">
+                    <span className="flex items-center gap-2 text-xs font-medium text-gray-500" data-tour="js-mode">
                       Mode
                       <span className="flex rounded-lg border border-gray-200 bg-gray-100 p-0.5" role="radiogroup" aria-label="Sending mode">
                         {(['automatic', 'manual'] as const).map((m) => (

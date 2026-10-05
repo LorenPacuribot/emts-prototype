@@ -260,14 +260,37 @@ Feature 34. Three gaps the client raised: there was no real place to upload phot
 | Media Library › Record permission | Every photo with **No release** (not crew) has a **Record permission** button. The pop-up asks how permission was given (verbally or in writing), who gave it (filled in with the job's customer) and a required note of what they agreed to and when. The photo and its crops with no release become **Released**, the tile shows the record ("Verbal permission from …, recorded by … on …: '…'"), and the activity log has the same line. A withdrawn photo can't be given permission again here. Owner approval of the post is still required. | `media-screen.tsx`, `recordRelease` in `features/lib/store/actions/marketing.ts`, `ReleaseRecord` and the `verbal_approval` release in `features/types` |
 | Upload pop-up › permission | "The customer has already given permission to post these photos" box. Ticked, it asks the same three questions and records the permission on every photo in the batch. Crew photos skip it (hiring release). | `media-upload.tsx`, `uploadMedia` |
 
+| Product tour | Rebuilt as one tour per feature the same day; see "Feature tours" below. | — |
+| Product tour › scrolling (fix) | The tour scrolled the window, but pages scroll inside the app shell's content panel, so a target below the fold was never brought into view on any page. It now uses `scrollIntoView`, which scrolls whichever panel holds the target. Found because the composer's Preview card pushed "Consent and checklist" and "Owner approval" below the fold. | `product-tour.tsx` |
+
 Release types are now: signed contract, written approval, **verbal approval** (new), hiring release, none.
 
 Checked: `npx tsc --noEmit` clean; `npx vitest run` 64 files and 744 tests passing, including new ones for the preview rules (`marketing-preview.test.ts`), the upload checks, the storage cap, crops sharing the original's photo, deletion removing the photo, and recording permission (note required, crops included, withdrawn photos refused). Clicked through in Chrome at 1440px and 390px: upload of three photos plus a refused HEIC, the composer preview on both platforms with the carousel, Preview saved v1, the Posts & Drafts and calendar previews, and Record permission on MED-4. No console errors.
+
+### Feature tours: one short tour per feature (5 Oct 2026)
+
+The single 27-stop product tour, which followed one job's story across every feature, is replaced by one short tour per new feature, so the client can pick a feature and see it on its own.
+
+| Part | What it does | Files |
+| --- | --- | --- |
+| Overview card (every tour opens with it) | Feature name and tag (F34, CRM…). **What it solves** and its benefits. **Before**: the flow until now. Then either **Core module** (the 14 patent features: delivered as one package, with what it includes) or the **Minimal** and **Complete** versions side by side (the 5 features from the 30 Sep call, from the New Features registry). Ends with **How to use it**: every step with its action chip. | `features/components/tour/product-tour.tsx` (`Overview`) |
+| Action steps | A chip for the action (Add, Update, Delete / remove, Approve, Send, View) and, for 30 Sep features, Minimal or Complete. Then **Before** (how it was done until now), what you do, **Where it shows** (where the result appears afterwards) and **Try it**. Where a feature has no delete on purpose, the step says what replaces it (withdraw a photo, reverse a journal entry, revoke a QR link, mark a surface Removed). | `tour-steps.ts` (`TourStep`: `kind`, `before`, `shows`, `version`, `absentNote`), `feature-tours.ts` |
+| Complete-only steps | When Complete is off in New Features, the step says so with a **Show Complete** button instead of pointing at nothing. A switched-off feature gets a **Switch on** button. | `product-tour.tsx` |
+| Steps that need an earlier action | `absentNote` says what to do first (open a color's specifications; apply a shift change so Unsent changes appears). | `feature-tours.ts` |
+| Start and resume | Dashboard **Feature tours** card (`#feature-tours`, replaces the Demo journey card): one card per feature, grouped Core modules / From the 30 Sep call, with step count, "Toured" once finished, and **Resume** for a tour left part-way. **Tour** button on each row of New Features. Prototype bar: **Feature tours** and **Resume**. The last step offers **Next: <feature>**. | `components/dashboard/FeatureWidgets.tsx`, `components/dashboard/NewFeaturesPanel.tsx`, `features/components/layout/demo-bar.tsx`, `features/lib/tour.ts` (state per feature, storage key v2) |
+| New anchors | QuickBooks (`qb-destination`, `qb-connection`, `qb-sync-options`, `qb-match`, `qb-review-tab`, `qb-contact`), CRM (`crm-pipelines`, `crm-board`, `crm-production`, `crm-source`, `crm-groupby`, `crm-links`, `crm-fb-ads`, `crm-stages`, `crm-history`, `crm-journey`, `crm-automation-views`), scheduling emails (`js-board`, `js-unsent`, `js-mode`), reports (`rp-log`, `rp-sales`, `rp-estimator`), Books (`bk-mode`, `bk-chart`, `bk-deposit`, `bk-journal`, `bk-reconcile`, `bk-balance`), and `colour-add`, `colour-table`, `estimate-menu` on the live estimate page. | the screens named |
+
+Fixes found by walking every tour in the browser. The old tour pointed at anchors the live screens don't render: the color card's specification rows (they only show once a color is expanded), page-actions on the estimate page (Create Change Order is in the ⋮ menu; the quote is issued with the estimate's Send) and the closeout panel (it's in the Mark Complete drawer, where the tour pauses). Those steps now point at what is on screen and say what to open.
+
+The "Before" text for the 30 Sep features is quoted from their specs in `docs/emts-phase-2`. For the 14 core modules it describes the live app without the feature and needs the client's confirmation.
+
+Checked: `npx tsc --noEmit` clean; `npx vitest run` 65 files, 748 tests, including `features/lib/feature-tours.test.ts` (every feature has a tour that opens with an overview; core modules carry no version and every 30 Sep step is Minimal or Complete; every step names its action; every highlighted area exists in the app). A Chrome script walked all 19 tours step by step (119 action steps plus 19 overviews) with Complete switched on: every step's highlight is on screen except the overview cards (no target, by design) and the three steps whose `absentNote` says to open something first. No page errors.
 
 ## Moved, not removed
 
 | Action | Was | Now |
 | --- | --- | --- |
+| Start the product tour | "Start product tour" on the dashboard's Demo journey card and in the Prototype bar | **Take the tour** on a feature in the dashboard's Feature tours card, or **Tour** on its row in New Features. The Prototype bar's **Feature tours** opens the card. |
 | Content Calendar › open a post | Clicking a post opened the composer | Clicking opens the post preview; **Open post** goes to the composer (one more click) |
 | Media Library › upload | "Upload (simulated)" card in the right column | **Upload photos** in the page header and the drop area above Job media |
 | Supplier Orders › Exception list | "Exception List" button in the page header, and the "Exception list" tab | The tab only (one click, same view) |

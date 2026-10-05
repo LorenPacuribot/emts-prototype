@@ -186,7 +186,7 @@ export function EstimateToolbar({
         <DropdownMenu
           items={menu}
           trigger={
-            <button type="button" aria-label="More actions" className="rounded-lg border border-gray-200 bg-white p-2.5 text-gray-600 shadow-sm hover:bg-gray-50">
+            <button type="button" aria-label="More actions" data-tour="estimate-menu" className="rounded-lg border border-gray-200 bg-white p-2.5 text-gray-600 shadow-sm hover:bg-gray-50">
               <MoreVertical className="h-5 w-5" />
             </button>
           }

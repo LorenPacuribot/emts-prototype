@@ -14,7 +14,8 @@ import { useRouter } from "next/navigation";
 import { Compass, FlaskConical, RotateCcw, ChevronDown, Sparkles } from "lucide-react";
 import { useStore } from "@/features/lib/store";
 import { useDataActions } from "@/lib/store";
-import { canResume, useTour } from "@/features/lib/tour";
+import { resumable as leftTour, useTour } from "@/features/lib/tour";
+import { featureDef } from "@/features/lib/feature-registry";
 import { useStartTour } from "@/features/components/tour/product-tour";
 import { ROLE_LABEL } from "@/features/lib/permissions";
 import { Button, ConfirmDialog, Select, Switch } from "@/features/components/ui";
@@ -31,8 +32,7 @@ export function DemoBar() {
   const [confirm, setConfirm] = useState(false);
   const user = db.users.find((u) => u.id === currentUserId);
   const startTour = useStartTour();
-  const tourStop = useTour((s) => s.stop);
-  const resumable = useTour((s) => !s.active && canResume(s));
+  const left = leftTour(useTour());
 
   return (
     // Desktop (lg): docked in the main sidebar's footer, below Logout, in the
@@ -82,9 +82,14 @@ export function DemoBar() {
             <Button size="sm" variant="secondary" className="w-full justify-center" onClick={() => { setOpen(false); router.push("/dashboard#new-features"); }}>
               <Sparkles className="h-3.5 w-3.5" /> New features panel
             </Button>
-            <Button size="sm" variant="primary" className="w-full justify-center" onClick={() => { setOpen(false); startTour(resumable); }}>
-              <Compass className="h-3.5 w-3.5" /> {resumable ? `Resume product tour (stop ${tourStop + 1})` : "Start product tour"}
+            <Button size="sm" variant="primary" className="w-full justify-center" onClick={() => { setOpen(false); router.push("/dashboard#feature-tours"); }}>
+              <Compass className="h-3.5 w-3.5" /> Feature tours
             </Button>
+            {left && (
+              <Button size="sm" variant="secondary" className="w-full justify-center" onClick={() => { setOpen(false); startTour(left, true); }}>
+                Resume: {featureDef(left).name}
+              </Button>
+            )}
             <Button size="sm" variant="secondary" className="w-full justify-center" onClick={() => setConfirm(true)}>
               <RotateCcw className="h-3.5 w-3.5" /> Reset demo data
             </Button>

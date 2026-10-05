@@ -1,110 +1,148 @@
 "use client";
 /**
- * Product tour overlay.
+ * Product tour overlay: one short tour per new feature.
  *
- * Draws a spotlight around the current step's `data-tour` anchor and a
- * callout next to it. The page stays fully clickable, so visitors can try
- * each rule between steps. The tour pauses while a dialog or drawer is open,
- * and offers a way back if the visitor navigates off the tour's route.
+ * Each tour opens with an overview card (what the feature solves, the flow
+ * before it, and its Minimal and Complete versions, or "core module"), then
+ * draws a spotlight around each step's `data-tour` anchor with a callout that
+ * says how it was done before, what you do here and where the result shows.
+ * The page stays fully clickable. The tour pauses while a dialog or drawer is
+ * open, and offers a way back if the visitor navigates off the step's page.
  *
- * Mounted once in AppShell. The script lives in ./tour-steps.ts.
+ * Mounted once in AppShell. The tours live in ./feature-tours.ts.
  */
-import { useEffect, useRef, useState, type CSSProperties } from "react";
-import { ArrowLeft, ArrowRight, Check, Clock, Compass, List, MousePointerClick, UserRound, X } from "lucide-react";
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { useSearchParams } from "next/navigation";
+import { ArrowLeft, ArrowRight, Clock, Compass, List, MapPin, MousePointerClick, ToggleRight, UserRound, X } from "lucide-react";
 import type { Role } from "@/features/types";
 import { useCurrentUser, useDb, useStore } from "@/features/lib/store";
-import { useNav, useParam } from "@/features/lib/navigation";
+import { useNav } from "@/features/lib/navigation";
 import { ROLE_LABEL } from "@/features/lib/permissions";
 import { useTour } from "@/features/lib/tour";
 import { toast } from "@/features/lib/toast";
 import { cn } from "@/features/lib/cn";
+import { FEATURES, featureDef, type FeatureDef, type FeatureKey } from "@/features/lib/feature-registry";
+import { useVisibility } from "@/features/lib/feature-visibility";
 import { Button } from "@/features/components/ui";
-import { TOUR, normalisePath, parseHref } from "./tour-steps";
+import { FEATURE_TOURS } from "./feature-tours";
+import { STEP_KIND_LABEL, flatSteps, normalisePath, parseHref, type FlatStep, type StepKind } from "./tour-steps";
 
 type Box = { top: number; left: number; width: number; height: number };
 
-const CARD_WIDTH = 360;
+const CARD_WIDTH = 380;
+const INTRO_WIDTH = 480;
 const GAP = 12;
 const PAD = 6;
 const TOP_BAR = 60;
 
-/** Start the tour from the first stop, or resume where it was left. */
+/** "F34" for a patent feature, "CRM" for a 30 Sep call feature. */
+export const featureTag = (f: FeatureDef) => (f.number ? `F${f.number}` : f.prefix ?? "");
+
+/** Start a feature's tour from its overview, or resume where it was left. */
 export function useStartTour() {
   const nav = useNav();
-  return (resume = false) => {
+  return (feature: FeatureKey, resume = false) => {
     const s = useTour.getState();
-    const stop = resume ? s.stop : 0;
-    const step = resume ? s.step : 0;
-    s.go(stop, step);
-    nav.push(TOUR[stop].href);
+    const steps = flatSteps(FEATURE_TOURS[feature]);
+    const step = resume && s.feature === feature ? Math.min(s.step, steps.length - 1) : 0;
+    s.go(feature, step);
+    nav.push(steps[step].href);
   };
 }
 
 export function ProductTour() {
-  const active = useTour((s) => s.active);
+  const active = useTour((s) => s.active && !!s.feature);
   return active ? <TourRunner /> : null;
 }
 
+const KIND_TONE: Record<StepKind, string> = {
+  add: "bg-green-50 text-green-800 ring-green-200",
+  update: "bg-blue-50 text-blue-800 ring-blue-200",
+  delete: "bg-red-50 text-red-800 ring-red-200",
+  approve: "bg-purple-50 text-purple-800 ring-purple-200",
+  send: "bg-indigo-50 text-indigo-800 ring-indigo-200",
+  view: "bg-gray-100 text-gray-700 ring-gray-200",
+};
+
+function KindChip({ kind }: { kind: StepKind }) {
+  return <span className={cn("inline-flex items-center rounded px-1.5 py-px text-xxs font-bold uppercase tracking-wider ring-1 ring-inset", KIND_TONE[kind])}>{STEP_KIND_LABEL[kind]}</span>;
+}
+
+function VersionChip({ version }: { version: "minimal" | "complete" }) {
+  return <span className={cn("inline-flex items-center rounded px-1.5 py-px text-xxs font-black uppercase tracking-wider text-white", version === "complete" ? "bg-purple-700" : "bg-primary-700")}>{version === "complete" ? "Complete" : "Minimal"}</span>;
+}
+
 function TourRunner() {
-  const { stop, step, completed, restoreUserId, setRestore, go, complete, exit, finish } = useTour();
+  const { feature, step, restoreUserId, setRestore, go, complete, exit, finish } = useTour();
+  const key = feature!;
+  const def = featureDef(key);
+  const tour = FEATURE_TOURS[key];
+  const steps = flatSteps(tour);
   const nav = useNav();
-  const id = useParam("id");
-  const rep = useParam("rep");
+  const search = useSearchParams();
   const user = useCurrentUser();
   const users = useDb((d) => d.users);
   const setUser = useStore((s) => s.setUser);
   const clockMode = useStore((s) => s.clockMode);
   const setClock = useStore((s) => s.setClock);
+  const vis = useVisibility();
   const dialogOpen = useDialogOpen();
-  const [showStops, setShowStops] = useState(false);
+  const [showSteps, setShowSteps] = useState(false);
 
-  const stopDef = TOUR[Math.min(stop, TOUR.length - 1)];
-  const stepDef = stopDef.steps[Math.min(step, stopDef.steps.length - 1)];
-  const here = { path: normalisePath(nav.pathname) === "/" ? "/dashboard" : normalisePath(nav.pathname), id, rep };
-  const onRoute = (i: number) => {
-    const t = parseHref(TOUR[i].href);
-    return t.path === here.path && t.id === here.id && t.rep === here.rep;
+  const index = Math.min(step, steps.length - 1);
+  const cur = steps[index];
+  const here = normalisePath(nav.pathname) === "/" ? "/dashboard" : normalisePath(nav.pathname);
+  const onRoute = (href: string) => {
+    const t = parseHref(href);
+    return t.path === here && [...t.query.entries()].every(([k, v]) => search.get(k) === v);
   };
-  const onStop = onRoute(stop);
-  const { rect, missing } = useTargetRect(stepDef.target, `${stop}.${step}`, onStop && !dialogOpen);
+  const onStep = onRoute(cur.href);
+  const { rect, missing } = useTargetRect(cur.intro ? undefined : cur.target, `${key}.${index}`, onStep && !dialogOpen);
 
   const cardRef = useRef<HTMLDivElement>(null);
   const cardSize = useSize(cardRef);
   const viewport = useViewport();
 
-  const goTo = (i: number, j: number) => {
-    go(i, j);
-    setShowStops(false);
-    if (!onRoute(i)) nav.push(TOUR[i].href);
+  const goTo = (j: number) => {
+    go(key, j);
+    setShowSteps(false);
+    if (!onRoute(steps[j].href)) nav.push(steps[j].href);
   };
-  const next = () => {
-    if (step < stopDef.steps.length - 1) return go(stop, step + 1);
-    complete(stopDef.id);
-    if (stop < TOUR.length - 1) return goTo(stop + 1, 0);
+  const toursOn = FEATURES.filter((f) => FEATURE_TOURS[f.key] && vis.showNew && vis.rows[f.key]?.minimal);
+  const nextFeature = toursOn[toursOn.findIndex((f) => f.key === key) + 1];
+  const done = () => {
+    complete(key);
     finish();
-    toast.success("Tour complete", "Restart it any time from the dashboard or the Prototype bar.");
+    toast.success(`${def.name}: tour complete`, "Pick another feature from Feature tours on the dashboard.");
+    nav.push("/dashboard#feature-tours");
   };
-  const back = () => {
-    if (step > 0) return go(stop, step - 1);
-    if (stop > 0) goTo(stop - 1, TOUR[stop - 1].steps.length - 1);
+  const startNext = () => {
+    if (!nextFeature) return done();
+    complete(key);
+    const first = flatSteps(FEATURE_TOURS[nextFeature.key])[0];
+    go(nextFeature.key, 0);
+    setShowSteps(false);
+    nav.push(first.href);
   };
+  const next = () => (index < steps.length - 1 ? goTo(index + 1) : done());
+  const back = () => index > 0 && goTo(index - 1);
 
   // A step that asked for another role is over: switch back to whoever was viewing before.
   useEffect(() => {
-    if (!restoreUserId || stepDef.role) return;
-    const back = users.find((u) => u.id === restoreUserId);
+    if (!restoreUserId || cur.role) return;
+    const prev = users.find((u) => u.id === restoreUserId);
     setRestore(undefined);
-    if (back && back.id !== user.id) {
-      setUser(back.id);
-      toast.info(`Back to viewing as ${ROLE_LABEL[back.role]}`, back.name);
+    if (prev && prev.id !== user.id) {
+      setUser(prev.id);
+      toast.info(`Back to viewing as ${ROLE_LABEL[prev.role]}`, prev.name);
     }
     // Runs only when the step changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [stop, step]);
+  }, [key, index]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (dialogOpen || !onStop) return;
+      if (dialogOpen || !onStep) return;
       const el = e.target as HTMLElement | null;
       if (el && (el.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(el.tagName))) return;
       // No Escape shortcut: Escape already closes drawers and menus, and would end the tour with them.
@@ -116,8 +154,8 @@ function TourRunner() {
   });
 
   const cardBase = "no-print fixed z-[75] rounded-2xl border border-gray-200 bg-white shadow-2xl";
+  const tag = featureTag(def);
 
-  // A dialog or drawer is open: step out of its way.
   if (dialogOpen) {
     return (
       <div className={cn(cardBase, "left-1/2 top-[72px] flex -translate-x-1/2 items-center gap-2 px-3.5 py-2 text-xs text-gray-600")} role="status">
@@ -126,19 +164,16 @@ function TourRunner() {
     );
   }
 
-  // Visitor navigated away from the stop's screen.
-  if (!onStop) {
+  if (!onStep) {
     return (
-      <div className={cn(cardBase, "bottom-4 right-4 w-[min(340px,calc(100vw-32px))] p-4")} role="complementary" aria-label="Product tour">
+      <div className={cn(cardBase, "bottom-4 right-4 w-[min(340px,calc(100vw-32px))] p-4")} role="complementary" aria-label="Feature tour">
         <div className="flex items-start gap-3">
           <Compass className="mt-0.5 h-4 w-4 shrink-0 text-brand" />
           <div className="min-w-0 flex-1">
-            <div className="text-sm font-bold text-ink">You&apos;ve left the tour route</div>
-            <p className="mt-0.5 text-xs text-gray-500">
-              Stop {stop + 1} of {TOUR.length}: {stopDef.title}. Explore freely, then jump back when you&apos;re ready.
-            </p>
+            <div className="text-sm font-bold text-ink">You&apos;ve left the tour&apos;s page</div>
+            <p className="mt-0.5 text-xs text-gray-500">{def.number ? `${tag} ` : ""}{def.name}, step {index + 1} of {steps.length}: {cur.title}. Explore freely, then jump back when you&apos;re ready.</p>
             <div className="mt-3 flex gap-2">
-              <Button size="sm" variant="primary" onClick={() => nav.push(stopDef.href)}>Back to the tour</Button>
+              <Button size="sm" variant="primary" onClick={() => nav.push(cur.href)}>Back to the tour</Button>
               <Button size="sm" variant="ghost" onClick={exit}>Exit tour</Button>
             </div>
           </div>
@@ -147,12 +182,14 @@ function TourRunner() {
     );
   }
 
-  const role: Role | undefined = stepDef.role ?? stopDef.role;
+  const role: Role | undefined = cur.role;
   const roleUser = role && role !== user.role ? users.find((u) => u.role === role) : undefined;
   const target = rect ? spotlightBox(rect, viewport) : null;
-  const pos = placeCard(target, cardSize, viewport);
-  const isLast = stop === TOUR.length - 1 && step === stopDef.steps.length - 1;
-  const nextStop = step === stopDef.steps.length - 1 && !isLast ? TOUR[stop + 1] : undefined;
+  const width = cur.intro ? INTRO_WIDTH : CARD_WIDTH;
+  const pos = placeCard(target, cardSize, viewport, width);
+  const isLast = index === steps.length - 1;
+  const featureOff = !(vis.showNew && vis.rows[key]?.minimal);
+  const completeOff = cur.version === "complete" && !featureOff && !vis.rows[key]?.complete;
 
   return (
     <>
@@ -165,18 +202,18 @@ function TourRunner() {
       )}
       <div
         ref={cardRef}
-        className={cn(cardBase, "p-4 transition-[top,left] duration-200")}
-        style={{ ...pos, width: `min(${CARD_WIDTH}px, calc(100vw - 24px))` }}
+        className={cn(cardBase, "flex max-h-[calc(100vh-96px)] flex-col p-4 transition-[top,left] duration-200")}
+        style={{ ...pos, width: `min(${width}px, calc(100vw - 24px))` }}
         role="complementary"
-        aria-label="Product tour"
+        aria-label="Feature tour"
         aria-live="polite"
       >
         <div className="flex items-center gap-2">
-          {stopDef.feature && <span className="rounded-md bg-ink px-1.5 py-0.5 text-xs font-bold text-white">F{stopDef.feature}</span>}
-          <span className="text-xxs font-bold uppercase tracking-[0.14em] text-gray-500">
-            Stop {stop + 1} of {TOUR.length} · {stopDef.title}
+          <span className="rounded-md bg-ink px-1.5 py-0.5 text-xs font-bold text-white">{tag}</span>
+          <span className="min-w-0 flex-1 truncate text-xxs font-bold uppercase tracking-[0.14em] text-gray-500">
+            {def.name} · Step {index + 1} of {steps.length}
           </span>
-          <button onClick={() => setShowStops(!showStops)} className="ml-auto rounded p-1 text-gray-500 hover:bg-gray-100 hover:text-ink" aria-label="All stops" aria-expanded={showStops}>
+          <button onClick={() => setShowSteps(!showSteps)} className="rounded p-1 text-gray-500 hover:bg-gray-100 hover:text-ink" aria-label="All steps" aria-expanded={showSteps}>
             <List className="h-3.5 w-3.5" />
           </button>
           <button onClick={exit} className="rounded p-1 text-gray-500 hover:bg-gray-100 hover:text-ink" aria-label="Exit tour">
@@ -184,94 +221,192 @@ function TourRunner() {
           </button>
         </div>
 
-        {showStops ? (
-          <ol className="mt-3 max-h-[50vh] space-y-0.5 overflow-y-auto">
-            {TOUR.map((s, i) => (
-              <li key={s.id}>
-                <button
-                  onClick={() => goTo(i, 0)}
-                  className={cn("flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-xs hover:bg-gray-50", i === stop && "bg-brand-soft font-semibold text-brand")}
-                >
-                  <span className={cn("flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-bold", completed.includes(s.id) ? "bg-green-500 text-white" : "bg-gray-100 text-gray-500")}>
-                    {completed.includes(s.id) ? <Check className="h-3 w-3" /> : i + 1}
-                  </span>
-                  <span className="flex-1">{s.title}</span>
-                  {s.feature && <span className="text-xs text-gray-500">F{s.feature}</span>}
-                </button>
-              </li>
-            ))}
-          </ol>
-        ) : (
-          <>
-            <h2 className="mt-2 font-display text-base font-bold leading-snug text-ink">{stepDef.title}</h2>
-            <p className="mt-1 text-xs leading-relaxed text-gray-600">{stepDef.body}</p>
-            {stepDef.bullets && (
-              <ul className="mt-2 list-disc space-y-1 pl-4 text-xs leading-relaxed text-gray-600">
-                {stepDef.bullets.map((b) => <li key={b}>{b}</li>)}
-              </ul>
-            )}
-            {stepDef.tryIt && (
-              <div className="mt-3 flex gap-2 rounded-lg bg-brand-soft/60 px-3 py-2 text-xs text-blue-900">
-                <MousePointerClick className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                <span><strong>Try it:</strong> {stepDef.tryIt}</span>
-              </div>
-            )}
-            {roleUser && role && (
-              <div className="mt-3 flex items-center gap-2 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-900">
-                <UserRound className="h-3.5 w-3.5 shrink-0" />
-                <span className="flex-1">Best seen as {ROLE_LABEL[role]}.</span>
-                <Button
-                  size="sm"
-                  onClick={() => {
-                    if (stepDef.role && !restoreUserId) setRestore(user.id);
+        <div className="-mx-1 mt-2 min-h-0 flex-1 overflow-y-auto px-1">
+          {showSteps ? (
+            <StepList steps={steps} index={index} onPick={goTo} />
+          ) : cur.intro ? (
+            <Overview def={def} steps={steps} />
+          ) : (
+            <>
+              {(cur.kind || cur.version) && <div className="flex flex-wrap gap-1.5">{cur.kind && <KindChip kind={cur.kind} />}{cur.version && <VersionChip version={cur.version} />}</div>}
+              <h2 className="mt-1.5 font-display text-base font-bold leading-snug text-ink">{cur.title}</h2>
+              {cur.before && (
+                <div className="mt-2 rounded-lg bg-gray-50 px-3 py-2 text-xs leading-relaxed text-gray-600">
+                  <span className="font-semibold text-gray-500">Before: </span>{cur.before}
+                </div>
+              )}
+              <p className="mt-2 text-xs leading-relaxed text-gray-700">{cur.body}</p>
+              {cur.bullets && (
+                <ul className="mt-2 list-disc space-y-1 pl-4 text-xs leading-relaxed text-gray-600">
+                  {cur.bullets.map((b) => <li key={b}>{b}</li>)}
+                </ul>
+              )}
+              {cur.shows && (
+                <div className="mt-2 flex gap-2 rounded-lg bg-green-50/70 px-3 py-2 text-xs leading-relaxed text-green-900">
+                  <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                  <span><strong>Where it shows: </strong>{cur.shows}</span>
+                </div>
+              )}
+              {cur.tryIt && (
+                <div className="mt-2 flex gap-2 rounded-lg bg-brand-soft/60 px-3 py-2 text-xs text-blue-900">
+                  <MousePointerClick className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                  <span><strong>Try it:</strong> {cur.tryIt}</span>
+                </div>
+              )}
+            </>
+          )}
+          {!showSteps && (
+            <>
+              {featureOff && (
+                <Notice icon={<ToggleRight className="h-3.5 w-3.5 shrink-0" />} action={<Button size="sm" onClick={() => { vis.setShowNew(true); vis.setMinimal(key, true); }}>Switch on</Button>}>
+                  This feature is switched off in New Features, so its screens are hidden.
+                </Notice>
+              )}
+              {completeOff && (
+                <Notice icon={<ToggleRight className="h-3.5 w-3.5 shrink-0" />} action={<Button size="sm" onClick={() => vis.setComplete(key, true)}>Show Complete</Button>}>
+                  This step is in the Complete version, which is switched off in New Features.
+                </Notice>
+              )}
+              {roleUser && role && (
+                <Notice icon={<UserRound className="h-3.5 w-3.5 shrink-0" />} action={
+                  <Button size="sm" onClick={() => {
+                    if (!restoreUserId) setRestore(user.id);
                     setUser(roleUser.id);
-                    toast.info(`Viewing as ${ROLE_LABEL[role]}`, stepDef.role ? "The tour switches back after this step." : roleUser.name);
-                  }}
-                >
-                  Switch
-                </Button>
-              </div>
-            )}
-            {stepDef.action === "pin_clock" && (
-              <div className="mt-3 flex items-center gap-2 rounded-lg bg-gray-50 px-3 py-2 text-xs text-gray-700">
-                <Clock className="h-3.5 w-3.5 shrink-0" />
-                {clockMode === "business_hours" ? (
-                  <span className="flex-1 font-semibold text-green-700">Clock pinned to 10:30 a.m. on a weekday.</span>
-                ) : (
-                  <>
-                    <span className="flex-1">Clock is on real time.</span>
-                    <Button size="sm" onClick={() => setClock("business_hours")}>Pin to 10:30 a.m.</Button>
-                  </>
-                )}
-              </div>
-            )}
-            {missing && (
-              <p className="mt-3 text-xs italic text-gray-500">
-                The highlighted area isn&apos;t showing right now. It can depend on your role or on changes made to the demo data.
-              </p>
-            )}
-          </>
-        )}
+                    toast.info(`Viewing as ${ROLE_LABEL[role]}`, "The tour switches back after this step.");
+                  }}>Switch</Button>
+                }>
+                  Best seen as {ROLE_LABEL[role]}.
+                </Notice>
+              )}
+              {cur.action === "pin_clock" && (
+                <div className="mt-2 flex items-center gap-2 rounded-lg bg-gray-50 px-3 py-2 text-xs text-gray-700">
+                  <Clock className="h-3.5 w-3.5 shrink-0" />
+                  {clockMode === "business_hours" ? (
+                    <span className="flex-1 font-semibold text-green-700">Clock pinned to 10:30 a.m. on a weekday.</span>
+                  ) : (
+                    <>
+                      <span className="flex-1">This feature runs on business hours. The clock is on real time.</span>
+                      <Button size="sm" onClick={() => setClock("business_hours")}>Pin to 10:30 a.m.</Button>
+                    </>
+                  )}
+                </div>
+              )}
+              {missing && !completeOff && !featureOff && (
+                <p className="mt-2 text-xs italic text-gray-500">{cur.absentNote ?? "The highlighted area isn't showing right now. It can depend on your role or on changes made to the demo data."}</p>
+              )}
+            </>
+          )}
+        </div>
 
-        <div className="mt-4 flex items-center gap-2">
-          <div className="flex gap-1" aria-label={`Step ${step + 1} of ${stopDef.steps.length}`}>
-            {stopDef.steps.map((_, j) => (
-              <button key={j} onClick={() => go(stop, j)} className={cn("h-1.5 rounded-full transition-all", j === step ? "w-4 bg-brand" : "w-1.5 bg-gray-200 hover:bg-gray-300")} aria-label={`Step ${j + 1}`} />
+        <div className="mt-3 flex items-center gap-2">
+          <div className="flex flex-wrap gap-1" aria-label={`Step ${index + 1} of ${steps.length}`}>
+            {steps.map((_, j) => (
+              <button key={j} onClick={() => goTo(j)} className={cn("h-1.5 rounded-full transition-all", j === index ? "w-4 bg-brand" : "w-1.5 bg-gray-200 hover:bg-gray-300")} aria-label={`Step ${j + 1}`} />
             ))}
           </div>
-          <div className="ml-auto flex gap-1.5">
-            {(stop > 0 || step > 0) && (
+          <div className="ml-auto flex shrink-0 gap-1.5">
+            {index > 0 && (
               <Button size="sm" variant="ghost" onClick={back} aria-label="Back">
                 <ArrowLeft className="h-3.5 w-3.5" />
               </Button>
             )}
+            {isLast && nextFeature && <Button size="sm" onClick={startNext}>Next: {featureTag(nextFeature)}</Button>}
             <Button size="sm" variant="primary" onClick={next}>
-              {isLast ? "Finish" : nextStop ? <>Next: {nextStop.title}</> : "Next"} {!isLast && <ArrowRight className="h-3.5 w-3.5" />}
+              {isLast ? "Finish" : cur.intro ? "Start" : "Next"} {!isLast && <ArrowRight className="h-3.5 w-3.5" />}
             </Button>
           </div>
         </div>
       </div>
     </>
+  );
+}
+
+function Notice({ icon, action, children }: { icon: ReactNode; action: ReactNode; children: ReactNode }) {
+  return (
+    <div className="mt-2 flex items-center gap-2 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-900">
+      {icon}
+      <span className="flex-1">{children}</span>
+      {action}
+    </div>
+  );
+}
+
+function Section({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <section className="mt-3">
+      <h3 className="text-xxs font-bold uppercase tracking-[0.14em] text-gray-500">{label}</h3>
+      <div className="mt-1 text-xs leading-relaxed text-gray-700">{children}</div>
+    </section>
+  );
+}
+
+/** The opening card: what it solves, the flow before, the versions, and the steps ahead. */
+function Overview({ def, steps }: { def: FeatureDef; steps: FlatStep[] }) {
+  const tour = FEATURE_TOURS[def.key];
+  const core = def.group === "built";
+  return (
+    <>
+      <div className="flex flex-wrap items-center gap-1.5">
+        {core
+          ? <span className="inline-flex items-center rounded bg-green-700 px-1.5 py-px text-xxs font-black uppercase tracking-wider text-white">Core module</span>
+          : <><VersionChip version="minimal" /><VersionChip version="complete" /></>}
+      </div>
+      <h2 className="mt-1.5 font-display text-lg font-bold leading-snug text-ink">{def.name}</h2>
+      <Section label="What it solves">
+        <p>{tour.solves}</p>
+        <ul className="mt-1 list-disc space-y-0.5 pl-4">{tour.benefits.map((b) => <li key={b}>{b}</li>)}</ul>
+      </Section>
+      <Section label="Before">
+        <p className="rounded-lg bg-gray-50 px-3 py-2 text-gray-600">{tour.before}</p>
+      </Section>
+      {core ? (
+        <Section label="Core module">
+          <p>This is a core module. It is delivered as one package, not split into Minimal and Complete versions. It includes:</p>
+          <ul className="mt-1 list-disc space-y-0.5 pl-4">{def.parts.minimal.map((p) => <li key={p}>{p}</li>)}</ul>
+        </Section>
+      ) : (
+        <div className="mt-3 grid gap-3 sm:grid-cols-2">
+          <div className="rounded-lg border border-blue-200 bg-blue-50/40 p-2.5">
+            <VersionChip version="minimal" />
+            <p className="mt-1 text-xs text-gray-600">The smallest build that solves the problem.</p>
+            <ul className="mt-1 list-disc space-y-0.5 pl-4 text-xs text-gray-700">{def.parts.minimal.map((p) => <li key={p}>{p}</li>)}</ul>
+          </div>
+          <div className="rounded-lg border border-purple-200 bg-purple-50/40 p-2.5">
+            <VersionChip version="complete" />
+            <p className="mt-1 text-xs text-gray-600">Everything in Minimal, plus:</p>
+            <ul className="mt-1 list-disc space-y-0.5 pl-4 text-xs text-gray-700">{def.parts.complete.map((p) => <li key={p}>{p}</li>)}</ul>
+          </div>
+        </div>
+      )}
+      <Section label="How to use it">
+        <ol className="space-y-1">
+          {steps.slice(1).map((s, i) => (
+            <li key={i} className="flex flex-wrap items-center gap-1.5">
+              <span className="w-4 shrink-0 text-right text-gray-400">{i + 1}.</span>
+              {s.kind && <KindChip kind={s.kind} />}
+              <span>{s.title}</span>
+              {s.version === "complete" && <VersionChip version="complete" />}
+            </li>
+          ))}
+        </ol>
+      </Section>
+    </>
+  );
+}
+
+function StepList({ steps, index, onPick }: { steps: FlatStep[]; index: number; onPick: (j: number) => void }) {
+  return (
+    <ol className="space-y-0.5">
+      {steps.map((s, j) => (
+        <li key={j}>
+          <button onClick={() => onPick(j)} className={cn("flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-xs hover:bg-gray-50", j === index && "bg-brand-soft font-semibold text-brand")}>
+            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-bold text-gray-500">{j + 1}</span>
+            <span className="flex-1">{s.title}</span>
+            {s.kind && <KindChip kind={s.kind} />}
+          </button>
+        </li>
+      ))}
+    </ol>
   );
 }
 
@@ -301,7 +436,7 @@ function useTargetRect(name: string | undefined, key: string, enabled: boolean) 
       if (r && r.width > 0 && r.height > 0) {
         if (!scrolled) {
           scrolled = true;
-          scrollIntoFrame(r);
+          scrollIntoFrame(el!, r);
         }
         const k = `${Math.round(r.top)}|${Math.round(r.left)}|${Math.round(r.width)}|${Math.round(r.height)}`;
         if (k !== last) {
@@ -331,12 +466,13 @@ function useTargetRect(name: string | undefined, key: string, enabled: boolean) 
   return { rect, missing: enabled && !!name && missing };
 }
 
-function scrollIntoFrame(r: DOMRect) {
+function scrollIntoFrame(el: HTMLElement, r: DOMRect) {
   const vh = window.innerHeight;
   if (r.top >= TOP_BAR + GAP && r.bottom <= vh - GAP) return;
   const tall = r.height > vh - 220;
-  const delta = tall ? r.top - (TOP_BAR + 24) : r.top + r.height / 2 - vh / 2 - 60;
-  window.scrollBy({ top: delta, behavior: "smooth" });
+  // Pages scroll inside the app shell's content panel, not the window, so let the
+  // browser scroll whichever ancestors hold the target.
+  el.scrollIntoView({ behavior: "smooth", block: tall ? "start" : "center" });
 }
 
 /** Padded spotlight box, clipped to the visible viewport. */
@@ -350,8 +486,8 @@ function spotlightBox(r: Box, vp: { w: number; h: number }): Box | null {
 }
 
 /** Below the target, else above, else beside it, else pinned bottom-right. Centred when there's no target. */
-function placeCard(t: Box | null, card: { w: number; h: number }, vp: { w: number; h: number }): CSSProperties {
-  const w = Math.min(CARD_WIDTH, vp.w - 24);
+function placeCard(t: Box | null, card: { w: number; h: number }, vp: { w: number; h: number }, width = CARD_WIDTH): CSSProperties {
+  const w = Math.min(width, vp.w - 24);
   const h = card.h || 240;
   const clampX = (x: number) => Math.min(Math.max(x, 12), vp.w - w - 12);
   const clampY = (y: number) => Math.min(Math.max(y, TOP_BAR + GAP), vp.h - h - 12);

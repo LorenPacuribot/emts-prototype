@@ -45,7 +45,7 @@ export function AutomationViewTabs({ view, onChange }: { view: AutomationView; o
     { key: 'approvals', label: `Waiting for approval${n ? ` (${n})` : ''}`, item: 'CRM-C3' },
   ];
   return (
-    <div className="mb-5 flex flex-wrap gap-1 rounded-xl border border-gray-200 bg-gray-100 p-1" role="tablist" aria-label="Automation views">
+    <div className="mb-5 flex flex-wrap gap-1 rounded-xl border border-gray-200 bg-gray-100 p-1" role="tablist" aria-label="Automation views" data-tour="crm-automation-views">
       {tabs.map((t) => (
         <button
           key={t.key}

@@ -30,8 +30,6 @@ import { alertQueueState } from "@/features/lib/rules/alerts";
 import { can } from "@/features/lib/permissions";
 import { date, money } from "@/features/lib/format";
 import { cn } from "@/features/lib/cn";
-import { canResume, useTour } from "@/features/lib/tour";
-import { useStartTour } from "@/features/components/tour/product-tour";
 import { Screen } from "@/features/components/layout/screen";
 import { Button, Checkbox, Drawer, Input, NewBadge, Select } from "@/features/components/ui";
 import { ChangeOrderExceptionsPanel } from "@/features/components/features/change-orders/exceptions-panel";
@@ -102,9 +100,6 @@ export function DashboardScreen() {
   const [task, setTask] = useState("");
   const [customize, setCustomize] = useState(false);
   const [coPanel, setCoPanel] = useState(useParam("open") === "co-exceptions");
-  const startTour = useStartTour();
-  const tourStop = useTour((s) => s.stop);
-  const resumable = useTour((s) => !s.active && canResume(s));
   const nowIso = now();
 
   const liveJobs = db.jobs.filter((j) => j.status !== "estimating");
@@ -160,8 +155,7 @@ export function DashboardScreen() {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.15em] text-green-800"><Sparkles className="h-4 w-4" /> Demo journey <span className="rounded bg-green-100 px-1.5 py-0.5 text-xs tracking-wider">Prototype only</span></div>
             <div className="flex gap-2">
-              {resumable && <Button size="sm" onClick={() => startTour(true)}>Resume at stop {tourStop + 1}</Button>}
-              <Button size="sm" variant="primary" onClick={() => startTour(false)}><Compass className="h-3.5 w-3.5" /> {resumable ? "Start over" : "Start product tour"}</Button>
+              <AppLink href="/dashboard#feature-tours"><Button size="sm" variant="primary"><Compass className="h-3.5 w-3.5" /> Feature tours</Button></AppLink>
             </div>
           </div>
           <ol className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">

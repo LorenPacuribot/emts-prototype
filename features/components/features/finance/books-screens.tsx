@@ -97,7 +97,7 @@ function Checkbook() {
         subtitle="Every check written and deposit made, with the running balance." details="A check carries its job and cost code into job cost and the QuickBooks queue. Nothing here moves money."
         actions={(canWrite || canKeepBooks(user)) && (
           <div className="flex flex-wrap gap-2">
-            {canKeepBooks(user) && reconcileOn && <Button onClick={() => setReconciling(true)}><CheckCircle2 className="h-4 w-4" /> Reconcile <VersionBadge item="BK-M5" /></Button>}
+            {canKeepBooks(user) && reconcileOn && <Button data-tour="bk-reconcile" onClick={() => setReconciling(true)}><CheckCircle2 className="h-4 w-4" /> Reconcile <VersionBadge item="BK-M5" /></Button>}
             {canWrite && <><Button onClick={() => setForm("deposit")}><Plus className="h-4 w-4" /> Enter deposit</Button>
             <Button variant="primary" onClick={() => setForm("check")}><Pencil className="h-4 w-4" /> Write check</Button></>}
           </div>

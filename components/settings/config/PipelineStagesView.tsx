@@ -159,7 +159,7 @@ export function PipelineStagesView() {
       {!admin && <p className="mb-4 text-sm text-gray-500">Only the owner or an admin changes stages and lead sources.</p>}
 
       {tab === LEAD_SOURCES_TAB ? <LeadSourcesPanel /> : <>
-      <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+      <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm" data-tour="crm-stages">
         <div className="flex items-center justify-between border-b border-gray-100 px-5 py-3 text-xs font-bold uppercase tracking-wider text-gray-500">
           <span className="flex items-center gap-2">Stages <VersionBadge item="CRM-M2" /></span>
           <span>{columns.length} of {MAX_STAGES}</span>

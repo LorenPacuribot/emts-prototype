@@ -59,7 +59,7 @@ function AccountingModes() {
   const mode = !booksOn ? "qbo" : !qboOn ? "books" : asked;
   const set = (m: "books" | "qbo") => router.replace(`${pathname}?mode=${m}`, { scroll: false });
   const toggle = booksOn && qboOn && (
-    <div className="mb-4 flex flex-wrap items-center gap-2">
+    <div className="mb-4 flex flex-wrap items-center gap-2" data-tour="bk-mode">
       <div className="flex rounded-xl border border-gray-200 bg-gray-100 p-1" role="tablist" aria-label="Accounting mode">
         {(["qbo", "books"] as const).map((m) => (
           <button key={m} type="button" role="tab" aria-selected={mode === m} onClick={() => set(m)}

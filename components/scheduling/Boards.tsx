@@ -163,7 +163,7 @@ export function JobBoard({ jobs, dayKeys, colorOf, onSelect, onDrop }: BoardProp
   const { dragging, setDragging, hover, setHover } = useDragState();
 
   return (
-    <div className="overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm" onDragEnter={(e) => isJobDrag(e) && setDragging(true)}>
+    <div className="overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm" data-tour="js-board" onDragEnter={(e) => isJobDrag(e) && setDragging(true)}>
       <div className={cols > 1 ? 'min-w-[900px]' : ''}>
         <div className="grid border-b border-gray-100" style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
           {dayKeys.map((d) => <div key={d} className="border-l border-gray-100 first:border-l-0"><DayHeader day={d} /></div>)}

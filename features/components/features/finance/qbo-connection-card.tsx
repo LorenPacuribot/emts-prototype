@@ -58,7 +58,7 @@ export function QboConnectionCard() {
   const badge = { off: <Badge tone="gray">Not connected</Badge>, on: <Badge tone="green">Connected</Badge>, syncing: <Badge tone="blue" icon={<Loader2 className="h-3 w-3 animate-spin" />}>Syncing</Badge>, expired: <Badge tone="amber">Reconnect needed</Badge> }[state];
 
   return (
-    <div className="mb-8 max-w-3xl space-y-4">
+    <div className="mb-8 max-w-3xl space-y-4" data-tour="qb-connection">
       <div className={`flex gap-3 rounded-xl border p-4 ${banner.box}`} role={state === "expired" ? "alert" : "status"}>
         {state === "expired" ? <AlertTriangle className={`h-5 w-5 shrink-0 ${banner.icon}`} /> : <CheckCircle2 className={`h-5 w-5 shrink-0 ${banner.icon}`} />}
         <div className="text-sm">
@@ -111,7 +111,7 @@ function StartSync({ manage }: { manage: boolean }) {
   const [edits, setEdits] = useState<Record<string, string>>({});
 
   return (
-    <div className="space-y-4 border-t border-gray-100 pt-4">
+    <div className="space-y-4 border-t border-gray-100 pt-4" data-tour="qb-sync-options">
       <div>
         <div className="text-sm font-bold text-gray-900">Tax regions</div>
         <p className="text-xs text-gray-500">Each tax region needs its QuickBooks account before sync starts. Income account: <b>{income || "not set"}</b>, deposit account: <b>{options.depositAccount || "not set"}</b>, card payment method: <b>{options.cardMethod || "not set"}</b> (sync options below).</p>

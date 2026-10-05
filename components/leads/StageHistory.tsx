@@ -27,7 +27,7 @@ export function StageHistoryCard({ lead }: { lead: Lead }) {
   const nameOf = (id: string) => pipelines.find((p) => p.id === id)?.name ?? id;
   const rows = [...(lead.stageHistory ?? []), ...(prod?.history ?? [])].sort((a, b) => b.at.localeCompare(a.at));
   return (
-    <div className={card}>
+    <div className={card} data-tour="crm-history">
       <div className="mb-5 flex items-center gap-2 text-gray-500">
         <History className="h-4 w-4" />
         <span className="text-xs font-bold uppercase tracking-widest">Stage history</span>
@@ -70,7 +70,7 @@ export function JourneyBar({ lead }: { lead: Lead }) {
     return { p, cols, at };
   });
   return (
-    <div className={cn(card, 'p-5')}>
+    <div className={cn(card, 'p-5')} data-tour="crm-journey">
       <div className="mb-4 flex items-center gap-2 text-gray-500">
         <Route className="h-4 w-4" />
         <span className="text-xs font-bold uppercase tracking-widest">Journey</span>

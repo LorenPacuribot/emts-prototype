@@ -258,7 +258,7 @@ function LeadPipeline() {
       {/* 30 Sep call: pipeline switch, source filter, group by */}
       {view === 'kanban' && !viewArchived && crmOn && (
         <div className="mb-6 flex flex-wrap items-center gap-3">
-          <div className={track} role="tablist" aria-label="Pipeline">
+          <div className={track} role="tablist" aria-label="Pipeline" data-tour="crm-pipelines">
             {pipelines.map((p) => (
               <button key={p.id} type="button" role="tab" aria-selected={pipelineId === p.id} onClick={() => setParam('pipeline', p.id === 'sales' ? undefined : p.id)} className={seg(pipelineId === p.id)}>
                 {p.name}
@@ -272,7 +272,7 @@ function LeadPipeline() {
           </div>
           <VersionBadge item="CRM-M1" />
           {pipeline?.kind !== 'production' && (
-            <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-gray-500">
+            <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-gray-500" data-tour="crm-source">
               Source
               <NativeSelect value={sourceFilter} onChange={(e) => setSource(e.target.value)} className="h-9 w-44 normal-case">
                 <option value="">All sources</option>
@@ -283,7 +283,7 @@ function LeadPipeline() {
           )}
           {pipeline?.kind === 'sales' && (
             <FeatureGate item="CRM-C1">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2" data-tour="crm-groupby">
                 <span className="text-xs font-bold uppercase tracking-wide text-gray-500">Group by</span>
                 <div className={track}>
                   {(['stage', 'source'] as const).map((g) => (
@@ -306,8 +306,8 @@ function LeadPipeline() {
 
       {view === 'website' ? (
         <div className="space-y-6">
-          <FeatureGate item="CRM-M5"><TrackedLinksCard /></FeatureGate>
-          <FeatureGate item="CRM-C6"><FacebookLeadAdsCard /></FeatureGate>
+          <FeatureGate item="CRM-M5"><div data-tour="crm-links"><TrackedLinksCard /></div></FeatureGate>
+          <FeatureGate item="CRM-C6"><div data-tour="crm-fb-ads"><FacebookLeadAdsCard /></div></FeatureGate>
           {websiteReviewOn && <WebsiteLeadsPanel />}
         </div>
       ) : viewArchived ? (

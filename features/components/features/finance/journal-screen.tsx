@@ -80,7 +80,7 @@ function Journal() {
         <Button size="sm" onClick={() => exp("tb", "csv")}><Download className="h-3.5 w-3.5" /> Trial balance CSV</Button>
         <Button size="sm" onClick={() => exp("tb", "xls")}><FileSpreadsheet className="h-3.5 w-3.5" /> Trial balance Excel</Button>
       </Card>
-      <Card className="p-4">
+      <Card className="p-4" data-tour="bk-journal">
         <div className="mb-3 flex flex-wrap items-center gap-2">
           <Select aria-label="Account" value={account} onChange={(e) => setAccount(e.target.value)} className="w-64">
             <option value="">All accounts</option>

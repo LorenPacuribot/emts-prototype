@@ -27,7 +27,7 @@ export function ChartOfAccountsCard() {
   const b = balances(books.journal);
   const [editing, setEditing] = useState<LedgerAccount | "new">();
   return (
-    <Card className="p-4 xl:col-span-2">
+    <Card className="p-4 xl:col-span-2" data-tour="bk-chart">
       <CardLabel icon={<ListTree />} right={canEdit && <Button size="sm" variant="primary" onClick={() => setEditing("new")}><Plus className="h-3.5 w-3.5" /> Add account</Button>}>
         <span className="inline-flex items-center gap-1.5">Chart of accounts (Books) <VersionBadge item="BK-M2" /><VersionBadge item="BK-C7" withNew={false} /></span>
       </CardLabel>

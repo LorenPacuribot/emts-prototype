@@ -44,7 +44,7 @@ export function MatchContactsCard() {
   );
 
   return (
-    <Card className="p-4">
+    <Card className="p-4" data-tour="qb-match">
       <CardLabel icon={<Users />}>
         <span className="inline-flex items-center gap-1.5">Match your contacts <VersionBadge item="QB-M3" /></span>
       </CardLabel>

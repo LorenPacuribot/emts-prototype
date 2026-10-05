@@ -56,7 +56,7 @@ export function BalanceSheetReport({ basis }: { basis: Basis }) {
   const today = now().slice(0, 10);
   const bs = balanceSheet(books.journal, books.accounts, today);
   return (
-    <Card className="p-4">
+    <Card className="p-4" data-tour="bk-balance">
       <CardLabel icon={<Scale />} right={bs.balances ? <Badge tone="green" icon={<CheckCircle2 className="h-3 w-3" />}>Balances</Badge> : <Badge tone="red">Does not balance</Badge>}>
         <span className="inline-flex items-center gap-1.5">Balance Sheet at {today} <VersionBadge item="BK-M6" /></span>
       </CardLabel>

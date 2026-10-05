@@ -16,7 +16,7 @@ import { byId } from "@/features/lib/selectors";
 import { AppLink } from "@/features/lib/navigation";
 import { dateLong } from "@/features/lib/format";
 import { toast } from "@/features/lib/toast";
-import { TEMPLATE_SIZES } from "@/features/lib/rules/marketing";
+import { TEMPLATE_SIZES, usable } from "@/features/lib/rules/marketing";
 import { createCrop, recordRelease, TEMPLATE_LABEL, withdrawMedia } from "@/features/lib/store/actions/marketing";
 import { userName } from "@/features/lib/store/helpers";
 import { PageHeader } from "@/features/components/layout/screen";
@@ -44,6 +44,8 @@ function Media() {
   const office = can(user, "marketing.post");
   const withdrawn = db.mediaAssets.filter((a) => a.withdrawnAt);
   const takedowns = db.marketingPosts.filter((p) => p.takedown);
+  // Product tour: the first locked photo that recording permission would unlock.
+  const unlockable = db.mediaAssets.find((a) => a.release === "none" && a.kind !== "crew" && !a.withdrawnAt && !usable(a).ok)?.id;
   return (
     <>
       <PageHeader title="Media Library" subtitle="Finished job photos, with the release evidence for each." details="Only the neighborhood is ever shown. Job media and releases are kept ten years against the job, unless a personal-data deletion overrides it."
@@ -51,10 +53,10 @@ function Media() {
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_340px] [&>*]:min-w-0">
         <Card className="p-4" data-tour="marketing-library">
           <CardLabel>Job media</CardLabel>
-          {office && <DropZone compact className="mt-3" onFiles={setDropped} />}
+          {office && <div className="mt-3" data-tour="marketing-upload"><DropZone compact onFiles={setDropped} /></div>}
           <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
             {db.mediaAssets.map((a) => (
-              <div key={a.id} className="rounded-xl border border-line p-2">
+              <div key={a.id} className="rounded-xl border border-line p-2" data-tour={office && a.id === unlockable ? "marketing-permission" : undefined}>
                 <AssetTile asset={a} />
                 <div className="mt-1.5 text-xs text-gray-500">
                   {a.jobId ? <AppLink href={jobHref(a.jobId)} className="font-semibold text-brand">{a.jobId}</AppLink> : "No job"}{a.neighbourhood ? ` · ${a.neighbourhood}` : ""} · {a.sizeMb} MB

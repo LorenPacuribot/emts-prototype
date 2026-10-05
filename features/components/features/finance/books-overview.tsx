@@ -61,7 +61,7 @@ export function PaymentsToDepositCard() {
   const [gross, setGross] = useState("");
   const [fee, setFee] = useState("");
   return (
-    <Card className="mb-4 p-4">
+    <Card className="mb-4 p-4" data-tour="bk-deposit">
       <CardLabel icon={<CreditCard />} right={canKeepBooks(user) && <Button size="sm" variant="primary" disabled={waiting <= 0} onClick={() => { setGross(waiting.toFixed(2)); setFee((Math.round(waiting * 2.9 + 30) / 100).toFixed(2)); setOpen(true); }}>Match batch</Button>}>
         <span className="inline-flex items-center gap-1.5">Payments to deposit <VersionBadge item="BK-M10" /></span>
       </CardLabel>
