@@ -17,7 +17,7 @@
 */
 import { derivedInvoiceStatus, estimateTotals, round2 } from '@/lib/calculations';
 import type { Activity, Database, Estimate, EstimateStatus, Job } from '@/lib/types';
-import { fullName } from '@/lib/utils';
+import { fullName, toISODate } from '@/lib/utils';
 import { entriesAddUp, entryLabel, salesEntries, type SalesEntry, type SalesEntryType } from '@/features/lib/rules/sales-entries';
 
 export interface DateRange {
@@ -25,9 +25,20 @@ export interface DateRange {
   end: string;
 }
 
+/**
+ * The day a record falls on, as the screens show it. A timestamp is read in
+ * local time: slicing its UTC date put an evening approval in the next day,
+ * or the next month (QA D-04). A plain YYYY-MM-DD date is already a day.
+ */
+export function localDay(iso: string): string {
+  if (iso.length <= 10) return iso;
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? iso.slice(0, 10) : toISODate(d);
+}
+
 export function inDateRange(iso: string | undefined, r: DateRange) {
   if (!iso) return false;
-  const day = iso.slice(0, 10);
+  const day = localDay(iso);
   if (r.start && day < r.start) return false;
   if (r.end && day > r.end) return false;
   return true;

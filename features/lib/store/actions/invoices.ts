@@ -14,7 +14,8 @@ import { now } from "@/features/lib/clock";
 import { byId } from "@/features/lib/selectors";
 import { periodOf, postingPeriod } from "@/features/lib/rules/finance";
 import { roundMoney } from "@/features/lib/rules/rounding";
-import { queue } from "./finance";
+import { accountingDestination, queue } from "./finance";
+import { booksOf, postEvent } from "./ledger";
 import { denied, fail, log, nextId, ok } from "../helpers";
 
 const MODULE = "Invoices";
@@ -71,6 +72,27 @@ export function invoiceBalance(inv: Invoice): number {
   return inv.status === "void" ? 0 : roundMoney(Math.max(0, inv.amount - invoicePaid(inv)));
 }
 
+/**
+ * QA B-04: with Estimate Master Books as the destination, a sent invoice and
+ * each recorded payment post to the journal (once). The amount the customer
+ * owes is what goes to receivables: tax from the invoice lines, the rest income.
+ */
+function postInvoiceToBooks(db: Database, actor: User, inv: Invoice) {
+  if (accountingDestination(db) !== "books" || inv.kind === "credit_note") return;
+  if (booksOf(db).journal.some((e) => e.source.kind === "invoice" && e.source.ref === inv.id)) return;
+  const subtotal = roundMoney((inv.lines ?? []).reduce((a, l) => a + l.quantity * l.rate, 0));
+  const tax = inv.lines?.length ? roundMoney(((subtotal - (inv.discount ?? 0)) * (inv.taxRatePct ?? 0)) / 100) : 0;
+  const party = byId(db.customers, byId(db.jobs, inv.jobId)?.customerId)?.name;
+  postEvent(db, actor, { kind: "invoice", net: roundMoney(inv.amount - tax), tax, jobId: inv.jobId }, { ref: inv.id, memo: `Invoice ${inv.id}`, party, date: inv.sentAt, href: `/invoices/${inv.id}` });
+}
+
+function postPaymentToBooks(db: Database, actor: User, inv: Invoice, payment: { id: string; amount: number; method: string; at: string }, owed: number) {
+  if (accountingDestination(db) !== "books") return;
+  const kind = payment.method === "credit_card" ? "card_payment" : "payment";
+  const party = byId(db.customers, byId(db.jobs, inv.jobId)?.customerId)?.name;
+  postEvent(db, actor, { kind, amount: payment.amount, owed, jobId: inv.jobId }, { ref: payment.id, memo: `Payment on ${inv.id}`, party, date: payment.at, href: `/invoices/${inv.id}` });
+}
+
 /** The finance record that carries this invoice to QuickBooks, created on first send. */
 function invoiceRecord(db: Database, actor: User, inv: Invoice): FinanceRecord {
   const existing = db.financeRecords.find((r) => r.type === "invoice" && r.invoiceId === inv.id);
@@ -95,6 +117,7 @@ export function sendInvoice(db: Database, actor: User, invoiceId: string) {
   if (inv.status === "draft") inv.status = "sent";
   inv.sentAt = now();
   invoiceRecord(db, actor, inv);
+  postInvoiceToBooks(db, actor, inv);
   log(db, actor, MODULE, `Invoice ${inv.id} sent to ${customer.email} by ${actor.name} (recorded, not sent: prototype). Queued for QuickBooks.`);
   return ok();
 }
@@ -110,7 +133,11 @@ export function recordInvoicePayment(db: Database, actor: User, invoiceId: strin
   if (amount > balance) return fail(`Maximum: $${balance.toFixed(2)}`, "amount");
   if ((input.method === "check" || input.method === "bank_transfer") && !input.reference?.trim()) return fail("Enter the check number or reference.", "reference");
   const t = now();
-  inv.payments = [...(inv.payments ?? []), { id: nextId(db, "pay", "PAY-"), amount, method: input.method, reference: input.reference?.trim() || undefined, notes: input.notes?.trim() || undefined, at: t, by: actor.id }];
+  const payment = { id: nextId(db, "pay", "PAY-"), amount, method: input.method, reference: input.reference?.trim() || undefined, notes: input.notes?.trim() || undefined, at: t, by: actor.id };
+  inv.payments = [...(inv.payments ?? []), payment];
+  // An invoice paid before it was ever sent still reaches the books first.
+  postInvoiceToBooks(db, actor, inv);
+  postPaymentToBooks(db, actor, inv, payment, balance);
   inv.status = invoiceBalance(inv) <= 0.005 ? "paid" : "partial";
   const job = byId(db.jobs, inv.jobId);
   if (job) job.depositsCollected = roundMoney(job.depositsCollected + amount);

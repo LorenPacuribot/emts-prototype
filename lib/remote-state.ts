@@ -83,7 +83,17 @@ function emit(c: RemoteChange) {
   }
 }
 
-type StateBody = { enabled: boolean; denied?: boolean; entries?: Record<string, string>; versions?: Record<string, string> };
+type StateBody = { enabled: boolean; denied?: boolean; readOnly?: boolean; entries?: Record<string, string>; versions?: Record<string, string> };
+
+/*
+  A public marketing page (/r, /lp) gets a redacted, read-only copy: it loads
+  it and never saves. Its clicks, views and form submissions go through
+  /api/public/marketing (lib/public-marketing.ts).
+*/
+let readOnlyShared = false;
+export function isReadOnlyShared(): boolean {
+  return readOnlyShared;
+}
 
 /** Customer pages have no staff session; their link's token is what grants access (lib/guest-access.ts). */
 function pageHeader(): Record<string, string> {
@@ -112,6 +122,11 @@ export async function loadRemoteState(): Promise<RemoteStatus> {
     if (!body.enabled || body.denied) return 'local';
     const entries = body.entries ?? {};
     const versions = body.versions ?? {};
+    if (body.readOnly) {
+      readOnlyShared = true;
+      for (const k of REMOTE_KEYS) if (entries[k] !== undefined) writeLocal(k, entries[k]);
+      return 'shared';
+    }
     if (Object.keys(entries).length === 0) {
       // First visit to an empty database: this browser's data seeds it.
       for (const k of REMOTE_KEYS) {

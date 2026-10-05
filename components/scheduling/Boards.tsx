@@ -57,7 +57,7 @@ export const tabCls = (active: boolean) =>
 
 export function ScheduleToolbar({
   range, onRange, refDate, onStep, onToday, onBulk, actions,
-}: { range: ScheduleRange; onRange: (r: ScheduleRange) => void; refDate: Date; onStep: (d: -1 | 1) => void; onToday: () => void; onBulk: () => void; /** Buttons beside Bulk Reschedule (JS-M3 Unsent changes). */ actions?: React.ReactNode }) {
+}: { range: ScheduleRange; onRange: (r: ScheduleRange) => void; refDate: Date; onStep: (d: -1 | 1) => void; onToday: () => void; /** Left out for people who can't change the schedule (QA D-03). */ onBulk?: () => void; /** Buttons beside Bulk Reschedule (JS-M3 Unsent changes). */ actions?: React.ReactNode }) {
   const eyebrow = range === 'month' ? 'Month' : range === 'day' ? 'Day' : 'Week Of';
   const label =
     range === 'day'
@@ -86,7 +86,7 @@ export function ScheduleToolbar({
       </div>
       <div className="flex flex-wrap items-center gap-2 border-l border-gray-200 pl-4">
         {actions}
-        <Button variant="secondary" icon={<CalendarClock className="h-4 w-4" />} onClick={onBulk}>Bulk Reschedule</Button>
+        {onBulk && <Button variant="secondary" icon={<CalendarClock className="h-4 w-4" />} onClick={onBulk}>Bulk Reschedule</Button>}
       </div>
     </div>
   );

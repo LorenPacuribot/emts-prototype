@@ -113,8 +113,9 @@ export default function InvoiceDetailPage() {
             className="h-10 w-10 border border-gray-200 bg-white"
             items={[
               { label: 'Customer Pay Page', icon: <ExternalLink />, onClick: () => router.push(`/invoices/${invoice.id}/pay`), disabled: closed },
-              { label: 'Void Invoice', icon: <Ban />, onClick: () => setModal('void'), disabled: status === 'Void', separatorBefore: true },
-              { label: 'Delete Invoice', icon: <Trash2 />, danger: true, onClick: () => setModal('delete') },
+              // QA B-05: QuickBooks owns a synced invoice; voiding or deleting it here would leave QuickBooks out of step.
+              { label: 'Void Invoice', icon: <Ban />, onClick: () => setModal('void'), disabled: status === 'Void' || inQuickBooks, hint: inQuickBooks ? 'In QuickBooks: void it there' : undefined, separatorBefore: true },
+              { label: 'Delete Invoice', icon: <Trash2 />, danger: true, onClick: () => setModal('delete'), disabled: inQuickBooks, hint: inQuickBooks ? 'In QuickBooks: delete it there' : undefined },
             ]}
           />
         </div>
@@ -188,7 +189,7 @@ export default function InvoiceDetailPage() {
       <SendInvoiceModal invoice={invoice} open={modal === 'send'} onOpenChange={openModal('send')} />
       <EditInvoiceModal invoice={invoice} open={modal === 'edit' && !inQuickBooks} onOpenChange={openModal('edit')} />
       <ConfirmDialog
-        open={modal === 'void'}
+        open={modal === 'void' && !inQuickBooks}
         onOpenChange={openModal('void')}
         title="Void Invoice"
         message={`Void ${invoice.invoiceNumber}? The customer will no longer be able to pay it and its balance is removed from Outstanding Balance.`}
@@ -199,7 +200,7 @@ export default function InvoiceDetailPage() {
         }}
       />
       <ConfirmDialog
-        open={modal === 'delete'}
+        open={modal === 'delete' && !inQuickBooks}
         onOpenChange={openModal('delete')}
         title="Delete Invoice"
         message="Are you sure you want to delete this invoice? This action cannot be undone."

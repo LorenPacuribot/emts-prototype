@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils';
 import { ICONS } from '@/components/layout/icons';
 import { useCurrentUser as useFeatureUser } from '@/features/lib/store';
 import { can } from '@/features/lib/permissions';
-import { SETTINGS_PERMISSIONS } from '@/features/components/features/settings/settings-config';
+import { canOpenSettings } from '@/features/components/features/settings/settings-config';
 import { useFeatureFilter } from '@/features/lib/feature-visibility';
 import { NewBadge } from '@/features/components/ui';
 
@@ -20,7 +20,8 @@ export function SettingsSidebar() {
   const featureOn = useFeatureFilter();
   // ...and switched on in New Features (dashboard).
   const visible = (item: { id: string; isNew?: boolean; feature?: number | number[] }) =>
-    (!item.isNew || !SETTINGS_PERMISSIONS[item.id] || can(featureUser, SETTINGS_PERMISSIONS[item.id])) && (!item.isNew || featureOn({ feature: item.feature, ...(item.id === 'accounting' ? { featureKey: ['qb', 'bk'] as ('qb' | 'bk')[] } : {}) }));
+    // Every page follows its access rule (QA D-02), new or not.
+    canOpenSettings(featureUser, item.id) && (!item.isNew || featureOn({ feature: item.feature, ...(item.id === 'accounting' ? { featureKey: ['qb', 'bk'] as ('qb' | 'bk')[] } : {}) }));
   return (
     <aside className="sticky top-0 z-20 w-full shrink-0 self-start border-b border-gray-200 bg-white shadow-sm lg:h-[calc(100vh-5rem)] lg:w-72 lg:border-b-0 lg:border-r lg:shadow-none">
       <div className="flex h-auto items-center gap-2 overflow-x-auto p-2 custom-scrollbar lg:h-full lg:flex-col lg:items-stretch lg:gap-1.5 lg:overflow-y-auto lg:px-6 lg:py-10 lg:pb-12">

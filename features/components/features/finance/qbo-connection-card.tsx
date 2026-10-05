@@ -21,7 +21,7 @@ import { now } from "@/features/lib/clock";
 import { defaultSyncStartDate, dueToSend, startSyncBlocker } from "@/features/lib/rules/qbo-sync";
 import { userName } from "@/features/lib/store/helpers";
 import {
-  connectQuickBooks, disconnectQuickBooks, hasQuickBooksAddOn, mapTaxRegion, qboCompanyName, reconnectQuickBooks, startQuickBooksSync, syncOptions,
+  connectQuickBooks, contactMatchPending, disconnectQuickBooks, hasQuickBooksAddOn, mapTaxRegion, qboCompanyName, reconnectQuickBooks, startQuickBooksSync, syncOptions,
 } from "@/features/lib/store/actions/finance";
 import { Badge, Banner, Button, ConfirmDialog, Input, VersionBadge } from "@/features/components/ui";
 import { SyncNowButton, useSyncing } from "./qbo-sync-parts";
@@ -105,7 +105,8 @@ function StartSync({ manage }: { manage: boolean }) {
   // Every sync option is required (income, deposit, card method, each tax region).
   const options = syncOptions(db);
   const income = options.incomeAccount;
-  const blocker = startSyncBlocker({ ...options, regionIds: regions.map((r) => r.id) });
+  // QA B-02: no sync until "Match your contacts" is finished.
+  const blocker = startSyncBlocker({ ...options, regionIds: regions.map((r) => r.id) }) ?? (contactMatchPending(db) ? "Finish Match your contacts below first, so no customer is created twice in QuickBooks." : undefined);
   const [mode, setMode] = useState<"from_date" | "new_only">("from_date");
   const [from, setFrom] = useState(defaultSyncStartDate(now()));
   const [edits, setEdits] = useState<Record<string, string>>({});

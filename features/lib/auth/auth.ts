@@ -75,8 +75,22 @@ export function isPublicPath(pathname: string): boolean {
   return false;
 }
 
-/** Only same-app relative paths are accepted as the post-login destination. */
+/**
+ * Only same-app relative paths are accepted as the post-login destination.
+ * Browsers drop tabs and newlines from URLs, so "/\t/evil.com" would become
+ * "//evil.com" (QA D-01): control characters, whitespace and backslashes are
+ * refused outright, and what is left must resolve to this app.
+ */
 export function safeNext(next: string | null | undefined): string {
-  if (!next || !next.startsWith("/") || next.startsWith("//") || next.startsWith("/\\") || next.startsWith("/login")) return "/dashboard";
-  return next;
+  const home = "/dashboard";
+  if (!next || /[\u0000- \u007f\\]/.test(next)) return home;
+  if (!next.startsWith("/") || next.startsWith("//") || next.startsWith("/login")) return home;
+  try {
+    const base = "http://app.invalid";
+    const url = new URL(next, base);
+    if (url.origin !== base) return home;
+    return url.pathname + url.search + url.hash;
+  } catch {
+    return home;
+  }
 }

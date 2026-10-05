@@ -44,7 +44,11 @@ const NotScheduled = () => <span className="font-normal text-gray-500">Not sched
 
 export function JobDetailsPanel({
   job, onClose, onReschedule, onManageCrew, onCancel,
-}: { job: Job | null; onClose: () => void; onReschedule: () => void; onManageCrew: () => void; onCancel: () => void }) {
+}: {
+  job: Job | null; onClose: () => void;
+  /** Left out for people who can't change the schedule (QA D-03): the buttons are hidden. */
+  onReschedule?: () => void; onManageCrew?: () => void; onCancel?: () => void;
+}) {
   const look = useLookups();
   const me = useCurrentUser();
   const { change, addNote, removeNote } = useJobActions();
@@ -154,8 +158,8 @@ export function JobDetailsPanel({
         </div>
 
         <div className="space-y-2 border-t border-gray-100 p-5">
-          <Button className="w-full" onClick={onReschedule}>{job.startDate ? 'View shifts' : 'Schedule Job'}</Button>
-          {job.startDate && <Button variant="danger" className="w-full" onClick={onCancel}>Cancel schedule</Button>}
+          {onReschedule && <Button className="w-full" onClick={onReschedule}>{job.startDate ? 'View shifts' : 'Schedule Job'}</Button>}
+          {job.startDate && onCancel && <Button variant="danger" className="w-full" onClick={onCancel}>Cancel schedule</Button>}
           <Link href={`/jobs/${job.id}`} className="flex h-10 w-full items-center justify-center rounded-lg text-sm font-semibold text-primary-600 hover:underline">
             View full details <ChevronRight className="ml-1 h-4 w-4" />
           </Link>

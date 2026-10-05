@@ -11,6 +11,7 @@ import { system } from '@/features/lib/store';
 import { useHydrated } from '@/features/lib/hooks';
 import { recordLinkClick } from '@/features/lib/store/actions/marketing-growth';
 import { deviceFrom, trackedUrl } from '@/features/lib/rules/marketing-growth';
+import { runPublicAction } from '@/lib/public-marketing';
 
 export default function Page() {
   const code = String(useParams<{ code: string }>().code ?? '');
@@ -29,12 +30,16 @@ export default function Page() {
     } catch {
       /* storage blocked: count the click anyway */
     }
-    const r = system(recordLinkClick, code, via, deviceFrom(navigator.userAgent), clickId, document.referrer || undefined);
-    if (!r.ok) {
-      setError(r.error);
-      return;
-    }
-    window.location.replace(trackedUrl(r.value!.target, r.value!.utm, window.location.origin));
+    const device = deviceFrom(navigator.userAgent);
+    const referrer = document.referrer || undefined;
+    // With shared data the server records the click (this page can't save); otherwise this browser does.
+    void runPublicAction({ action: 'link_click', code, via, device, clickId, referrer }, () => system(recordLinkClick, code, via, device, clickId, referrer)).then((r) => {
+      if (!r.ok) {
+        setError(r.error);
+        return;
+      }
+      window.location.replace(trackedUrl(r.value!.target, r.value!.utm, window.location.origin));
+    });
   }, [hydrated, code]);
 
   return (

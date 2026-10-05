@@ -48,3 +48,63 @@ describe('/api/state access', () => {
     expect((await PUT(req(page, save))).status).toBe(200);
   });
 });
+
+describe('/api/state guests (QA, 6 Oct: X-EMTS-Page is client-sent)', () => {
+  const featureDb = JSON.stringify({ state: { db: {
+    estimates: [{ id: 'E-1', publicToken: 'tok-123' }],
+    mktLinks: [{ id: 'L-1', code: 'FALL-IG', active: true }],
+    leads: [{ id: 'LEAD-1', name: 'Private Person', phone: '2145550100' }],
+    users: [{ id: 'U-OWNER', name: 'Tim', role: 'owner', email: 'tim@example.com' }],
+    financeSettings: { qbo: { realm: 'R' } },
+  } } });
+  const replicaDb = JSON.stringify({ collections: {}, singletons: { paymentGateway: { provider: 'Stripe', apiLoginId: 'LOGIN-SECRET', transactionKey: 'KEY-SECRET' } } });
+  let writes: string[] = [];
+  beforeEach(() => {
+    writes = [];
+    vi.stubGlobal('fetch', vi.fn(async (_url: string, init?: RequestInit) => {
+      if (!init?.method || init.method === 'GET') {
+        return Response.json([
+          { key: 'emts-features-db-v1', value: featureDb, updated_at: 'v1' },
+          { key: 'emts-replica-db-v2', value: replicaDb, updated_at: 'v1' },
+        ]);
+      }
+      writes.push(String(init.body));
+      return Response.json([{ key: 'emts-replica-db-v2', value: '{}', updated_at: 'v2' }]);
+    }));
+  });
+
+  it('a public marketing page reads a redacted, read-only copy', async () => {
+    const res = await GET(req({ 'x-emts-page': '/r/FALL-IG' }));
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.readOnly).toBe(true);
+    expect(Object.keys(body.entries)).toEqual(['emts-features-db-v1']);
+    const db = JSON.parse(body.entries['emts-features-db-v1']).state.db;
+    expect(db.leads).toEqual([]);
+    expect(db.mktLinks).toHaveLength(1);
+    expect(db.users).toEqual([{ id: 'U-OWNER', name: 'Tim', role: 'owner' }]);
+    expect(db.financeSettings).toBeUndefined();
+  });
+
+  it('a public marketing page can never save', async () => {
+    expect((await PUT(req({ 'x-emts-page': '/r/FALL-IG' }, save))).status).toBe(403);
+    expect(writes).toHaveLength(0);
+  });
+
+  it('a customer link never sees, or changes, the payment gateway credentials', async () => {
+    const got = await (await GET(req({ 'x-emts-page': '/estimates/view?token=tok-123' }))).json();
+    const gw = JSON.parse(got.entries['emts-replica-db-v2']).singletons.paymentGateway;
+    expect(gw.apiLoginId).toBeUndefined();
+    expect(gw.transactionKey).toBeUndefined();
+    const tampered = JSON.stringify({ collections: {}, singletons: { paymentGateway: { provider: 'Stripe', apiLoginId: 'ATTACKER', transactionKey: 'ATTACKER' } } });
+    const res = await PUT(req({ 'x-emts-page': '/estimates/view?token=tok-123' }, { key: 'emts-replica-db-v2', value: tampered, baseVersion: 'v1' }));
+    expect(res.status).toBe(200);
+    const written = JSON.parse(JSON.parse(writes.at(-1)!).value).singletons.paymentGateway;
+    expect(written).toMatchObject({ apiLoginId: 'LOGIN-SECRET', transactionKey: 'KEY-SECRET' });
+  });
+
+  it('staff still read everything', async () => {
+    const got = await (await GET(req(staff()))).json();
+    expect(JSON.parse(got.entries['emts-replica-db-v2']).singletons.paymentGateway.apiLoginId).toBe('LOGIN-SECRET');
+  });
+});

@@ -35,7 +35,16 @@ export default function Page() {
     const q = new URLSearchParams(window.location.search);
     setTrack({ src: q.get('src') ?? '', l: q.get('l') ?? '', referrer: document.referrer });
   }, []);
-  const paused = !!track.l && links.find((x) => x.id === track.l)?.status === 'paused';
+  // The server knows a link was paused in any staff browser; this browser's own copy may not (QA C-04).
+  const [serverPaused, setServerPaused] = useState(false);
+  useEffect(() => {
+    if (!track.l) return;
+    fetch(`/api/website-form/links?l=${encodeURIComponent(track.l)}`, { cache: 'no-store' })
+      .then((r) => (r.ok ? r.json() : undefined))
+      .then((b: { paused?: boolean } | undefined) => setServerPaused(!!b?.paused))
+      .catch(() => {});
+  }, [track.l]);
+  const paused = serverPaused || (!!track.l && links.find((x) => x.id === track.l)?.status === 'paused');
 
   const submit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

@@ -27,6 +27,7 @@ import { jobLabourCost } from "@/features/lib/rules/labour-cost";
 import { contractSummary, coPricing } from "./change-orders";
 import { denied, fail, log, nextId, ok, randomRef, userName } from "../helpers";
 import { rollYearEnd } from "./ledger";
+import { matchContacts } from "@/features/lib/rules/qbo-contacts";
 
 const MODULE = "Finance";
 
@@ -199,7 +200,24 @@ export function hasQuickBooksAddOn(db: Database): boolean {
 /** D1: records are sent as they are saved once the add-on is on, QuickBooks is connected (not expired) and sync has started. */
 export function syncActive(db: Database): boolean {
   const q = db.financeSettings.qbo;
-  return hasQuickBooksAddOn(db) && q.connected && !q.expiredAt && !!q.syncStart && accountingDestination(db) !== "books";
+  // QA B-03: only when QuickBooks is the destination; "None" sends nothing.
+  return hasQuickBooksAddOn(db) && q.connected && !q.expiredAt && !!q.syncStart && accountingDestination(db) === "qbo";
+}
+
+/**
+ * QB-M3 / QA B-02: "Match your contacts" isn't finished while QuickBooks still
+ * has customers not linked to a contact. Until it is, sync can't start and a
+ * contact that would match one of them isn't sent (that would create the same
+ * customer twice in QuickBooks).
+ */
+export function contactMatchPending(db: Database): boolean {
+  return !db.financeSettings.contactMatch?.completedAt && (db.qboCustomers ?? []).some((q) => !q.customerId);
+}
+
+function heldForMatching(db: Database, customerId: string): boolean {
+  if (!contactMatchPending(db)) return false;
+  const m = matchContacts(db.customers.filter((c) => !c.leadOnly), db.qboCustomers ?? []);
+  return [...m.matched, ...m.duplicates].some((x) => x.customerId === customerId && !x.qbo.customerId);
 }
 
 export function itemKind(db: Database, q: ExchangeItem): SyncKind {
@@ -251,7 +269,9 @@ function pendingParent(db: Database, q: ExchangeItem): [SyncKind, string] | unde
   if (kind === "invoice") {
     const jobId = byId(db.financeRecords, q.recordId)?.jobId;
     if (!jobId) return undefined;
-    const known = accepted(db, "project", jobId) || db.exchangeQueue.some((x) => x.status === "accepted" && x !== q && byId(db.financeRecords, x.recordId)?.jobId === jobId);
+    // Only the Project itself, or an earlier invoice on the job that QuickBooks accepted (history from
+    // before Projects were sent), proves the Project exists. A supplier bill on the same job does not (QA B-01).
+    const known = accepted(db, "project", jobId) || db.exchangeQueue.some((x) => x.status === "accepted" && x !== q && itemKind(db, x) === "invoice" && byId(db.financeRecords, x.recordId)?.jobId === jobId);
     return known ? undefined : ["project", jobId];
   }
   if (kind === "payment") {
@@ -352,6 +372,10 @@ function sendItem(db: Database, actor: User, q: ExchangeItem, at: string, manual
     return q.status;
   }
   const kind = itemKind(db, q);
+  if (kind === "customer" && heldForMatching(db, q.recordId)) {
+    q.status = "waiting";
+    return q.status;
+  }
   const record = byId(db.financeRecords, q.recordId);
   q.sentAt = at;
   const duplicate = db.exchangeQueue.some((x) => x !== q && x.idempotencyKey === q.idempotencyKey && x.status === "accepted");
@@ -474,6 +498,7 @@ export function startQuickBooksSync(db: Database, actor: User, input: { mode: "f
   if (!db.financeSettings.qbo.connected) return fail("Connect QuickBooks Online first.");
   const blocker = startSyncBlocker({ ...syncOptions(db), regionIds: input.regionIds });
   if (blocker) return fail(blocker);
+  if (contactMatchPending(db)) return fail("Finish Match your contacts first, so no customer is created twice in QuickBooks.");
   if (input.mode === "from_date" && !/^\d{4}-\d{2}-\d{2}$/.test(input.from ?? "")) return fail("Pick a start date.", "from");
   const at = now();
   const baseline = { customerIds: db.customers.map((c) => c.id), jobIds: db.jobs.filter((j) => j.contractSigned).map((j) => j.id) };

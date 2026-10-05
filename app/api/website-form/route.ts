@@ -6,17 +6,31 @@
   reference, then removes it from the inbox.
 
   POST   public: JSON or form data. Needs siteKey; see lib/website-form.ts.
-  GET    pending submissions (the app polls this).
-  DELETE ?ref=<ref> once the lead is recorded.
+         A reference already waiting is never overwritten (QA C-01).
+  GET    staff only: pending submissions (the app polls this).
+  DELETE staff only: ?ref=<ref> once the lead is recorded.
+
+  Without Supabase every browser keeps its own data, so the inbox keeps each
+  submission for INBOX_KEEP_MS and DELETE leaves it: every signed-in browser
+  records it (submitWebsiteForm is idempotent by reference), not just the
+  first one to poll (QA C-02).
 */
 import { randomUUID } from 'node:crypto';
 import { appStateConfig } from '@/lib/app-state-server';
+import { sessionFrom } from '@/lib/auth/server';
+import { isLinkPaused } from '@/lib/tracked-link-status';
 import { checkSubmission, DEMO_SITE_KEY, INBOX_PREFIX, RATE_LIMIT, RateLimiter, type InboxSubmission } from '@/lib/website-form';
 
 const SITE_KEY = process.env.WEBSITE_FORM_SITE_KEY || DEMO_SITE_KEY;
 // 2 Oct 2026 (D4): 5 submissions per hour per address.
 const limiter = new RateLimiter(RATE_LIMIT.max, RATE_LIMIT.windowMs);
 const memoryInbox = new Map<string, InboxSubmission>();
+const INBOX_KEEP_MS = 7 * 24 * 3600_000;
+const SIGN_IN = { error: 'Sign in to read the website inbox.' };
+
+function pruneMemoryInbox(at = Date.now()) {
+  for (const [ref, sub] of memoryInbox) if (at - Date.parse(sub.receivedAt) > INBOX_KEEP_MS) memoryInbox.delete(ref);
+}
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -51,14 +65,18 @@ export async function POST(req: Request) {
   if (check.spam) return Response.json({ received: true }, { headers: CORS });
 
   const sub = check.submission;
+  // QA C-04: a paused tracked link takes no requests, whatever the visitor's browser shows.
+  if (await isLinkPaused(sub.trackedLinkId)) {
+    return Response.json({ error: 'This form is not accepting requests right now.', paused: true }, { status: 403, headers: CORS });
+  }
   const cfg = appStateConfig();
   if (!cfg) {
-    // Same reference again replaces the waiting copy: still one lead.
-    memoryInbox.set(sub.ref, sub);
+    // Same reference again keeps the waiting copy: still one lead, and nobody can overwrite it.
+    if (!memoryInbox.has(sub.ref)) memoryInbox.set(sub.ref, sub);
   } else {
     const res = await fetch(cfg.table, {
       method: 'POST',
-      headers: { ...cfg.headers, Prefer: 'resolution=merge-duplicates,return=minimal' },
+      headers: { ...cfg.headers, Prefer: 'resolution=ignore-duplicates,return=minimal' },
       body: JSON.stringify([{ key: INBOX_PREFIX + sub.ref, value: JSON.stringify(sub), updated_at: sub.receivedAt }]),
     });
     if (!res.ok) {
@@ -69,9 +87,13 @@ export async function POST(req: Request) {
   return Response.json({ received: true, ref: sub.ref }, { status: 201, headers: CORS });
 }
 
-export async function GET() {
+export async function GET(req: Request) {
+  if (!sessionFrom(req)) return Response.json(SIGN_IN, { status: 401 });
   const cfg = appStateConfig();
-  if (!cfg) return Response.json({ submissions: [...memoryInbox.values()] });
+  if (!cfg) {
+    pruneMemoryInbox();
+    return Response.json({ submissions: [...memoryInbox.values()] });
+  }
   const res = await fetch(`${cfg.table}?select=value&key=like.${encodeURIComponent(INBOX_PREFIX)}*&order=updated_at.asc`, { headers: cfg.headers, cache: 'no-store' });
   if (!res.ok) return Response.json({ error: 'Could not read the website inbox' }, { status: 502 });
   const rows = (await res.json()) as { value: string }[];
@@ -86,13 +108,12 @@ export async function GET() {
 }
 
 export async function DELETE(req: Request) {
+  if (!sessionFrom(req)) return Response.json(SIGN_IN, { status: 401 });
   const ref = new URL(req.url).searchParams.get('ref');
   if (!ref) return Response.json({ error: 'ref is required' }, { status: 400 });
   const cfg = appStateConfig();
-  if (!cfg) {
-    memoryInbox.delete(ref);
-    return new Response(null, { status: 204 });
-  }
+  // Without shared data the other browsers still need it; it expires after INBOX_KEEP_MS.
+  if (!cfg) return new Response(null, { status: 204 });
   const res = await fetch(`${cfg.table}?key=eq.${encodeURIComponent(INBOX_PREFIX + ref)}`, { method: 'DELETE', headers: cfg.headers });
   if (!res.ok) return Response.json({ error: 'Could not clear the inbox entry' }, { status: 502 });
   return new Response(null, { status: 204 });

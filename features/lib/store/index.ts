@@ -116,12 +116,23 @@ type Action<A extends unknown[], R> = (db: Database, actor: User, ...args: A) =>
  * Run an action against the database as the current user.
  * Shows an error toast when the action fails (unless `silent`).
  */
+/**
+ * An action may return records it just wrote (a link's target and UTM tags,
+ * a new lead). Those are draft proxies, revoked once produce() returns, so the
+ * result is copied out while the draft is still alive (QA D-07: /r/<code>
+ * crashed reading a revoked proxy).
+ */
+export function detach<R>(result: ActionResult<R>): ActionResult<R> {
+  if (!result.ok || result.value === undefined || result.value === null || typeof result.value !== "object") return result;
+  return { ...result, value: JSON.parse(JSON.stringify(result.value)) as R };
+}
+
 export function act<A extends unknown[], R>(action: Action<A, R>, ...args: A): ActionResult<R> {
   const state = useStore.getState();
   const actor = state.db.users.find((u) => u.id === state.currentUserId)!;
   let result: ActionResult<R> = { ok: false, error: "Action did not run" };
   const next = produce(state.db, (draft) => {
-    result = action(draft as Database, actor, ...args);
+    result = detach(action(draft as Database, actor, ...args));
   });
   useStore.setState({ db: next });
   if (!result.ok) toast.error("Action blocked", result.error);
@@ -135,7 +146,7 @@ export function act<A extends unknown[], R>(action: Action<A, R>, ...args: A): A
 export function system<A extends unknown[], R>(action: (db: Database, ...args: A) => ActionResult<R>, ...args: A): ActionResult<R> {
   let result: ActionResult<R> = { ok: false, error: "Action did not run" };
   const next = produce(useStore.getState().db, (draft) => {
-    result = action(draft as Database, ...args);
+    result = detach(action(draft as Database, ...args));
   });
   useStore.setState({ db: next });
   return result;

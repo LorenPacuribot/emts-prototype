@@ -14,6 +14,7 @@ import { useParams } from 'next/navigation';
 import { CheckCircle2 } from 'lucide-react';
 import type { FormField, UtmParams } from '@/features/types/marketing-growth';
 import { system, useDb } from '@/features/lib/store';
+import { runPublicAction } from '@/lib/public-marketing';
 import { useHydrated } from '@/features/lib/hooks';
 import { validateSubmission } from '@/features/lib/rules/marketing-growth';
 import { recordLandingView, submitLandingPage } from '@/features/lib/store/actions/marketing-engage';
@@ -55,7 +56,7 @@ export default function Page() {
     } catch {
       /* storage blocked: count the view anyway */
     }
-    system(recordLandingView, slug);
+    void runPublicAction({ action: 'landing_view', slug }, () => system(recordLandingView, slug));
   }, [hydrated, live, slug]);
 
   useEffect(() => {
@@ -80,7 +81,7 @@ export default function Page() {
     setValues((x) => ({ ...x, [k]: v }));
     if (errors[k]) setErrors((e) => { const n = { ...e }; delete n[k]; return n; });
   };
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setGeneral(undefined);
     const found = validateSubmission(page.form.fields, values);
@@ -88,7 +89,9 @@ export default function Page() {
     if (Object.keys(found).length) return;
     setSending(true);
     ref.current ||= newRef();
-    const r = system(submitLandingPage, slug, values, ref.current, { utm: arrival.utm });
+    const subRef = ref.current;
+    // With shared data the server records the submission (this page can't save); otherwise this browser does.
+    const r = await runPublicAction({ action: 'landing_submit', slug, values, ref: subRef, utm: arrival.utm as Record<string, string | undefined> | undefined }, () => system(submitLandingPage, slug, values, subRef, { utm: arrival.utm }));
     setSending(false);
     if (!r.ok) {
       if (r.field && page.form.fields.some((f) => f.key === r.field)) setErrors({ [r.field]: r.error });

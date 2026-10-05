@@ -13,7 +13,8 @@ import {
   Boxes, Building2, CreditCard, DollarSign, FileSignature, FileText, GitBranch, Grid3x3, Hash, Landmark, Layers, List, Mail, MapPin, MessageSquare, Package,
   Palette, PackageSearch, BellRing, Settings2, Share2, Shield, Signal, Stamp, Table, Tag, TrendingUp, User, Users, Wallet, type LucideIcon,
 } from "lucide-react";
-import type { Permission } from "@/features/lib/permissions";
+import { can, type Permission } from "@/features/lib/permissions";
+import type { User as AppUser } from "@/features/types";
 
 export interface SettingsItem {
   id: string;
@@ -97,3 +98,20 @@ export const SETTINGS_PERMISSIONS: Record<string, Permission> = {
   accounting: "finance.access",
   "social-accounts": "marketing.access",
 };
+
+/**
+ * Who may open each Settings page (QA D-02: pages opened and saved by URL for
+ * any role). The live rule: ADMIN_MASTER_DATA for every page, except Goals &
+ * Profit and Surface Rates (ENGINE_CALIBRATION_VIEW), the new pages above, and
+ * My Profile, which everyone has.
+ */
+export function settingsPermission(id: string): Permission | "everyone" {
+  if (!id || id === "my-profile") return "everyone";
+  if (id === "goals-profit" || id === "surface-rates") return "settings.engineCalibration";
+  return SETTINGS_PERMISSIONS[id] ?? "settings.masterData";
+}
+
+export function canOpenSettings(user: AppUser | undefined, id: string): boolean {
+  const p = settingsPermission(id);
+  return p === "everyone" || can(user, p);
+}

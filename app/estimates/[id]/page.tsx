@@ -203,8 +203,8 @@ export default function EstimateBuilderPage() {
       lineItems: e.lineItems.map((l) => {
         if (l.id !== lineId) return l;
         let next = { ...l, ...patch };
-        // Location, sheen and scope state don't change the numbers.
-        if (Object.keys(patch).every((key) => ['optional', 'selected', 'location', 'sheen'].includes(key))) return next;
+        // Wording, location, sheen and scope state don't change the numbers (QA D-05: a text edit re-priced the line).
+        if (Object.keys(patch).every((key) => ['optional', 'selected', 'location', 'sheen', 'description', 'notes'].includes(key))) return next;
         if ('heightTierId' in patch || 'accessTierId' in patch) next.difficultyMultiplier = 1;
         const sr = c.surfaceRates.find((s) => s.name === next.surfaceType);
         if (patch.surfaceType && sr) {

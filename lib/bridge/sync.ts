@@ -658,6 +658,8 @@ const jobs: Entity<Job> = {
     {
       // Named shifts from the scheduling panel become the work order's shifts (same shape).
       name: 'shifts', dir: 'toP',
+      // Only used to roll a refused save back as a whole (QA D-06); shifts otherwise flow one way.
+      writeR: (v) => ({ shifts: v as Job['shifts'] }),
       readP: (p, id) => {
         const wo = p.workOrders.find((w) => w.jobId === id);
         const userOf = (emp: string) => p.employees?.find((e) => e.id === emp)?.userId ?? emp;
@@ -883,7 +885,11 @@ export function runSync(rdb: RDb, opts: { baseline?: boolean } = {}): BridgeOp[]
       }
     }
     seenP.set(ent.key, new Set(ent.pIds(getDb())));
-    seenR.set(ent.key, new Set(rList(ent.key).map((x) => x.id)));
+    // Only records the replica really holds count as seen there. A record upserted by this pass
+    // isn't in the replica until its ops land; counting it already let a run on a stale replica
+    // read it as "deleted on a replica screen" and delete it (QA C-03: leads arriving together).
+    const landed = new Set((rdb.collections[ent.key] as unknown as { id: string }[]).map((x) => x.id));
+    seenR.set(ent.key, new Set(rList(ent.key).map((x) => x.id).filter((id) => landed.has(id))));
   }
 
   /* Phase B: facets of linked records. */
@@ -895,6 +901,10 @@ export function runSync(rdb: RDb, opts: { baseline?: boolean } = {}): BridgeOp[]
       let r = r0;
       const pending = ops.filter((o): o is Extract<BridgeOp, { kind: 'patch' }> => o.kind === 'patch' && o.key === ent.key && o.id === r.id);
       for (const o of pending) r = { ...r, ...o.patch };
+      // QA D-06: a record's facets go across as one save. If the prototype refuses one,
+      // the facets already pushed in this pass are undone too, on both sides.
+      const pBefore = getDb();
+      let refused = false;
       for (const f of ent.facets) {
         const sk = `${k}:${f.name}`;
         const vp = f.readP(getDb(), r.id);
@@ -933,13 +943,23 @@ export function runSync(rdb: RDb, opts: { baseline?: boolean } = {}): BridgeOp[]
           snapshots.set(sk, JSON.stringify(vp2 ?? null));
           continue;
         }
-        // The prototype refused (its rules): roll the replica back.
-        const patch = f.writeR(vp2, r, getDb());
-        if (Object.keys(patch).length) {
-          ops.push({ kind: 'patch', key: ent.key, id: r.id, patch });
-          r = { ...r, ...patch };
+        // The prototype refused (its rules): undo this record's pushes and roll the replica back whole.
+        refused = true;
+        break;
+      }
+      if (refused) {
+        useStore.setState({ db: pBefore });
+        for (const g of ent.facets) {
+          const vp = g.readP(pBefore, r.id);
+          if (g.writeR) {
+            const patch = g.writeR(vp, r, pBefore);
+            if (Object.keys(patch).length) {
+              ops.push({ kind: 'patch', key: ent.key, id: r.id, patch });
+              r = { ...r, ...patch };
+            }
+          }
+          snapshots.set(`${k}:${g.name}`, JSON.stringify(vp ?? null));
         }
-        snapshots.set(sk, JSON.stringify(vp2 ?? null));
       }
     }
   }

@@ -1,7 +1,8 @@
 import { REMOTE_KEYS } from '@/lib/remote-state';
 import { appStateConfig as config } from '@/lib/app-state-server';
 import { sessionFrom } from '@/lib/auth/server';
-import { featureDbOf, guestAllowed } from '@/lib/guest-access';
+import { featureDbOf, guestLevel } from '@/lib/guest-access';
+import { keepSecrets, publicFeatureCopy, withoutSecrets } from '@/lib/shared-state-guard';
 
 // Vercel rejects request bodies over 4.5 MB.
 const MAX_VALUE_CHARS = 4_000_000;
@@ -23,13 +24,28 @@ export async function GET(req: Request) {
     return Response.json({ error: 'Could not read shared data' }, { status: 502 });
   }
   const rows = (await res.json()) as Row[];
-  // Staff need a session; a customer page needs a valid token in its link.
-  if (!sessionFrom(req) && !guestAllowed(pageOf(req), featureDbOf(rows.find((r) => r.key === FEATURE_KEY)?.value))) {
-    return Response.json(DENIED, { status: 401 });
+  if (sessionFrom(req)) {
+    return Response.json({
+      enabled: true,
+      entries: Object.fromEntries(rows.map((r) => [r.key, r.value])),
+      versions: Object.fromEntries(rows.map((r) => [r.key, r.updated_at])),
+    });
+  }
+  // No session: a customer link needs a valid token; a public marketing page reads a redacted copy only.
+  const level = guestLevel(pageOf(req), featureDbOf(rows.find((r) => r.key === FEATURE_KEY)?.value));
+  if (!level) return Response.json(DENIED, { status: 401 });
+  if (level === 'public') {
+    const feature = rows.find((r) => r.key === FEATURE_KEY)!;
+    return Response.json({
+      enabled: true,
+      readOnly: true,
+      entries: { [FEATURE_KEY]: publicFeatureCopy(feature.value) },
+      versions: { [FEATURE_KEY]: feature.updated_at },
+    });
   }
   return Response.json({
     enabled: true,
-    entries: Object.fromEntries(rows.map((r) => [r.key, r.value])),
+    entries: Object.fromEntries(rows.map((r) => [r.key, withoutSecrets(r.key, r.value)])),
     versions: Object.fromEntries(rows.map((r) => [r.key, r.updated_at])),
   });
 }
@@ -60,10 +76,16 @@ export async function PUT(req: Request) {
   const base = body.baseVersion;
   if (!legacy && base !== null && typeof base !== 'string') return Response.json({ error: 'baseVersion must be a string or null' }, { status: 400 });
 
+  let saved: string | null = value;
   if (!sessionFrom(req)) {
-    const cur = await fetch(`${cfg.table}?select=value&key=eq.${FEATURE_KEY}`, { headers: cfg.headers, cache: 'no-store' });
-    const [row] = cur.ok ? ((await cur.json()) as { value: string }[]) : [];
-    if (!guestAllowed(pageOf(req), featureDbOf(row?.value))) return Response.json(DENIED, { status: 401 });
+    const cur = await fetch(`${cfg.table}?select=key,value&key=in.(${FEATURE_KEY},${key})`, { headers: cfg.headers, cache: 'no-store' });
+    const rows = cur.ok ? ((await cur.json()) as { key: string; value: string }[]) : [];
+    const level = guestLevel(pageOf(req), featureDbOf(rows.find((r) => r.key === FEATURE_KEY)?.value));
+    if (!level) return Response.json(DENIED, { status: 401 });
+    // Anyone can name a public page in the header, so public pages never save here (QA, 6 Oct).
+    if (level === 'public') return Response.json({ error: 'This page is read-only.' }, { status: 403 });
+    if (value === null) return Response.json({ error: 'A customer link cannot remove shared data.' }, { status: 403 });
+    saved = keepSecrets(key, value, rows.find((r) => r.key === key)?.value);
   }
 
   const byKey = `key=eq.${encodeURIComponent(key)}`;
@@ -81,18 +103,18 @@ export async function PUT(req: Request) {
         : await fetch(cfg.table, {
             method: 'POST',
             headers: { ...cfg.headers, Prefer: 'resolution=merge-duplicates,return=representation' },
-            body: JSON.stringify([{ key, value, updated_at: stamp }]),
+            body: JSON.stringify([{ key, value: saved, updated_at: stamp }]),
           });
   } else if (value === null) {
     res = await fetch(`${cfg.table}?${byKey}${onBase}`, { method: 'DELETE', headers: returning });
   } else if (typeof base === 'string') {
-    res = await fetch(`${cfg.table}?${byKey}${onBase}`, { method: 'PATCH', headers: returning, body: JSON.stringify({ value, updated_at: stamp }) });
+    res = await fetch(`${cfg.table}?${byKey}${onBase}`, { method: 'PATCH', headers: returning, body: JSON.stringify({ value: saved, updated_at: stamp }) });
   } else {
     // No base: only create the row if nobody else has.
     res = await fetch(cfg.table, {
       method: 'POST',
       headers: { ...cfg.headers, Prefer: 'resolution=ignore-duplicates,return=representation' },
-      body: JSON.stringify([{ key, value, updated_at: stamp }]),
+      body: JSON.stringify([{ key, value: saved, updated_at: stamp }]),
     });
   }
   if (!res.ok) {

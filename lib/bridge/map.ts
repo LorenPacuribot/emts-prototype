@@ -255,9 +255,16 @@ export function projectScope(db: P.Database, est: P.Estimate): { areas: Estimate
     const last = i === surfaces.length - 1;
     const lineTotal = last ? round2(preTax - running) : round2((preTax * hours[i]!) / sumHours);
     running = round2(running + lineTotal);
+    // QA D-05: the replica re-prices an edited line as hours × rate + quantity × unit price
+    // (profit margin 0 here). With unit price 0 an edit dropped a line to labour only, so the
+    // unit price (or, when labour alone is more, the rate) is set to reproduce this line's total.
+    const labor = hours[i]! * BASE_LABOR_RATE;
+    const qty = s.areaSqft || 0;
+    const laborRate = labor > lineTotal && hours[i]! > 0 ? lineTotal / hours[i]! : BASE_LABOR_RATE;
+    const unitPrice = labor < lineTotal && qty > 0 ? (lineTotal - labor) / qty : 0;
     return {
-      id: s.id, areaId: s.areaId, description: s.name, surfaceType: SURFACE_R[s.type], quantity: s.areaSqft, unit: 'sqft', unitPrice: 0,
-      laborHours: hours[i]!, laborRate: BASE_LABOR_RATE, coats: coatsFor(db, job.id, s.id), difficultyMultiplier: 1, total: lineTotal, quantityManual: true,
+      id: s.id, areaId: s.areaId, description: s.name, surfaceType: SURFACE_R[s.type], quantity: s.areaSqft, unit: 'sqft', unitPrice,
+      laborHours: hours[i]!, laborRate, coats: coatsFor(db, job.id, s.id), difficultyMultiplier: 1, total: lineTotal, quantityManual: true,
     };
   });
   return { areas, lineItems, taxRate: job.taxRatePct };

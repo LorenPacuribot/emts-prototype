@@ -25,6 +25,8 @@ import {
   ACTIVE_JOB_STATUSES, addDays, daysInclusive, defaultDurationDays, jobColor, monthWeeks, stepDate, weekDays, type ScheduleRange,
 } from '@/components/scheduling/schedule-utils';
 import { useCollection, useLookups } from '@/lib/store';
+import { useCurrentUser as useFeatureUser } from '@/features/lib/store';
+import { can } from '@/features/lib/permissions';
 import type { Job } from '@/lib/types';
 import { cn, fullName, shortDate, toISODate } from '@/lib/utils';
 
@@ -36,6 +38,7 @@ export default function JobSchedulingPage() {
   const look = useLookups();
   const actions = useJobActions();
   const { toast } = useToast();
+  const featureUser = useFeatureUser();
   const scheduleSaved = useScheduleSaved();
 
   const [view, setView] = useState<View>('job');
@@ -60,8 +63,15 @@ export default function JobSchedulingPage() {
   const dayKeys = range === 'day' ? [toISODate(refDate)] : weekDays(refDate);
   const colorOf = useCallback((j: Job) => jobColor(j, look.member), [look]);
 
+  // QA D-03: only schedulers (office manager, owner) change the schedule or tell the crew (spec 04).
+  const scheduler = can(featureUser, 'workOrder.manageSchedule');
+
   /** Drop on a day: move a scheduled job there (same length) or schedule a backlog job. */
   const handleDrop = (jobId: string, day: string) => {
+    if (!scheduler) {
+      toast('Only the office manager or owner changes the schedule.', 'error');
+      return;
+    }
     const j = get(jobId);
     if (!j || j.status === 'Completed') return;
     if (j.startDate === day) return;
@@ -112,8 +122,8 @@ export default function JobSchedulingPage() {
         refDate={refDate}
         onStep={(d) => setRefDate((r) => stepDate(r, range, d))}
         onToday={() => setRefDate(new Date())}
-        onBulk={() => setBulkOpen(true)}
-        actions={<UnsentChangesButton />}
+        onBulk={scheduler ? () => setBulkOpen(true) : undefined}
+        actions={scheduler ? <UnsentChangesButton /> : undefined}
       />
 
       {view === 'crew' && (
@@ -147,11 +157,11 @@ export default function JobSchedulingPage() {
       <JobDetailsPanel
         job={selected}
         onClose={() => setSelectedId(null)}
-        onReschedule={() => { if (selected) { setScheduleJob({ id: selected.id }); setSelectedId(null); } }}
-        onManageCrew={() => selected && setCrewJobId(selected.id)}
-        onCancel={() => selected && setCancelId(selected.id)}
+        onReschedule={scheduler ? () => { if (selected) { setScheduleJob({ id: selected.id }); setSelectedId(null); } } : undefined}
+        onManageCrew={can(featureUser, 'workOrder.manageCrew') ? () => selected && setCrewJobId(selected.id) : undefined}
+        onCancel={scheduler ? () => selected && setCancelId(selected.id) : undefined}
       />
-      {scheduling && <ScheduleJobModal job={scheduling} open onOpenChange={(v) => !v && setScheduleJob(null)} initialStart={scheduleJob?.start} />}
+      {scheduling && scheduler && <ScheduleJobModal job={scheduling} open onOpenChange={(v) => !v && setScheduleJob(null)} initialStart={scheduleJob?.start} />}
       {crewJob && <CrewModal job={crewJob} open onOpenChange={(v) => !v && setCrewJobId(null)} />}
       <ConfirmDialog
         open={!!cancelJob}
@@ -161,7 +171,7 @@ export default function JobSchedulingPage() {
         message={<>This clears the dates for <b>{cancelJob?.title}</b> and moves it back to the Unscheduled backlog. Crew assignments are kept.</>}
         onConfirm={() => { if (cancelJob && actions.cancelSchedule(cancelJob.id) !== false) scheduleSaved([cancelJob.id]); }}
       />
-      <BulkRescheduleModal open={bulkOpen} onOpenChange={setBulkOpen} />
+      {scheduler && <BulkRescheduleModal open={bulkOpen} onOpenChange={setBulkOpen} />}
     </PageShell>
   );
 }

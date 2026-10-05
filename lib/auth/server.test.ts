@@ -82,6 +82,11 @@ describe('route rules', () => {
     expect(safeNext('//evil.example')).toBe('/dashboard');
     expect(safeNext('/\\evil.example')).toBe('/dashboard');
     expect(safeNext('/jobs?x=1')).toBe('/jobs?x=1');
+    // QA D-01: tab, newline and carriage return are dropped by browsers, turning "/\t/evil.com" into "//evil.com".
+    for (const bad of ['/\t/evil.com', '/\n/evil.com', '/\r/evil.com', '/%09/evil.com'.replace('%09', '\t'), ' //evil.com', '/\u0000/evil.com', 'https://evil.com', '/login?next=/x']) {
+      expect(safeNext(bad), JSON.stringify(bad)).toBe('/dashboard');
+    }
+    expect(safeNext('/estimates/EST-2026-1?tab=colors#section-paint-card')).toBe('/estimates/EST-2026-1?tab=colors#section-paint-card');
     expect(passwordProblem('short')).toBeDefined();
   });
 });

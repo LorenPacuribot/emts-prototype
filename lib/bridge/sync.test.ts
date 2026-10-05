@@ -179,6 +179,34 @@ describe('schedule bridge', () => {
     expect(job).toMatchObject({ startDate: day, endDate: '2030-03-05', status: 'Scheduled' });
     expect(job.shifts?.[0]?.id).toBe('sh_test');
   });
+
+  it('QA D-06: a refused move rolls back the dates, shifts and crew days together', () => {
+    let replica = initial();
+    // A work order still waiting for its deposit: the prototype refuses to schedule it.
+    const wo = getDb().workOrders.find((w) => w.status === 'UNSCHEDULED' || w.status === 'SCHEDULED')!;
+    useStore.setState(({ db }) => ({ db: produce(db, (d) => {
+      const w = d.workOrders.find((x) => x.id === wo.id)!;
+      w.status = 'PENDING_DEPOSIT';
+    }) }));
+    replica = applyOps(replica, runSync(replica));
+    const before = replica.collections.jobs.find((x) => x.id === wo.jobId)!;
+    const woShiftsBefore = JSON.stringify(getDb().workOrders.find((x) => x.id === wo.id)!.shifts);
+    const member = replica.collections.team.find((t) => t.isCrew && t.status !== 'Inactive')!;
+    const day = '2030-04-08';
+    replica = produce(replica, (d) => {
+      const j = d.collections.jobs.find((x) => x.id === wo.jobId)!;
+      j.startDate = day;
+      j.endDate = '2030-04-09';
+      j.shifts = [{ id: 'sh_moved', name: 'Walls', startDate: day, endDate: '2030-04-09', startTime: '07:00', endTime: '15:00', memberIds: [member.id] }];
+      j.crew = [{ memberId: member.id, role: 'Painter', hours: 6, date: day, shiftId: 'sh_moved' }];
+    });
+    replica = applyOps(replica, runSync(replica));
+    const job = replica.collections.jobs.find((x) => x.id === wo.jobId)!;
+    expect({ startDate: job.startDate, endDate: job.endDate }).toEqual({ startDate: before.startDate, endDate: before.endDate });
+    expect(JSON.stringify(job.crew)).toBe(JSON.stringify(before.crew));
+    expect(job.shifts?.some((s) => s.id === 'sh_moved')).toBe(false);
+    expect(JSON.stringify(getDb().workOrders.find((x) => x.id === wo.id)!.shifts)).toBe(woShiftsBefore);
+  });
 });
 
 describe('service location bridge', () => {
@@ -251,5 +279,28 @@ describe('invoice bridge', () => {
     replica = applyOps(replica, runSync(replica));
     expect(getDb().invoices.find((i) => i.id === invoice.id)?.status).toBe('draft');
     expect(replica.collections.invoices.find((i) => i.id === invoice.id)).toMatchObject({ status: 'Draft', payments: [] });
+  });
+});
+
+describe('QA C-03: leads arriving together', () => {
+  it('a sync that runs before the last one landed never reads a new lead as deleted', async () => {
+    const { submitWebsiteForm } = await import('@/features/lib/store/actions/marketing');
+    const { act } = await import('@/features/lib/store');
+    const replica0 = initial();
+    const sub = (n: number) => ({ ref: `QA-C03-${n}`, name: `Burst Lead ${n}`, phone: `214555${String(1000 + n)}`, email: `burst${n}@example.com`, town: 'Dallas', address: '', paintType: 'Interior' as const, message: '' });
+    act(submitWebsiteForm, sub(1));
+    const ops1 = runSync(replica0);
+    // The first run's ops haven't reached the replica yet when the second lead arrives.
+    act(submitWebsiteForm, sub(2));
+    const ops2 = runSync(replica0);
+    let replica = applyOps(applyOps(replica0, ops1), ops2);
+    replica = applyOps(replica, runSync(replica));
+    const names = getDb().leads.map((l) => l.id);
+    const burst = getDb().leads.filter((l) => l.eventRef?.startsWith('QA-C03-'));
+    expect(burst).toHaveLength(2);
+    for (const l of burst) {
+      expect(names).toContain(l.id);
+      expect(replica.collections.leads.some((r) => r.id === l.id), l.id).toBe(true);
+    }
   });
 });

@@ -30,6 +30,8 @@ import {
   describeView, markNotified, messageText, peopleWaiting, scheduleLogText, scheduleUpdateMessage, unsentJobIds,
   type NotifyLang, type PersonChange, type ScheduleMessage,
 } from '@/features/lib/rules/schedule-notify';
+import { useCurrentUser as useFeatureUser } from '@/features/lib/store';
+import { can } from '@/features/lib/permissions';
 
 export const CREW_TEMPLATE_ID = 'am_crew_schedule';
 
@@ -180,8 +182,10 @@ export function ChangesNotSentPill({ jobId, className }: { jobId: string; classN
 export function UnsentChangesButton() {
   const { waiting } = useCrewNotify();
   const on = useIsOn({ item: 'JS-M3' });
+  // QA D-03, spec 04: only schedulers see Send.
+  const scheduler = can(useFeatureUser(), 'workOrder.manageSchedule');
   const n = waiting().length;
-  if (!on || !n) return null;
+  if (!on || !n || !scheduler) return null;
   return (
     <Button variant="primary" data-tour="js-unsent" onClick={() => useNotifyModal.getState().show()}>
       <BellRing className="h-4 w-4" /> Unsent changes ({n}) <VersionBadge item="JS-M3" />

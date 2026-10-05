@@ -366,6 +366,17 @@ export function budgetVsActual(entries: JournalEntry[], accounts: LedgerAccount[
 /* ------------------------------ Reconcile ----------------------------- */
 
 /** Statement balance minus the book balance of what is ticked. Reconcile can only finish at 0.00. */
+/**
+ * BK-M5: what a reconcile lists for an account. Everything not yet cleared
+ * stays, however old (QA B-06: an uncleared cheque dated before the last
+ * statement dropped off for good), plus anything after the last statement.
+ */
+export function reconcileCandidates<E extends { accountId: string; status: string; date: string }>(register: E[], accountId: string, lastStatementDate?: string): E[] {
+  return register
+    .filter((e) => e.accountId === accountId && e.status !== "void" && (!lastStatementDate || e.status !== "cleared" || e.date.slice(0, 10) > lastStatementDate))
+    .sort((a, b) => a.date.localeCompare(b.date));
+}
+
 export function reconcileDifference(statementBalance: number, openingBalance: number, ticked: number[]): number {
   return roundMoney(statementBalance - openingBalance - ticked.reduce((s, x) => s + x, 0));
 }

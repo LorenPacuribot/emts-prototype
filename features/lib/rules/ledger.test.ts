@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createBooksSeed } from "@/features/data/seed-books";
 import {
+  reconcileCandidates,
   CHART, SYSTEM_ACCOUNTS, accountProblem, balanceSheet, balances, cashLinesFor, contractors1099, incomeStatement, isBalanced, jobProfit, postingDate,
   postingsFor, reconcileDifference, reversalLines, salesTaxSummary, trialBalance, yearEndLines, type JournalEntry, type LedgerEvent,
 } from "./ledger";
@@ -152,5 +153,19 @@ describe("chart of accounts", () => {
     expect(CHART.filter((a) => a.system).map((a) => a.no)).toEqual(SYSTEM_ACCOUNTS);
     expect(accountProblem({ no: "6000", name: "X" }, CHART)).toBe("Account 6000 exists.");
     expect(accountProblem({ no: "6600", name: "Training" }, CHART)).toBeUndefined();
+  });
+});
+
+describe("QA B-06 — reconcile keeps uncleared items", () => {
+  it("lists a cheque from before the last statement until it clears", () => {
+    const reg = [
+      { id: "A", accountId: "BANK", status: "written", date: "2026-08-20T10:00:00.000Z" }, // didn't clear by the 31 Aug statement
+      { id: "B", accountId: "BANK", status: "cleared", date: "2026-08-25T10:00:00.000Z" }, // reconciled last time
+      { id: "C", accountId: "BANK", status: "written", date: "2026-09-10T10:00:00.000Z" },
+      { id: "D", accountId: "BANK", status: "void", date: "2026-09-12T10:00:00.000Z" },
+      { id: "E", accountId: "CARD", status: "written", date: "2026-09-12T10:00:00.000Z" },
+    ];
+    expect(reconcileCandidates(reg, "BANK", "2026-08-31").map((e) => e.id)).toEqual(["A", "C"]);
+    expect(reconcileCandidates(reg, "BANK").map((e) => e.id)).toEqual(["A", "B", "C"]);
   });
 });

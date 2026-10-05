@@ -10,7 +10,7 @@ import type { BankAccount, RegisterEntry } from "@/features/types/finance";
 import { act, useDb } from "@/features/lib/store";
 import { finishReconcile } from "@/features/lib/store/actions/ledger";
 import { clearRegisterEntry } from "@/features/lib/store/actions/books";
-import { reconcileDifference } from "@/features/lib/rules/ledger";
+import { reconcileCandidates, reconcileDifference } from "@/features/lib/rules/ledger";
 import { dateLong, money } from "@/features/lib/format";
 import { now } from "@/features/lib/clock";
 import { toast } from "@/features/lib/toast";
@@ -24,7 +24,7 @@ export function ReconcileModal({ account, onClose }: { account: BankAccount; onC
   const last = (db.books?.reconciliations ?? []).filter((r) => r.account === account.id).at(-1);
   const opening = last?.statementBalance ?? account.openingBalance;
   const entries = useMemo(
-    () => (db.checkRegister ?? []).filter((e) => e.accountId === account.id && e.status !== "void" && (!last || e.date.slice(0, 10) > last.statementDate)).sort((a, b) => a.date.localeCompare(b.date)),
+    () => reconcileCandidates(db.checkRegister ?? [], account.id, last?.statementDate),
     [db.checkRegister, account.id, last],
   );
   const [statementDate, setStatementDate] = useState(now().slice(0, 10));

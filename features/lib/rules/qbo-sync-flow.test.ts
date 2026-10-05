@@ -100,6 +100,8 @@ describe("D1 — parent first", () => {
       const job = d.jobs.find((j) => j.id === "JOB-2026-5")!;
       d.exchangeQueue = d.exchangeQueue.filter((q) => d.financeRecords.find((r) => r.id === q.recordId)?.jobId !== job.id);
       d.qboCustomers = (d.qboCustomers ?? []).filter((c) => c.customerId !== job.customerId);
+      // "Match your contacts" is finished (QA B-02 holds contacts until it is).
+      d.financeSettings.contactMatch = { decisions: {}, completedAt: NOW };
     });
     const r = run(seed, "U-OFFICE", (d, actor) => {
       const rec = d.financeRecords.find((x) => x.jobId === "JOB-2026-5" && x.type === "invoice")!;
@@ -132,7 +134,7 @@ describe("D1 — parent first", () => {
 
 describe("D1 — Start sync", () => {
   it("is blocked until every tax region is mapped, then sends contacts and jobs from the start date", () => {
-    let db = produce(createSeed(NOW), (d) => { d.financeSettings.qbo.syncStart = undefined; delete d.financeSettings.qbo.taxMap!.tx_none; });
+    let db = produce(createSeed(NOW), (d) => { d.financeSettings.qbo.syncStart = undefined; delete d.financeSettings.qbo.taxMap!.tx_none; d.financeSettings.contactMatch = { decisions: {}, completedAt: NOW }; });
     const blocked = run(db, "U-OFFICE", startQuickBooksSync, { mode: "new_only", regionIds: REGIONS });
     expect(blocked.result).toMatchObject({ ok: false, error: "Map every tax region first" });
     db = run(db, "U-OFFICE", mapTaxRegion, "tx_none", "2200 Sales Tax Payable").db;
@@ -144,6 +146,42 @@ describe("D1 — Start sync", () => {
 
   it("does not send before sync has started", () => {
     const db = produce(createSeed(NOW), (d) => { d.financeSettings.qbo.syncStart = undefined; });
+    const r = run(db, "U-OFFICE", (d, actor) => {
+      const rec = d.financeRecords.find((x) => x.id === "FIN-14")!;
+      return { ok: true, value: queue(d, actor, rec, "Check").id } as ActionResult<string>;
+    });
+    expect(item(r.db, idOf(r.result)).status).toBe("queued");
+  });
+});
+
+describe("QA 6 Oct — QuickBooks sync order and destination", () => {
+  it("B-01: a supplier bill on the job doesn't stand in for the Project; the invoice waits for it", () => {
+    const seed = produce(createSeed(NOW), (d) => {
+      const job = d.jobs.find((j) => j.id === "JOB-2026-5")!;
+      d.exchangeQueue = d.exchangeQueue.filter((q) => d.financeRecords.find((r) => r.id === q.recordId)?.jobId !== job.id);
+      d.financeSettings.contactMatch = { decisions: {}, completedAt: NOW };
+      // An accepted bill on the same job, and no Project yet.
+      d.financeRecords.push({ ...d.financeRecords.find((r) => r.type === "bill")!, id: "FIN-B01", jobId: job.id });
+      d.exchangeQueue.push({ id: "EXQ-B01", recordId: "FIN-B01", kind: "other", version: 1, status: "accepted", payload: { amount: 10, description: "Bill" }, idempotencyKey: "BILL-B01-v1", queuedAt: NOW, queuedBy: "U-OFFICE", attempts: [{ at: NOW, ok: true }] });
+    });
+    const r = run(seed, "U-OFFICE", (d, actor) => {
+      const rec = d.financeRecords.find((x) => x.jobId === "JOB-2026-5" && x.type === "invoice")!;
+      return { ok: true, value: queue(d, actor, rec, "Invoice").id } as ActionResult<string>;
+    });
+    const sent = r.db.exchangeQueue.filter((q: ExchangeItem) => q.status === "accepted" && q.queuedAt === NOW && q.id !== "EXQ-B01");
+    const order = [...sent].sort((a, b) => a.attempts[0]!.at.localeCompare(b.attempts[0]!.at) || ["customer", "project", "invoice"].indexOf(a.kind!) - ["customer", "project", "invoice"].indexOf(b.kind!));
+    expect(order.map((q) => q.kind)).toContain("project");
+    expect(order.findIndex((q) => q.kind === "project")).toBeLessThan(order.findIndex((q) => q.kind === "invoice"));
+  });
+
+  it("B-02: sync can't start while Match your contacts is unfinished", () => {
+    const db = produce(createSeed(NOW), (d) => { d.financeSettings.qbo.syncStart = undefined; d.financeSettings.contactMatch = undefined; });
+    expect(db.qboCustomers?.some((q) => !q.customerId)).toBe(true);
+    expect(run(db, "U-OFFICE", startQuickBooksSync, { mode: "new_only", regionIds: REGIONS }).result).toMatchObject({ ok: false, error: expect.stringMatching(/Match your contacts/) });
+  });
+
+  it("B-03: with the destination set to None, nothing is sent", () => {
+    const db = produce(createSeed(NOW), (d) => { d.financeSettings.destination = "none"; });
     const r = run(db, "U-OFFICE", (d, actor) => {
       const rec = d.financeRecords.find((x) => x.id === "FIN-14")!;
       return { ok: true, value: queue(d, actor, rec, "Check").id } as ActionResult<string>;
